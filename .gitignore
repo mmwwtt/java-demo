@@ -1,4 +1,4 @@
 out/
-idea/
+.idea/
 application.yml
 */target/
