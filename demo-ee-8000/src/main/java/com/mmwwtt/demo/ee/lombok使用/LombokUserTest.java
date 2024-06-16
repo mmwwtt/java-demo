@@ -1,9 +1,8 @@
 package com.mmwwtt.demo.ee.lombok使用;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-@Slf4j
+
 public class LombokUserTest {
     @Test
     public void test() {
@@ -11,7 +10,6 @@ public class LombokUserTest {
         lombokUser1.getUserName();
         lombokUser1.setUserName("小明");
         String str = lombokUser1.toString();
-        log.info("这是小明");
     }
 
     public LombokUser getLombokUser1() {
