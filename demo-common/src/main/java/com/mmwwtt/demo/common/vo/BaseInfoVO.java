@@ -22,6 +22,13 @@ public class BaseInfoVO extends BaseModel {
     private Integer age;
     private Date birthDate;
 
+    private String employeeNumber;
+
+    private String firstEducationCode;
+
+    private String firstEducationName;
+    private Integer salary;
+
     /**
      * 预置list
      */

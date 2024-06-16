@@ -10,4 +10,11 @@ public class BaseInfo extends BaseModel{
     private String name;
     private String sexCode;
     private Date birthDate;
+
+    private String employeeNumber;
+
+    private String firstEducationCode;
+
+
+    private String salary;
 }
