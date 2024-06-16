@@ -10,6 +10,7 @@
     <module>demo-se</module>
     <module>demo-ee</module>
     <module>demo-ddd-8001</module>
+    <module>demo-common</module>
   </modules>
   <build>
     <plugins>

@@ -1,7 +1,8 @@
 package com.mmwwtt.java.demo.se.基础;
 
-import com.mmwwtt.java.demo.se.common.BaseInfo;
-import com.mmwwtt.java.demo.se.common.User;
+
+import com.mmwwtt.demo.common.entity.BaseInfo;
+import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -17,8 +18,8 @@ public class 反射 {
         //Class.forName() 启动类加载器，根据类的全限定类名 完成类的加载和链接，会执行类的静态代码块
         //newInstance() 会创建类的对象(只能调用无参构造函数)(过时)
         //用 getDeclaredConstructor().newInstance() 替代
-        User user1 = (User) Class.forName("com.mmwwtt.java.demo.se.common.User").newInstance();
-        User user2 = (User) Class.forName("com.mmwwtt.java.demo.se.common.User").getDeclaredConstructor().newInstance();
+        BaseInfoVO baseInfo1 = (BaseInfoVO) Class.forName("com.mmwwtt.demo.common.vo.BaseInfoVO").newInstance();
+        BaseInfoVO baseInfo2 = (BaseInfoVO) Class.forName("com.mmwwtt.demo.common.vo.BaseInfoVO").getDeclaredConstructor().newInstance();
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.mmwwtt.java.demo.se.集合;
 
 
-import com.mmwwtt.java.demo.se.common.User;
+import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -61,12 +61,12 @@ public class Collections类 {
             return a.intValue() > b.intValue() ? -1 : 1;
         });
 
-        List< User> userList = User.getUserList();
-        Collections.sort(userList, (User a, User b) -> {
+        List<BaseInfoVO> baseInfoList = BaseInfoVO.getPresetList();
+        Collections.sort(baseInfoList, (BaseInfoVO a, BaseInfoVO b) -> {
             if (a.getAge() != b.getAge()) {
                 return a.getAge() > b.getAge() ? -1 : 1;
-            } else if (!a.getUserName().equals(b.getUserName())) {
-                return a.getUserName().compareTo(b.getUserName());
+            } else if (!a.getName().equals(b.getName())) {
+                return a.getName().compareTo(b.getName());
             } else {
                 return 0;
             }

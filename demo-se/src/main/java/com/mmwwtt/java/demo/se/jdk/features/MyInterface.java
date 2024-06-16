@@ -1,4 +1,4 @@
-package com.mmwwtt.java.demo.se.各版本的新特性.java8新特性;
+package com.mmwwtt.java.demo.se.jdk.features;
 
 import org.junit.jupiter.api.Test;
 

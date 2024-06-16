@@ -1,6 +1,6 @@
 package com.mmwwtt.java.demo.se.基础;
 
-import com.mmwwtt.java.demo.se.common.User;
+import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
@@ -33,13 +33,13 @@ public class 异常处理 {
         }
     }
 
-    public User fun1() {
-        User user = User.getUser1();
+    public BaseInfoVO fun1() {
+        BaseInfoVO baseInfoVO = BaseInfoVO.getPresetSingle1();
         try {
-            user.setAge(18);
-            return user;
+            baseInfoVO.setAge(18);
+            return baseInfoVO;
         } finally {
-            user.setAge(22);
+            baseInfoVO.setAge(22);
         }
     }
 

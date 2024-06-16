@@ -1,23 +1,24 @@
 package com.mmwwtt.java.demo.se.集合;
 
 
-import com.mmwwtt.java.demo.se.common.User;
+import com.mmwwtt.demo.common.util.CommonUtils;
+import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-public class Map类 {
+public class MapDemo {
     @Test
-    public void map的种类() {
+    public void mapTypeDemo() {
         Map<String, Integer> map1 = new HashMap<>();
 
         //TreeMap 会根据键进行排序
         Map<String, Integer> map2 = new TreeMap<>();
-        Map<User, Integer> map = new TreeMap<>((a, b) -> {
+        Map<BaseInfoVO, Integer> map = new TreeMap<>((a, b) -> {
             if (a.getAge() != b.getAge()) {
                 return a.getAge() > b.getAge() ? -1 : 1;
-            } else if (!a.getUserName().equals(b.getUserName())) {
-                return a.getUserName().compareTo(b.getUserName());
+            } else if (!a.getName().equals(b.getName())) {
+                return a.getName().compareTo(b.getName());
             } else {
                 return 0;
             }
@@ -25,11 +26,11 @@ public class Map类 {
 
         //LinkedHashMap 会记录插入时的顺序
         Map<String, Integer> map3 = new LinkedHashMap<>();
-
+        CommonUtils.println(map1, map2, map3);
     }
 
     @Test
-    public void map类常用方法() {
+    public void mapFunDemo() {
         Map<String, Integer> map1 = new HashMap<>();
 
         //插入键值对
@@ -54,15 +55,15 @@ public class Map类 {
     }
 
     @Test
-    public void 对象作为map的键() {
+    public void keyIsObejctDemo() {
 
-        User user = User.getUser1();
-        Map<User, Integer> map = new HashMap<>();
-        map.put(user, 1);
-        System.out.println(map.get(user));
+        BaseInfoVO baseInfo = BaseInfoVO.getPresetSingle1();
+        Map<BaseInfoVO, Integer> map = new HashMap<>();
+        map.put(baseInfo, 1);
+        System.out.println(map.get(baseInfo));
 
-        user.setAge(2);
-        System.out.println(map.get(user));
+        baseInfo.setAge(2);
+        System.out.println(map.get(baseInfo));
     }
 
     @Test

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mmwwtt.java.demo.se.common.BaseInfo;
+import com.mmwwtt.demo.common.entity.BaseInfo;
 import org.junit.jupiter.api.Test;
 
 public class JSON转换 {
@@ -12,12 +12,11 @@ public class JSON转换 {
     public void json_to_entity_test() {
         BaseInfo baseInfo = JSONObject.parseObject(getBaseInfoJson(), BaseInfo.class);
         System.out.println(baseInfo.toString());
-        return;
     }
 
     @Test
     public void json_to_entity() throws JsonProcessingException, ClassNotFoundException {
-        Class entityClass = Class.forName("com.mmwwtt.java.demo.se.common.BaseInfo");
+        Class entityClass = Class.forName("com.mmwwtt.demo.common.entity.BaseInfo");
         ObjectMapper mapper = new ObjectMapper();
         BaseInfo baseInfo1 = mapper.readValue(getBaseInfoJson(), BaseInfo.class);
         BaseInfo baseInfo2 = (BaseInfo) mapper.readValue(getBaseInfoJson(), entityClass );

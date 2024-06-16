@@ -1,4 +1,4 @@
-package com.mmwwtt.java.demo.se.各版本的新特性.java8新特性;
+package com.mmwwtt.java.demo.se.jdk.features;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class 函数式接口 {
+public class ConsumerDemoTest {
 
     /**
      * 只有一个抽象方法的接口，可以直接使用lambda表达式来实现

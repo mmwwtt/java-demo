@@ -1,14 +1,11 @@
-package com.mmwwtt.java.demo.se.各版本的新特性.java8新特性;
+package com.mmwwtt.java.demo.se.jdk.features;
 
-import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.plaf.basic.BasicTextUI;
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class LocalDate类 {
+public class LocalDateDemo {
 
     @Test
     public void test() {
@@ -17,7 +14,7 @@ public class LocalDate类 {
     }
 
     @Test
-    public void 格式化时间() {
+    public void dateFormatDemo() {
         LocalDateTime localDateTime = LocalDateTime.now();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("YYYY-MM-dd hh:mm:ss");
         String formatStr = localDateTime.format(dateTimeFormatter);
@@ -25,7 +22,7 @@ public class LocalDate类 {
     }
 
     @Test
-    public void 增加() {
+    public void timeAddDemo() {
         LocalDateTime localDateTime = LocalDateTime.now();
         localDateTime.plusHours(1);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("YYYY-MM-dd hh:mm:ss");
@@ -34,7 +31,7 @@ public class LocalDate类 {
     }
 
     @Test
-    public void 减少() {
+    public void timeMinusDemo() {
         LocalDateTime localDateTime = LocalDateTime.now();
         localDateTime.minusHours(1);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("YYYY-MM-dd hh:mm:ss");

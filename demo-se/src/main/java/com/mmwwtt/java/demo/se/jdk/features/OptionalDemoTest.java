@@ -1,4 +1,4 @@
-package com.mmwwtt.java.demo.se.各版本的新特性.java8新特性;
+package com.mmwwtt.java.demo.se.jdk.features;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Optional类 {
+public class OptionalDemoTest {
 
     /**
      * Optional类：避免大量的是否为null判断，代码更加优雅

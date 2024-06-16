@@ -1,6 +1,6 @@
 package com.mmwwtt.java.demo.se.集合;
 
-import com.mmwwtt.java.demo.se.common.User;
+import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class Set类 {
+public class SetDemo {
 
     @Test
     public void set种类() {
@@ -21,18 +21,18 @@ public class Set类 {
         System.out.println("set3: " + set1);
 
         //可以排序的set
-        Set<User> set2 = new TreeSet<>((a, b) -> {
+        Set<BaseInfoVO> set2 = new TreeSet<>((a, b) -> {
             if (a.getAge() != b.getAge()) {
                 return a.getAge() > b.getAge() ? -1 : 1;
-            } else if (!a.getUserName().equals(b.getUserName())) {
-                return a.getUserName().compareTo(b.getUserName());
+            } else if (!a.getName().equals(b.getName())) {
+                return a.getName().compareTo(b.getName());
             } else {
                 return 0;
             }
         });
 
-        set2.add(User.getUser1());
-        set2.add(User.getUser2());
+        set2.add(new BaseInfoVO());
+        set2.add(new BaseInfoVO());
         System.out.println("set2: " + set2);
 
         //记住插入顺序的set
