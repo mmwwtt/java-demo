@@ -1,15 +1,18 @@
 package com.mmwwtt.demo.ee.validation;
 
+import com.mmwwtt.demo.common.response.ApiResponse;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/demo/ee")
+@RequestMapping("/service/demo/ee")
 public class ValidationDemo {
     @PostMapping("/validation")
-    public void demoValidation(BaseInfoCreateDTO baseInfoCreateDTO) {
+    public ApiResponse<Void> demoValidation(@Validated BaseInfoCreateDTO baseInfoCreateDTO) {
         System.out.println(baseInfoCreateDTO);
+        return ApiResponse.success();
     }
 
     public static void main(String[] args) {
