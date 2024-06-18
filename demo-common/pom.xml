@@ -8,7 +8,6 @@
     </parent>
 
     <artifactId>demo-common</artifactId>
-    <packaging>pom</packaging>
 
     <dependencies>
 
@@ -71,32 +70,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <version>3.1.1</version>
             <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>slf4j-api</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
             <version>3.1.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j-api</artifactId>
-                    <groupId>org.apache.logging.log4j</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 </project>

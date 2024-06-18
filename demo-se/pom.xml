@@ -8,7 +8,6 @@
     </parent>
 
     <artifactId>demo-se</artifactId>
-    <packaging>pom</packaging>
 
     <dependencies>
 
