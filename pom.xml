@@ -5,6 +5,7 @@
   <groupId>com.mmwwtt</groupId>
   <artifactId>java-demo</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
   <modules>
     <module>demo-se</module>
     <module>demo-ee-8000</module>

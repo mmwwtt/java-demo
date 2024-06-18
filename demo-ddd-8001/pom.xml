@@ -10,6 +10,8 @@
     <groupId>com.mmwwtt.ddd</groupId>
     <version>1.0-SNAPSHOT</version>
     <artifactId>demo-ddd-8001</artifactId>
+    <packaging>pom</packaging>
+
 
     <modules>
         <module>starter</module>
