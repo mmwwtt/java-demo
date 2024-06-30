@@ -15,10 +15,9 @@ public class ValidationDemo {
         return ApiResponse.success();
     }
 
-    public static void main(String[] args) {
-        String str = "[].[]";
-        Object object = str.split(".");
-        String strt = str.substring(1,1);
-        System.out.println(object);
+    @PostMapping("/validation1")
+    public ApiResponse<Void> demoValidation1( BaseInfoCreateDTO baseInfoCreateDTO) {
+        demoValidation(baseInfoCreateDTO);
+        return ApiResponse.success();
     }
 }

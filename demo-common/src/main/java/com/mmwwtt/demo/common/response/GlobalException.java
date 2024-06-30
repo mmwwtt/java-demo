@@ -1,17 +1,23 @@
 package com.mmwwtt.demo.common.response;
 
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalException {
 
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GlobalException.class);
     @ExceptionHandler({Exception.class})
     public ApiResponse<Void> exception(Exception e) {
-//        log.error("全局异常信息 ex={}", e.getMessage(), e);
+        LOGGER.error("全局异常信息 ex={}", e.getMessage(), e);
         return ApiResponse.error();
     }
 
