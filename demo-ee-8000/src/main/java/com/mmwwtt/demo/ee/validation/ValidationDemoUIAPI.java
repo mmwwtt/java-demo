@@ -7,6 +7,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,13 +18,13 @@ import java.util.Set;
 @RequestMapping("/service/demo/ee")
 public class ValidationDemoUIAPI {
     @PostMapping("/validation")
-    public ApiResponse<Void> demoValidation(@Validated BaseInfoCreateDTO baseInfoCreateDTO) {
+    public ApiResponse<Void> demoValidation(@RequestBody @Validated BaseInfoCreateDTO baseInfoCreateDTO) {
         System.out.println(baseInfoCreateDTO);
         return ApiResponse.success();
     }
 
     @PostMapping("/validation1")
-    public ApiResponse<Void> demoValidation1( BaseInfoCreateDTO baseInfoCreateDTO) {
+    public ApiResponse<Void> demoValidation1(@RequestBody BaseInfoCreateDTO baseInfoCreateDTO) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         validator.validate(baseInfoCreateDTO);
 

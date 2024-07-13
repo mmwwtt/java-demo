@@ -34,17 +34,11 @@
             <version>3.1.1</version>
             <scope>test</scope>
         </dependency>
-        <!--日志-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-            <version>3.1.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>logback-classic</artifactId>
-                    <groupId>ch.qos.logback</groupId>
-                </exclusion>
-            </exclusions>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+            <version>3.1.1</version>
+            <scope>compile</scope>
         </dependency>
         <!--springboot-web依赖 end-->
 
@@ -106,6 +100,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>3.0.2</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

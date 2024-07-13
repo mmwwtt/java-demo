@@ -2,8 +2,8 @@ package com.mmwwtt.demo.common.response;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,15 +12,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 
-@Slf4j
 @RestControllerAdvice
+@Slf4j
 public class GlobalException {
 
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(GlobalException.class);
+    private static final Logger LOGGER = LogManager.getLogger(GlobalException.class);
     @ExceptionHandler({Exception.class})
     public ApiResponse<Void> exception(Exception e) {
-        LOGGER.error("全局异常信息 ex={}", e.getMessage(), e);
+        LOGGER.info("全局异常信息 ex={}", e.getMessage(), e);
         return ApiResponse.error();
     }
 

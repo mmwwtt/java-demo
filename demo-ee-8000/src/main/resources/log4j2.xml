@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" monitorInterval="5">
+
+    <!--集中配置属性进行管理，使用时通过：${name}-->
+    <properties>
+        <property name="LOG_HOME">D:/logs</property>
+    </properties>
+
+    <!--日志处理器-->
+    <Appenders>
+        <!--控制台输出 appender，输出红色的字体可以使用 SYSTEM_ERR-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] [%-5level] %c{36}:%L --- %m%n" />
+        </Console>
+        <!--日志文件输出 appender-->
+        <File name="file" fileName="${LOG_HOME}/myfile.log">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] %l %c{36} - %m%n" />
+        </File>
+        <!--使用随机读写流日志文件输出 appender，性能有所提高-->
+        <RandomAccessFile name="accessFile" fileName="${LOG_HOME}/myAcclog.log">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] %l %c{36} - %m%n" />
+        </RandomAccessFile>
+        <!--按照一定的规则拆分日志文件的appender-->
+        <RollingFile name="rollingFile" fileName="${LOG_HOME}/myrollog.log"
+                     filePattern="D:/logs/$${date:yyyy-MM-dd}/myrollog-%d{yyyy-MM-dd-HH-mm}-%i.log">
+            <!--日志级别的过滤器-->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" />
+            <!--日志消息格式-->
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] %l %c{36} - %msg%n" />
+            <Policies>
+                <!--在系统启动时，触发拆分规则，生成一个新的日志文件-->
+                <OnStartupTriggeringPolicy />
+                <!--按照文件大小拆分-->
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <!--按照时间节点拆分，规则根据filePattern来定义-->
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <!--在同一个目录下，文件个数限定为30个，超过后就会进行覆盖-->
+            <DefaultRolloverStrategy max="30" />
+        </RollingFile>
+    </Appenders>
+    <!--logger自定义-->
+    <Loggers>
+        <!--使用 rootLogger 配置日志级别为 trace-->
+        <Root level="trace">
+            <!--指定日志输出-->
+            <AppenderRef ref="Console" />
+        </Root>
+    </Loggers>
+</Configuration>
+

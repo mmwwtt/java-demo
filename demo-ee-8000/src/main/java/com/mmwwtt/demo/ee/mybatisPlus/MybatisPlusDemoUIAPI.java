@@ -3,6 +3,7 @@ package com.mmwwtt.demo.ee.mybatisPlus;
 import com.mmwwtt.demo.common.response.ApiResponse;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,7 +15,7 @@ public class MybatisPlusDemoUIAPI {
     private MybatisPlusStudentMapper studentMapper;
 
     @PostMapping("/student/save")
-    public ApiResponse<Void> demoValidation(MybatisPlusStudent mybatisPlusStudent) {
+    public ApiResponse<Void> demoValidation(@RequestBody MybatisPlusStudent mybatisPlusStudent) {
         studentMapper.insert(mybatisPlusStudent);
         return ApiResponse.success();
     }

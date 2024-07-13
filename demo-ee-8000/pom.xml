@@ -30,6 +30,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>3.1.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -38,18 +44,13 @@
             <version>3.1.1</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
             <version>3.1.1</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>logback-classic</artifactId>
-                    <groupId>ch.qos.logback</groupId>
-                </exclusion>
-            </exclusions>
+            <scope>compile</scope>
         </dependency>
+
 
         <!--springboot-web依赖 end-->
 
@@ -87,6 +88,12 @@
             <artifactId>demo-common</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -109,16 +116,26 @@
             <scope>compile</scope>
         </dependency>
         <!-- mybatis-plus依赖-->
+        <!--MyBatisPlus 启动器-->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-core</artifactId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.5.3</version>
-            <scope>compile</scope>
         </dependency>
+        <!--MyBatisPlus  代码生成器核心依赖-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+        <!--freemarker 依赖-->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.31</version>
+        </dependency>
+
     </dependencies>
-
-
-
 
 
 </project>
