@@ -15,7 +15,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/service/demo/ee")
-public class ValidationDemo {
+public class ValidationDemoUIAPI {
     @PostMapping("/validation")
     public ApiResponse<Void> demoValidation(@Validated BaseInfoCreateDTO baseInfoCreateDTO) {
         System.out.println(baseInfoCreateDTO);
