@@ -21,6 +21,7 @@ mybatis:
   #config-location: classpath:mybatis/mybatis-config.xml
   mapper-locations: classpath:mybatis/mapper/*.xml
 mybatis-plus:
+  mapper-locations: classpath:mybatis-plus/mapper/*.xml
   configuration:
     #配置MyBatis的日志，输出到指定控制台
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
