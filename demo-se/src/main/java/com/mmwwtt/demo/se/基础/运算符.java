@@ -1,8 +1,10 @@
 package com.mmwwtt.demo.se.基础;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class 运算符 {
 
     /**
@@ -15,9 +17,9 @@ public class 运算符 {
         char c = 'A';
         int num = 65;
         boolean flag = true;
-        System.out.println(flag ? c : 65535);
-        System.out.println(flag ? c : 1000000);
-        System.out.println(flag ? c : num);
+        log.info("{}",flag ? c : 65535);
+        log.info("{}",flag ? c : 1000000);
+        log.info("{}",flag ? c : num);
     }
 
     @Test
@@ -25,13 +27,13 @@ public class 运算符 {
         Integer num1 = null;
         int num2 = 1;
         try {
-            System.out.println(true ? num1 : num2);
+            log.info("{}",true ? num1 : num2);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
 
         try {
-            System.out.println(true ? null : 1);
+            log.info("{}",true ? null : 1);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }

@@ -2,6 +2,7 @@ package com.mmwwtt.demo.se.设计模式.SOLID五大设计原则.迪米特法则;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -34,11 +35,12 @@ class Fans {
 
 @AllArgsConstructor
 @Data
+@Slf4j
 class Agent {
     private Star star;
     private Fans fans;
 
     public void meeting() {
-        System.out.println(String.format("粉丝-%s 和 明星-%s 见面了", fans.getName(), star.getName()));
+        log.info(String.format("粉丝-%s 和 明星-%s 见面了", fans.getName(), star.getName()));
     }
 }

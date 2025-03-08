@@ -3,12 +3,16 @@ package com.mmwwtt.demo.se.设计模式.设计模式23种.行为型.策略模式
 
 import lombok.Data;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 用于算法的自由切换，比如线程池的清理策略
  */
+@Slf4j
 public class 策略模式 {
     public static void main(String[] args) {
         List<Integer> list = new ArrayList<>();
@@ -24,12 +28,12 @@ public class 策略模式 {
         //采用升序排序策略
         objectClass.setStrategy(strategyASC);
         objectClass.sort();
-        System.out.println(objectClass.getList());
+        log.info("{}",objectClass.getList());
 
         //采用降序排序策略
         objectClass.setStrategy(strategyDESC);
         objectClass.sort();
-        System.out.println(objectClass.getList());
+        log.info("{}",objectClass.getList());
     }
 }
 

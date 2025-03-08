@@ -1,5 +1,7 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.行为型.观察者模式;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class 观察者模式 {
 }
 
 //被观察者
+@Slf4j
 class Subject {
     List<Observer> list;
     int cnt;
@@ -39,14 +42,16 @@ class Subject {
 
     //通知观察者
     public void notifyObserver() {
-        System.out.println("通知观察者做出改变");
+        log.info("通知观察者做出改变");
         for (Observer observer : list) {
             observer.response();
         }
     }
 }
+
+@Slf4j
 class Observer {
     public void response() {
-        System.out.println("做出相应变动");
+        log.info("做出相应变动");
     }
 }

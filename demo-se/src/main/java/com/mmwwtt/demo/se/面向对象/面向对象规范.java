@@ -3,8 +3,10 @@ package com.mmwwtt.demo.se.面向对象;
 
 import com.mmwwtt.demo.se.公共类.A;
 import com.mmwwtt.demo.se.公共类.B;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class 面向对象规范 {
 
     /**
@@ -26,8 +28,8 @@ public class 面向对象规范 {
         A a = new B();
         B b = new B();
         //执行的是类A的message, 子类种的message被父类同名变量隐藏了
-        System.out.println(a.message);
-        System.out.println(b.message);
+        log.info(a.message);
+        log.info(b.message);
     }
 
     /**
@@ -38,7 +40,7 @@ public class 面向对象规范 {
     @Test
     public void 遮蔽() {
         A href = new A();
-        System.out.println(href);
+        log.info("{}",href);
     }
 
     /**
@@ -48,16 +50,16 @@ public class 面向对象规范 {
     public void 遮掩() {
         String System = "hello";
         //无法通过编译，System包被遮掩了
-        //System.out.println();
+        //log.info();
     }
 
 
     public void add(int num1) {
-        System.out.println("入参为int");
+        log.info("入参为int");
     }
 
     public void add(Integer num1) {
-        System.out.println("入参为Integer");
+        log.info("入参为Integer");
     }
     /**
      * 重载方法种要避免由于基本数据类型和包装类型同名而出现的重载，在自动拆装箱场景下，边界很模糊

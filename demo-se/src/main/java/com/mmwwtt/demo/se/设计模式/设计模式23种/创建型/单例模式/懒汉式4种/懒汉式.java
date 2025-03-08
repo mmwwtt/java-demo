@@ -1,35 +1,37 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.创建型.单例模式.懒汉式4种;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class 懒汉式 {
 
     @Test
     public void testDemo1() {
         Demo1 demo1_1 = Demo1.getDemo1();
         Demo1 demo1_2 = Demo1.getDemo1();
-        System.out.println(demo1_1 == demo1_2);
+        log.info("{}",demo1_1 == demo1_2);
     }
 
     @Test
     public void testDemo2() {
         Demo2 demo2_1 = Demo2.getDemo2();
         Demo2 demo2_2 = Demo2.getDemo2();
-        System.out.println(demo2_1 == demo2_2);
+        log.info("{}",demo2_1 == demo2_2);
     }
 
     @Test
     public void testDemo3() {
         Demo3 demo3_1 = Demo3.getDemo3();
         Demo3 demo3_2 = Demo3.getDemo3();
-        System.out.println(demo3_1 == demo3_2);
+        log.info("{}",demo3_1 == demo3_2);
     }
     @Test
     public void testDemo4() {
         Demo4 demo4_1 = Demo4.getDemo4();
         Demo4 demo4_2 = Demo4.getDemo4();
-        System.out.println(demo4_1 == demo4_2);
+        log.info("{}",demo4_1 == demo4_2);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.mmwwtt.demo.se.基础;
 
 import com.mmwwtt.demo.common.vo.BaseInfoVO;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
@@ -9,6 +10,7 @@ import java.io.FileNotFoundException;
 /**
  * 业务中，异常捕获后，首先要将异常记录到日志中（原有异常不能丢，要用做异常原因分析），然后再抛出一个新的与业务代码对应的异常。
  */
+@Slf4j
 public class 异常处理 {
 
 
@@ -59,8 +61,8 @@ public class 异常处理 {
      */
     @Test
     public void finally中对return变量做修改() {
-        System.out.println(fun1());
-        System.out.println(fun2());
+        log.info("{}",fun1());
+        log.info("{}",fun2());
     }
 
 

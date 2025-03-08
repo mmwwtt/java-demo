@@ -3,8 +3,10 @@ package com.mmwwtt.demo.se.设计模式.设计模式23种.创建型.建造者模
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class 建造者模式 {
 
     @Test
@@ -13,7 +15,7 @@ public class 建造者模式 {
         Director director = new Director();
         director.setBuilder(builder);
         Point point = director.createPoint();
-        System.out.println(point);
+        log.info("{}",point);
     }
 }
 

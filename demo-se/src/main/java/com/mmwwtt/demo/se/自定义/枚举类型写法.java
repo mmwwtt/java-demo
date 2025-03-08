@@ -1,5 +1,8 @@
 package com.mmwwtt.demo.se.自定义;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public enum 枚举类型写法 {
     ONE(1),
     TWO(2),
@@ -21,7 +24,7 @@ public enum 枚举类型写法 {
     }
 
     public static void main(String[] args) {
-        System.out.println(枚举类型写法.ONE);
-        System.out.println(枚举类型写法.ONE.getValue());
+        log.info("{}",枚举类型写法.ONE);
+        log.info("{}",枚举类型写法.ONE.getValue());
     }
 }

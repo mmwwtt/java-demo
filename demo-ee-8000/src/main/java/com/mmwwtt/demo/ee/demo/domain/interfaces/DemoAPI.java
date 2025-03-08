@@ -15,6 +15,6 @@ public class DemoAPI {
 //        String str = "[].[]";
 //        Object object = str.split(".");
 //        String strt = str.substring(1,1);
-//        System.out.println(object);
+//        log.info(object);
 //    }
 }

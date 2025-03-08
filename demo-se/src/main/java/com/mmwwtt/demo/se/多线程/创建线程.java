@@ -1,9 +1,11 @@
 package com.mmwwtt.demo.se.多线程;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.*;
 
+@Slf4j
 public class 创建线程 {
 
     /**
@@ -18,7 +20,7 @@ public class 创建线程 {
             for (int i = 0; i < 50; i++) {
                 sum += i;
             }
-            System.out.println(sum);
+            log.info("{}",sum);
         }, "thread1");
         thread.start();
     }
@@ -30,7 +32,7 @@ public class 创建线程 {
             for (int i = 0; i < 50; i++) {
                 sum += i;
             }
-            System.out.println(sum);
+            log.info("{}",sum);
         };
         Thread thread = new Thread(runnable, "thread1");
         thread.start();
@@ -53,7 +55,7 @@ public class 创建线程 {
         FutureTask<String> futureTask = new FutureTask<>(callable);
         Thread thread = new Thread(futureTask, "thread1");
         thread.start();
-        System.out.println(futureTask.get());
+        log.info("{}",futureTask.get());
     }
 
     @Test
@@ -70,15 +72,15 @@ public class 创建线程 {
 
         //获取callable接口中的异常
         try {
-            System.out.println("myTask任务执行结果为" + future.get());
+            log.info("myTask任务执行结果为 {}", future.get());
         } catch (InterruptedException e) {
-            System.out.println("任务被中断！");
+            log.info("任务被中断！");
         } catch (ExecutionException e) {
-            System.out.println("任务内部抛出未受检异常！");
+            log.info("任务内部抛出未受检异常！");
         } catch (CancellationException e){
-            System.out.println("任务被取消！");
+            log.info("任务被取消！");
         }
-        System.out.println(future.get());
+        log.info("{}",future.get());
     }
 
     @Test
@@ -93,7 +95,7 @@ public class 创建线程 {
         };
         FutureTask<String> futureTask = new FutureTask<>(callable);
         service.submit(futureTask);
-        System.out.println(futureTask.get());
+        log.info("{}",futureTask.get());
     }
 
 
@@ -108,6 +110,6 @@ public class 创建线程 {
             }
             return String.valueOf(sum);
         }, service);
-        System.out.println(completableFuture.get());
+        log.info("{}",completableFuture.get());
     }
 }

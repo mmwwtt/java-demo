@@ -1,8 +1,10 @@
 package com.mmwwtt.demo.se.分支语句;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class if表达式 {
 
 
@@ -36,6 +38,6 @@ public class if表达式 {
         if (!flag) {
             return;
         }
-        System.out.println("hello");
+        log.info("hello");
     }
 }

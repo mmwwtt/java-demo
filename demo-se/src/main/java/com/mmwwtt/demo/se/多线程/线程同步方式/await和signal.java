@@ -1,11 +1,13 @@
 package com.mmwwtt.demo.se.多线程.线程同步方式;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Slf4j
 public class await和signal {
 
     private Lock reentrantLock = new ReentrantLock(true);
@@ -25,7 +27,7 @@ public class await和signal {
                             e.printStackTrace();
                         }
                     }
-                    System.out.println(Thread.currentThread().getName() + ": foo," + i);
+                    log.info(Thread.currentThread().getName() + ": foo," + i);
                     flag = false;
                     cond.signal();
                 } finally {
@@ -45,7 +47,7 @@ public class await和signal {
                             e.printStackTrace();
                         }
                     }
-                    System.out.println(Thread.currentThread().getName() + ": bar," + i);
+                    log.info(Thread.currentThread().getName() + ": bar," + i);
                     flag = true;
                     cond.signal();
                 } finally {

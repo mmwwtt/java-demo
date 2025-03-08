@@ -1,22 +1,24 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.创建型.单例模式.饿汉式2种;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class 饿汉式 {
 
     @Test
     public void testDemo1() {
         Demo1 demo1_1 = Demo1.getDemo1();
         Demo1 demo1_2 = Demo1.getDemo1();
-        System.out.println(demo1_1 == demo1_2);
+        log.info("{}",demo1_1 == demo1_2);
     }
 
     @Test
     public void testDemo2() {
         Demo2 demo2_1 = Demo2.getDemo2();
         Demo2 demo2_2 = Demo2.getDemo2();
-        System.out.println(demo2_1 == demo2_2);
+        log.info("{}",demo2_1 == demo2_2);
     }
 }
 

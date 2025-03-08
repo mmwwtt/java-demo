@@ -1,7 +1,9 @@
 package com.mmwwtt.demo.se.多线程;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class 线程中断方法 {
 
 
@@ -10,7 +12,7 @@ public class 线程中断方法 {
         Thread thread = new Thread() {
             public void run() {
                 while (true) {
-                    System.out.println("线程关闭");
+                    log.info("线程关闭");
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -31,18 +33,18 @@ public class 线程中断方法 {
         Thread t = new Thread() {
             public void run() {
                 while(!Thread.currentThread().isInterrupted()) {
-                    System.out.println("线程运行中");
+                    log.info("线程运行中");
                 }
-                System.out.println(Thread.currentThread().isInterrupted());
-                System.out.println("线程关闭");
+                log.info("{}",Thread.currentThread().isInterrupted());
+                log.info("线程关闭");
             }
         };
 
         t.start();
-        System.out.println(t.interrupted());
+        log.info("{}",t.interrupted());
         Thread.sleep(1000);
         t.interrupt();
         Thread.sleep(1000);
-        System.out.println("结束");
+        log.info("结束");
     }
 }

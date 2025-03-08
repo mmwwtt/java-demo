@@ -3,10 +3,12 @@ package com.mmwwtt.demo.se.集合;
 
 import com.mmwwtt.demo.common.util.CommonUtils;
 import com.mmwwtt.demo.common.vo.BaseInfoVO;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+@Slf4j
 public class MapDemo {
     @Test
     public void mapTypeDemo() {
@@ -50,7 +52,7 @@ public class MapDemo {
 
         //遍历map,不能在遍历的时候进行插入和移除操作
         for (String str : map1.keySet()) {
-            System.out.println(str + " : " + map1.get(str));
+            log.info(str + " : " + map1.get(str));
         }
     }
 
@@ -60,10 +62,10 @@ public class MapDemo {
         BaseInfoVO baseInfo = BaseInfoVO.getPresetSingle1();
         Map<BaseInfoVO, Integer> map = new HashMap<>();
         map.put(baseInfo, 1);
-        System.out.println(map.get(baseInfo));
+        log.info("{}",map.get(baseInfo));
 
         baseInfo.setAge(2);
-        System.out.println(map.get(baseInfo));
+        log.info("{}",map.get(baseInfo));
     }
 
     @Test
@@ -85,10 +87,10 @@ public class MapDemo {
             map.put(i, i);
         }
 
-        System.out.println(map.keySet());
+        log.info("{}",map.keySet());
 
         map.get(6);
-        System.out.println(map.keySet());
+        log.info("{}",map.keySet());
 
     }
 

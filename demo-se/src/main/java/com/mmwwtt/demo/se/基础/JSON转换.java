@@ -5,13 +5,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mmwwtt.demo.common.entity.BaseInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class JSON转换 {
     @Test
     public void json_to_entity_test() {
         BaseInfo baseInfo = JSONObject.parseObject(getBaseInfoJson(), BaseInfo.class);
-        System.out.println(baseInfo.toString());
+        log.info(baseInfo.toString());
     }
 
     @Test

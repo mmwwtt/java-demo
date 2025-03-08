@@ -1,6 +1,7 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.行为型.状态模式;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 public class 状态模式 {
     public static void main(String[] args) {
@@ -33,11 +34,12 @@ abstract class State {
  * 具体状态类：正常状态
  */
 @Data
+@Slf4j
 class NormalState extends State{
 
     @Override
     public void say() {
-        System.out.println("钱很充足");
+        log.info("钱很充足");
     }
 
 }
@@ -46,11 +48,12 @@ class NormalState extends State{
  * 具体状态类：坏状态
  */
 @Data
+@Slf4j
 class BadState extends State {
 
     @Override
     public void say() {
-        System.out.println("钱不够了");
+        log.info("钱不够了");
     }
 
 }

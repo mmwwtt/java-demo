@@ -1,23 +1,25 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.行为型.备忘录模式;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 备忘录模式：类似象棋悔棋
  */
+@Slf4j
 public class 备忘录模式 {
     public static void main(String[] args) {
         Originator originator = new Originator();
         originator.setState("1");
         Caretaker caretaker = new Caretaker();
         caretaker.setMemento(originator.createMemento());
-        System.out.println(originator.getState());
+        log.info(originator.getState());
 
         originator.setState("2");
-        System.out.println(originator.getState());
+        log.info(originator.getState());
 
         originator.restoreMemento(caretaker.getMemento());
-        System.out.println(originator.getState());
+        log.info(originator.getState());
     }
 }
 

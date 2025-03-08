@@ -31,3 +31,22 @@ logging:
   output-file: logs/myapp.log
   level:
     root: INFO
+
+xxl:
+  job:
+    accessToken: default_token
+    admin:
+      # XXL-Job 服务端的地址
+      addresses: http://localhost:8002/xxl-job-admin
+    executor:
+      # 应用名称，在 XXL-Job 管理端会显示，用于区分不同的任务执行器
+      appname: my-job-executor
+      address:
+      # 执行器的IP地址（自动注册时使用，一般可设置为自动获取）
+      ip:
+      # 执行器的端口号
+      port: 9999
+      # 执行器的日志路径（任务执行日志存储位置）
+      logpath: /data/applogs/xxl-job/jobhandler
+      # 执行器的日志保留天数
+      logretentiondays: 30

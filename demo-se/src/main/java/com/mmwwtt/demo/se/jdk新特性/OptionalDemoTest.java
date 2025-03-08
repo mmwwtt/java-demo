@@ -1,11 +1,13 @@
-package com.mmwwtt.demo.se.jdk.features;
+package com.mmwwtt.demo.se.jdk新特性;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Slf4j
 public class OptionalDemoTest {
 
     /**
@@ -17,16 +19,16 @@ public class OptionalDemoTest {
     @Test
     public void test() {
         Optional<String> empty = Optional.empty();
-        System.out.println(empty);
+        log.info("{}",empty);
         assertEquals(false, empty.isPresent());
 
 
         Optional<String> notNull = Optional.of("hello");
-        System.out.println(notNull);
+        log.info("{}",notNull);
         assertEquals(true, notNull.isPresent());
 
         Optional<String> ableNull = Optional.ofNullable(null);
-        System.out.println(ableNull);
+        log.info("{}",ableNull);
         assertEquals(false, ableNull.isPresent());
 
 

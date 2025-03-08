@@ -1,4 +1,4 @@
-package com.mmwwtt.demo.se.jdk.features;
+package com.mmwwtt.demo.se.jdk新特性;
 
 import org.junit.jupiter.api.Test;
 

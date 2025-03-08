@@ -1,6 +1,7 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.结构型.代理模式.静态代理;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 public class 静态代理 {
@@ -17,22 +18,24 @@ interface IUserDao {
     void save();
 }
 
+@Slf4j
 class UserDao implements IUserDao {
 
     @Override
     public void save() {
-        System.out.println("保存操作");
+        log.info("保存操作");
     }
 }
 
 @AllArgsConstructor
+@Slf4j
 class UserDaoProxy implements IUserDao {
     IUserDao userDao;
 
     @Override
     public void save() {
-        System.out.println("额外操作");
+        log.info("额外操作");
         userDao.save();
-        System.out.println("额外操作");
+        log.info("额外操作");
     }
 }

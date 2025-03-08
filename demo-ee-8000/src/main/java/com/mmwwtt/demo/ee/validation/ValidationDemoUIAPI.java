@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,10 +17,11 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/service/demo/ee")
+@Slf4j
 public class ValidationDemoUIAPI {
     @PostMapping("/validation")
     public ApiResponse<Void> demoValidation(@RequestBody @Validated BaseInfoCreateDTO baseInfoCreateDTO) {
-        System.out.println(baseInfoCreateDTO);
+        log.info("{}",baseInfoCreateDTO);
         return ApiResponse.success();
     }
 

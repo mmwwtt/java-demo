@@ -1,9 +1,10 @@
 package com.mmwwtt.demo.se.多线程.线程同步方式;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Semaphore;
-
+@Slf4j
 public class Semaphore信号量使用 {
 
     /**·
@@ -27,7 +28,7 @@ public class Semaphore信号量使用 {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println(Thread.currentThread().getName() + ": foo");
+                log.info(Thread.currentThread().getName() + ": foo");
                 //每个release()方法都会释放持有许可证的线程，并且归还Semaphore一个可用的许可证。
                 bar.release();
             }
@@ -39,7 +40,7 @@ public class Semaphore信号量使用 {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println(Thread.currentThread().getName() + ": bar");
+                log.info(Thread.currentThread().getName() + ": bar");
                 foo.release();
             }
         }, "2");

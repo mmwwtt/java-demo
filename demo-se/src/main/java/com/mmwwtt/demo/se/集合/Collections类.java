@@ -2,10 +2,12 @@ package com.mmwwtt.demo.se.集合;
 
 
 import com.mmwwtt.demo.common.vo.BaseInfoVO;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+@Slf4j
 public class Collections类 {
 
     @Test
@@ -71,7 +73,7 @@ public class Collections类 {
                 return 0;
             }
         });
-        System.out.println("hello");
+        log.info("hello");
     }
 
 }

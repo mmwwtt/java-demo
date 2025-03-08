@@ -1,6 +1,7 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.结构型.代理模式.动态代理;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -14,6 +15,7 @@ interface IUserDao {
 }
 
 @AllArgsConstructor
+@Slf4j
 class UserDaoProxyFactory {
     private Object object;
 
@@ -33,9 +35,9 @@ class UserDaoProxyFactory {
                 new InvocationHandler() {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        System.out.println("额外操作");
+                        log.info("额外操作");
                         Object returnValue = method.invoke(object, args);
-                        System.out.println("额外操作");
+                        log.info("额外操作");
                         return null;
                     }
                 });

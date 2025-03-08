@@ -1,5 +1,6 @@
 package com.mmwwtt.demo.se.泛型;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -10,6 +11,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Slf4j
 public class 泛型擦除 {
 
     @Test
@@ -17,7 +19,7 @@ public class 泛型擦除 {
         List<Integer> list1 = new ArrayList<>();
         List<String> list2 = new ArrayList<>();
         assertTrue(list1.getClass() == list2.getClass());
-        System.out.println(list1.getClass());
+        log.info("{}",list1.getClass());
 
     }
 

@@ -1,12 +1,13 @@
 package com.mmwwtt.demo.se.反射;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
+@Slf4j
 public class 反射 {
 
     @Test
@@ -27,6 +28,6 @@ public class 反射 {
         //可以通过setAccessible(true) 修改默认值，如此会屏蔽Java语言的（运行时）访问检查，使得对象的私有成员可以访问，而不报错
         field.setAccessible(true);
         field.set(object, 19);
-        System.out.println();
+        log.info("\n");
     }
 }

@@ -1,10 +1,15 @@
 package com.mmwwtt.demo.se.常用类;
 
 
+import com.mmwwtt.demo.common.util.CommonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+@Slf4j
 public class String类 {
 
     @Test
@@ -20,9 +25,9 @@ public class String类 {
         //前位补0
         String str3 = String.format("%03d", num2);
 
-        System.out.println(str1);
-        System.out.println(str2);
-        System.out.println(str3);
+        log.info(str1);
+        log.info(str2);
+        log.info(str3);
     }
 
 
@@ -81,5 +86,19 @@ public class String类 {
 
         //字符串字典序比较
         str1.compareTo(str2);
+    }
+
+    @Test
+    public void string类正则() {
+        String str = "hello world";
+
+        //用了正则，每次都会预编译，性能慢
+        String str1 = str.replace("he", "hhee");
+
+
+        Pattern pattern = Pattern.compile("he");
+        Matcher matcher = pattern.matcher(str);
+        String str2 = matcher.replaceAll("hhee");
+        CommonUtils.println(str1,str2);
     }
 }

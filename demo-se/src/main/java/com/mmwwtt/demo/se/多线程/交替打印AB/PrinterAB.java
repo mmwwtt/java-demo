@@ -1,5 +1,6 @@
 package com.mmwwtt.demo.se.多线程.交替打印AB;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.*;
@@ -8,6 +9,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Slf4j
 public class PrinterAB {
     private final Object monitor = new Object();
 
@@ -27,7 +29,7 @@ public class PrinterAB {
                             e.printStackTrace();
                         }
                     }
-                    System.out.println(Thread.currentThread().getName() + ": foo");
+                    log.info(Thread.currentThread().getName() + ": foo");
                     flag = false;
                     monitor.notifyAll();
                 }
@@ -43,7 +45,7 @@ public class PrinterAB {
                             e.printStackTrace();
                         }
                     }
-                    System.out.println(Thread.currentThread().getName() + ": bar");
+                    log.info(Thread.currentThread().getName() + ": bar");
                     flag = true;
                     monitor.notifyAll();
                 }
@@ -66,7 +68,7 @@ public class PrinterAB {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println(Thread.currentThread().getName() + ": foo");
+            log.info(Thread.currentThread().getName() + ": foo");
             //每个release()方法都会释放持有许可证的线程，并且归还Semaphore一个可用的许可证。
             bar.release();
         }
@@ -78,7 +80,7 @@ public class PrinterAB {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println(Thread.currentThread().getName() + ": bar");
+            log.info(Thread.currentThread().getName() + ": bar");
             foo.release();
         }
     }, "2");
@@ -93,7 +95,7 @@ public class PrinterAB {
             for (int i = 0; i < 1000; i++) {
                 try {
                     blockBar.put(i);
-                    System.out.println(Thread.currentThread().getName() + ": foo," + i);
+                    log.info(Thread.currentThread().getName() + ": foo," + i);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -103,7 +105,7 @@ public class PrinterAB {
             for (int i = 0; i < 1000; i++) {
                 try {
                     blockBar.take();
-                    System.out.println(Thread.currentThread().getName() + ": bar," + i);
+                    log.info(Thread.currentThread().getName() + ": bar," + i);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -123,7 +125,7 @@ public class PrinterAB {
 
             while (!fin) ;
             fin = false;
-            System.out.println(Thread.currentThread().getName() + ": foo," + i);
+            log.info(Thread.currentThread().getName() + ": foo," + i);
             try {
                 cb.await();
             } catch (InterruptedException | BrokenBarrierException e) {
@@ -142,7 +144,7 @@ public class PrinterAB {
                 e.printStackTrace();
             }
 
-            System.out.println(Thread.currentThread().getName() + ": bar," + i);
+            log.info(Thread.currentThread().getName() + ": bar," + i);
             fin = true;
         }
     }
@@ -153,7 +155,7 @@ public class PrinterAB {
     private void perFoo() {
         for (int i = 0; i < 1000; ) {
             if (permitFoo) {
-                System.out.println(Thread.currentThread().getName() + ": foo," + i);
+                log.info(Thread.currentThread().getName() + ": foo," + i);
                 i++;
                 permitFoo = false;
             } else {
@@ -166,7 +168,7 @@ public class PrinterAB {
     private void perBar() {
         for (int i = 0; i < 1000; ) {
             if (!permitFoo) {
-                System.out.println(Thread.currentThread().getName() + ": bar," + i);
+                log.info(Thread.currentThread().getName() + ": bar," + i);
                 i++;
                 permitFoo = true;
             } else {
@@ -189,7 +191,7 @@ public class PrinterAB {
                         e.printStackTrace();
                     }
                 }
-                System.out.println(Thread.currentThread().getName() + ": foo," + i);
+                log.info(Thread.currentThread().getName() + ": foo," + i);
                 flag = false;
                 cond.signal();
             } finally {
@@ -209,7 +211,7 @@ public class PrinterAB {
                         e.printStackTrace();
                     }
                 }
-                System.out.println(Thread.currentThread().getName() + ": bar," + i);
+                log.info(Thread.currentThread().getName() + ": bar," + i);
                 flag = true;
                 cond.signal();
             } finally {
@@ -227,7 +229,7 @@ public class PrinterAB {
     private void exFoo() {
 
         for (int i = 0; i < 1000; i++) {
-            System.out.println(Thread.currentThread().getName() + ": foo," + i);
+            log.info(Thread.currentThread().getName() + ": foo," + i);
             try {
                 ex1.exchange(1);
                 ex2.exchange(1);
@@ -242,7 +244,7 @@ public class PrinterAB {
         for (int i = 0; i < 1000; i++) {
             try {
                 ex1.exchange(2);
-                System.out.println(Thread.currentThread().getName() + ": bar," + i);
+                log.info(Thread.currentThread().getName() + ": bar," + i);
                 ex2.exchange(2);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -268,7 +270,7 @@ public class PrinterAB {
         //LockSupport
         thread15 = new Thread(() -> {
             for (int i = 0; i < 10000; i++) {
-                System.out.println(Thread.currentThread().getName() + ": foo," + i);
+                log.info(Thread.currentThread().getName() + ": foo," + i);
                 LockSupport.unpark(thread16);
                 LockSupport.park();
             }
@@ -277,7 +279,7 @@ public class PrinterAB {
         thread16 = new Thread(() -> {
             for (int i = 0; i < 10000; i++) {
                 LockSupport.park();
-                System.out.println(Thread.currentThread().getName() + ": bar," + i);
+                log.info(Thread.currentThread().getName() + ": bar," + i);
                 LockSupport.unpark(thread15);
             }
         }, "16");
@@ -331,15 +333,15 @@ public class PrinterAB {
 //        thread16.join();
 //        long l9 = System.currentTimeMillis();
 //
-//        System.out.println(".......................................................");
-//        System.out.println("Semaphore信号量:" + (l2 - l1));
-//        System.out.println("BlockingQueue阻塞队列:" + (l3 - l2));
-//        System.out.println("CyclicBarrier循环栅栏:" + (l4 - l3));
-//        System.out.println("yield:" + (l5 - l4));
-//        System.out.println("cas/reentrantLock:" + (l6 - l5));
-//        System.out.println("Exchanger:" + (l7 - l6));
-//        System.out.println("synchronized:" + (l8 - l7));
-//        System.out.println("lockSupport:" + (l9 - l8));
+//        log.info(".......................................................");
+//        log.info("Semaphore信号量:" + (l2 - l1));
+//        log.info("BlockingQueue阻塞队列:" + (l3 - l2));
+//        log.info("CyclicBarrier循环栅栏:" + (l4 - l3));
+//        log.info("yield:" + (l5 - l4));
+//        log.info("cas/reentrantLock:" + (l6 - l5));
+//        log.info("Exchanger:" + (l7 - l6));
+//        log.info("synchronized:" + (l8 - l7));
+//        log.info("lockSupport:" + (l9 - l8));
     }
 
 }

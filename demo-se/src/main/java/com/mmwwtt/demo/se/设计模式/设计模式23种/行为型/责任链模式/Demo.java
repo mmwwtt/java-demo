@@ -1,5 +1,7 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.行为型.责任链模式;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 责任链模式
  */
@@ -25,28 +27,30 @@ abstract class Handler {
     public abstract void handleRequest(int info);
 }
 
+@Slf4j
 class Handler1 extends Handler {
 
     @Override
     public void handleRequest(int info) {
-        System.out.println("Handler1处理");
+        log.info("Handler1处理");
         if (getNext() != null) {
             getNext().handleRequest(info);
             return;
         }
-        System.out.println("结束");
+        log.info("结束");
     }
 }
 
+@Slf4j
 class Handler2 extends Handler {
 
     @Override
     public void handleRequest(int info) {
-        System.out.println("Handler2处理");
+        log.info("Handler2处理");
         if (getNext() != null) {
             getNext().handleRequest(info);
             return;
         }
-        System.out.println("结束");
+        log.info("结束");
     }
 }

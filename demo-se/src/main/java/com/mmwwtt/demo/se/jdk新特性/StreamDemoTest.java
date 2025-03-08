@@ -1,7 +1,8 @@
-package com.mmwwtt.demo.se.jdk.features;
+package com.mmwwtt.demo.se.jdk新特性;
 
 import com.mmwwtt.demo.common.util.CommonUtils;
 import com.mmwwtt.demo.common.vo.BaseInfoVO;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -9,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class StreamDemoTest {
 
     /**
@@ -20,7 +22,7 @@ public class StreamDemoTest {
                         new BaseInfoVO(),
                         new BaseInfoVO())
                 .collect(Collectors.toList());
-        System.out.println(list);
+        log.info("{}",list);
     }
 
     /**
@@ -34,8 +36,8 @@ public class StreamDemoTest {
         List<String> nameList2 = BaseInfoVO.getPresetList().stream()
                 .map(item -> String.format("hello: %s", item.getName()))
                 .collect(Collectors.toList());
-        System.out.println(nameList1);
-        System.out.println(nameList2);
+        log.info("{}",nameList1);
+        log.info("{}",nameList2);
     }
 
     /**
@@ -46,7 +48,7 @@ public class StreamDemoTest {
     public void mapToIntDemo() {
         int sum = BaseInfoVO.getPresetList().stream()
                 .mapToInt(BaseInfoVO::getAge).sum();
-        System.out.println(sum);
+        log.info("{}",sum);
     }
 
     /**
@@ -61,7 +63,7 @@ public class StreamDemoTest {
         List<BaseInfoVO> list3 = Stream.of(list1, list2)
                 .flatMap(Collection::parallelStream)
                 .collect(Collectors.toList());
-        System.out.println(list3);
+        log.info("{}",list3);
     }
 
     /**

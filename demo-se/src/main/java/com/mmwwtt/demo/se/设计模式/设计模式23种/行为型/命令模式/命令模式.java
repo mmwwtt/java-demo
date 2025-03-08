@@ -1,5 +1,7 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.行为型.命令模式;
 
+import lombok.extern.slf4j.Slf4j;
+
 public class 命令模式 {
 
     public static void main(String[] args) {
@@ -22,9 +24,10 @@ public class 命令模式 {
 /**
  * 命令接收者
  */
+@Slf4j
 class Receiver {
     public void action() {
-        System.out.println("接收者做出相应动作");
+        log.info("接收者做出相应动作");
     }
 }
 

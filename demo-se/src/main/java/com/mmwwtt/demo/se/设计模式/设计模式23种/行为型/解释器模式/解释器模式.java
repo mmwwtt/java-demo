@@ -1,5 +1,8 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.行为型.解释器模式;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class 解释器模式 {
 
     public static Expression getMaleExpression(){
@@ -19,8 +22,8 @@ public class 解释器模式 {
         Expression isMale = getMaleExpression();
         Expression isMarriedWoman = getMarriedWomanExpression();
 
-        System.out.println("John is male? " + isMale.interpret("John"));
-        System.out.println("Julie is a married women? "
+        log.info("John is male? " + isMale.interpret("John"));
+        log.info("Julie is a married women? "
                 + isMarriedWoman.interpret("Married Julie"));
     }
 }

@@ -1,8 +1,10 @@
 package com.mmwwtt.demo.se.基础;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class 基本数据类型和包装类型 {
 
     @Test
@@ -39,14 +41,14 @@ public class 基本数据类型和包装类型 {
         float b = 1.0f;
         float c = a * b;
         double d = (double)a * b;
-        System.out.println(c);   //1.8E9
-        System.out.println(d);   //1.799999999E9 正确
+        log.info("{}",c);   //1.8E9
+        log.info("{}",d);   //1.799999999E9 正确
 
         int a2 = 1000000000;
         float b2 = a2 + 1.0f;          //1.0E9
         double c2 = (double)a2 + 1.0f; //1.000000001E9 错误
-        System.out.println(b2);
-        System.out.println(c2);
+        log.info("{}",b2);
+        log.info("{}",c2);
     }
 
     /**
@@ -60,8 +62,8 @@ public class 基本数据类型和包装类型 {
         Integer num2 = 100;
         Integer num3 = 200;
         Integer num4 = 200;
-        System.out.println(num1 == num2);
-        System.out.println(num3 == num4);
+        log.info("{}",num1 == num2);
+        log.info("{}",num3 == num4);
     }
 
 
@@ -84,21 +86,21 @@ public class 基本数据类型和包装类型 {
         int num4 = 100;
 
         //比较时拆装箱
-        System.out.println(num3 == num4);
+        log.info("{}",num3 == num4);
         //运算时拆装箱
-        System.out.println(num3 + num4);
+        log.info("{}",num3 + num4);
     }
 
     public void 数据类型比较大小() {
         int num1 = 1;
         int num2 = 2;
         //基本数据类型通过 == 判断值是否相等
-        System.out.println(num1 == num2);
+        log.info("{}",num1 == num2);
 
         Integer num3 = Integer.valueOf(1);
         Integer num4 = Integer.valueOf(2);
         //包装类型通过equals()方法判断值是否相等
-        System.out.println(num3.equals(num4));
+        log.info("{}",num3.equals(num4));
     }
 
     @Test
@@ -107,26 +109,26 @@ public class 基本数据类型和包装类型 {
         // 小数表示二进制除不尽，所以存在误差，要改为用BigDecimal类型做精确计算
         float a = 1.0f - 0.9f;
         float b = 0.9f - 0.8f;
-        System.out.println(a == b);
+        log.info("{}",a == b);
 
         //浮点基本数据类型 不能用 == 判断
         float num1 = 0.3F;
         double num2 = 0.3D;
         double num3 = 0.3D;
-        System.out.println(num2 == num1);
-        System.out.println(num2 == num3);
+        log.info("{}",num2 == num1);
+        log.info("{}",num2 == num3);
 
         //浮点包装类型不能用 equals判断   但是能用compareTo比较大小
         Float num4 = Float.valueOf(0.3f);
         Double num5 = Double.valueOf(0.3);
         Double num6 = Double.valueOf(0.3);
-        System.out.println(num5.equals(num4));
-        System.out.println(num5.equals(num6));
-        System.out.println(num5.compareTo(num6));
+        log.info("{}",num5.equals(num4));
+        log.info("{}",num5.equals(num6));
+        log.info("{}",num5.compareTo(num6));
 
         //非要使用，则在误差范围内都相等
         if ((num1 - num2) < 1e-6f) {
-            System.out.println("num1 == num2");
+            log.info("num1 == num2");
         }
 
     }
@@ -139,10 +141,10 @@ public class 基本数据类型和包装类型 {
     public void 禁止和NaN比较() {
         double res = 1/0D;  //结果为NaN
         if (res == Float.NaN) {
-            System.out.println("任何与NaN做 !=以外 的比较， 都返回flase");
+            log.info("任何与NaN做 !=以外 的比较， 都返回flase");
         }
         if (res != Float.NaN) {
-            System.out.println("任何与NaN做 != 比较， 都返回true");
+            log.info("任何与NaN做 != 比较， 都返回true");
         }
 
         //正确做法  判断一个对象是否为NaN

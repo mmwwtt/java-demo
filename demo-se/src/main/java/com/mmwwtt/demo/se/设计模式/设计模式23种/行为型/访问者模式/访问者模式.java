@@ -1,5 +1,7 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.行为型.访问者模式;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,28 +82,30 @@ abstract class Visitor {
 /**
  * 具体访问者A
  */
+@Slf4j
 class ConcreteVisitorA extends Visitor{
 
     @Override
     public void visit(ConcreteElementA elementA) {
-        System.out.println("访问者A  访问了   elementA");
+        log.info("访问者A  访问了   elementA");
     }
 
     @Override
     public void visit(ConcreteElementB elementB) {
-        System.out.println("访问者A  访问了   elementB");
+        log.info("访问者A  访问了   elementB");
     }
 }
 
+@Slf4j
 class ConcreteVisitorB extends Visitor{
 
     @Override
     public void visit(ConcreteElementA elementA) {
-        System.out.println("访问者B  访问了   elementA");
+        log.info("访问者B  访问了   elementA");
     }
 
     @Override
     public void visit(ConcreteElementB elementB) {
-        System.out.println("访问者B  访问了   elementB");
+        log.info("访问者B  访问了   elementB");
     }
 }

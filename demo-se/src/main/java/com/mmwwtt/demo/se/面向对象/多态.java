@@ -1,10 +1,12 @@
 package com.mmwwtt.demo.se.面向对象;
 
 
-import com.mmwwtt.demo.common.entity.Animal;
-import com.mmwwtt.demo.common.entity.Dog;
+import com.mmwwtt.demo.common.entity.animal.Animal;
+import com.mmwwtt.demo.common.entity.animal.Dog;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class 多态 {
 
     /**
@@ -17,7 +19,7 @@ public class 多态 {
     public void 多态案例() {
         Animal dog = new Dog();
         dog.say();
-        System.out.println(dog.getName());
-        System.out.println(dog.getSort());
+        log.info(dog.getName());
+        log.info(dog.getSort());
     }
 }

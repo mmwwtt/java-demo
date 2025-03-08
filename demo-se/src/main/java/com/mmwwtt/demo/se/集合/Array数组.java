@@ -1,12 +1,10 @@
 package com.mmwwtt.demo.se.集合;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
+@Slf4j
 public class Array数组 {
 
     @Test
@@ -21,7 +19,7 @@ public class Array数组 {
         int[][] array3 = new int[][]{{2, 4}, {3, 5}};
 
         //获得数组长度
-        System.out.println(array1.length);
+        log.info("{}",array1.length);
 
 
 

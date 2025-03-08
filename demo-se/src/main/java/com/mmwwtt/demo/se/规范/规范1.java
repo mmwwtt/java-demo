@@ -1,5 +1,6 @@
 package com.mmwwtt.demo.se.规范;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
@@ -8,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+@Slf4j
 public class 规范1 {
 
     /**
@@ -40,12 +42,11 @@ public class 规范1 {
     @Test
     public void 不要调用System_exit() {
         System.exit(1);
-        System.out.println("hello");
+        log.info("hello");
     }
 
     @Test
     public void 关闭资源() throws FileNotFoundException {
-        System.out.println();
         try (FileInputStream in = new FileInputStream("resources/test.txt");
              FileOutputStream out = new FileOutputStream("resources/test.txt")) {
 
@@ -60,7 +61,7 @@ public class 规范1 {
     public void 禁止创建不必要的对象() {
         // 以下方式都创建了两个对象
         String str1 = new String("hell0");
-        Integer num1 = new Integer(90);
+        //Integer num1 = new Integer(90);  jdk17废弃
 
         //需要改为以下方式
         String str2 = "hello";
@@ -85,7 +86,7 @@ public class 规范1 {
     public void 表达式比较() {
         int a = 0;
         if (a == Integer.MAX_VALUE) {
-            System.out.println(a);
+            log.info("{}",a);
         }
     }
 

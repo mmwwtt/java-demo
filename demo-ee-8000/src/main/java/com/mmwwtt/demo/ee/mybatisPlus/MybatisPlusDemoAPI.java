@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/service/demo/ee/mybatisPlus")
-public class MybatisPlusDemoUIAPI {
+public class MybatisPlusDemoAPI {
 
     @Resource
     private MybatisPlusStudentMapper studentMapper;

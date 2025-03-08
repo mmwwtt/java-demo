@@ -18,7 +18,7 @@ public class HttpClient使用 {
 //
 //        if (response.getStatusLine().getStatusCode() == 200) {
 //            String html = EntityUtils.toString(response.getEntity(), "UTF-8");
-//            System.out.println(html);
+//            log.info(html);
 //        }
 //
 //        httpClient.close();

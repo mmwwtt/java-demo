@@ -1,5 +1,7 @@
 package com.mmwwtt.demo.se.自定义;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
@@ -13,11 +15,12 @@ public @interface MyJunit {
 
 }
 
+@Slf4j
 class PrintNumber {
     public void showOdd(){  //打印奇数
         for (int i = 0; i < 10; i++) {
             if (i % 2!=0) {
-                System.out.print(i+" ");
+                log.info(i+" ");
             }
         }
     }
@@ -26,7 +29,7 @@ class PrintNumber {
     public void showEven(){ //打印偶数
         for (int i = 0; i < 10; i++) {
             if (i % 2==0) {
-                System.out.print(i+" ");
+                log.info(i+" ");
             }
         }
     }

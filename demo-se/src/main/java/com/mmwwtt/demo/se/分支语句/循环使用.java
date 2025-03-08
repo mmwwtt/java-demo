@@ -1,7 +1,9 @@
 package com.mmwwtt.demo.se.分支语句;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class 循环使用 {
 
     /**
@@ -17,7 +19,7 @@ public class 循环使用 {
             if (i==8) {
                 break;
             }
-            System.out.println(i);
+            log.info("{}",i);
         }
     }
 
@@ -36,7 +38,7 @@ public class 循环使用 {
                     break A;
                 }
             }
-            System.out.println(i);
+            log.info("{}",i);
         }
     }
 
@@ -45,14 +47,14 @@ public class 循环使用 {
         float num1 = 1.0f;
         float num2 = num1 + 10;
         for (double i = num1; i < num2; i++) {
-            System.out.println(i);
+            log.info("{}",i);
         }
 
         //当浮点型到一定长度后表示为 1.0E10 由于精度问题，1.0E10 + 10也会被表示为 1.0E10,无法作为循环判断
         float num3 = 10000000000.0f;
         float num4 = num3 + 10;
         for (double i = num3; i < num4; i++) {
-            System.out.println(i);
+            log.info("{}",i);
         }
     }
 }

@@ -1,8 +1,10 @@
 package com.mmwwtt.demo.se.分支语句;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class switch语句 {
 
 
@@ -16,14 +18,14 @@ public class switch语句 {
         switch (str) {
             case "a":
             case "b":
-                System.out.println("b");
+                log.info("b");
             case "c":
-                System.out.println("c");
+                log.info("c");
             case "d":
-                System.out.println("d");
+                log.info("d");
                 break;
             default:
-                System.out.println("default");
+                log.info("default");
                 break;
         }
     }

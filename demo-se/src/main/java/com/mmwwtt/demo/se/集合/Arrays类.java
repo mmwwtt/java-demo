@@ -1,11 +1,13 @@
 package com.mmwwtt.demo.se.集合;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class Arrays类 {
 
     @Test
@@ -33,7 +35,7 @@ public class Arrays类 {
              */
             return num1.intValue() > num2.intValue() ? 1 : -1;
         });
-        System.out.println(array2);
+        log.info("{}",array2);
 
 
         //对数组进行填充
