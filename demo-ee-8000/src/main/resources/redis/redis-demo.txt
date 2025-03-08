@@ -1,0 +1,58 @@
+字符串
+    set key1 111
+    get key1
+    del key1
+哈希
+    hset map1 str1 111
+    hget map1 str1
+    hdel map1 str1 str2
+
+列表
+    lpush list1 111 222 333 //插入列表左侧
+    rpush list1 444 555     //插入列表右侧
+    lpop  list1             //删除并返回左侧第一个元素
+    rpop  list1             //删除并返回右侧第一个元素
+    lrange list1 0 -1        //获取范围内元素
+
+集合
+    sadd set1 111 222 333 444
+    smembers set1            //查看元素
+    srem set1 111 222        //从set中移出元素
+
+有序集合
+    zadd set2 4 str1 2 str2 3 str3  //插入 分数 数据
+    zrange set2 0 -1
+    zrank set2 str3            //返回元素的排名
+    zrem set2 str1 str2
+    ZRANGEBYSCORE set2 100 200    //查找分数在 100-200之间的数据
+
+exists set2   //检查键是否存在
+type set2     //返回值的类型
+expire set2 10 //设置10秒过期时间
+ttl set2     //返回剩余过期时间
+
+publish channel1 message  //发布消息到指定频道
+subscribe channel1        //订阅频道
+unsubscribe channel1      //退订频道
+
+info server //获取服务器的详细信息
+flushdb     //删除当前数据库的所有键
+flushall    //删除所有数据库的键
+ping        //检测服务器是否正常运行
+
+eval "return {KEYS[1],ARGV[1]}" 1 mykey myvalue  执行lua脚本
+
+
+keys o*        // *匹配多个字符
+keys on?       // ?匹配单个字符
+keys on[eaw]   // []匹配括号内某一个字符
+scan 0 match key* count 100  //
+
+setnx k v   //set if not exists  , 只有key不存在的时候才操作
+
+SET key value [EX seconds] [PX milliseconds] [NX|XX]
+set key1 111 ex 100 nx
+EX second ：设置键的过期时间为second秒。
+PX millisecond ：设置键的过期时间为millisecond毫秒。
+NX ：只在键不存在时，才对键进行设置操作。
+XX ：只在键已经存在时，才对键进行设置操作。
