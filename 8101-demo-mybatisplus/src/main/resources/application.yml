@@ -1,0 +1,22 @@
+server:
+  port: 8101
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/demo
+    username: root
+    password: dev123
+  ## jdbc-starter 中自带了一个连接池：HikariCP
+  hikari:
+    idle-timeout: 60000
+    maximum-pool-size: 30
+    minimum-idle: 10
+
+mybatis-plus:
+  mapper-locations: classpath:mybatis-plus/mapper/*.xml
+  configuration:
+    #配置MyBatis的日志，输出到指定控制台
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #开启MyBatis的驼峰命名自动映射开关 a_colum --->  aColum
+    map-underscore-to-camel-case: true

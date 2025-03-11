@@ -1,0 +1,8 @@
+server:
+  port: 8103
+
+spring:
+  elasticsearch:
+    uris: http://localhost:9200
+    username: elastic
+    password: Pc4F_XT0Ml1WSm--5xLn

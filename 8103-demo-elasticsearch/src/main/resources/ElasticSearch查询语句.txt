@@ -1,0 +1,125 @@
+#添加索引
+PUT shopping
+
+#删除索引
+DELETE shopping
+
+#查看索引
+GET shopping
+
+#添加文档 索引名/文档名/指定id(不指定则随机生成)
+PUT /shopping/_doc/3
+{
+ "title":"小米手机",
+ "category":"小米",
+ "images":"http://www.gulixueyuan.com/xm.jpg",
+ "price":3999.00
+}
+
+#更新文档
+POST /shopping/_doc/3
+{
+ "title":"小米手机",
+ "category":"小米",
+ "images":"http://www.gulixueyuan.com/xm.jpg",
+ "price":3999.00
+}
+
+#查询索引文档
+GET shopping/_search
+
+#查询索引文档 单字段模糊匹配
+GET shopping/_search
+{
+	"query": {
+		"match": {
+			"title": "小米手机"
+		}
+	}
+}
+
+#多字段模糊匹配
+GET shopping/_search
+{
+	"query": {
+		"multi_match": {
+			"fields": [
+				"title",
+				"category"
+			],
+			"query": "小米"
+		}
+	}
+}
+#  单字段精准匹配
+GET shopping/_search
+{
+	"query": {
+		"term": {
+			"price": {
+				"value": "3999.00"
+			}
+		}
+	}
+}
+#  多字段精准匹配
+GET shopping/_search
+{
+	"query": {
+		"terms": {
+			"title":["小米手机", "大米手机"]
+		}
+	}
+}
+
+# includes：来指定想要显示的字段
+# excludes：来指定不想要显示的字段
+GET shopping/_search
+{
+	"_source": {
+		"includes": [
+			"title",
+			"category"
+		]
+	}
+}
+
+#组合查询 `bool`把各种其它查询通过`must`（必须 ）and、`must_not`（必须不）not、`should`（应该）的方式进行组合or
+GET students/_search
+{
+    "query":{
+        "bool":{
+            "must":[
+                {
+                    "match":{
+                        "name":"zhangsan"
+                    }
+                }
+            ],
+            "must_not":[
+                {
+                    "match":{
+                        "age":"40"
+                    }
+                }
+            ],
+            "should":[
+                {
+                    "match":{
+                        "sex":"男"
+                    }
+                }
+            ]
+        }
+    }
+}
+
+#根据条件删除文档
+POST shopping/_delete_by_query
+{
+	"query": {
+		"match": {
+			"price": 4000
+		}
+	}
+}

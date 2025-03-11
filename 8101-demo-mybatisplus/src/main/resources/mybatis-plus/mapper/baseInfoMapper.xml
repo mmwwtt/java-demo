@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mmwwtt.demo.mybatisplus.demo.BaseInfoMybatisPlusDao">
+   <sql id="baseInfoQuerySql">
+       <where>
+           <if test="query.name != null and query.name != ''">
+               AND name like CONCAT('%', #{query.name}, '%')
+           </if>
+           <if test="query.sexList != null and !query.sexList.isEmpty()">
+               AND sex IN
+               <foreach collection="query.sexList" item="sex" open="(" separator="," close=")">
+                   #{sex}
+               </foreach>
+           </if>
+           <if test="query.baseInfoIdList != null and !query.baseInfoIdList.isEmpty()">
+               AND base_info_id IN
+               <foreach collection="query.baseInfoIdList" item="baseInfoId" open="(" separator="," close=")">
+                   #{baseInfoId}
+               </foreach>
+           </if>
+       </where>
+   </sql>
+    <select id="queryByPage" resultType="com.mmwwtt.demo.mybatisplus.demo.BaseInfoMyBatisPlus">
+        select * from base_info_t
+        <include refid="baseInfoQuerySql"></include>
+
+    </select>
+    <select id="query" resultType="com.mmwwtt.demo.mybatisplus.demo.BaseInfoMyBatisPlus"
+            parameterType="com.mmwwtt.demo.mybatisplus.demo.BaseInfoMybatisPlusQuery">
+        select * from base_info_t
+        <include refid="baseInfoQuerySql"></include>
+    </select>
+</mapper>
