@@ -11,13 +11,26 @@ import org.springframework.stereotype.Service;
 public class MyTransactionListener implements RocketMQLocalTransactionListener {
     @Override
     public RocketMQLocalTransactionState executeLocalTransaction(Message message, Object arg) {
-        // 执行本地事务逻辑
-        return RocketMQLocalTransactionState.COMMIT;
+        RocketMQLocalTransactionState result = null;
+        try {
+            result= RocketMQLocalTransactionState.COMMIT;
+
+        } catch (Exception ex) {
+            result = RocketMQLocalTransactionState.ROLLBACK;
+        }
+        return result;
     }
 
     @Override
     public RocketMQLocalTransactionState checkLocalTransaction(Message message) {
-        // 检查本地事务状态
-        return RocketMQLocalTransactionState.COMMIT;
+        RocketMQLocalTransactionState result = null;
+
+        try {
+            result= RocketMQLocalTransactionState.COMMIT;
+        } catch (Exception ex) {
+            result = RocketMQLocalTransactionState.ROLLBACK;
+
+        }
+        return result;
     }
 }

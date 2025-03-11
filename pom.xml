@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
-    <version>3.1.1</version>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.4.3</version>
   </parent>
 
   <groupId>com.mmwwtt</groupId>
@@ -18,7 +18,17 @@
     <module>demo-ddd-8001</module>
     <module>demo-common</module>
     <module>demo-mq-8002</module>
+      <module>8100-demo-mybatis</module>
+    <module>8101-demo-mybatisplus</module>
+      <module>8102-demo-easy-excel</module>
+    <module>8103-demo-elasticsearch</module>
+      <module>8104-demo-redis</module>
   </modules>
+
+
+    <properties>
+      <spring-boot-version>3.4.3</spring-boot-version>
+    </properties>
 
   <!--  只做版本控制-->
   <dependencyManagement>
@@ -34,19 +44,23 @@
       <dependency>
         <groupId>org.mybatis.spring.boot</groupId>
         <artifactId>mybatis-spring-boot-starter</artifactId>
-        <version>3.0.2</version>
+        <version>3.0.4</version>
       </dependency>
       <!--mybatisPlus配置-->
       <dependency>
         <groupId>com.baomidou</groupId>
         <artifactId>mybatis-plus-boot-starter</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.9</version>
       </dependency>
-      <!--MyBatisPlus  代码生成器核心依赖-->
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-jsqlparser</artifactId>
+        <version>3.5.9</version>
+      </dependency>
       <dependency>
         <groupId>com.baomidou</groupId>
         <artifactId>mybatis-plus-generator</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.9</version>
       </dependency>
       <dependency>
         <groupId>com.alibaba</groupId>
@@ -75,7 +89,12 @@
         <artifactId>jackson-databind</artifactId>
         <version>2.15.2</version>
       </dependency>
-
+      <!--mockito 依赖-->
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>5.14.2</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -107,36 +126,29 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-      <version>3.1.1</version>
+      <version>${spring-boot-version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <version>3.1.1</version>
+      <version>${spring-boot-version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-log4j2</artifactId>
-      <version>3.1.1</version>
-      <scope>compile</scope>
+      <version>${spring-boot-version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
-      <version>3.1.1</version>
-    </dependency>
-    <!--mockito 依赖-->
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>5.2.0</version>
+      <version>${spring-boot-version}</version>
     </dependency>
     <!--springboot-web依赖 end-->
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.12.0</version>
+      <version>3.17.0</version>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>

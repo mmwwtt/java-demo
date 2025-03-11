@@ -79,7 +79,7 @@ public class RocketMQController {
     }
 
 
-    //顺序发送消息，都发往同一个消息队列中
+    //顺序发送消息，同一个hashKey的消息 都发往同一个消息队列中
     @GetMapping("/product/order/send-message")
     public String productSendOrderMessage() {
         String tag = "order";
