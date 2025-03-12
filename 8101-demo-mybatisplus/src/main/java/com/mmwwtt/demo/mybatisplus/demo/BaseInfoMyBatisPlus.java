@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 @TableName("base_info_t")
 public class BaseInfoMyBatisPlus {
 
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String baseInfoId;
+    @TableId(type = IdType.AUTO)
+    private Long baseInfoId;
     private String name;
 
-    private String sex;
+    private String sexCode;
 
     private Double height;
 

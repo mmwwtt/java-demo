@@ -1,13 +1,10 @@
 package com.mmwwtt.demo.se.集合;
 
-import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 @Slf4j
 public class SetDemo {
 
@@ -21,27 +18,27 @@ public class SetDemo {
         set1.add(-123);
         log.info("set3: " , set1);
 
-        //可以排序的set
-        Set<BaseInfoVO> set2 = new TreeSet<>((a, b) -> {
-            if (a.getAge() != b.getAge()) {
-                return a.getAge() > b.getAge() ? -1 : 1;
-            } else if (!a.getName().equals(b.getName())) {
-                return a.getName().compareTo(b.getName());
-            } else {
-                return 0;
-            }
-        });
-
-        set2.add(new BaseInfoVO());
-        set2.add(new BaseInfoVO());
-        log.info("set2: ", set2);
-
-        //记住插入顺序的set
-        Set<Integer> set3 = new LinkedHashSet<>();
-        set3.add(1);
-        set3.add(123);
-        set3.add(-123);
-        log.info("set3: {}", set3);
+//        //可以排序的set
+//        Set<BaseInfoVO> set2 = new TreeSet<>((a, b) -> {
+//            if (a.getAge() != b.getAge()) {
+//                return a.getAge() > b.getAge() ? -1 : 1;
+//            } else if (!a.getName().equals(b.getName())) {
+//                return a.getName().compareTo(b.getName());
+//            } else {
+//                return 0;
+//            }
+//        });
+//
+//        set2.add(new BaseInfoVO());
+//        set2.add(new BaseInfoVO());
+//        log.info("set2: ", set2);
+//
+//        //记住插入顺序的set
+//        Set<Integer> set3 = new LinkedHashSet<>();
+//        set3.add(1);
+//        set3.add(123);
+//        set3.add(-123);
+//        log.info("set3: {}", set3);
     }
 
 //    @Test

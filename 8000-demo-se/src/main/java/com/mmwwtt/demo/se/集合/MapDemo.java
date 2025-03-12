@@ -1,35 +1,36 @@
 package com.mmwwtt.demo.se.集合;
 
 
-import com.mmwwtt.demo.common.util.CommonUtils;
-import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 public class MapDemo {
-    @Test
-    public void mapTypeDemo() {
-        Map<String, Integer> map1 = new HashMap<>();
-
-        //TreeMap 会根据键进行排序
-        Map<String, Integer> map2 = new TreeMap<>();
-        Map<BaseInfoVO, Integer> map = new TreeMap<>((a, b) -> {
-            if (a.getAge() != b.getAge()) {
-                return a.getAge() > b.getAge() ? -1 : 1;
-            } else if (!a.getName().equals(b.getName())) {
-                return a.getName().compareTo(b.getName());
-            } else {
-                return 0;
-            }
-        });
-
-        //LinkedHashMap 会记录插入时的顺序
-        Map<String, Integer> map3 = new LinkedHashMap<>();
-        CommonUtils.println(map1, map2, map3);
-    }
+//    @Test
+//    public void mapTypeDemo() {
+//        Map<String, Integer> map1 = new HashMap<>();
+//
+//        //TreeMap 会根据键进行排序
+//        Map<String, Integer> map2 = new TreeMap<>();
+//        Map<BaseInfoVO, Integer> map = new TreeMap<>((a, b) -> {
+//            if (a.getAge() != b.getAge()) {
+//                return a.getAge() > b.getAge() ? -1 : 1;
+//            } else if (!a.getName().equals(b.getName())) {
+//                return a.getName().compareTo(b.getName());
+//            } else {
+//                return 0;
+//            }
+//        });
+//
+//        //LinkedHashMap 会记录插入时的顺序
+//        Map<String, Integer> map3 = new LinkedHashMap<>();
+//        CommonUtils.println(map1, map2, map3);
+//    }
 
     @Test
     public void mapFunDemo() {
@@ -56,17 +57,17 @@ public class MapDemo {
         }
     }
 
-    @Test
-    public void keyIsObejctDemo() {
-
-        BaseInfoVO baseInfo = BaseInfoVO.getPresetSingle1();
-        Map<BaseInfoVO, Integer> map = new HashMap<>();
-        map.put(baseInfo, 1);
-        log.info("{}",map.get(baseInfo));
-
-        baseInfo.setAge(2);
-        log.info("{}",map.get(baseInfo));
-    }
+//    @Test
+//    public void keyIsObejctDemo() {
+//
+//        BaseInfoVO baseInfo = BaseInfoVO.getPresetSingle1();
+//        Map<BaseInfoVO, Integer> map = new HashMap<>();
+//        map.put(baseInfo, 1);
+//        log.info("{}",map.get(baseInfo));
+//
+//        baseInfo.setAge(2);
+//        log.info("{}",map.get(baseInfo));
+//    }
 
     @Test
     public void LinkedHashMap作为定长LRU缓存() {

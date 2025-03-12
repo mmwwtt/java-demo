@@ -14,13 +14,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/map-struct")
 public class MapStructDemo {
-    BaseInfoConverter baseInfoConverter = BaseInfoConverter.INSTANCE;
+    BaseInfoConverterTMP baseInfoConverterTMP = BaseInfoConverterTMP.INSTANCE;
     @PostMapping("/mapStructDemo")
     public ApiResponse<Void> mapStructDemo() {
         BaseInfoDTO baseInfoDTO = BaseInfoDTO.getPresetSingle1();
-        BaseInfo baseInfo = baseInfoConverter.converter(baseInfoDTO);
+        BaseInfo baseInfo = baseInfoConverterTMP.converter(baseInfoDTO);
 
-        List<BaseInfo> list = baseInfoConverter.converter(Collections.singletonList(baseInfoDTO));
+        List<BaseInfo> list = baseInfoConverterTMP.converter(Collections.singletonList(baseInfoDTO));
         CommonUtils.println(baseInfo, list);
         return ApiResponse.success();
     }

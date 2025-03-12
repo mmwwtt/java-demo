@@ -5,39 +5,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * 联系方式
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Contact extends BaseModel {
-    /**
-     * 联系类型 1手机，2微信，3QQ,4邮箱
-     */
-    private String type;
-    /**
-     * 联系方式
-     */
-    private String contactInfo;
+    private Long contactId;
+    private String email;
+    private String phoneNumber;
+    private String address;
 
-    /**
-     * 预置list
-     */
-    public static List<Contact> getPresetList() {
-        List<Contact> list = new ArrayList<>();
-        list.add(Contact.builder().type("1").contactInfo("15988487599").build());
-        list.add(Contact.builder().type("2").contactInfo("mmwwtt_mwtttt").build());
-        list.add(Contact.builder().type("3").contactInfo("2310607366").build());
-        list.add(Contact.builder().type("4").contactInfo("2310607366@qq.com").build());
-        return list;
-    }
-
-    /**
-     * 预置对象
-     */
-    public static Contact getPresetSingle1() {
-        return Contact.builder().type("1").contactInfo("15988487599").build();
+    public static Contact getInstance() {
+        return Contact.builder().contactId(1L).email("qqwwee.qq.com")
+                .phoneNumber("12344563456").address("新街街道盛东村").build();
     }
 }

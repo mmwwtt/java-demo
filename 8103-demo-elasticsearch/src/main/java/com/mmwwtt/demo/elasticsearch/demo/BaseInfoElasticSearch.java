@@ -8,8 +8,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 @Document(indexName = "baseinfoelasticsearch",createIndex = true)
 public class BaseInfoElasticSearch {
     @Id
-    private String baseInfoId;
+    private Long baseInfoId;
     private String name;
-    private String sex;
+    private String sexCode;
     private Double height;
 }

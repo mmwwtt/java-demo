@@ -1,6 +1,5 @@
 package com.mmwwtt.demo.se.基础;
 
-import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -35,15 +34,15 @@ public class 异常处理 {
         }
     }
 
-    public BaseInfoVO fun1() {
-        BaseInfoVO baseInfoVO = BaseInfoVO.getPresetSingle1();
-        try {
-            baseInfoVO.setAge(18);
-            return baseInfoVO;
-        } finally {
-            baseInfoVO.setAge(22);
-        }
-    }
+//    public BaseInfoVO fun1() {
+//        BaseInfoVO baseInfoVO = BaseInfoVO.getPresetSingle1();
+//        try {
+//            baseInfoVO.setAge(18);
+//            return baseInfoVO;
+//        } finally {
+//            baseInfoVO.setAge(22);
+//        }
+//    }
 
     public int fun2() {
         int num = 100;
@@ -59,11 +58,11 @@ public class 异常处理 {
      * try中会把return的变量地址缓存起来
      * finally对return的变量地址做的修改，不会影响 try中的return，但是可以修改变量中的内容
      */
-    @Test
-    public void finally中对return变量做修改() {
-        log.info("{}",fun1());
-        log.info("{}",fun2());
-    }
+//    @Test
+//    public void finally中对return变量做修改() {
+//        log.info("{}",fun1());
+//        log.info("{}",fun2());
+//    }
 
 
     /**

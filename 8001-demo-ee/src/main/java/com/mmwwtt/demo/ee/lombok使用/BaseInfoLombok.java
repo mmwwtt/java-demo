@@ -19,7 +19,7 @@ public class BaseInfoLombok {
     private String baseInfoId;
     private String name;
 
-    private String sex;
+    private String sex_code;
 
     private Double height;
 

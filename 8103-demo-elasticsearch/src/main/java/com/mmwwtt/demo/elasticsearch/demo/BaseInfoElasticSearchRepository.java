@@ -13,7 +13,7 @@ public interface BaseInfoElasticSearchRepository extends ElasticsearchRepository
     List<BaseInfoElasticSearch> queryByName(String name);
 
     //多字段查询
-    List<BaseInfoElasticSearch> queryByNameAndSex(String name, String sex);
+    List<BaseInfoElasticSearch> queryByNameAndSexCode(String name, String sexCode);
 
     //Containing模糊查询
     List<BaseInfoElasticSearch> queryByNameContaining(String keyword);

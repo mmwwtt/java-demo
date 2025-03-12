@@ -15,17 +15,17 @@ public class 值传递和引用传递 {
         num = 3;
 
         //引用传递，修改引用地址上的对象
-        baseInfoVO1.setAge(18);
+        //baseInfoVO1.setAge(18);
 
         //引用传递，point2指向了新的引用地址，不会对原地址上的对象造成影响
-        baseInfoVO2= BaseInfoVO.getPresetSingle3();
+        baseInfoVO2= BaseInfoVO.getInstance();
     }
 
     @Test
     public void test() {
         int num = 1;
-        BaseInfoVO baseInfoVO1 = BaseInfoVO.getPresetSingle1();
-        BaseInfoVO baseInfoVO2 = BaseInfoVO.getPresetSingle2();
+        BaseInfoVO baseInfoVO1 = BaseInfoVO.getInstance();
+        BaseInfoVO baseInfoVO2 = BaseInfoVO.getInstance();
 
         fun(num, baseInfoVO1, baseInfoVO2);
     }

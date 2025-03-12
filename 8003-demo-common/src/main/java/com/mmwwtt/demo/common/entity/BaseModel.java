@@ -2,14 +2,14 @@ package com.mmwwtt.demo.common.entity;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class BaseModel {
     public Long lastUpdatedBy;
-    public Date lastUpdatedDate;
+    public LocalDateTime lastUpdatedDate;
 
     public Long createdBy;
-    public Date createdDate;
+    public LocalDateTime createdDate;
     public String deleteFlag;
 }

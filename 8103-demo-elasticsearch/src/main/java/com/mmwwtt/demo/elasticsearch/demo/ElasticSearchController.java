@@ -36,8 +36,8 @@ public class ElasticSearchController {
     }
 
     @GetMapping("/base-info/queryByNameAndSex")
-    public List<BaseInfoElasticSearch> queryByNameAndSex(@RequestParam String name, @RequestParam String sex) {
-        Iterable<BaseInfoElasticSearch> iterable = baseInfoElasticSearchRepository.queryByNameAndSex(name, sex);
+    public List<BaseInfoElasticSearch> queryByNameAndSex(@RequestParam String name, @RequestParam String sexCode) {
+        Iterable<BaseInfoElasticSearch> iterable = baseInfoElasticSearchRepository.queryByNameAndSexCode(name, sexCode);
         return Lists.newArrayList(iterable);
     }
 

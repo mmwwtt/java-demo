@@ -44,12 +44,12 @@ public class StreamDemoTest {
      * mapToXXX():映射成基本数据类型
      * sum():累加
      */
-    @Test
-    public void mapToIntDemo() {
-        int sum = BaseInfoVO.getPresetList().stream()
-                .mapToInt(BaseInfoVO::getAge).sum();
-        log.info("{}",sum);
-    }
+//    @Test
+//    public void mapToIntDemo() {
+//        int sum = BaseInfoVO.getPresetList().stream()
+//                .mapToInt(BaseInfoVO::getAge).sum();
+//        log.info("{}",sum);
+//    }
 
     /**
      * flatMap各个数组并不是分别映射一个流，而是映射成流的内容，
@@ -70,13 +70,13 @@ public class StreamDemoTest {
      * filter():过滤元素
      * true表示保留
      */
-    @Test
-    public void filterDemo() {
-        List<BaseInfoVO> list1 = BaseInfoVO.getPresetList().stream()
-                .filter(item -> item.getAge() > 10)
-                .toList();
-        CommonUtils.println(list1);
-    }
+//    @Test
+//    public void filterDemo() {
+//        List<BaseInfoVO> list1 = BaseInfoVO.getPresetList().stream()
+//                .filter(item -> item.getAge() > 10)
+//                .toList();
+//        CommonUtils.println(list1);
+//    }
 
     /**
      * limit(n): 获取前n个元素
@@ -114,12 +114,12 @@ public class StreamDemoTest {
     /**
      * Collectors.groupingBy 根据条件对集合进行分组
      */
-    @Test
-    public void groupingByDemo() {
-        Map<Integer, List<BaseInfoVO>> ageToBaseInfoMap = BaseInfoVO.getPresetList().stream()
-                .collect(Collectors.groupingBy(BaseInfoVO::getAge));
-        CommonUtils.println(ageToBaseInfoMap);
-    }
+//    @Test
+//    public void groupingByDemo() {
+//        Map<Integer, List<BaseInfoVO>> ageToBaseInfoMap = BaseInfoVO.getPresetList().stream()
+//                .collect(Collectors.groupingBy(BaseInfoVO::getAge));
+//        CommonUtils.println(ageToBaseInfoMap);
+//    }
 
     /**
      * 多字段排序(默认降序)，
@@ -127,25 +127,25 @@ public class StreamDemoTest {
      * sorted(Comparator.comparing(Point::getX)) 根据x进行排序
      * thenComparing(Point::y) 再根据y进行排序
      */
-    @Test
-    public void streamSortDemo() {
-        List<BaseInfoVO> list = BaseInfoVO.getPresetList().stream()
-                .sorted(Comparator.comparing(BaseInfoVO::getName).reversed()
-                        .thenComparing(BaseInfoVO::getAge).reversed())
-                .toList();
-        CommonUtils.println(list);
-    }
+//    @Test
+//    public void streamSortDemo() {
+//        List<BaseInfoVO> list = BaseInfoVO.getPresetList().stream()
+//                .sorted(Comparator.comparing(BaseInfoVO::getName).reversed()
+//                        .thenComparing(BaseInfoVO::getAge).reversed())
+//                .toList();
+//        CommonUtils.println(list);
+//    }
 
     /**
      * count计数
      */
-    @Test
-    public void CountDemo() {
-        Long count = BaseInfoVO.getPresetList()
-                .stream().filter(item -> item.getAge() > 10)
-                .count();
-        CommonUtils.println(count);
-    }
+//    @Test
+//    public void CountDemo() {
+//        Long count = BaseInfoVO.getPresetList()
+//                .stream().filter(item -> item.getAge() > 10)
+//                .count();
+//        CommonUtils.println(count);
+//    }
 
     /**
      * Collectors.joining() 字符串拼接
@@ -163,14 +163,14 @@ public class StreamDemoTest {
      * allMatch:全部为true 才返回true
      * noneMath: 全部为flase 才返回true
      */
-    @Test
-    public void matchDemo() {
-        List<BaseInfoVO> list = BaseInfoVO.getPresetList();
-        boolean flag1 = list.stream().anyMatch(item -> item.getAge() >= 10);
-        boolean flag2 = list.stream().allMatch(item -> item.getAge() >= 11);
-        boolean flag3 = list.stream().allMatch(item -> item.getAge() >= 12);
-        CommonUtils.println(flag1,flag2,flag3);
-    }
+//    @Test
+//    public void matchDemo() {
+//        List<BaseInfoVO> list = BaseInfoVO.getPresetList();
+//        boolean flag1 = list.stream().anyMatch(item -> item.getAge() >= 10);
+//        boolean flag2 = list.stream().allMatch(item -> item.getAge() >= 11);
+//        boolean flag3 = list.stream().allMatch(item -> item.getAge() >= 12);
+//        CommonUtils.println(flag1,flag2,flag3);
+//    }
 
     /**
      * int需要先通过boxed转为包装类型

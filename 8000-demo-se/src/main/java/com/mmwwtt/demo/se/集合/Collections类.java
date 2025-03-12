@@ -1,7 +1,6 @@
 package com.mmwwtt.demo.se.集合;
 
 
-import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -63,16 +62,16 @@ public class Collections类 {
             return a.intValue() > b.intValue() ? -1 : 1;
         });
 
-        List<BaseInfoVO> baseInfoList = BaseInfoVO.getPresetList();
-        Collections.sort(baseInfoList, (BaseInfoVO a, BaseInfoVO b) -> {
-            if (a.getAge() != b.getAge()) {
-                return a.getAge() > b.getAge() ? -1 : 1;
-            } else if (!a.getName().equals(b.getName())) {
-                return a.getName().compareTo(b.getName());
-            } else {
-                return 0;
-            }
-        });
+//        List<BaseInfoVO> baseInfoList = BaseInfoVO.getPresetList();
+//        Collections.sort(baseInfoList, (BaseInfoVO a, BaseInfoVO b) -> {
+//            if (a.getAge() != b.getAge()) {
+//                return a.getAge() > b.getAge() ? -1 : 1;
+//            } else if (!a.getName().equals(b.getName())) {
+//                return a.getName().compareTo(b.getName());
+//            } else {
+//                return 0;
+//            }
+//        });
         log.info("hello");
     }
 

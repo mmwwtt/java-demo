@@ -124,7 +124,7 @@ public class RocketMQController {
     //发送对象消息
     @GetMapping("/product/json-body/send-message")
     public String productSendJsonMessage() {
-        BaseInfo baseInfo = BaseInfo.getPresetSingle1();
+        BaseInfo baseInfo = BaseInfo.getInstance();
         String tag = "jsonBody";
         rocketMQTemplate.convertAndSend(topic + ":" + tag, baseInfo);
         return "对象消息发送成功";

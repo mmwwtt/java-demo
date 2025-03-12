@@ -21,7 +21,7 @@ public class DemoTest {
     }
 
     public BaseInfoLombok getLombokUser3() {
-        BaseInfoLombok baseInfoLombok = BaseInfoLombok.builder().name("欢欢").sex("0").build();
+        BaseInfoLombok baseInfoLombok = BaseInfoLombok.builder().name("欢欢").sex_code("0").build();
         return baseInfoLombok;
     }
 }
