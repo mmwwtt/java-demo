@@ -7,25 +7,13 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8100-demo-mybatis</artifactId>
+    <artifactId>untitled1</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.mmwwtt</groupId>
             <artifactId>8003-demo-common</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
-
 </project>

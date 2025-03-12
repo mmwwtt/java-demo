@@ -7,7 +7,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8100-demo-mybatis</artifactId>
+    <artifactId>8105-demo-xxljob</artifactId>
 
     <dependencies>
         <dependency>
@@ -17,14 +17,11 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- xxl-job定时任务依赖-->
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <groupId>com.xuxueli</groupId>
+            <artifactId>xxl-job-core</artifactId>
+            <version>2.5.0</version>
         </dependency>
     </dependencies>
 

@@ -2,30 +2,30 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.mmwwtt</groupId>
-        <artifactId>java-demo</artifactId>
+        <groupId>com.mmwwtt.ddd</groupId>
+        <artifactId>8002-demo-ddd</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8100-demo-mybatis</artifactId>
-
+    <artifactId>interfaces</artifactId>
     <dependencies>
+
         <dependency>
-            <groupId>com.mmwwtt</groupId>
-            <artifactId>8003-demo-common</artifactId>
+            <groupId>com.mmwwtt.ddd</groupId>
+            <artifactId>infrastructure</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
+            <groupId>com.mmwwtt.ddd</groupId>
+            <artifactId>application</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <groupId>com.mmwwtt.ddd</groupId>
+            <artifactId>domain</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
-
 </project>

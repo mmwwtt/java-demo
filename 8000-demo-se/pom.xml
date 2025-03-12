@@ -7,25 +7,26 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8100-demo-mybatis</artifactId>
+    <artifactId>8000-demo-se</artifactId>
 
     <dependencies>
+
         <dependency>
             <groupId>com.mmwwtt</groupId>
             <artifactId>8003-demo-common</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
+
     </dependencies>
 
 </project>
