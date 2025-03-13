@@ -17,7 +17,7 @@ public class Family extends BaseModel{
     private Long familyId;
     private String name;
     private String sexCode;
-    private LocalDate birthday;
+    private LocalDate birthDate;
 
     /**
      * 预置list

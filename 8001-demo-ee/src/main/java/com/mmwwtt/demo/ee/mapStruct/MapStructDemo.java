@@ -1,0 +1,21 @@
+package com.mmwwtt.demo.ee.mapStruct;
+
+import com.mmwwtt.demo.common.dto.BaseInfoDTO;
+import com.mmwwtt.demo.common.entity.BaseInfo;
+import com.mmwwtt.demo.common.util.CommonUtils;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+public class MapStructDemo {
+    BaseInfoConverterDemo baseInfoConverterDemo = BaseInfoConverterDemo.INSTANCE;
+    @Test
+    public void mapStructDemo() {
+        BaseInfo baseInfo = BaseInfo.getInstance();
+        BaseInfoDTO baseInfoDTO = baseInfoConverterDemo.converterToDTO(baseInfo);
+
+        List<BaseInfo> baseInfoList = BaseInfo.getPresetList();
+        List<BaseInfoDTO> baseInfoDTOlist = baseInfoConverterDemo.converterToDTO(baseInfoList);
+        CommonUtils.println(baseInfoDTO, baseInfoDTOlist);
+    }
+}

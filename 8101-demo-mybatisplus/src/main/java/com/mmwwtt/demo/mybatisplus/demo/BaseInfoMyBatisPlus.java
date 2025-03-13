@@ -18,7 +18,7 @@ public class BaseInfoMyBatisPlus {
 
     private Double height;
 
-    private LocalDate birthDay;
+    private LocalDate birthDate;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdDate;

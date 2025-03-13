@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 public class BaseModel {
     public Long lastUpdatedBy;
     public LocalDateTime lastUpdatedDate;
-
     public Long createdBy;
     public LocalDateTime createdDate;
     public String deleteFlag;

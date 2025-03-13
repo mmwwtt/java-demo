@@ -19,14 +19,19 @@ import java.util.Set;
 @RequestMapping("/validation")
 @Slf4j
 public class ValidationController {
-    @PostMapping("/validation")
-    public ApiResponse<Void> demoValidation(@RequestBody @Validated BaseInfoValidation baseInfoValidation) {
+    @PostMapping("/demo1")
+    public ApiResponse<Void> demo1(@RequestBody @Validated BaseInfoValidation baseInfoValidation) {
         log.info("{}", baseInfoValidation);
         return ApiResponse.success();
     }
 
-    @PostMapping("/validation1")
-    public ApiResponse<Void> demoValidation1(@RequestBody BaseInfoValidation baseInfoValidation) {
+    /**
+     * 代码中对进行校验
+     * @param baseInfoValidation
+     * @return
+     */
+    @PostMapping("/demo2")
+    public ApiResponse<Void> demo2(@RequestBody BaseInfoValidation baseInfoValidation) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         validator.validate(baseInfoValidation);
 
@@ -34,8 +39,6 @@ public class ValidationController {
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(new HashSet<>(violations));
         }
-
-
         return ApiResponse.success();
     }
 }

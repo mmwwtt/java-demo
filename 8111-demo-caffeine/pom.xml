@@ -7,10 +7,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8000-demo-se</artifactId>
+    <artifactId>8111-demo-caffeine</artifactId>
 
     <dependencies>
-
         <dependency>
             <groupId>com.mmwwtt</groupId>
             <artifactId>8003-demo-common</artifactId>
@@ -18,17 +17,13 @@
         </dependency>
 
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>2.0.21</version>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.1.8</version>
         </dependency>
-
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.18.2</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>

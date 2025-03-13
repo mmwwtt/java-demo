@@ -10,5 +10,5 @@ public class FamilyDTO {
     private Long familyId;
     private String name;
     private String sexCode;
-    private LocalDate birthday;
+    private LocalDate birthDate;
 }

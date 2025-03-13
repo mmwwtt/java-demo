@@ -13,5 +13,5 @@ public class BaseInfoExcel {
     private String studentNumber;
 
     @ExcelProperty(value = "生日")
-    private LocalDateTime birthDay;
+    private LocalDateTime birthDate;
 }

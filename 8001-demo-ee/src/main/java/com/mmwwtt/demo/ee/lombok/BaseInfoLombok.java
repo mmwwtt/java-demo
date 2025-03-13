@@ -1,9 +1,8 @@
-package com.mmwwtt.demo.ee.lombok使用;
+package com.mmwwtt.demo.ee.lombok;
 
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -12,7 +11,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-//@RequiredArgsConstructor
 public class BaseInfoLombok {
 
 
@@ -23,12 +21,7 @@ public class BaseInfoLombok {
 
     private Double height;
 
-    private LocalDate birthDay;
+    private LocalDate birthDate;
 
-
-    private LocalDateTime createdDate;
-
-
-    private LocalDateTime lastUpdatedDate;
 
 }

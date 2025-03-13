@@ -27,8 +27,9 @@
       <module>8106-demo-jwt</module>
       <module>8107-demo-fastjson</module>
     <module>8108-demo-jackson</module>
-    <module>untitled1</module>
+    <module>8111-demo-caffeine</module>
       <module>8109-demo-http-client</module>
+      <module>8112-demo-swagger</module>
   </modules>
 
 
@@ -75,32 +76,6 @@
       </dependency>
       <!--mybatisPlus配置end-->
 
-      <!-- swagger 依赖-->
-      <dependency>
-        <groupId>org.springdoc</groupId>
-        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        <version>2.0.4</version>
-      </dependency>
-
-      <!-- json依赖包 -->
-      <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>fastjson</artifactId>
-        <version>2.0.21</version>
-      </dependency>
-
-      <!-- jackson-->
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>2.15.2</version>
-      </dependency>
-      <!--mockito 依赖-->
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>5.14.2</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 

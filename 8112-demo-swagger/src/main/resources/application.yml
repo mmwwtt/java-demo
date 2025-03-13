@@ -1,7 +1,4 @@
-
-
 server:
-  port: 8001
-
+  port: 8112
 springdoc:
   swagger-ui.path: /swagger-ui.html

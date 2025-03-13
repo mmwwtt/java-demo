@@ -1,5 +1,6 @@
 package com.mmwwtt.demo.common.converter;
 
+import com.mmwwtt.demo.common.dto.BaseInfoDTO;
 import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import org.mapstruct.Builder;
@@ -19,4 +20,8 @@ public interface BaseInfoConverter {
     BaseInfoVO converterToVO(BaseInfo baseInfo);
 
     List<BaseInfoVO> converterToVO(List<BaseInfo> list);
+
+    BaseInfoDTO converterToDTO(BaseInfo baseInfo);
+
+    List<BaseInfoDTO> converterToDTO(List<BaseInfo> list);
 }

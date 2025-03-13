@@ -24,6 +24,7 @@ public class BaseInfoVO extends BaseModel {
     private String sexName;
     private LocalDate birthDate;
     private Contact contact;
+    private Double height;
 
     private List<FamilyVO> familyList;
 
@@ -33,7 +34,6 @@ public class BaseInfoVO extends BaseModel {
     public static List<BaseInfoVO> getPresetList() {
         return BaseInfoConverter.INSTANCE.converterToVO(BaseInfo.getPresetList());
     }
-
 
     /**
      * 预置对象
@@ -47,7 +47,10 @@ public class BaseInfoVO extends BaseModel {
         sexName = "0".equals(sexCode) ? "男" : "女";
     }
 
-    public boolean valid(String sexCode) {
+    public boolean valid(Double height, String sexCode) {
+        if(this.height < height) {
+            return false;
+        }
         if (this.sexCode != sexCode) {
             return false;
         }

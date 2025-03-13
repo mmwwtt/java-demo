@@ -18,7 +18,7 @@ public class BaseInfoFastJson {
     private String name;
 
     @JSONField(format = "yyyy-MM-dd")
-    private Date birthday;
+    private Date birthDate;
 
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date birthDateTime;
