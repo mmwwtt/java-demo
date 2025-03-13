@@ -2,6 +2,7 @@ package com.mmwwtt.demo.ee.validation;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,7 +24,12 @@ public class BaseInfoValidation {
     @Min(value= 0, message = "身高需要在0-300范围内")
     @Max(value= 300, message = "身高需要在0-300范围内")
     @NotNull(message = "身高不能为null")
+    @Range(min = 0, max = 300, message = "身高需要在0-300范围内")
     private Double height;
+
+    @NotNull(message = "体重不能为null")
+    @Range(min = 0, max = 300, message = "体重需要在0-300范围内")
+    private Double weight;
 
     @Email(message = "邮件格式不正确")
     private String email;

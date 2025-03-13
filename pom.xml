@@ -30,6 +30,7 @@
     <module>8111-demo-caffeine</module>
       <module>8109-demo-http-client</module>
       <module>8112-demo-swagger</module>
+      <module>8113-demo-minio</module>
   </modules>
 
 
