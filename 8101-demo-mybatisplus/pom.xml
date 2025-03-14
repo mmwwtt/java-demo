@@ -38,5 +38,17 @@
             <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
     </dependencies>
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <altDeploymentRepository>
+                        local::default::file://D:/3.java/mavne/repository
+                    </altDeploymentRepository>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

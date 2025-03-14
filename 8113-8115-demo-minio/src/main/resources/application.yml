@@ -1,0 +1,15 @@
+server:
+  port: 8113
+
+
+minio:
+  url: http://127.0.0.1:8115
+  username: minioadmin
+  password: minioadmin
+  bucketName: file
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB

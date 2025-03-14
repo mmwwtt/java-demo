@@ -18,19 +18,20 @@
     <module>8002-demo-ddd</module>
     <module>8003-demo-common</module>
     <module>8110-demo-rocketmq</module>
-      <module>8100-demo-mybatis</module>
+    <module>8100-demo-mybatis</module>
     <module>8101-demo-mybatisplus</module>
-      <module>8102-demo-easy-excel</module>
+    <module>8102-demo-easy-excel</module>
     <module>8103-demo-elasticsearch</module>
-      <module>8104-demo-redis</module>
-      <module>8105-demo-xxljob</module>
-      <module>8106-demo-jwt</module>
-      <module>8107-demo-fastjson</module>
+    <module>8104-demo-redis</module>
+    <module>8105-demo-xxljob</module>
+    <module>8106-demo-jwt</module>
+    <module>8107-demo-fastjson</module>
     <module>8108-demo-jackson</module>
     <module>8111-demo-caffeine</module>
-      <module>8109-demo-http-client</module>
-      <module>8112-demo-swagger</module>
-      <module>8113-demo-minio</module>
+    <module>8109-demo-http-client</module>
+    <module>8112-demo-swagger</module>
+    <module>8113-8115-demo-minio</module>
+    <module>8004-demo-springmvc</module>
   </modules>
 
 
@@ -143,11 +144,11 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
+        <artifactId>maven-deploy-plugin</artifactId>
         <configuration>
-          <source>17</source>
-          <target>17</target>
+          <altDeploymentRepository>
+            local::default::file://D:/3.java/mavne/repository
+          </altDeploymentRepository>
         </configuration>
       </plugin>
     </plugins>
