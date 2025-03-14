@@ -7,13 +7,13 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8000-demo-se</artifactId>
+    <artifactId>demo-se</artifactId>
 
     <dependencies>
 
         <dependency>
             <groupId>com.mmwwtt</groupId>
-            <artifactId>8003-demo-common</artifactId>
+            <artifactId>demo-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 

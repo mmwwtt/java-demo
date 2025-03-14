@@ -7,17 +7,17 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8102-demo-easy-excel</artifactId>
+    <artifactId>demo-easy-excel</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.mmwwtt</groupId>
-            <artifactId>8003-demo-common</artifactId>
+            <artifactId>demo-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.mmwwtt</groupId>
-            <artifactId>8101-demo-mybatisplus</artifactId>
+            <artifactId>demo-mybatisplus</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 

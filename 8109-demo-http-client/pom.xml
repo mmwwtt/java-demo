@@ -7,12 +7,12 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8109-demo-http-client</artifactId>
+    <artifactId>demo-http-client</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.mmwwtt</groupId>
-            <artifactId>8003-demo-common</artifactId>
+            <artifactId>demo-common</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

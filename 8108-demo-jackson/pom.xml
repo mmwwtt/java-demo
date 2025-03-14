@@ -7,12 +7,12 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8108-demo-jackson</artifactId>
+    <artifactId>demo-jackson</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.mmwwtt</groupId>
-            <artifactId>8003-demo-common</artifactId>
+            <artifactId>demo-common</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

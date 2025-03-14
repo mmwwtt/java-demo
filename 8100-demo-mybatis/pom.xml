@@ -7,14 +7,13 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>8100-demo-mybatis</artifactId>
+    <artifactId>demo-mybatis</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.mmwwtt</groupId>
-            <artifactId>8003-demo-common</artifactId>
+            <artifactId>demo-common</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
