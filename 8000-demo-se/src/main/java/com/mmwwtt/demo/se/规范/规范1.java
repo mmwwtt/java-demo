@@ -47,8 +47,8 @@ public class 规范1 {
 
     @Test
     public void 关闭资源() throws FileNotFoundException {
-        try (FileInputStream in = new FileInputStream("resources/test.txt");
-             FileOutputStream out = new FileOutputStream("resources/test.txt")) {
+        try (FileInputStream in = new FileInputStream("resources/file/test.txt");
+             FileOutputStream out = new FileOutputStream("resources/file/test.txt")) {
 
         } catch (IOException e) {
             e.printStackTrace();

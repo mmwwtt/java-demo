@@ -1,5 +1,6 @@
 package com.mmwwtt.demo.se.多线程;
 
+import com.mmwwtt.demo.se.多线程.线程池.GlobalThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -8,108 +9,107 @@ import java.util.concurrent.*;
 @Slf4j
 public class 创建线程 {
 
+    private ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+
     /**
-     * 实现Thread类来创建线程
+     * 继承Thread类，实现run方法
      *
      * @throws InterruptedException
      */
     @Test
-    public void testThread() throws InterruptedException {
+    public void testThread() {
         Thread thread = new Thread(() -> {
-            int sum = 0;
-            for (int i = 0; i < 50; i++) {
-                sum += i;
-            }
-            log.info("{}",sum);
+            log.info("创建了线程");
         }, "thread1");
         thread.start();
     }
 
+    /**
+     * 实现Rallable接口
+     */
     @Test
     public void testRunnable() {
         Runnable runnable = () -> {
-            int sum = 0;
-            for (int i = 0; i < 50; i++) {
-                sum += i;
-            }
-            log.info("{}",sum);
+            log.info("创建了线程");
         };
         Thread thread = new Thread(runnable, "thread1");
         thread.start();
     }
 
     /**
-     * 实现Callable接口
-     * @throws ExecutionException
-     * @throws InterruptedException
+     * 实现Callable接口,可获得线程中放大的返回值
      */
     @Test
     public void testCallable() throws ExecutionException, InterruptedException {
         Callable<String> callable = () -> {
-            int sum = 0;
-            for (int i = 0; i < 50; i++) {
-                sum += i;
-            }
-            return String.valueOf(sum);
+            log.info("创建了线程");
+            return "hello";
         };
+        //获得线程后的返回值
         FutureTask<String> futureTask = new FutureTask<>(callable);
         Thread thread = new Thread(futureTask, "thread1");
         thread.start();
         log.info("{}",futureTask.get());
     }
 
-    @Test
-    public void testFuture() throws ExecutionException, InterruptedException {
-        ExecutorService service = Executors.newFixedThreadPool(5);
-        Callable<String> callable = () -> {
-            int sum = 0;
-            for (int i = 0; i < 50; i++) {
-                sum += i;
-            }
-            return String.valueOf(sum);
-        };
-        Future<String> future = service.submit(callable);
-
-        //获取callable接口中的异常
-        try {
-            log.info("myTask任务执行结果为 {}", future.get());
-        } catch (InterruptedException e) {
-            log.info("任务被中断！");
-        } catch (ExecutionException e) {
-            log.info("任务内部抛出未受检异常！");
-        } catch (CancellationException e){
-            log.info("任务被取消！");
-        }
-        log.info("{}",future.get());
-    }
-
+    //使用线程池提交任务
     @Test
     public void testFutureTask() throws ExecutionException, InterruptedException {
-        ExecutorService service = Executors.newFixedThreadPool(5);
         Callable<String> callable = () -> {
-            int sum = 0;
-            for (int i = 0; i < 50; i++) {
-                sum += i;
-            }
-            return String.valueOf(sum);
+            log.info("创建了线程");
+            Thread.sleep(10000);
+            return "hello";
         };
         FutureTask<String> futureTask = new FutureTask<>(callable);
-        service.submit(futureTask);
+        pool.submit(futureTask);
         log.info("{}",futureTask.get());
     }
 
-
+    /**
+     * 使用CompletableFuture创建线程
+     * 支持返回值，链式调用，异常处理，组合操作
+     */
     @Test
     public void testCompletableFuture() throws ExecutionException, InterruptedException {
-        ExecutorService service = Executors.newFixedThreadPool(5);
+        //有返回值的线程
+        CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> {
+            log.info("创建了线程");
+            return "hello";
+        }, pool);
 
-        CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(() -> {
-            int sum = 0;
-            for (int i = 0; i < 50; i++) {
-                sum += i;
+        //无返回值的线程
+        CompletableFuture.runAsync(() -> {
+            log.info("创建了线程");
+        }, pool);
+
+        // 链式调用 thenApply 对结果进行处理，返回新结果
+        CompletableFuture<String> future2 = future1.thenApply(result -> result + " CompletableFuture");
+        // thenAccept 消费异步任务的结果
+        future2.thenAccept(result -> System.out.println(result));
+        // 执行无返回值的操作
+        future1.thenRun(() -> System.out.println("任务完成"));
+        // 对异常处理
+        future1.exceptionally(ex -> {
+            System.out.println("捕获异常: " + ex.getMessage());
+            return "默认值";
+        }).thenAccept(result -> System.out.println("任务结果: " + result));
+
+        // 处理结果或异常
+        future1.handle((result, ex) -> {
+            if (ex != null) {
+                System.out.println("捕获异常: " + ex.getMessage());
+                return "默认值";
             }
-            return String.valueOf(sum);
-        }, service);
-        log.info("{}",completableFuture.get());
+            return result;
+        }).thenAccept(result -> System.out.println("任务结果: " + result));
+
+
+        // 组合两个任务的结果
+        CompletableFuture<String> combinedFuture = future1.thenCombine(future2, (result1, result2) -> result1 + " " + result2);
+        // 消费结果
+        combinedFuture.thenAccept(result -> System.out.println("组合结果: " + result));
+
+        // 消费两个任务的结果
+        future1.thenAcceptBoth(future2, (result1, result2) -> System.out.println("组合结果: " + result1 + " " + result2));
     }
 }

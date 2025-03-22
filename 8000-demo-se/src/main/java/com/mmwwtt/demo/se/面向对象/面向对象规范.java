@@ -1,8 +1,8 @@
 package com.mmwwtt.demo.se.面向对象;
 
 
-import com.mmwwtt.demo.se.公共类.A;
-import com.mmwwtt.demo.se.公共类.B;
+import com.mmwwtt.demo.se.common.A;
+import com.mmwwtt.demo.se.common.B;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 

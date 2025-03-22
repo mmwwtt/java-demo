@@ -1,6 +1,6 @@
 package com.mmwwtt.demo.se.面向对象;
 
-import com.mmwwtt.demo.se.公共类.A;
+import com.mmwwtt.demo.se.common.A;
 import org.junit.jupiter.api.Test;
 
 public class 调用静态方法 {

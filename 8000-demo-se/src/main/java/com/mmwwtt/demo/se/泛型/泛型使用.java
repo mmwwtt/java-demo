@@ -11,10 +11,10 @@ public class 泛型使用 {
     @Test
     public void 泛型使用() {
         Message<String> message1 = new Message<>();
-        String str1 = message1.getDate("");
+        message1.setData("");
 
         Message<Integer> message2 = new Message<>();
-        Integer num = message2.getDate(22);
+        message2.setData(22);
     }
 
     /**

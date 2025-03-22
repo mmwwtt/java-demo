@@ -123,3 +123,10 @@ POST shopping/_delete_by_query
 		}
 	}
 }
+
+#分词器
+GET _analyze
+{
+    "text": "hello world",
+    "analyzer": "standard"
+}

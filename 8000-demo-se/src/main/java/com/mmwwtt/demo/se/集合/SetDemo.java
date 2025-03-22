@@ -3,8 +3,8 @@ package com.mmwwtt.demo.se.集合;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
 @Slf4j
 public class SetDemo {
 
@@ -41,55 +41,55 @@ public class SetDemo {
 //        log.info("set3: {}", set3);
     }
 
-//    @Test
-//    public void set常用方法() {
-//        Set<Integer> set1 = new HashSet<>();
-//
-//        //添加元素
-//        set1.add(1);
-//
-//        //删除元素 的三种方式
-//        //方式1
-//        set1.remove(1);
-//
-//        //方式2
-//        set1.removeIf(next -> next.equals(1));
-//
-//        //方式3
-//        Iterator<Integer> iterator = set1.iterator();
-//        while (iterator.hasNext()) {
-//            Integer num = iterator.next();
-//            if (num.equals(1)) {
-//                iterator.remove();
-//            }
-//        }
-//
-//        //是否包含元素
-//        if (set1.contains(1)) {
-//            log.info("包含1");
-//        }
-//
-//        //获得set大小
-//        log.info("set1的size: " + set1.size());
-//
-//        //清空set
-//        set1.clear();
-//
-//        set1.add(1);
-//        set1.add(2);
-//        set1.add(3);
-//        //遍历set,不能在遍历的时候移除元素
-//        for (Integer num : set1) {
-//            log.info(num);
-//        }
-//
-//        //set转 数组 或者 list
-//        Integer[] list1 = new Integer[set1.size()];
-//        set1.toArray(list1);
-//
-//        List<Integer> list2 = new ArrayList<>(set1);
-//    }
-//
+    @Test
+    public void set常用方法() {
+        Set<Integer> set1 = new HashSet<>();
+
+        //添加元素
+        set1.add(1);
+
+        //删除元素 的三种方式
+        //方式1
+        set1.remove(1);
+
+        //方式2
+        set1.removeIf(next -> next.equals(1));
+
+        //方式3
+        Iterator<Integer> iterator = set1.iterator();
+        while (iterator.hasNext()) {
+            Integer num = iterator.next();
+            if (num.equals(1)) {
+                iterator.remove();
+            }
+        }
+
+        //是否包含元素
+        if (set1.contains(1)) {
+            log.info("包含1");
+        }
+
+        //获得set大小
+        log.info("set1的size: " + set1.size());
+
+        //清空set
+        set1.clear();
+
+        set1.add(1);
+        set1.add(2);
+        set1.add(3);
+        //遍历set,不能在遍历的时候移除元素
+        for (Integer num : set1) {
+            log.info("{}",num);
+        }
+
+        //set转 数组 或者 list
+        Integer[] list1 = new Integer[set1.size()];
+        set1.toArray(list1);
+
+        List<Integer> list2 = new ArrayList<>(set1);
+    }
+
 //    @Test
 //    public void 内存泄露() {
 //        Set<Point> set = new HashSet<>();

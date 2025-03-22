@@ -1,6 +1,6 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.创建型.原型模式;
 
-import com.mmwwtt.demo.se.公共类.Point;
+import com.mmwwtt.demo.se.common.Point;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

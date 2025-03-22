@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/reids/redisson")
+@RequestMapping("/redis/redisson")
 @Slf4j
 public class RedissonDemo {
 
@@ -118,6 +118,7 @@ public class RedissonDemo {
             if (res) {
                 //成功获得锁，在这里处理业务
                 log.info("成功获取到锁...");
+                Thread.sleep(20000);
             }
         } catch (Exception e) {
             throw new RuntimeException("aquire lock fail");
@@ -127,4 +128,33 @@ public class RedissonDemo {
         }
         return ApiResponse.success();
     }
+
+    /**
+     * lock.tryLock(100, 1, TimeUnit.SECONDS);   会根据过期时间释放
+     * lock.tryLock(); 会启动看门狗， 默认30秒，不能指定持有时间，否则看门狗失效
+     * @return
+     */
+    @PostMapping("/testLock")
+    public ApiResponse<Void>  testLock() {
+        Config config = new Config();
+        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+        RedissonClient client1 = Redisson.create(config);
+        RLock lock = client1.getLock("myLock");
+        try {
+            // 尝试加锁，最多等待100秒，上锁以后10秒自动解锁
+            boolean res = lock.tryLock();
+            if (res) {
+                //成功获得锁，在这里处理业务
+                log.info("成功获取到锁...");
+                Thread.sleep(40000);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("aquire lock fail");
+        } finally {
+            // 无论如何, 最后都要解锁
+            lock.unlock();
+        }
+        return ApiResponse.success();
+    }
 }
+

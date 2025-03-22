@@ -32,6 +32,7 @@
     <module>8112-demo-swagger</module>
     <module>8113-8115-demo-minio</module>
     <module>8004-demo-springmvc</module>
+      <module>8116-demo-activiti</module>
   </modules>
 
 

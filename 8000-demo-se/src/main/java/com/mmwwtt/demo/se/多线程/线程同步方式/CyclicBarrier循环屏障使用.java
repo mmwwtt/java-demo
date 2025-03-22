@@ -27,7 +27,7 @@ public class CyclicBarrier循环屏障使用 {
                 }
                 fin = false;
             }
-        }, "thread1");
+        });
 
         Thread thread2 = new Thread(() -> {
             for (int i = 0; i < 1000; i++) {
@@ -39,7 +39,7 @@ public class CyclicBarrier循环屏障使用 {
                 }
                 fin = true;
             }
-        }, "thread2");
+        });
         thread1.start();
         thread2.start();
     }

@@ -19,7 +19,7 @@ public class Collections类 {
         set = Collections.unmodifiableSet(set);
         list = Collections.unmodifiableList(list);
 
-        //jdk10 新增写法
+        //jdk10 新增写法 长度不能改变
         List<String> list2 = List.of("hello", "world");
     }
 

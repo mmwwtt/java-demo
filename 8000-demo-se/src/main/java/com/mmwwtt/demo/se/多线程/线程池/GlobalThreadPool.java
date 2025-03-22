@@ -1,15 +1,16 @@
 package com.mmwwtt.demo.se.多线程.线程池;
 
+import lombok.Data;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 全局线程池
- * @author Tarzan写bug
- * @since 2022/09/08
+ * 自定义线程池
  */
+@Data
 public class GlobalThreadPool {
 
     // 定义线程池的核心线程数
@@ -26,11 +27,8 @@ public class GlobalThreadPool {
     // 线程池实例，使用volatile保证可见性以及禁止指令重排序
     private static volatile ThreadPoolExecutor threadPoolExecutor;
 
-    // 私有构造方法，防止外部实例化
-    private GlobalThreadPool() {
-    }
 
-    // 获取线程池实例的静态方法，采用双重检查锁定（DCL）的单例模式
+    // 获取线程池实例的静态方法，用双重校验的单例模式
     public static ThreadPoolExecutor getInstance() {
         if (threadPoolExecutor == null) {
             synchronized (GlobalThreadPool.class) {
@@ -40,7 +38,8 @@ public class GlobalThreadPool {
                             MAXIMUM_POOL_SIZE,
                             KEEP_ALIVE_TIME,
                             UNIT,
-                            WORK_QUEUE
+                            WORK_QUEUE,
+                            new ThreadPoolExecutor.AbortPolicy()
                     );
                 }
             }

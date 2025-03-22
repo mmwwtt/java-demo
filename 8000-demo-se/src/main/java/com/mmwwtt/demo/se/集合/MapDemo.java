@@ -105,4 +105,18 @@ public class MapDemo {
         Set<String> keySet = map.keySet();
         Set<Map.Entry<String, String>> entrySet = map.entrySet();
     }
+
+    @Test
+    public void 删除元素() {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("a", 1);
+        map.put("b", 2);
+        map.put("c", 3);
+
+
+        // 在遍历中删除元素
+        map.entrySet().removeIf(entry -> entry.getValue() == 2);
+
+        System.out.println(map); // 输出：{a=1, c=3}
+    }
 }
