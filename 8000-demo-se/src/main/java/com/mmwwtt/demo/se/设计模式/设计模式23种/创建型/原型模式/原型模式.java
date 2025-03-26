@@ -1,6 +1,5 @@
 package com.mmwwtt.demo.se.设计模式.设计模式23种.创建型.原型模式;
 
-import com.mmwwtt.demo.se.common.Point;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,16 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class 原型模式 {
     public static void main(String[] args) throws CloneNotSupportedException {
-        ConcreteObject concreteObject = new ConcreteObject(new Point(1,2,3), 15);
-        ConcreteObject concreteObjectCopy = concreteObject.clone();
+        Demo demo = new Demo("小明");
+        Demo demoCopy = demo.clone();
 
         //修改对象中的引用类型的对象中的值，被拷贝的对象也会改变
-        concreteObject.getPoint().setValue(999);
+        demo.setName("小华");
 
-        log.info("{}",concreteObject);
-        log.info("{}",concreteObjectCopy);
-
-
+        log.info("{},{}", demo,demoCopy);
     }
 }
 
@@ -31,13 +27,10 @@ public class 原型模式 {
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-class ConcreteObject implements Cloneable {
-    Point point;
-    int num;
-
-    //clone对对象中的基本数据类型是深拷贝，对引用类型是浅拷贝
+class Demo implements Cloneable {
+    private String name;
     @Override
-    protected ConcreteObject clone() throws CloneNotSupportedException {
-        return (ConcreteObject) super.clone();
+    protected Demo clone() throws CloneNotSupportedException {
+        return (Demo) super.clone();
     }
 }

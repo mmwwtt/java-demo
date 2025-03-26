@@ -9,7 +9,7 @@ public class 抽象工厂模式 {
     @Test
     public void test() {
         Factory factory = new ConcreteFactoryA();
-        Product product = factory.getProduct();
+        Product product = factory.getProduct("productA");
     }
 }
 
@@ -24,7 +24,7 @@ abstract class Product {
  * 具体产品
  */
 @Slf4j
-class ConcreteProductA extends Product{
+class ProductA extends Product{
 
     @Override
     public void getName() {
@@ -36,13 +36,16 @@ class ConcreteProductA extends Product{
  * 抽象工厂
  */
 abstract class Factory {
-    public abstract Product getProduct();
+    public abstract Product getProduct(String name);
 }
 
 class ConcreteFactoryA extends Factory {
 
     @Override
-    public Product getProduct() {
-        return new ConcreteProductA();
+    public Product getProduct(String name) {
+        if (name.equals("productA")) {
+            return new ProductA();
+        }
+        return null;
     }
 }
