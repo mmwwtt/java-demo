@@ -23,5 +23,6 @@ public class GlobalThreadPoolDemo {
                 str.remove();
             }
         });
+        str.remove();
     }
 }

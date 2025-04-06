@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -155,6 +157,35 @@ public class RedissonDemo {
             lock.unlock();
         }
         return ApiResponse.success();
+    }
+
+    /**
+     * lock.tryLock(100, 1, TimeUnit.SECONDS);   会根据过期时间释放
+     * lock.tryLock(); 会启动看门狗， 默认30秒，不能指定持有时间，否则看门狗失效
+     * @return
+     */
+    @PostMapping("/countDemo")
+    public ApiResponse<String>  countDemo() {
+        Config config = new Config();
+        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+        RedissonClient client = Redisson.create(config);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("YYMMdd");
+        String dateStr = sdf.format(new Date());
+        String key = "ORDER_" + dateStr;
+
+        // 获取RAtomicLong对象
+        RAtomicLong atomicLong = client.getAtomicLong(key);
+
+        // 原子性递增序列号
+        long sequence = atomicLong.incrementAndGet();
+
+        // 格式化序列号为6位，不足部分补零
+        String sequenceStr = String.format("%06d", sequence);
+
+        // 返回完整的单据号
+        String result =  "ORDER" + dateStr + sequenceStr;
+        return ApiResponse.success(result);
     }
 }
 

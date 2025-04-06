@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mmwwtt.demo.mybatisplus.demo.BaseInfoMybatisPlusDao">
+<mapper namespace="com.mmwwtt.demo.mybatisplus.demo.BaseInfoDao">
    <sql id="baseInfoQuerySql">
        <where>
            <if test="query.name != null and query.name != ''">
@@ -20,13 +20,12 @@
            </if>
        </where>
    </sql>
-    <select id="queryByPage" resultType="com.mmwwtt.demo.mybatisplus.demo.BaseInfoMyBatisPlus">
+    <select id="queryByPage" resultType="com.mmwwtt.demo.mybatisplus.demo.BaseInfo">
         select * from base_info_t
         <include refid="baseInfoQuerySql"></include>
-
     </select>
-    <select id="query" resultType="com.mmwwtt.demo.mybatisplus.demo.BaseInfoMyBatisPlus"
-            parameterType="com.mmwwtt.demo.mybatisplus.demo.BaseInfoMybatisPlusQuery">
+    <select id="query" resultType="com.mmwwtt.demo.mybatisplus.demo.BaseInfo"
+            parameterType="com.mmwwtt.demo.mybatisplus.demo.BaseInfoQuery">
         select * from base_info_t
         <include refid="baseInfoQuerySql"></include>
     </select>

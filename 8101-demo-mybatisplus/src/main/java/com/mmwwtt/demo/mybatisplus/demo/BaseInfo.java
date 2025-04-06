@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @TableName("base_info_t")
-public class BaseInfoMyBatisPlus {
+public class BaseInfo {
 
     @TableId(type = IdType.AUTO)
     private Long baseInfoId;

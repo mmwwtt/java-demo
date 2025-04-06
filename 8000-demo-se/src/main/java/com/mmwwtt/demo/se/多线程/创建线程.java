@@ -4,6 +4,8 @@ import com.mmwwtt.demo.se.多线程.线程池.GlobalThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 @Slf4j
@@ -22,6 +24,9 @@ public class 创建线程 {
             log.info("创建了线程");
         }, "thread1");
         thread.start();
+
+        //获得线程优先级
+        thread.getPriority();
     }
 
     /**
@@ -88,6 +93,7 @@ public class 创建线程 {
         future2.thenAccept(result -> System.out.println(result));
         // 执行无返回值的操作
         future1.thenRun(() -> System.out.println("任务完成"));
+
         // 对异常处理
         future1.exceptionally(ex -> {
             System.out.println("捕获异常: " + ex.getMessage());
@@ -111,5 +117,34 @@ public class 创建线程 {
 
         // 消费两个任务的结果
         future1.thenAcceptBoth(future2, (result1, result2) -> System.out.println("组合结果: " + result1 + " " + result2));
+    }
+
+
+    /**
+     * 多线程执行完任务后，将结果合并返回
+     * @throws Exception
+     */
+    @Test
+    public void testSubmitAndCombineResults() throws Exception {
+        // 提交第一个任务
+        CompletableFuture<List<String>> futureA = CompletableFuture.supplyAsync(() -> {
+            return List.of("hello", "a");
+        }, pool);
+
+        // 提交第二个任务
+        CompletableFuture<List<String>> futureB = CompletableFuture.supplyAsync(() -> {
+            return List.of("world", "b");
+        }, pool);
+
+        // 合并两个任务的结果
+        CompletableFuture<List<String>> combinedFuture = futureA.thenCombine(futureB, (list1, list2) -> {
+            List<String> combinedList = new ArrayList<>(list1);
+            combinedList.addAll(list2);
+            return combinedList;
+        });
+
+        // 等待合并后的结果
+        List<String> combinedResult = combinedFuture.get();
+        log.info("Combined result: " + combinedResult);
     }
 }

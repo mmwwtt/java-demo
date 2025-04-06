@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class BaseInfoMybatisPlusQuery extends Page {
+public class BaseInfoQuery extends Page {
     private String baseInfoId;
     private String name;
 

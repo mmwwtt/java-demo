@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
-public class Array数组 {
+public class ArrayDemo {
 
     @Test
     public void array数组常用方法() {
@@ -16,12 +16,10 @@ public class Array数组 {
         int[] array1 = {1,3,5};
 
         //二维数组初始化
-        int[][] array3 = new int[][]{{2, 4}, {3, 5}};
+        int[][] array3 = {{2, 4}, {3, 5}};
 
         //获得数组长度
         log.info("{}",array1.length);
-
-
 
         //通过System.arraycopy() 或者 Arrays.copyof() 进行数组复制 (深拷贝)
         int[] array4 = new int[array1.length];
@@ -33,7 +31,6 @@ public class Array数组 {
         for (int i = 0; i < arr1.length; i++) {
             System.arraycopy(arr1[i], 0, arr2[i], 0, arr1[0].length);
         }
-
-
+        System.out.println();
     }
 }

@@ -12,26 +12,26 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/mybatis-plus")
-public class MybatisPlusController {
+public class DemoController {
 
     @Resource
-    private BaseInfoMybatisPlusDao dao;
+    private BaseInfoDao dao;
 
     @PostMapping("/base-info/save")
-    public ApiResponse<Void> save(@RequestBody BaseInfoMyBatisPlus baseInfoMyBatisPlus) {
-        dao.insert(baseInfoMyBatisPlus);
+    public ApiResponse<Void> save(@RequestBody BaseInfo baseInfo) {
+        dao.insert(baseInfo);
         return ApiResponse.success();
     }
 
     @PostMapping("/base-info/query")
-    public ApiResponse<List<BaseInfoMyBatisPlus>> query(@RequestBody BaseInfoMybatisPlusQuery studentQuery) {
-        List<BaseInfoMyBatisPlus> list = dao.query(studentQuery);
+    public ApiResponse<List<BaseInfo>> query(@RequestBody BaseInfoQuery baseInfoQuery) {
+        List<BaseInfo> list = dao.query(baseInfoQuery);
         return ApiResponse.success(list);
     }
 
     @PostMapping("/base-info/queryByPage")
-    public ApiResponse<Page<BaseInfoMyBatisPlus>> queryByPage(@RequestBody BaseInfoMybatisPlusQuery studentQuery) {
-        Page<BaseInfoMyBatisPlus> page = dao.queryByPage(studentQuery);
+    public ApiResponse<Page<BaseInfo>> queryByPage(@RequestBody BaseInfoQuery baseInfoQuery) {
+        Page<BaseInfo> page = dao.queryByPage(baseInfoQuery);
         return ApiResponse.success(page);
     }
 

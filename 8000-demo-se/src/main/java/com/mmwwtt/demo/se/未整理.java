@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -24,18 +25,6 @@ public class 未整理 {
             return a.intValue() > b.intValue() ? -1 : 1;
         });
     }
-
-
-    //        A a = new A();
-//        B b = new B();
-//        C c = new C();
-//        List<A> list = new ArrayList<>();
-//        list.add(a);
-//        list.add(b);
-//        list.add(c);
-
-
-
 
     /**
      * 在使用尝试机制来获取锁的lock.tryLock()方式种，进入业务代码块之前，必须判断当前线程是否持有锁
@@ -65,4 +54,14 @@ public class 未整理 {
     public void 要保持枷锁顺序一致() {
 
     }
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        // 注意 hasNext 和 hasNextLine 的区别
+        while (in.hasNextInt()) { // 注意 while 处理多个 case
+            int a = in.nextInt();
+            int b = in.nextInt();
+            System.out.println(a + b);
+        }
+    }
+
 }

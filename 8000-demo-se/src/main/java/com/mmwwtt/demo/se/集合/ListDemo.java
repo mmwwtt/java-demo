@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-public class List类 {
+public class ListDemo {
 
     @Test
     public void list种类() {
@@ -55,19 +55,8 @@ public class List类 {
         //清空元素
         list1.clear();
 
+        //截取集合
         List<Integer> list4 = list2.subList(0,1);
 
-
     }
-
-    /**
-     * 初始化集合尽量给出初始化大小，
-     * 每次添加元素都要判断集合容量是否到达零界点，如果到达则重新生成一段更大的内存段，将原数据拷贝到新内存段中
-     * 判断和移动都存在性能消耗
-     */
-    @Test
-    public void 规范() {
-        List<Integer> list = new ArrayList<>(15);
-    }
-
 }

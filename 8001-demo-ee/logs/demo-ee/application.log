@@ -1,0 +1,9 @@
+2025-03-27 15:56:43 [main] INFO  com.mmwwtt.demo.ee.log.Demo - Doing something...
+2025-03-27 15:56:57 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.mmwwtt.demo.ee.log.Demo]: Demo does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-03-27 15:56:57 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.mmwwtt.demo.ee.DemoEEStarter for test class com.mmwwtt.demo.ee.log.Demo
+2025-03-27 15:56:58 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+2025-03-27 15:56:58 [main] INFO  com.mmwwtt.demo.ee.log.Demo - Starting Demo using Java 17.0.6 with PID 6796 (started by moweitao in C:\Users\moweitao\Desktop\study_stack\java-demo\8001-demo-ee)
+2025-03-27 15:56:58 [main] INFO  com.mmwwtt.demo.ee.log.Demo - No active profile set, falling back to 1 default profile: "default"
+2025-03-27 15:57:01 [main] INFO  com.mmwwtt.demo.ee.log.Demo - Started Demo in 3.097 seconds (process running for 4.841)
+2025-03-27 15:57:02 [main] INFO  com.mmwwtt.demo.ee.log.Demo - Doing something...
+2025-03-27 15:57:20 [main] INFO  com.mmwwtt.demo.ee.log.Demo - Doing something...
