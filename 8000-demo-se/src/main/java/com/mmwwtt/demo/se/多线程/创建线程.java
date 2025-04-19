@@ -82,6 +82,12 @@ public class 创建线程 {
             return "hello";
         }, pool);
 
+
+        //无返回值的线程
+        CompletableFuture.runAsync(() -> {
+            log.info("创建了线程");
+        }, pool);
+
         //无返回值的线程
         CompletableFuture.runAsync(() -> {
             log.info("创建了线程");
@@ -93,6 +99,8 @@ public class 创建线程 {
         future2.thenAccept(result -> System.out.println(result));
         // 执行无返回值的操作
         future1.thenRun(() -> System.out.println("任务完成"));
+        //获得线程返回值
+        String res = future2.get();
 
         // 对异常处理
         future1.exceptionally(ex -> {
@@ -146,5 +154,52 @@ public class 创建线程 {
         // 等待合并后的结果
         List<String> combinedResult = combinedFuture.get();
         log.info("Combined result: " + combinedResult);
+    }
+
+    /**
+     * 合并N个任务结果
+     * @param args
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    @Test
+    public void allOfFuture() throws ExecutionException, InterruptedException {
+        // 创建10个异步任务
+        CompletableFuture<String>[] futures = new CompletableFuture[10];
+        for (int i = 0; i < 10; i++) {
+            int taskNumber = i + 1;
+            futures[i] = CompletableFuture.supplyAsync(() -> {
+                // 模拟耗时任务
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                return "Task " + taskNumber + " result";
+            });
+        }
+
+        // 使用CompletableFuture.allOf来合并所有任务
+        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures);
+
+        // 当所有任务都完成时，获取每个任务的结果
+        CompletableFuture<String[]> allResultsFuture = allFutures.thenApply(v -> {
+            String[] results = new String[futures.length];
+            for (int i = 0; i < futures.length; i++) {
+                results[i] = futures[i].join(); // 获取每个任务的结果
+            }
+            return results;
+        });
+
+        // 获取合并后的结果
+        String[] results = allResultsFuture.get();
+
+        // 打印结果
+        for (String result : results) {
+            System.out.println(result);
+        }
+
+        //等10个任务都执行完后再执行后续步骤
+        allResultsFuture.thenRun(() ->{});
     }
 }

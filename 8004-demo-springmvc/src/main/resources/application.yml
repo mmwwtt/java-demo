@@ -1,2 +1,6 @@
 server:
   port: 8004
+
+test:
+  name: "小明"
+name: "小明1223"

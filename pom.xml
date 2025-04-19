@@ -32,8 +32,16 @@
     <module>8112-demo-swagger</module>
     <module>8113-8115-demo-minio</module>
     <module>8004-demo-springmvc</module>
-      <module>8116-demo-activiti</module>
-      <module>8117-demo-security</module>
+    <module>8116-demo-activiti</module>
+    <module>8117-demo-security</module>
+    <module>8200-demo-nacos-service1</module>
+    <module>8201-demo-nacos-service2</module>
+    <module>8202-demo-openfeign</module>
+    <module>8203-demo-gateway</module>
+    <module>8204-demo-sentinel</module>
+    <module>8205-demo-seata</module>
+    <module>8206-demo-zookeeper</module>
+    <module>8207-demo-dubbo</module>
   </modules>
 
 

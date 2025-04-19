@@ -27,7 +27,7 @@ public class FieldFilterInterceptor implements Interceptor {
         String modifiedSql = modifySql(originalSql);
         // 使用 MetaObject 修改 BoundSql 中的 SQL
         MetaObject metaObject = SystemMetaObject.forObject(statementHandler);
-        metaObject.setValue("boundSql.sql", modifiedSql);
+        metaObject.setValue("boundSql.oracle语法.txt", modifiedSql);
         // 执行修改后的 SQL
         return invocation.proceed();
     }

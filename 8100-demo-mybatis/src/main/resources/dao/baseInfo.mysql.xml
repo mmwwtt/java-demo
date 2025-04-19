@@ -4,6 +4,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mmwwtt.demo.mybatis.demo.BaseInfoDao">
 
+    <sql id ="in-sql">
+        in
+        <foreach item="userId" collection="userIdList" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </sql>
     <!-- 查询所有用户 -->
     <select id="getByQuery" resultType="com.mmwwtt.demo.mybatis.demo.BaseInfo">
         SELECT * FROM base_info_t
