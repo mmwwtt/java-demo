@@ -6,6 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class DemoActivitiStarter {
     public static void main(String[] args) {
-        SpringApplication.run(DemoActivitiStarter.class);
+        SpringApplication.run(DemoActivitiStarter.class, args);
     }
 }
