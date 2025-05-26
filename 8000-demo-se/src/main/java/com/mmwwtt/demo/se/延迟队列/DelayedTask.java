@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 @Data
 @Slf4j
-public class DelayedTask<D> implements Delayed {
+public class DelayedTask<T> implements Delayed {
     /**
      * 任务到期时间
      */
@@ -18,9 +18,9 @@ public class DelayedTask<D> implements Delayed {
     /**
      * 待处理数据
      */
-    private D data;
+    private T data;
 
-    public DelayedTask(Duration delayTime, D data) {
+    public DelayedTask(Duration delayTime, T data) {
         this.deadlineNanos = System.nanoTime() + delayTime.toNanos();
         this.data = data;
     }
@@ -53,11 +53,4 @@ public class DelayedTask<D> implements Delayed {
             return 0;
         }
     }
-    /**
-     * 输出数据
-     */
-    public void execute() {
-        log.info("{}",data);
-    }
-
 }

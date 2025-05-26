@@ -1,7 +1,7 @@
 package com.mmwwtt.demo.elasticsearch.demo;
 
+import jakarta.annotation.Resource;
 import org.assertj.core.util.Lists;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/elastic-search")
 public class ElasticSearchController {
-    @Autowired
+    @Resource
     private BaseInfoElasticSearchRepository baseInfoElasticSearchRepository;
 
     @PostMapping("/base-info/save")

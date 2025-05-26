@@ -1,8 +1,8 @@
 package com.mmwwtt.demo.se.面向对象;
 
 
-import com.mmwwtt.demo.se.common.A;
-import com.mmwwtt.demo.se.common.B;
+import com.mmwwtt.demo.se.common.Level_0;
+import com.mmwwtt.demo.se.common.Level_1;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -25,11 +25,11 @@ public class 面向对象规范 {
      */
     @Test
     public void 隐藏() {
-        A a = new B();
-        B b = new B();
+        Level_0 level0 = new Level_1();
+        Level_1 level1 = new Level_1();
         //执行的是类A的message, 子类种的message被父类同名变量隐藏了
-        log.info(a.message);
-        log.info(b.message);
+        log.info(level0.message);
+        log.info(level1.message);
     }
 
     /**
@@ -39,7 +39,7 @@ public class 面向对象规范 {
     public String href;
     @Test
     public void 遮蔽() {
-        A href = new A();
+        Level_0 href = new Level_0();
         log.info("{}",href);
     }
 

@@ -1,8 +1,8 @@
 package com.mmwwtt.demo.minio.demo;
 
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/minio")
 @Slf4j
 public class MinioController {
-    @Autowired
+    @Resource
     private MinioUtil minioUtil;
 
     @PostMapping("/fileUpload")

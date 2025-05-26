@@ -1,15 +1,15 @@
 package com.mmwwtt.demo.activiti.demo;
 
+import jakarta.annotation.Resource;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class ActivitiProcess {
-    @Autowired
+    @Resource
     private RepositoryService repositoryService;
 
     /**
@@ -24,7 +24,7 @@ public class ActivitiProcess {
     }
 
 
-    @Autowired
+    @Resource
     private RuntimeService runtimeService;
 
     /**
@@ -36,7 +36,7 @@ public class ActivitiProcess {
     }
 
 
-    @Autowired
+    @Resource
     private TaskService taskService;
 
     /**

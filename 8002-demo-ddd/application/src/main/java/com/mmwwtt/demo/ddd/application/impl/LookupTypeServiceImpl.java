@@ -3,7 +3,7 @@ package com.mmwwtt.demo.ddd.application.impl;
 import com.mmwwtt.demo.ddd.application.service.LookupTypeService;
 import com.mmwwtt.demo.ddd.domain.dao.LookupTypeDao;
 import com.mmwwtt.demo.ddd.domain.entity.LookupType;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -11,7 +11,7 @@ import java.util.Date;
 @Service
 public class LookupTypeServiceImpl implements LookupTypeService {
 
-    @Autowired
+    @Resource
     private LookupTypeDao lookupTypeDao;
 
     @Override

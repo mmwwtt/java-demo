@@ -1,6 +1,6 @@
 package com.mmwwtt.demo.se.面向对象;
 
-import com.mmwwtt.demo.se.common.A;
+import com.mmwwtt.demo.se.common.Level_0;
 import org.junit.jupiter.api.Test;
 
 public class 调用静态方法 {
@@ -10,6 +10,6 @@ public class 调用静态方法 {
      */
     @Test
     public void 调用静态方法示例() {
-        A.showMessage();
+        Level_0.showMessage();
     }
 }

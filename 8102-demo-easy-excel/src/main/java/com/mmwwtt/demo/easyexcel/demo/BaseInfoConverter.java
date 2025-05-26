@@ -7,7 +7,6 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-//@Builder 是mapStruct包中的
 @Mapper(builder = @Builder(disableBuilder = true))
 public interface BaseInfoConverter {
     BaseInfoConverter INSTANCE = Mappers.getMapper(BaseInfoConverter.class );

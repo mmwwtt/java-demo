@@ -1,13 +1,13 @@
 package com.mmwwtt.demo.rocketmq.demo;
 
 import com.mmwwtt.demo.common.entity.BaseInfo;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.client.producer.TransactionSendResult;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.apache.rocketmq.spring.support.RocketMQHeaders;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 public class RocketMQController {
 
-    @Autowired
+    @Resource
     private RocketMQTemplate rocketMQTemplate;
 
     private final String topic = "demo-topic";

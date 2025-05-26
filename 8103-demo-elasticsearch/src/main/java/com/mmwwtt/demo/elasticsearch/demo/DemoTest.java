@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class DemoTest {
 
 
-//    @Autowired
+//    @Resource
 //    private DogRepository dogRepository;
 //
 //    @Test

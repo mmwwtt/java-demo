@@ -1,8 +1,11 @@
 package com.mmwwtt.demo.jwt.demo;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/jwt")
@@ -11,7 +14,7 @@ public class JwtDemo {
     private static final String SECRET = "qqwwee";
 
 
-    @Autowired
+    @Resource
     public JwtUtil jwtUtil;
 
     @PostMapping("/jwtDemo")
