@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 @Slf4j
@@ -164,5 +167,37 @@ public class BaseDemoTest {
             }
             log.info("{}",i);
         }
+    }
+
+    /**
+     * lock方法获取锁会阻塞当前线程，直到获取到锁为止
+     * lock.tryLock() 如果能获取锁，则获取返回true; 不能则跳过
+     */
+    @Test
+    @DisplayName("测试 tryLock获取锁")
+    public void test9() throws InterruptedException {
+        Lock lock = new ReentrantLock();
+
+        boolean isLocked = lock.tryLock();
+        if (lock.tryLock(1000, TimeUnit.SECONDS)) {
+            try {
+
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    /**
+     * 多个资源，数据库表，对象，同时加锁时，需要保持一致的枷锁顺序，否则可能死锁
+     * lock(m1) lock(m2) unlock(m1) lock(m1) unlock(m2) unlock(m1) 可能会带来死锁
+     * 假设有两个操作A,B同时并行执行这个序列
+     * 线程A在步骤3 unlock(m1) 后，线程B开始执行步骤1 lock(m1),
+     * 此时 线程A锁住了m2,  线程B锁住了m1, 两个线程都无法执行下一步
+     */
+    @Test
+    @DisplayName("要保持枷锁顺序一致")
+    public void test10() {
+
     }
 }

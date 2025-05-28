@@ -2,8 +2,8 @@ package com.mmwwtt.demo.se.基础;
 
 
 import com.mmwwtt.demo.se.common.Level_0;
-import com.mmwwtt.demo.se.common.Level_1;
-import com.mmwwtt.demo.se.common.Level_2;
+import com.mmwwtt.demo.se.common.Level_0_1;
+import com.mmwwtt.demo.se.common.Level_0_1_2;
 import com.mmwwtt.demo.se.common.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -48,11 +48,11 @@ public class T_Test {
     @DisplayName("通过限定符限制可用的泛型类型")
     public void test3() {
         //用T及T的父类接收
-        List<? extends Level_1> level1List1 = List.of(new Level_1());
+        List<? extends Level_0_1> level1List1 = List.of(new Level_0_1());
         Level_0 level_0 = level1List1.get(0);
 
         //放入T及T的子类
-        List<? super Level_1> level1List2= new ArrayList<>();
-        level1List2.add(new Level_2());
+        List<? super Level_0_1> level1List2= new ArrayList<>();
+        level1List2.add(new Level_0_1_2());
     }
 }
