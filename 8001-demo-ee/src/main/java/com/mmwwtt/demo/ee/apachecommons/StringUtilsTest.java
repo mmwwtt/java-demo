@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class StringUtilsDemo {
+public class StringUtilsTest {
 
     @Test
     public void demo() {
@@ -61,6 +61,9 @@ public class StringUtilsDemo {
         //是否存在子串
         log.info("是否存在子串");
         System.out.println(StringUtils.contains(str3, "Hello"));
+
+        //比较字符串是否相等(忽略大小写)
+        System.out.println(StringUtils.equalsIgnoreCase("hello", "hello"));
     }
 
 }

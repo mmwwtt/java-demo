@@ -35,7 +35,6 @@ public class SwaggerController {
                     @ApiResponse(responseCode = "200", description = "成功"),
                     @ApiResponse(responseCode = "404", description = "用户不存在")
             })
-
     public BaseInfoDTO queryById(@Parameter(description = "基本信息ID", example = "1")
                                  @PathVariable Long baseInfoId) {
         return BaseInfoDTO.getInstance();
@@ -44,7 +43,7 @@ public class SwaggerController {
     @DeleteMapping("/baseInfo/delete/{id}")
     @Operation(summary = "根据ID删除基本信息", description = "根据ID删除基本信息")
     public Boolean delete(@Parameter(description = "基本信息ID", example = "1")
-                          @PathVariable Long baseInfoId) {
+                           @PathVariable String id) {
         return true;
     }
 }

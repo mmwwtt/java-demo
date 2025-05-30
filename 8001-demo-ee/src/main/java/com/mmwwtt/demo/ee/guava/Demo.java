@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ public class Demo {
      *
      */
     @Test
-    public void bloomFilter() {
+    @DisplayName("测试使用布隆过滤器")
+    public void test1() {
         int total = 1000000;
         BloomFilter<String> bloomFilter = BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8), total, 0.01);
         for (int i = 0; i < total; i++) {
@@ -31,7 +33,8 @@ public class Demo {
     }
     
     @Test
-    public void demoPage() {
+    @DisplayName("测试 内存中分页")
+    public void test2() {
         List<Integer> list = new ArrayList<>();
         PageQuery pageQuery = new PageQuery();
         pageQuery.setCurrent(1);

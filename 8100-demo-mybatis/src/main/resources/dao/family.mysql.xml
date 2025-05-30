@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mmwwtt.demo.mybatis.demo.FamilyDAO">
+    <resultMap id="familyMap" type="com.mmwwtt.demo.mybatis.demo.Family">
+        <id column="family_id" property="familyId" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="queryFamilyByUserId" resultMap="familyMap">
+        SELECT * FROM family_t where user_id = #{user_id}
+    </select>
+
+</mapper>

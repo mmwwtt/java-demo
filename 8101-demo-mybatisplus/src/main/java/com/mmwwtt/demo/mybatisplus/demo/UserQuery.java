@@ -6,11 +6,11 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class BaseInfoQuery extends Page {
-    private String baseInfoId;
+public class UserQuery extends Page {
+    private String userId;
     private String name;
 
     private List<String> sexList;
-    private List<String> baseInfoIdList;
+    private List<String> userIdList;
 
 }

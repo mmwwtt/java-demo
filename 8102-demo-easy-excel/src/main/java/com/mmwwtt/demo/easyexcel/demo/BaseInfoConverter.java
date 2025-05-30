@@ -1,6 +1,6 @@
 package com.mmwwtt.demo.easyexcel.demo;
 
-import com.mmwwtt.demo.mybatisplus.demo.BaseInfo;
+import com.mmwwtt.demo.mybatisplus.demo.User;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -11,8 +11,8 @@ import java.util.List;
 public interface BaseInfoConverter {
     BaseInfoConverter INSTANCE = Mappers.getMapper(BaseInfoConverter.class );
 
-    BaseInfoExcel toEasyExcelStudent(BaseInfo baseInfo);
+    BaseInfoExcel toEasyExcelStudent(User user);
 
-    List<BaseInfoExcel> toEasyExcelStudent(List<BaseInfo> list);
+    List<BaseInfoExcel> toEasyExcelStudent(List<User> list);
 
 }

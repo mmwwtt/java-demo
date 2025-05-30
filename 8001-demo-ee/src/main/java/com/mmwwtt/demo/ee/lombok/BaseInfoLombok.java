@@ -11,17 +11,11 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class BaseInfoLombok {
-
-
-    private String baseInfoId;
+    private Long baseInfoId;
     private String name;
-
-    private String sex_code;
-
+    private String sexCode;
     private Double height;
-
     private LocalDate birthDate;
-
-
 }

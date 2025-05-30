@@ -15,7 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
-public class T_Test {
+public class 泛型Test {
 
     @Test
     @DisplayName("泛型使用")
@@ -55,4 +55,20 @@ public class T_Test {
         List<? super Level_0_1> level1List2= new ArrayList<>();
         level1List2.add(new Level_0_1_2());
     }
+
+
+    public <T> List<T> getData() {
+        List<T> dataList = new ArrayList<>();
+        dataList.add((T) "String");
+        return dataList;
+    }
+
+    @Test
+    @DisplayName("泛型使用")
+    public  void test4() {
+        List<String> stringData = getData();
+        List<Integer> integerData = getData();  //int里插入了一个string
+        log.info("");
+    }
+
 }

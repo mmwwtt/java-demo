@@ -6,6 +6,7 @@ import com.mmwwtt.demo.common.vo.FamilyVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -13,9 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class BeanUtilsDemo {
+public class BeanUtilsTest {
     @Test
-    public void demo() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    @DisplayName("测试BeanUtils")
+    public void test() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         BaseInfoVO vo = BaseInfoVO.getInstance();
         BaseInfo baseInfo = new BaseInfo();
 
@@ -40,6 +42,5 @@ public class BeanUtilsDemo {
         properties.put("name", "欢欢");
         BeanUtils.populate(vo, properties);
         log.info("");
-
     }
 }

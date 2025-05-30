@@ -227,6 +227,9 @@ public class UtilClassTest {
 
         //字符串字典序比较
         str1.compareTo(str2);
+
+        //比较字符串是否相等(忽略大小写) 其中一个为null则抛出异常
+        str1.equalsIgnoreCase("hello");
     }
 
     @Test
@@ -311,5 +314,13 @@ public class UtilClassTest {
 
         //清空队列
         queue1.clear();
+    }
+
+    @Test
+    @DisplayName("Objects基本使用")
+    public void test11() {
+        Objects.isNull(null);
+        Objects.equals("hello", "hello");
+
     }
 }

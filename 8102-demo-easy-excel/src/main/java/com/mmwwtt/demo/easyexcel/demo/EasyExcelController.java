@@ -4,8 +4,8 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.mmwwtt.demo.common.response.ApiResponse;
-import com.mmwwtt.demo.mybatisplus.demo.BaseInfo;
-import com.mmwwtt.demo.mybatisplus.demo.BaseInfoDao;
+import com.mmwwtt.demo.mybatisplus.demo.User;
+import com.mmwwtt.demo.mybatisplus.demo.UserDao;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,14 +26,14 @@ import java.util.Set;
 @Slf4j
 public class EasyExcelController {
     @Resource
-    private BaseInfoDao dao;
+    private UserDao dao;
 
     BaseInfoConverter baseInfoConverter = BaseInfoConverter.INSTANCE;
 
     @PostMapping("/exportDemo")
     public ApiResponse<Void> exportDemo(HttpServletRequest request,
                                         HttpServletResponse response) throws IOException {
-        List<BaseInfo> list = dao.query(null);
+        List<User> list = dao.query(null);
         List<BaseInfoExcel> excelList = baseInfoConverter.toEasyExcelStudent(list);
         String filePath = "D:\\test\\excel\\student_export.xlsx";
         File file = new File(filePath);

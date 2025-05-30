@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mmwwtt.demo.mybatisplus.demo.BaseInfoDao">
-   <sql id="baseInfoQuerySql">
+<mapper namespace="com.mmwwtt.demo.mybatisplus.demo.UserDao">
+   <sql id="userQuerySql">
        <where>
            <if test="query.name != null and query.name != ''">
                AND name like CONCAT('%', #{query.name}, '%')
@@ -20,13 +20,13 @@
            </if>
        </where>
    </sql>
-    <select id="queryByPage" resultType="com.mmwwtt.demo.mybatisplus.demo.BaseInfo">
+    <select id="queryByPage" resultType="com.mmwwtt.demo.mybatisplus.demo.User">
         select * from base_info_t
-        <include refid="baseInfoQuerySql"></include>
+        <include refid="userQuerySql"/>
     </select>
-    <select id="query" resultType="com.mmwwtt.demo.mybatisplus.demo.BaseInfo"
-            parameterType="com.mmwwtt.demo.mybatisplus.demo.BaseInfoQuery">
+    <select id="query" resultType="com.mmwwtt.demo.mybatisplus.demo.User"
+            parameterType="com.mmwwtt.demo.mybatisplus.demo.UserQuery">
         select * from base_info_t
-        <include refid="baseInfoQuerySql"></include>
+        <include refid="userQuerySql"/>
     </select>
 </mapper>

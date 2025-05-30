@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class MapStructDemo {
-    BaseInfoConverterDemo baseInfoConverterDemo = BaseInfoConverterDemo.INSTANCE;
+public class MapStructTest {
+
     @Test
-    public void mapStructDemo() {
+    public void test() {
         BaseInfo baseInfo = BaseInfo.getInstance();
-        BaseInfoDTO baseInfoDTO = baseInfoConverterDemo.converterToDTO(baseInfo);
+        BaseInfoDTO baseInfoDTO = BaseInfoConverter.INSTANCE.converterToDTO(baseInfo);
 
         List<BaseInfo> baseInfoList = BaseInfo.getPresetList();
-        List<BaseInfoDTO> baseInfoDTOlist = baseInfoConverterDemo.converterToDTO(baseInfoList);
+        List<BaseInfoDTO> baseInfoDTOlist = BaseInfoConverter.INSTANCE.converterToDTO(baseInfoList);
         CommonUtils.println(baseInfoDTO, baseInfoDTOlist);
     }
 }

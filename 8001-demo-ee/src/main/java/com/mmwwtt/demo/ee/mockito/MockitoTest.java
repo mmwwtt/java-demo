@@ -9,10 +9,10 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-public class MockitoDemo {
+public class MockitoTest {
     //模拟对象注入到被测试类中
     @InjectMocks
-    private BaseInfoService baseInfoService;
+    private UserService userService;
 
     //mock创建模拟对象
     private List<String> list1 = mock(List.class);

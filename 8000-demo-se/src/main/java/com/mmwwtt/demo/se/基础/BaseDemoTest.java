@@ -9,7 +9,9 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
 @Slf4j
@@ -186,6 +188,15 @@ public class BaseDemoTest {
                 lock.unlock();
             }
         }
+    }
+
+    @Test
+    @DisplayName("测试读写锁  ReadWriteLock  ")
+    public void test9_1() {
+        ReadWriteLock rwlock = new ReentrantReadWriteLock();
+        Lock rlock = rwlock.readLock();
+        Lock wlock = rwlock.writeLock();
+        int[] counts = new int[10];
     }
 
     /**

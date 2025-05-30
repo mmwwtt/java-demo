@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface BaseInfoDao extends BaseMapper<BaseInfo> {
-    List<BaseInfo> query(@Param("query") BaseInfoQuery query);
-    Page<BaseInfo> queryByPage(@Param("query") BaseInfoQuery query);
+public interface UserDao extends BaseMapper<User> {
+    List<User> query(@Param("query") UserQuery query);
+    Page<User> queryByPage(@Param("query") UserQuery query);
 }

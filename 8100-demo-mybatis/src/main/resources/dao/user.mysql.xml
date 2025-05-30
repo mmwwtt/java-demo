@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mmwwtt.demo.mybatis.demo.UserDAO">
+
+    <resultMap id="userMap1" type="com.mmwwtt.demo.mybatis.demo.User">
+        <id column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="sex_code" property="sexCode" jdbcType="VARCHAR"/>
+        <result column="height" property="height" jdbcType="VARCHAR"/>
+        <result column="birth_date" property="birthDate" jdbcType="DOUBLE"/>
+        <collection property="familyList" ofType="com.mmwwtt.demo.mybatis.demo.Family">
+            <id column="family_familyId" property="familyId" jdbcType="BIGINT"/>
+            <result column="family_userId" property="userId" jdbcType="BIGINT"/>
+            <result column="family_name" property="name" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="userMap" type="com.mmwwtt.demo.mybatis.demo.User">
+        <id column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="sex_code" property="sexCode" jdbcType="VARCHAR"/>
+        <result column="height" property="height" jdbcType="VARCHAR"/>
+        <result column="birth_date" property="birthDate" jdbcType="DOUBLE"/>
+        <result column="email" property="contact.email" jdbcType="VARCHAR"/>
+        <!-- 一对多查询 -->
+        <collection property="familyList" ofType="com.mmwwtt.demo.mybatis.demo.Family" column="user_id"
+                    select="com.mmwwtt.demo.mybatis.demo.FamilyDAO.queryFamilyByUserId">
+        </collection>
+        <!-- 一对一查询 -->
+<!--        <association property="contact" javaType="com.mmwwtt.demo.common.entity.Contact"-->
+<!--                     column="user_id" select="selectProfileById" />-->
+    </resultMap>
+
+    <!-- 查询所有用户 -->
+    <select id="query1" resultMap="userMap1">
+        SELECT t1.*,
+               t2.family_id as family_familyId,
+               t2.name      as family_name,
+               t2.user_id   as family_userId
+        FROM user_t t1
+                 left join family_t t2 on t1.user_id = t2.user_id
+                 left join contact_t t3 on t1.user_id = t3.user_id
+    </select>
+
+    <select id="query" resultMap="userMap">
+        SELECT t1.*, t3.*
+        FROM user_t t1
+                 left join contact_t t3 on t1.user_id = t3.user_id
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="userId">
+        insert into user_t (name, sex_code, height, birth_date)
+        values (#{user.name}, #{user.sexCode}, #{user.height}, #{user.birthDate})
+    </insert>
+
+    <insert id="saveAll" useGeneratedKeys="true" keyProperty="userId">
+        insert into user_t
+        (name,sex_code,height,birth_date)
+        values
+        <foreach collection="list" item="item" separator=",">
+                (#{item.name},#{item.sexCode},#{item.height},#{item.birthDate})
+        </foreach>
+    </insert>
+
+    <update id="update">
+        update user_t
+        set name=#{user.name},
+            sex_code=#{user.sexCode},
+            height=#{user.height},
+            birth_date=#{user.birthDate}
+        where user_id = #{user.userId}
+    </update>
+
+    <update id="updateAll">
+        <foreach collection="list" item="item" separator=";">
+            update user_t
+            set name=#{item.name},
+                sex_code=#{item.sexCode},
+                height=#{item.height},
+                birth_date=#{item.birthDate}
+            where user_id = #{item.userId}
+        </foreach>
+    </update>
+</mapper>

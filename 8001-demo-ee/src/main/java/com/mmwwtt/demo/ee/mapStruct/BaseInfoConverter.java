@@ -9,8 +9,8 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper(builder = @Builder(disableBuilder = true))
-public interface BaseInfoConverterDemo {
-    BaseInfoConverterDemo INSTANCE = Mappers.getMapper( BaseInfoConverterDemo.class );
+public interface BaseInfoConverter {
+    BaseInfoConverter INSTANCE = Mappers.getMapper( BaseInfoConverter.class );
 
     @Mappings({
             @Mapping(target = "name", source = "name"),

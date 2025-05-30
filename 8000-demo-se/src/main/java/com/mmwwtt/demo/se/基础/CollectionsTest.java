@@ -290,6 +290,8 @@ public class CollectionsTest {
         for (Map.Entry entry : map1.entrySet()) {
             log.info("{},{}",entry.getKey(), entry.getValue());
         }
+        //forEach遍历map
+        map1.forEach((k,v) -> {});
 
         //删除元素
         map1.entrySet().removeIf(entry -> entry.getValue() == 2);

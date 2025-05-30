@@ -8,7 +8,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class Jumit5Demo {
+public class Jumit5Test {
     @BeforeAll
     public static void setup() {
         System.out.println("before all");
@@ -31,10 +31,10 @@ public class Jumit5Demo {
 
     @Test
     @DisplayName("测试equals")
-    public void testAdd() {
+    public void test() {
         String str1 = "hello";
         String str2 = "hello";
-        Boolean boolean1 = true;
+        boolean boolean1 = true;
         assertEquals(str1, str2);
         assertTrue(boolean1);
         assertNotNull(str1);

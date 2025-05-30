@@ -2,11 +2,9 @@ package com.wwmmtt.demo.springmvc.demo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties
 @Data
 @NoArgsConstructor
 @Configuration

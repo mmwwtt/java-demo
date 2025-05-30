@@ -1,19 +1,23 @@
 package com.mmwwtt.demo.se.file;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 @Slf4j
 public class FileTest {
 
-    /**
-     * 打开文件并追加写入
-     */
-    @Test void test() throws IOException {
+    @Test
+    @DisplayName("打开文件并追加写入")
+    public void test1() throws IOException {
         String filePath = "src/main/resources/file/test.txt";
 
         File file = new File(filePath);
@@ -32,5 +36,14 @@ public class FileTest {
         } catch (IOException e) {
             log.info("error");
         }
+    }
+
+    @Test
+    @DisplayName("通过文件路径读取文件内容")
+    public void test2() throws IOException {
+        String filePath = "src/main/resources/file/test.txt";
+        Path path = Path.of(filePath);
+        List<String> lines = Files.readAllLines(path, Charset.forName("GB2312"));
+        log.info(lines.toString());
     }
 }
