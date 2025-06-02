@@ -33,7 +33,7 @@ public class EasyExcelController {
     @PostMapping("/exportDemo")
     public ApiResponse<Void> exportDemo(HttpServletRequest request,
                                         HttpServletResponse response) throws IOException {
-        List<User> list = dao.query(null);
+        List<User> list = dao.queryList(null);
         List<BaseInfoExcel> excelList = baseInfoConverter.toEasyExcelStudent(list);
         String filePath = "D:\\test\\excel\\student_export.xlsx";
         File file = new File(filePath);

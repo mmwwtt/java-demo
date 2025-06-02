@@ -34,7 +34,7 @@
     </resultMap>
 
     <!-- 查询所有用户 -->
-    <select id="query1" resultMap="userMap1">
+    <select id="queryList1" resultMap="userMap1">
         SELECT t1.*,
                t2.family_id as family_familyId,
                t2.name      as family_name,
@@ -44,7 +44,7 @@
                  left join contact_t t3 on t1.user_id = t3.user_id
     </select>
 
-    <select id="query" resultMap="userMap">
+    <select id="queryList" resultMap="userMap">
         SELECT t1.*, t3.*
         FROM user_t t1
                  left join contact_t t3 on t1.user_id = t3.user_id

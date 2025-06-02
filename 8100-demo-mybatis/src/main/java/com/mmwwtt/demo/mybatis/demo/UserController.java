@@ -16,9 +16,9 @@ public class UserController {
     @Resource
     private UserService userService;
 
-    @PostMapping("/query")
-    public List<User> query(@RequestBody User query) {
-        return this.userService.query(query);
+    @PostMapping("/queryList")
+    public List<User> queryList(@RequestBody User query) {
+        return this.userService.queryList(query);
     }
 
     @PostMapping("/queryPage")

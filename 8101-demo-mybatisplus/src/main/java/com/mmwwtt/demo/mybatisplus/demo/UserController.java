@@ -1,7 +1,10 @@
 package com.mmwwtt.demo.mybatisplus.demo;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mmwwtt.demo.common.response.ApiResponse;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +18,8 @@ public class UserController {
 
     @Resource
     private UserService userService;
+    @Autowired
+    private UserDao userDao;
 
     @PostMapping("/saveOrUpdate")
     public ApiResponse<User> saveOrUpdate(@RequestBody User user) {
@@ -26,17 +31,17 @@ public class UserController {
         userService.saveOrUpdateBatch(userList);
         return ApiResponse.success(userList);
     }
-//
-//    @PostMapping("/query")
-//    public ApiResponse<List<User>> query(@RequestBody BaseInfoQuery baseInfoQuery) {
-//        List<User> list = dao.query(baseInfoQuery);
-//        return ApiResponse.success(list);
-//    }
-//
-//    @PostMapping("/queryPage")
-//    public ApiResponse<Page<User>> queryPage(@RequestBody BaseInfoQuery baseInfoQuery) {
-//        Page<User> page = dao.queryByPage(baseInfoQuery);
-//        return ApiResponse.success(page);
-//    }
+
+    @PostMapping("/query")
+    public ApiResponse<List<User>> query(@RequestBody UserQuery query) {
+        List<User> list = userService.queryList(query);
+        return ApiResponse.success(list);
+    }
+
+    @PostMapping("/queryPage")
+    public ApiResponse<Page<User>> queryPage(@RequestBody UserQuery query) {
+        Page<User> page = userService.queryPage(query);
+        return ApiResponse.success(page);
+    }
 
 }

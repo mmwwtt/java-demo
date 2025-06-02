@@ -13,9 +13,9 @@ public class UserService {
     private UserDAO userDao;
 
 
-    public List<User> query(User query){
-        List<User> list1 = userDao.query1(query);
-        List<User> list = userDao.query(query);
+    public List<User> queryList(User query){
+        List<User> list1 = userDao.queryList1(query);
+        List<User> list = userDao.queryList(query);
         return list;
     }
 
@@ -23,8 +23,8 @@ public class UserService {
     public PageInfo<User> queryPage(User query, int pageNum, int pageSize) {
         //PageHelper.startPage 自动拦截sql,计算总数，添加分页条件（limit 起点，页大小）
         PageHelper.startPage(pageNum, pageSize);
-        //List<User> list1 = userDao.query1(query);
-        List<User> list = userDao.query(query);
+        //List<User> list1 = userDao.queryList1(query);
+        List<User> list = userDao.queryList(query);
         return new PageInfo<>(list);
     }
 

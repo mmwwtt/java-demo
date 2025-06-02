@@ -7,10 +7,10 @@ import java.util.List;
 
 @Data
 public class UserQuery extends Page {
-    private String userId;
+    private Long userId;
     private String name;
 
-    private List<String> sexList;
+    private List<Long> sexCodeList;
     private List<String> userIdList;
 
 }
