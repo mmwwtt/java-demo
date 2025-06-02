@@ -16,10 +16,8 @@ import java.util.List;
 @RequestMapping("/mybatis-plus/user")
 public class UserController {
 
-    @Resource
+    @Resource(name = "userServiceImpl")
     private UserService userService;
-    @Autowired
-    private UserDao userDao;
 
     @PostMapping("/saveOrUpdate")
     public ApiResponse<User> saveOrUpdate(@RequestBody User user) {
