@@ -37,6 +37,11 @@ public class UtilClassTest {
 
         //获得值
         log.info("{}",num5.doubleValue());
+
+        //和其他小数做比较  不能getDoubleValue再对比，转成double后精度还是丢失了
+        if (num5.compareTo(BigDecimal.ONE) != 0) {
+
+        }
     }
 
     @Test
