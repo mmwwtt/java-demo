@@ -77,6 +77,10 @@ public class JDK8新特性 {
         LocalDate localDate12 = now.withDayOfYear(1);	// 修改日期对象的日期(一年中的第几天)
 
         log.info("{},{},{},{}",now1, now2, now3, localDate);
+
+        //将时间格式化成字符串
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMdd-HHmmss");
+        String timeStr = LocalDateTime.now().format(formatter);
     }
 
     @Test
