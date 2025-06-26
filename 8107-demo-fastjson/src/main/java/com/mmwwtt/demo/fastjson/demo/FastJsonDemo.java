@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.mmwwtt.demo.common.response.ApiResponse;
 import com.mmwwtt.demo.common.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,7 @@ public class FastJsonDemo {
 
 
         // JSONObject使用, 用键值对存储属性
+        JSONObject jsonObject1 = new JSONObject();
         JSONObject jsonObject = JSONObject.parseObject(jsonStr);
         Long baseInfoId = jsonObject.getLong("baseInfoId");
         jsonObject.remove("baseInfoId");
@@ -42,7 +44,17 @@ public class FastJsonDemo {
         JSONArray jsonArray = new JSONArray();
         jsonArray.add(jsonObject);
         JSONArray jsonArray1 = JSONArray.parseArray(jsonListStr);
+        jsonObject.put("array", jsonArray1);
         CommonUtils.println(baseInfo2, list, baseInfoId, jsonStr2, jsonArray1);
         return ApiResponse.success(list);
+    }
+
+    @Test
+    public void test1() {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.add("hello");
+        jsonObject.put("array", jsonArray);
+        log.info(jsonObject.toJSONString());
     }
 }

@@ -1,8 +1,9 @@
-package com.mmwwtt.demo.mybatisplus.demo;
+package com.mmwwtt.demo.mybatisplus.demo.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mmwwtt.demo.mybatisplus.demo.User;
+import com.mmwwtt.demo.mybatisplus.demo.UserQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

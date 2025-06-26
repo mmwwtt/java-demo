@@ -1,15 +1,17 @@
-package com.mmwwtt.demo.mybatisplus.demo;
+package com.mmwwtt.demo.mybatisplus.demo.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mmwwtt.demo.mybatisplus.demo.User;
+import com.mmwwtt.demo.mybatisplus.demo.UserQuery;
+import com.mmwwtt.demo.mybatisplus.demo.dao.UserDao;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UserService extends ServiceImpl<UserDao, User> {
-
+public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserService {
     @Resource
     private UserDao userDao;
 
@@ -20,5 +22,4 @@ public class UserService extends ServiceImpl<UserDao, User> {
     public Page<User> queryPage(UserQuery query) {
         return userDao.queryPage(query);
     }
-
 }
