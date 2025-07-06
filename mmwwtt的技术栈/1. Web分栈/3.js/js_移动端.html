@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>js移动端学习</title>
+		<style type="text/css">
+			
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			ul,
+			ol{
+				list-style: none;
+			}
+			a {
+				text-decoration: none;
+			}
+			div {
+				margin: 50px;
+			}
+			.div_1 {
+				position: relative;
+				width: 200px;
+				height: 200px;
+				background-color: pink;
+			}
+			.div_2 {
+				overflow: hidden;
+				position: relative;
+				width: 200px;
+				background-color: purple;
+			}
+			.div_2 ul {
+				width: 7500px;
+				margin-left: -100%;
+			}
+			.div_2 ul li {
+				overflow: hidden;
+				width: 200px;
+				height: 200px;
+				float: left; 
+			}
+			.div_2 ul li img{
+				width: 100%;
+			}
+			.div_2 ol {
+				position: absolute;
+				top: 170px;
+				left: 120px;
+				border-radius: 6px;
+				background-color: rgba(200,200,200,0.3);
+			}
+			.div_2 ol li {
+				float: left;
+				width: 6px;
+				height: 6px;
+				border: 1px solid rgba(255,255,255,0.8);
+				border-radius: 6px;
+				margin: 2px 4px 2px;
+				z-index: 3;
+			}
+			.div_2 ol li.current {
+				width: 20px;
+				background-color: red;
+			}
+			
+			.button_1 {
+				width: 150px;
+				height: 40px;
+				font-size: 25px;
+				line-height: 40px;
+			}
+			.black {
+				background-color: black;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="div_1"></div>
+		<script type="text/javascript">
+			var div_1 = document.querySelector('.div_1');
+			//e是触摸事件对象touchEvent
+			div_1.addEventListener('touchstart', function(e) {
+				console.log('touchstart事件，点击DOM元素')
+				console.log(e);
+				console.log(e.touches); //正在触摸屏幕所有手指的列表
+				console.log(e.targetTouches); //触摸当前DOM元素上的手指列表
+				console.log(e.changedTouches); //手指状态发生了改变的列表，从无到有，从有到无变化
+			})
+			div_1.addEventListener('touchmove', function() {
+				console.log('touchmove事件，在DOM元素上滑动');
+			})
+			div_1.addEventListener('touchend', function() {
+				console.log('touchend事件，离开DOM元素，松开');
+			})
+			//跟随手指移动
+			var startX = 0; //手指初始坐标
+			var startY = 0;
+			var x = 0; //盒子原来位置
+			var y = 0;
+			div_1.addEventListener('touchstart', function(e) {
+				startX = e.targetTouches[0].pageX;
+				startY = e.targetTouches[0].pageY;
+				x = this.offsetLeft; //获得盒子左边距离
+				y = this.offsetTop;  //获得盒子顶部距离
+			})
+			div_1.addEventListener('touchmove', function(e) {
+				var moveX = e.targetTouches[0].pageX - startX;
+				var moveY = e.targetTouches[0].pageY - startY;
+				this.style.left = x + moveX + 'px';
+				this.style.top = y + moveY + 'px';
+				//e.preventDefault(); //阻止屏幕滚动的默认行为
+			})
+		</script>
+		
+		
+		<!-- 移动端轮播图 -->
+		<div class="div_2">
+			<ul class='ul_1'>
+				<li><img src="../resources/images/3-3.jpg" alt=""></li>
+				<li><img src="../resources/images/3-1.jpg" alt=""></li>
+				<li><img src="../resources/images/3-2.jpg" alt=""></li>
+				<li><img src="../resources/images/3-3.jpg" alt=""></li>
+				<li><img src="../resources/images/3-1.jpg" alt=""></li>
+			</ul>
+			<ol class='ol_1'>
+				<li class="current"></li>
+				<li></li>
+				<li></li>
+			</ol>
+		</div>
+		<button type="button" class="button_1">开关灯</button>
+		<script type="text/javascript">
+			window.addEventListener('load', function() {
+				var div_2 = document.querySelector('.div_2');
+				var ul_1 = document.querySelector('.ul_1');
+				var ol_1 = document.querySelector('.ol_1');
+				var w = div_2.offsetWidth;
+				var index = 0;
+				var flag = false;
+				var timer = setInterval(function() {
+					index++;
+					var translatex = -index * w;
+					ul_1.style.transition = 'all .3s'; //添加过渡效果
+					ul_1.style.transform = 'translateX(' + translatex + 'px)';
+				}, 2000);
+				//transitionend 监听过渡事件是否完成
+				ul_1.addEventListener('transitionend', function() {
+					console.log(index);
+					if(index >= 3) {
+						index = 0;
+						ul_1.style.transition = 'none';
+						var translatex = -index * w;
+						ul_1.style.transform = 'translateX(' + translatex + 'px)';
+					}
+					else if(index < 0) {
+						index = 2;
+						ul_1.style.transition = 'none';
+						var translatex = -index * w;
+						ul_1.style.transform = 'translateX(' + translatex + 'px)';
+					}
+					ol_1.querySelector('li.current').classList.remove('current');
+					ol_1.children[index].classList.add('current');
+				})
+				
+			//classList介绍
+				console.log(div_2.classList);//返回div_2 的类名列表
+				//div_2.classList.add('qwe'); //给div_2 添加 .qwe 类
+				//div_2.classList.remove('qwe'); //删除div_2 的 .qwe类
+				//切换类 classList.toggle('black');
+				var button_1 = document.querySelector('.button_1');
+				button_1.addEventListener('click', function() {
+					document.body.classList.toggle('black');
+				})
+				var startX = 0;
+				var moveX = 0;
+				ul_1.addEventListener('touchstart', function(e) {
+					startX = e.targetTouches[0].pageX;
+					clearInterval(timer);
+				});
+				ul_1.addEventListener('touchmove', function(e) {
+					moveX = e.targetTouches[0].pageX - startX;
+					var translatex = -index * w + moveX;
+					ul_1.style.transition = 'none';
+					ul_1.style.transform = 'translateX(' + translatex + 'px)';
+					flag = true;
+					e.preventDefault(); //阻止滚动屏幕的行为
+				});
+				ul_1.addEventListener('touchend', function(e) {
+					if (flag == true) {
+						//如果移动距离大于50px 就播放上/下张
+						if(Math.abs(moveX) > 50) {
+							if(moveX > 0) { //moveX 为正 是右滑
+								index--;
+							} else {
+								index++;
+							}
+							var translatex = -index * w;
+							ul_1.style.transition = 'all .3s'; 
+							ul_1.style.transform = 'translateX(' + translatex + 'px)';
+						} else {
+							var translatex = -index * w; 
+							ul_1.style.transform = 'translateX(' + translatex + 'px)';
+						}
+					}
+					clearInterval(timer);
+					
+					var timer = setInterval(function() {
+						index++;
+						var translatex = -index * w;
+						ul_1.style.transition = 'all .3s'; //添加过渡效果
+						ul_1.style.transform = 'translateX(' + translatex + 'px)';
+					}, 2000);
+				});
+			})
+		</script>
+	</body>
+</html>

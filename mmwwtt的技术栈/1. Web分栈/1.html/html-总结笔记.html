@@ -1,0 +1,146 @@
+<!DOCTYPE html>   <!-- 文档声明标签 -->
+<html lang="en">  <!-- 语言为English -->
+<head>  <!-- 头部 -->
+	<meta charset="utf-8">   <!-- 字符集为 utf-8 -->
+	<title>html-总结笔记</title>   <!-- 网页标题 -->
+	<link rel="stylesheet" type="text/css" href="resources/css/common.css"/>
+	<link rel="stylesheet" type="text/css" href="resources/css/study.css"/>
+</head>
+<body>  <!-- 身体 -->
+	<h2>HTML</h2>
+	
+	特殊符号：<br>
+	&nbsp;
+	&amp;
+	&lt;
+	&gt;
+	
+	<br><br>标签：<br>
+	<h1></h1>         标题
+	<p></p>           段落
+	<strong></strong> 加粗
+	<em></em>         字体倾斜
+	<del></del>       删除线
+	<ins></ins>       下划线
+	<br>              换行
+	<hr>              水平线
+	<div></div>       块级元素
+	<span></span>     行内元素
+	<img>             图片
+	<a></a>           链接
+	
+	
+	<br><br>标签属性：<br>
+	<img src="resources/img/蒜头王八.jpg" alt="蒜头王八" title="蒜头王八" width="200px"><br>
+	
+	<a href="http://www.baidu.com" target="_blank">前往百度</a>
+	<a href="#">空连接</a> 
+	<a href="resources/other/demoZIP.zip" target="_blank">下载链接</a>
+	<a href="#bottom">锚点链接:前往底部</a><br> <!-- 滚动给至锚点元素处 -->
+	
+	<ul>
+		<li>橘子</li>
+		<li>香蕉</li>
+		<li>西瓜</li>
+		<li>菠萝</li>
+	</ul>
+	<ol>
+		<li>橘子</li>
+		<li>香蕉</li>
+		<li>西瓜</li>
+		<li>菠萝</li>
+	</ol>
+	<dl>
+		<dt>水果</dt> <!-- dd用于描述dt时，用无序列表 -->
+		<dd>橘子</dd>
+		<dd>香蕉</dd>
+		<dd>西瓜</dd>
+		<dd>菠萝</dd>
+	</dl>
+	
+	<table border="1" cellspacing="0" cellpadding="0">
+		<tr> 
+			<th>00</th>  <!-- th:表头,会加粗显示 -->
+			<th>01</th>
+			<th>02</th>
+		</tr>
+		<tr>
+			<td>10</td>
+			<td>11</td>
+			<td>12</td>
+		</tr>
+		<tr>
+			<td rowspan="2">20</td>  <!-- rowspan:跨行合并 -->
+			<td colspan="2">21</td>  <!-- colspan:跨列合并 -->
+		</tr>
+		<tr>
+			<td>31</td>
+			<td>32</td>
+		</tr>
+	</table>
+	
+	
+	<br><br>表单：<br>
+	<form action="" method="post" name="myForm">
+		文本框:<input type="text" name="username" maxlength="5" placeholder='hello'><br>
+		maxlength: 允许输入的最大字符长度
+		密码框:<input type="password" name="password" /><br>
+		
+		单选框
+		<input type="radio" name="sex" value="男" checked="checked" id='man'><label for="man">男</label>
+		<input type="radio" name="sex" value="女"/>女 
+		<input type="radio" name="sex" value="胡一菲" />胡一菲 <br>
+		
+		多选框
+		<input type="checkbox" name="hobby" value="篮球" checked="checked"/>篮球
+		<input type="checkbox" name="hobby" value="足球"/>足球
+		<input type="checkbox" name="hobby" value="网球"/>网球<br>
+		
+		文件框
+		<input type="file" value="上传图片" multiple/><br>
+		
+		下拉列表 selected="selected"：默认选中
+		<select>
+			<option>杭州</option>
+			<option selected="selected">宁波</option> <!-- selected表示默认选中项 -->
+			<option>绍兴</option>
+		</select><br>
+		文本域
+		<textarea rows="3" cols="20"></textarea><br>
+
+		提交按钮：<input type="submit" value="提交" /><br>
+		重置按钮：<input type="reset" value="重置" /><br>
+		普通按钮<input type="button" value="普通按钮" /><br>
+	</form>
+	
+	<br><br><hr><br><br>
+	
+	<h2>HTML5</h2>
+	<header>header:头部标签</header>
+	<nav>nav:导航栏标签</nav>
+	<section>某个区域</section>
+	<video src="resources/other/demoMP4.mp4" autoplay="autoplay" muted="muted" width="400" height="300"></video><br />
+		<!-- autoplay:是否自动播放
+		muted:静音播放 
+		controls:显示播放控件
+		loop:是否播放循环
+		preload:规定是否加载视频，auto:预先加载，none:不预先加载,(有atuoplay则忽略)
+		poster:加载等待的画面图片-->
+
+	<!-- 音频 -->
+	<audio src="resources/other/demoMP3.mp3" autoplay="autoplay" muted="muted" controls="controls" loop="loop"></audio><br/>
+	<form action="" class="CSS_demo_1">
+		邮箱:<input type="email"/><br>
+		网址:<input type="url"/><br>
+		日期:<input type="date"/><br>
+		时间:<input type="time"/><br>
+		月:<input type="month"/><br>
+		周:<input type="week"/><br>
+		数字:<input type="number"/><br>
+		手机号码:<input type="tel"/><br>
+		搜索框:<input type="serach" required="required" placeholder="搜索内容" autocomplete="off"/><br>
+		颜色:<input type="color"/><br>
+		提交文件：<input type="file" multiple="multiple"/><br>
+	</form>
+</body>
+</html>

@@ -1,0 +1,530 @@
+body {
+	background-color: #f5f5f5;
+}
+body>*{
+	margin: 20px;
+}
+
+i {                      /* 标签选择器 */
+	color: red;
+}
+
+.skyblue {               /* 类选择器 */
+	color: skyblue;
+}
+
+.fontSize15 {         
+	font-size: 15px;
+}
+
+#spanTest{               /* id选择器 */
+	color: skyblue;
+	font-size: ;
+}
+
+.class1 a {               /* 后代选择器 */
+	color: orange;
+}
+
+.class1>span {           /* 子选择器 */
+	color: green;
+}
+
+.calss1, .class2 {        /* 并集选择器 */
+	color: purple;
+}
+
+/* 伪类选择器 */
+.class2, a:link {       /* 超链接点击前 */
+	color: red;
+}
+.class2, a:visited {     /* 超链接访问后 */
+	color: orange;
+}
+.class2, a:hover {      /* 鼠标悬停时 */
+	color: green;
+}
+.class2, a:active {     /* 鼠标按下(不松开)时 */
+	color: pink; 
+}
+.class2 input:focus {   /* 标签获得焦点时 */
+	border: 2px solid pink;
+}
+
+
+/* css属性 */
+.backgroundAttribute{
+	color: white;
+	background-color: pink;  /*背景颜色，最下层 */ 
+	background-image: url(../img/小蒜头王八.jpg); /* 背景图片 none:无背景图片 ,url("地址") */
+	background-repeat: repeat; /* repeat:平铺, no-repeat:不平铺, repeat-x:x轴平铺, repeat-y:y轴平铺 */
+	background-position: 10px 20px; /* x y :数值 / (left|center|right)(top|center|bottom); */
+	background-attachment: scroll; /* scroll:背景图像随着内容滚动, fixed: 背景图像固定 */
+	/* 复合写法顺序: 颜色 图片 平铺 滚动 位置 */
+	/* background: pink url(../img/小蒜头王八.jpg) repeat scroll center top; */
+	
+	border-radius: 100px;  /* 圆角边框 值为圆角的半径 */
+	/* border-top-left-radius: 100px; */
+	/*简写方式 左上开始 顺时针方向*/
+	/* border-radius: 50px 60px 70px 80px; */
+	width: 200px;
+	height: 200px;
+	text-align: center;
+}
+
+.borderAttribute {
+	/*border-width:5px;*/
+	/*border-style: solid;*/        /* solid:实线边框, dashen:虚线边框, dotted:点线边框*/
+	/*border-color: blue;*/
+	border: 5px solid red;          /*简写方式，无序*/
+	/* border-top:5px solid red;*/  /*top,bottom,right,left:分别设置边框 */
+	/* border-collapse: collapse;*/ /*合并相邻的边框 */
+	width: 100px;
+	height: 100px;
+}
+
+.paddingAndMarginAttribute {
+	border: 1px solid green;
+	padding: 20px;
+	/* padding-left: 20px;*/          /*top,bottom,right,left:分别设置内边距*/
+	/* padding: 20px 15px;*/          /*上下|左右*/
+	/* padding: 20px 15px 20px*/      /*上|左右|下*/
+	/* padding: 20px 15px 20px 15px*/ /*上|右|下|左  顺时针*/
+	
+	/* margin: 20px; */
+	/* margin-left: 20px;*/   /*top,bottom,right,left:分别设置外边距*/
+	/* 简写和padding一致 */
+	margin: 20px auto;        /* 居中：对块元素有效 */
+	text-align: center;       /* 居中： 对行内元素和行内块元素有效 */
+	
+	width: 100px;
+	height: 100px;
+}
+	
+.fontAttribute {
+	/* font-size: 20px; */     /* 字号 */
+	/* font-family: '宋体'; */ /* 字体 */
+	/* font-weight: bold; */   /* 字体粗细 bold/700:加粗  normal/400:只变大*/
+	/* font-style: normal; */  /* 字体样式 normal:让倾斜的字体不倾斜 italic:让字体倾斜 */
+	/* font简写, 按序, size和family不能省略，
+	font: font-style font-weight font-size/line-height font-family;*/
+	font: italic 700 16px '宋体'; 
+}
+
+.textAttribute {
+	text-align: left;  /* 水平对齐方式: center, right, left */
+	text-decoration: underline;/* 添加装饰, none:没有装饰线(取消链接下划线), underline:下划线, line-through:删除线, overline:上划线 */
+	text-indent: 2em;  /* px/em为单位,1em指当前1文字的大小 */
+	line-height: 30px; /* 行高 = 上间距 + 文本高度 + 下间距 */
+}
+
+.shadowAttribute {
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+}
+.shadowAttribute:hover{
+	/*box-shadow: h-shadow v-shadow blur spread color inset;
+  box-shadow:  阴影不占空间
+	h-shadow:水平阴影位置,必写
+	v-shadow:垂直阴影位置,必写
+	blur:模糊距离
+	spread:阴影尺寸
+	color:阴影颜色
+	inset:将外部阴影(outset)改为内部阴影 ; */
+	box-shadow: 10px 10px 10px 10px rgba(0,0,0,0.3);
+	text-shadow: 5px 5px 5px rgba(0,0,0,0.3);
+}
+
+
+/* 浮动 */
+.floatAttribute {
+	height: 120px;
+	width: 450px;
+	background-color: #ccc;
+}
+.floatAttribute div {
+	height: 100px;
+	width: 100px;
+	background-color: pink;
+	margin: 10px;
+}
+/* 清除浮动 */
+.clearFloat {           /* 如果不清除浮动父盒子height会为0 */
+	width: 500px;
+	/* overflow: hidden; */
+	background-color: lightblue;
+	border: 1px solid lightblue;
+}
+.clearFloat .box {
+	width: 100px;
+	height: 100px;
+	margin: 10px 10px;
+	background-color: pink;
+	float: left;
+}
+
+/* 定位 */
+.positionAttribute div{
+	width: 100px;
+	height: 100px;
+	background-color: #9370DB;
+}
+.positionAttribute .relative{
+	position: relative;
+	left: 150px
+}
+.positionAttribute .absolute{
+	position: absolute; /* 绝对定位 */
+	top: 100px;
+	right: 100px;
+}
+.positionAttribute .fixed{
+	position: fixed; /* 固定定位 */
+	top: 100px;
+	right: 50px;
+}
+.sticky{
+	position: sticky; /* 粘性定位 */
+	top: 50px;
+	z-index: 1;
+}
+
+.hidden div{
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	float: left;
+	margin-right: 15px;
+}
+.hidden .display {
+	display: none; 
+}
+.hidden .visibility {
+	visibility: hidden;
+	/* hidden:隐藏, visible:可见 */
+}
+.hidden .overflow {
+	overflow: scroll;
+	/* visible:无滚动条显示,
+	hidden:隐藏溢出 
+	scroll:有滚动条显示 
+	auto:溢出的时候显示滚动条，无溢出则无滚动条 */
+}
+.hidden .overflow2 {
+	white-space: nowrap; /* normal:自动换行, nowrap:强制一行内显示 */
+	overflow: hidden; /* 超出的部分隐藏 */
+	text-overflow: ellipsis; /* 省略号替代超出的部分 */
+}
+
+.hidden .test {
+	width: 150px;
+	height: 55px;
+	margin: 10px auto;
+	background-color: pink;
+	overflow: hidden; /* 超出的部分隐藏 */
+	text-overflow: ellipsis; /* 省略号替代超出的部分 */
+	display: -webkit-box;  /* 弹性伸缩盒子模型 */
+	-webkit-line-clamp: 2; /* 第几行显示省略号 */
+	-webkit-box-orient: vertical; /* 设置或检索伸缩盒对象的子元素的排列方式 */
+}
+.spritesAndIcon div{
+	float: left;
+}
+.spritesAndIcon .sprites1 {
+	width: 60px;
+	height: 60px;
+	background: url(../img/sprites.png) no-repeat -182px 0;
+	background-position: -182px 0; /* 默认左上角(0,0),-182表示背景向左移动182像素 */
+}
+.spritesAndIcon .sprites2 {
+	width: 27px;
+	height: 25px;
+	background: url(../img/sprites.png) no-repeat -155px -106px;
+}
+@font-face {
+  font-family: "iconfont"; /* Project id  */
+  src: url('../other/font/iconfont.ttf?t=1630165687460') format('truetype');
+}
+.icon1 {
+	font-family: 'iconfont';
+	font-size: 50px;
+}
+.icon2 {
+	font-family: 'iconfont';
+	font-size: 50px;
+}
+.sanJiaoXing {
+	width: 0;  /* 一个盒子宽和高都是0,则四条边都是三角形 */
+	height: 0;
+	border: 10px solid transparent;  /* 都为透明 */
+	border-left-color: pink;  /* 左边的三角形边有颜色 */
+}
+
+/* ---------------CSS3------------------------- */
+
+/* 属性选择器 */
+.CSS3 input[name] {      /* 带有属性名的元素*/
+	color: pink;
+}
+.CSS3 input[name=user] { /* 属性值=属性值的元素 */
+	background-color: skyblue;
+}
+.CSS3 div[class^=qq] {   /* class以qq开头的元素 */
+	color: skyblue;
+}
+.CSS3 div[class$=ee] {   /* class以ee结尾的元素 */
+	color: purple;
+}
+.CSS3 div[class*=ww] {   /* class 包含ww的元素 */
+	background-color: pink;
+}
+
+/* 结构伪类选择器 */
+.CSS3 li:first-child {/* 选择第一个孩子 */
+	color: red;
+}
+.CSS3 li:last-child {/* 选择最后一个孩子 */
+	color: yellowgreen;
+}
+.CSS3 li:nth-child(2) {/* 选择第2个孩子 */
+	color: yellow;
+}
+.CSS3 li:nth-child(even) { /* 选择第偶数个孩子 */
+	background-color: pink;
+}
+.CSS3 li:nth-child(odd) { /* 选择第奇数个孩子 */
+	background: orange;
+}
+.CSS3 li:nth-child(n+3) { /* 公式选择孩子 n, 2n, 2n+1, 5n, n+5:从第5个开始, -n+5:前5个 */
+	font-weight: 700;
+}
+
+/* 伪元素选择器 */
+.CSS3 .box {
+	width: 200px;
+	height: 35px;
+	border: 1px solid red;
+}
+.CSS3 .box::before {
+	display: inline-block;
+	content: '我';
+	width: 30px;
+	height: 35px;
+	background-color: greenyellow;
+}
+.CSS3 .box::after {
+	display: inline-block;
+	float: right;
+	color: red;
+	font-size: 25px;
+	content: '\e62c';
+	font-family: 'iconfont';
+}
+
+.box-sizing div{
+	width: 250px;
+	height: 50px;
+	background-color: pink;
+	border: 10px solid red;
+	padding: 10px;
+}
+.box-sizing .box1 {
+	box-sizing: content-box; /* 盒子大小为:width+padding+border(默认) */
+}
+.box-sizing .box2 {
+	box-sizing: border-box; /* 盒子大小为width */
+}
+
+/* -------------------动画------------ */
+.animation .transition {
+	width: 100px;
+	height: 50px;
+	background-color: skyblue;
+	/* transition: 属性 花费时间 运动曲线 何时开始; */
+	transition: width 0.5s ease 0.3s, height 0.5s ease 0.3s, background-color 0.5s ease 0.3s;
+	/* transition: all 0.5s ease 0.3s; */ /* 变化多个属性的简写 */
+}
+.animation .transition:hover {
+	width: 200px;
+	height: 60px;
+	background-color: lightpink;
+}
+
+
+/* 2D转换 */
+/* 移动 */
+.animation .translate1 {
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	transition: all 1s;
+}
+.animation .translate1:hover {
+	transform: translate(20px,30px);  /* 2D转换之移动 translate(x,y); translateX(); translateX();*/
+}
+
+.animation .box1 {
+	position: relative;
+	width: 200px;
+	height: 200px;
+	background-color: pink;
+}
+.animation .box1 .translate2 {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 100px;
+	height: 100px;
+	background-color: purple;
+	transition: transform 1s;
+}
+.animation .box1 .translate2:hover {
+	transform: translate(-50%,-50%);  /* 盒子水平居中新方法：绝对定位和2D移动配合 */
+}
+/* 旋转 */
+.animation .rotate {
+	width: 100px;
+	height: 100px;
+	border-radius: 25px;
+	border: 5px solid pink;
+	transition: transform 1s;  
+}
+.animation .rotate:hover {
+	transform: rotate(360deg); /* 2D转换之旋转 transform: rotate(45deg);*/
+}
+/* 缩放 */
+.animation .scale {
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	transition: all 0.3s;
+}
+.animation .scale:hover {
+	transform: scale(1.5,1.5);
+}
+
+.animation .all {
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	transition: all 0.3s;
+}
+.animation .all:hover {
+	transform: translate(200px, 50px) rotate(90deg) scale(1.5);
+}
+
+
+
+/* 动画 */
+/* 定义动画 */
+.animationAttribute div{
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	margin: 10px;
+}
+@keyframes animation1 {
+	0% {
+		transform: translate(0, 0);
+	}
+	25% {
+		transform: translate(400px, 0);
+	}
+	50% {
+		transform: translate(400px, 200px);
+	}
+	70% {
+		transform: translate(0, 200px);
+	}
+	100%{
+		transform: translate(0, 0);
+	}
+}
+.animationAttribute .demo1 {
+	animation-name: animation1; /* 调用动画 */
+	animation-duration: 5s;     /* 持续时间 */
+	animation-delay: 2s;      /* 延迟开始 */  
+}
+
+@keyframes animation2 {
+	0% {
+		transform: translate(0, 0);
+	}
+	100%{
+		transform: translate(800px, 0);
+	}
+}
+/* 动画简写 */
+.animationAttribute .demo2 {
+	animation: animation2 2s linear 0.5s infinite alternate; /* 前两个属性一定要写 */
+}
+
+@keyframes animation3 {
+	0% {
+		width: 0;
+	}
+	100% {
+		width: 200px;
+	}
+}
+.animationAttribute .demo3 {
+	overflow: hidden;
+	width: 0;
+	height: 30px;
+	font-size: 20px;
+	background-color: pink;
+	white-space: nowrap; /* 强制一行显示 */
+	animation: animation3 4s steps(10) forwards;
+}
+
+
+/* 3D z轴*/
+.animation3D .demo1 {
+	width: 150px;
+	height: 150px;
+	background-color: pink;
+	perspective: 150px;
+}
+.animation3D .demo1 .son {
+	width: 75px;
+	height: 75px;
+	background-color: purple;
+	transition: all 0.3s;
+}
+.animation3D .demo1 .son:hover {
+	transform: translateX(50px) translateY(50px) translateZ(50px);
+	/* transform: translate3d(50px, 50px, 50px); *//* 简写，不能省略，没有就写0 */
+}
+/* 旋转 */
+
+.animation3D-rotate {
+	perspective: 500px;
+}
+.animation3D-rotate .demo1 {
+	position: relative;
+	transform-style: preserve-3d; /* 子元素开启立体空间 默认是：flat:不开启 */
+	width: 200px;
+	height: 200px;
+	margin: 100px;
+}
+.animation3D-rotate .demo1:hover {
+	transform: rotateY(90deg);
+}
+.animation3D-rotate .demo1 .son1 {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+}
+.animation3D-rotate .demo1 .son2 {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100px;
+	height: 100px;
+	background-color: purple;
+	transform: rotateX(60deg);
+}

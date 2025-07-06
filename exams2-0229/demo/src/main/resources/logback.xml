@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- For assistance related to logback-translator or configuration -->
+<!-- files in general, please contact the logback user mailing list -->
+<!-- at http://www.qos.ch/mailman/listinfo/logback-user -->
+<!-- -->
+<!-- For professional support please see -->
+<!-- http://www.qos.ch/shop/products/professionalSupport -->
+<!-- -->
+<configuration>
+
+    <contextName>exams</contextName>
+<!--qss是文件前缀-->
+    <property name="log_file_name" value="/data1/data/logs/exams/web/web"/>
+    <property name="log_root_level" value="info"/>
+    <property name="log_application_level" value="info"/>
+    <property name="log_framework_level" value="info"/>
+
+    <!--    <property resource="properties/development/logback.properties" />-->
+    <!--    <property file="/home/admin/properties/ltt-web/production/logback.properties" />-->
+
+    <!--    在控制台打印日志-->
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{HH:mm:ss.SSS} [%t] %p %c - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--文件中打印日志-->
+    <appender name="ltt-exams" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>%date{HH:mm:ss.SSS} [%t] %p %c - %m%n</pattern>
+            </layout>
+        </encoder>
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log_file_name}_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+
+            <maxHistory>30</maxHistory>
+
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+    </appender>
+
+    <logger name="org.springframework" level="${log_framework_level}"/>
+    <logger name="org.apache.ibatis" level="${log_framework_level}"/>
+    <logger name="org.apache.commons" level="${log_framework_level}"/>
+    <logger name="ch.qos.logback" level="${log_framework_level}"/>
+    <logger name="com.alibaba.druid" level="${log_framework_level}"/>
+    <logger name="org.apache.velocity" level="${log_framework_level}"/>
+
+    <!-- 应用 -->
+    <logger name="org.mybatis" level="${log_application_level}"/>
+    <logger name="com.lititi.exams" level="${log_application_level}"/>
+
+    <root level="${log_root_level}">
+        <appender-ref ref="stdout"/>
+        <appender-ref ref="ltt-exams"/>
+    </root>
+
+</configuration>

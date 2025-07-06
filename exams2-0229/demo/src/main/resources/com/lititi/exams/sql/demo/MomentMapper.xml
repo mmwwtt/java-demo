@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lititi.exams.web.dao.MomentMapper">
+
+
+    <resultMap type="com.lititi.exams.web.dto.MomentDto" id="MomentResultMap">
+        <result property="momentId" column="moment_id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+        <result property="userPicturePath" column="picture_path" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <collection property="imgPathList" ofType="java.lang.String" column="moment_id" select="getImgByMomentId" />
+    </resultMap>
+    <!--查询单个-->
+    <select id="getImgByMomentId" resultType="java.lang.String">
+        select
+        img_path
+        from moment_img_t
+        where delete_flag != 'Y'
+        and moment_id = #{momentId}
+        order by row_num desc
+    </select>
+
+    <!--查询单个-->
+    <select id="getByQuery" resultMap="MomentResultMap">
+        select
+        t1.moment_id as moment_id,
+        t1.user_id as user_id,
+        t1.content as content,
+        t1.create_date as create_date,
+        t2.picture_path as picture_path,
+        t2.user_name as user_name
+        from moment_t t1 left join user_t t2 on t1.user_id = t2.user_id
+        <where>
+            t1.delete_flag != 'Y' and t2.delete_flag != 'Y'
+            <if test="userFriendList == null or userFriendList.isEmpty()">
+                and 1=0
+            </if>
+            <if test="userFriendList != null and !userFriendList.isEmpty()">
+                and t1.user_id in
+                <foreach item="userFriendId" collection="userFriendList" open="(" separator="," close=")">
+                    #{userFriendId}
+                </foreach>
+            </if>
+        </where>
+
+        order by t1.create_date desc
+    </select>
+
+    <!--查询单个-->
+    <select id="getMomentByDays" resultMap="MomentResultMap">
+        select
+        t1.moment_id as moment_id,
+        t1.user_id as user_id,
+        t1.content as content,
+        t1.create_date as create_date,
+        t2.picture_path as picture_path,
+        t2.user_name as user_name
+        from moment_t t1 left join user_t t2 on t1.user_id = t2.user_id
+        <where>
+            t1.delete_flag != 'Y' and t2.delete_flag != 'Y'
+            and t1.create_date > date_sub(curdate(), interval #{dayNum} day )
+        </where>
+        order by t1.create_date desc
+    </select>
+
+    <select id = "countMomentByDays" resultType="java.lang.Integer">
+        select count(1)
+        from moment_t t1
+        <where>
+            t1.delete_flag != 'Y'
+            and t1.create_date > date_sub(curdate(), interval #{dayNum} day )
+        </where>
+</select>
+    <insert id="addMoment" keyProperty="momentId" useGeneratedKeys="true">
+        insert into moment_t(user_id, content, position, create_date, last_update_date)
+        value (#{moment.userId}, #{moment.content}, #{moment.position}, now(), now())
+    </insert>
+    <insert id="batchAddMomentImg" useGeneratedKeys="true">
+        insert into moment_img_t(moment_id, img_path, row_num,  create_date, last_update_date)
+        values
+        <foreach item="path" collection="imgPathList" separator="," index = "index">
+            (#{momentId}, #{path}, #{index}, now(),now())
+        </foreach>
+    </insert>
+</mapper>
+

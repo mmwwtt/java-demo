@@ -1,0 +1,99 @@
+#debug: true
+server:
+  port: 8060
+  servlet:
+    session:
+      timeout: P30D
+      cookie:
+        max-age: 2592000
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+ltt:
+  mysql:
+    datasource:
+      exams:
+        master:
+          #   数据源基本配置
+          username: root
+          password: "dev123"
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: "jdbc:mysql://localhost:3306/test?charset=utf8mb4&useUnicode=true&characterEncoding=utf8&useSSL=false
+          &autoReconnect=true&allowMultiQueries=true"
+          type: com.alibaba.druid.pool.DruidDataSource
+          #   数据源其他配置
+          initialSize: 5
+          minIdle: 5
+          maxActive: 20
+          maxWait: 60000
+          timeBetweenEvictionRunsMillis: 60000
+          minEvictableIdleTimeMillis: 300000
+          validationQuery: SELECT 1 FROM DUAL
+          testWhileIdle: true
+          testOnBorrow: false
+          testOnReturn: false
+          poolPreparedStatements: true
+          connectionInitSqls: "set names utf8mb4;"
+        slave:
+          #   数据源基本配置
+          username: root
+          password: "dev123"
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: "jdbc:mysql://localhost:3306/test?charset=utf8mb4&useUnicode=true&characterEncoding=utf8&useSSL=false
+          &autoReconnect=true&allowMultiQueries=true"
+          type: com.alibaba.druid.pool.DruidDataSource
+          #   数据源其他配置
+          initialSize: 5
+          minIdle: 5
+          maxActive: 20
+          maxWait: 60000
+          timeBetweenEvictionRunsMillis: 60000
+          minEvictableIdleTimeMillis: 300000
+          validationQuery: "SELECT 1 FROM DUAL"
+          testWhileIdle: true
+          testOnBorrow: false
+          testOnReturn: false
+          poolPreparedStatements: true
+          connectionInitSqls: "set names utf8mb4;"
+
+  cache:
+    redis:
+      other:
+        master:
+          host: "127.0.0.1"
+          port: 6379
+          password: "zq515515515"
+        slave:
+          host: "127.0.0.1"
+          port: 6379
+          password: "zq515515515"
+      session:
+        master:
+          host: "127.0.0.1"
+          port: 6379
+          password: "zq515515515"
+        slave:
+          host: "127.0.0.1"
+          port: 6379
+          password: "zq515515515"
+
+      pool:
+        maxActive: 100
+        maxIdle: 20
+        maxWait: 10000
+
+mybatis:
+  configuration:
+    cache-enabled: true
+    lazy-loading-enabled: true
+    aggressive-lazy-loading: false
+    call-setters-on-nulls: true
+    default-executor-type: reuse
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+exam:
+  cache-moment-page-number: 5

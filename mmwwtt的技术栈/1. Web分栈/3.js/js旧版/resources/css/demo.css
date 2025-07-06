@@ -1,0 +1,1502 @@
+/* css文件中只有样式没有标签,所以不用写style */
+
+.demo_css {
+	font-size: 35px;
+}
+
+.xiaoMi_sidebar { /* 小米侧边栏 */
+	
+}
+.xiaoMi_sidebar>a {
+	background-color: #55585a;
+	color: #FFFFFF;
+	height: 50px;
+	width: 200px;
+	font-size: 14px;
+	text-decoration: none;
+	/* text-indent: 2em; */ padding-left: 30px;
+	display: block;
+	line-height: 50px;
+}
+.xiaoMi_sidebar>a:hover {
+	background-color: #ff6700;
+}
+
+.table_demo{
+	
+}
+.table_demo>table {
+	width: 200px;
+	height: 200px;
+}
+.table_demo>th {
+	height: 40px;
+}
+.table_demo>table,td,th {
+	border: 1px solid blue;
+	border-collapse: collapse;
+	text-align: center;
+	font-size: 14px;
+}
+.border_demo_2{
+	height: 41px;
+	background-color: #fcfcfc;
+	border-top: 3px solid #ff8500;
+	border-bottom: 1px solid #edeef0;
+	line-height: 41px;
+}
+ .border_demo_2>a {
+	padding: 0 20px;
+	color: #4c4c4c;
+	text-decoration: none;
+	display: inline-block;
+	height: 41px;
+} 
+.border_demo_2>a:hover {
+	background-color: #eeeeee;
+	color: #ff8500;
+}
+
+.box_demo_1{
+	width: 250px;
+	height: 350px;
+	background-color: #fff;
+}
+.box_demo_1>img{
+	width: 100%;
+}
+.review {
+	padding: 0 15px;
+	margin-top: 8px;
+	height: 40px;
+	font-size: 12px;
+}
+.PingJia {
+	font-size: 10px;
+	color: #b0b0b0;
+	margin-top: 8px;
+	padding: 0 15px;
+}
+.info {
+	font-size: 10px;
+	padding: 0 15px;
+	margin-top: 8px;
+}
+.info h4 {
+	display: inline;
+	font-weight: 400;
+}
+.info span {
+	color: #ff6700;
+}
+.info em{
+	font-style: normal;
+	color: #ebe4e0;
+	margin: 0 2px 0 3px;
+}
+/* li {
+	list-style: none; 去掉li前面的小圆点
+} */
+.box_demo_2 {
+	height: 250px;
+	width: 800px;
+	background-color: #EEEEEE;
+	margin: 0 auto;
+}
+.float_1{
+	height: 200px;
+	width: 200px;
+	float: left;
+	background-color: pink;
+}
+.float_2{
+	height: 200px;
+	width: 200px;
+	float: left;
+	background-color: forestgreen;
+}
+.float_3{
+	height: 200px;
+	width: 200px;
+	float: right;
+	background-color: blueviolet;
+}
+.box_demo_3{
+	width: 1200px;
+	height: 460px;
+	background-color: pink;
+	margin: 0 auto;
+}
+.box_demo_3_left {
+	width: 230px;
+	height: 460px;
+	background-color: purple;
+	float: left;
+}
+
+.box_demo_3_right {
+	width: 970px;
+	height: 460px;
+	background-color: skyblue;
+	float: left;
+}
+.box_demo_4 {
+	width: 1226px;
+	height: 285px;
+	background-color: pink;
+	margin: 0 auto;
+}
+.box_demo_4 li { /* 权重是11 */
+	width: 296px;
+	height: 285px;
+	background-color: purple;
+	float: left;
+	margin-right: 14px;
+}
+.box_demo_4 .last {  /* 注意权重 权重是20，只写last权重是10*/
+	margin-right: 0px;
+}
+
+.demo_top {
+	height: 50px;
+	background-color: gray;
+}
+.demo_banner {
+	width: 980px;
+	height: 150px;
+	background-color: gray;
+	margin: 10px auto;
+}
+.demo_box {
+	width: 980px;
+	height: 300px;
+	margin: 0 auto;
+	background-color: pink;
+}
+.demo_box li {
+	width: 237px;
+	height: 300px;
+	float: left;
+	margin-right: 10px;
+	background-color: gray;
+}
+.demo_box .last {
+	margin-right: 0;
+	color: gray;
+}
+.demo_footer {
+	height: 200px;
+	background-color: gray;
+	margin-top: 10px;
+}
+
+.box_demo_5 {
+	width: 500px;
+	/* overflow: hidden; */
+	margin: 0 auto;
+	background-color: lightblue;
+}
+.box_demo_6 {
+	width: 200px;
+	height: 200px;
+	margin: 5px 5px;
+	background-color: pink;
+	float: left;
+}
+.box_demo_7 {
+	width: 200px;
+	height: 200px;
+	margin: 5px 5px;
+	background-color: palegreen;
+	float: left;
+}
+
+/* 额外标签清除  */
+.clear {	
+	clear: both;
+}
+
+/* 伪元素清除浮动 */
+.clearfix{  
+	*zoom: 1;
+}
+.clearfix:after {
+	content: "";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+/* 双伪元素清除浮动 */
+.clearfix {
+	*zoom:1;
+}
+.clearfix:before,
+.clearfix:after {
+	content: "";
+	display: table;
+}
+.clearfix::after {
+	clear: both;
+}
+
+.w_demo {
+	width: 1210px;
+	margin:  auto;
+}
+.header_demo {
+	height: 42px;
+	margin: 30px auto;
+}
+.logo_demo {
+	width: 198px;
+	height: 42px;
+	float: left;
+}
+.nav_demo {
+	float: left;
+	margin-left: 60px;
+}
+.nav_demo ul li {
+	float: left;
+	margin: 0 15px;
+}
+.nav_demo ul li a {
+	display: block;
+	height: 42px;
+	padding: 0 10px;
+	line-height: 42px;
+	font-size: 18px;
+	color: #050505;
+}
+.nav_demo ul li a:hover {
+	border-bottom: 2px solid #00a4ff;
+}
+
+.serach_demo {
+	float: left;
+	width: 412px;
+	height: 42px;
+	background-color: skyblue;
+	margin-left: 50px;
+}
+
+.serach_demo input {
+	float: left;
+	width: 345px;
+	height: 40px;
+	border: 1px solid #00a4ff;
+	border-right: none;
+	font-size: 14px;
+	line-height: 40px;
+	padding-left: 15px;
+}
+.serach_demo button {
+	float: left;
+	width: 50px;
+	height: 42px;
+	border: 0;
+}
+.user_demo {
+	float: right;
+	line-height: 42px;
+	margin-right: 30px;
+	font-size: 14px;
+	color: #666;
+}
+.user_demo img {
+	vertical-align: middle;
+}
+.banner_demo {
+	height: 421px;
+	background-color: #1c036c;
+}
+.banner_demo .w_demo {
+	height: 421px;
+	background: url(../images/banner2.png) no-repeat top center;
+}
+.subnav_demo {  /* 侧导航栏 */
+	float: left;
+	width: 192px;
+	height: 421px;
+	background-color: rgba(0,0,0,0.3);
+}
+
+.subnav_demo ul li {
+	height: 45px;
+	line-height: 45px;
+	padding: 0 20px;
+}
+.subnav_demo ul li a {
+	font-size: 14px;
+	color: #fff;
+}
+.subnav_demo ul li a:hover {
+	color:#00a4ff ;
+}
+.subnav_demo ul li a span {
+	float: right;
+}
+.course_demo {
+	float: right;
+	width: 230px;
+	height: 300px;
+	background-color: #FFFFFF;
+	margin-top: 50px;
+}
+.course_demo h2 {
+	height: 48px;
+	background-color: #9bceea;
+	text-align: center;
+	line-height: 48px;
+	color: #fff;
+}
+.bd_demo {
+	padding: 0 20px;
+}
+.bd_demo ul li {
+	border-bottom: 1px solid #ccc;
+	padding: 14px 0 ;
+}
+.bd_demo ul li h4 {
+	font-size: 16px;
+	color: #4e4e4e;
+}
+.bd_demo ul li p {
+	font-size: 12px;
+	color: #a5a5a5;
+}
+.more {
+	display: block;
+	height: 38px;
+	border: 1px solid #00a4ff;
+	margin-top: 5px;
+	line-height: 38px;
+	text-align: center;
+	font-size: 16px;
+	color: #00a4ff;
+	font-weight: 700;
+}
+.goods {
+	margin-top: 10px;
+	height: 60px;
+	background-color: #fff;
+	box-shadow: 0 2px 3px 3px rgba(0,0,0,0.1);
+	line-height: 60px;
+}
+.goods h3 {
+	float: left;
+	margin-left: 30px;
+	font-size: 16px;
+	color: #00a4ff;
+}
+.goods ul {
+	float: left;
+	margin-left: 30px;
+}
+.goods ul li {
+	float: left;
+}
+.goods ul li a {
+	padding: 0 30px;
+	font-size: 16px;
+	color: #050505;
+	border-left: 1px solid #ccc;
+}
+.mod{
+	float: right;
+	margin-right: 30px;
+	font-size: 14px;
+	color: #00a4ff;
+}
+.box_demo {
+	margin-top: 30px;
+}
+.box_demo .box_hd {
+	height: 45px;
+}
+.box_demo .box_hd h3 {
+	float: left;
+	font-size: 20px;
+	color: #494949;
+}
+.box_demo .box_hd a {
+	float: right;
+	font-size: 12px;
+	color: #a5a5a5;
+	margin-top: 10px;
+	margin-right: 30px;
+}
+.box_demo .box_bd ul li {
+	float: left;
+	width: 230px;
+	height: 270px;
+	margin-right: 15px;
+	margin-bottom: 10px;
+	background-color: #ffffff;
+	position: relative;
+}
+.box_demo .box_bd ul li .small_img{
+	position: absolute;
+	right: -3px;
+	top: 2px;
+}
+.box_bd ul li>img {
+	width: 100%;
+}
+.box_bd ul li h4 {
+	margin: 20px 20px 20px 25px;
+	font-size: 14px;
+	color: #050505;
+	font-weight: 400;
+}
+.box_bd .info {
+	margin: 0 20px 0 25px;
+	font-size: 12px;
+	color: #999;
+}
+.box_bd .info span {
+	color: #ff7c2d;
+}
+.box_demo .box_bd ul .last {
+	margin-right: 0;
+}
+.footer {
+	height: 415px;
+	padding-top: 35px;
+}
+.copyright {
+	float: left;
+}
+.copyright p {
+	font-size: 12px;
+	color: #666;
+	margin: 20px 0 15px 0;
+}
+
+.copyright .app {
+	display: block;
+	width: 118px;
+	height: 33px;
+	border: 1px solid #00a4ff;
+	line-height: 33px;
+	text-align: center;
+	font-size: 16px;
+}
+.links {
+	float:right;
+}
+.links dl {
+	float: left;
+	margin-left: 100px;
+}
+.links dl dt {
+	font-size: 16px;
+	color: #000;
+	margin-bottom: 5px;
+}
+.links dl dd {
+	font-size: 12px;
+	color: #333;
+}
+.box_position_demo_0 {
+	width: 500px;
+	height: 500px;
+	background-color: forestgreen;
+	position: relative;
+}
+.box_position_demo_1 {
+	/* position: relative; *//* 相对定位 */
+	position: absolute; /* 绝对定位 */
+	top: 100px;
+	left: 100px;
+	width: 200px;
+	height: 200px;
+	background-color: lightpink;
+}
+.box_position_demo_2 {
+	width: 200px;
+	height: 200px;
+	background-color: lightblue;
+}
+.box_position_demo_3 {
+	position: fixed;
+	top: 100px;
+	left: 0px;
+	width: 25px;
+	height: 100px;
+	background-color: mediumpurple;
+	z-index: -1;
+}
+
+/* 根据版心固定 */
+.box_position_demo_4 { 
+	position: fixed;
+	top: 0px;
+	left: 50%;  /* 固定定位到中心 */
+	margin-left: 610px; /* 根据版心定位到右边 */
+	width: 50px;
+	height: 100px;
+	background-color: mediumpurple;
+}
+.box_position_demo_5 { 
+	position: sticky;
+	top: 20px;
+	width: 25px;
+	height: 100px;
+	background-color: bisque;
+	z-index: 1;
+}
+.tb_promo_demo {
+	position: relative;
+	width: 520px;
+	height: 280px;
+	margin: 100px auto;
+}
+.tb_promo_demo img {
+	width: 520px;
+	height: 280px;
+}
+/* 并集选择器 */
+.prev,
+.next {
+	position: absolute;
+	top: 50%;
+	margin-top: -15px;
+	width: 20px;
+	height: 30px;
+	background-color: rgba(0,0,0,0.3);
+	line-height: 30px;
+	font-size: 25px;
+	color: #fff;
+}
+.prev {
+	left: 0;
+	border-top-right-radius: 15px;
+	border-bottom-right-radius: 15px;
+}
+
+.next {
+	right:0;
+	border-top-left-radius: 15px;
+	border-bottom-left-radius: 15px;
+}
+.promo_nav {
+	position: absolute;
+	bottom: 10px;
+	left: 50%;
+	margin-left: -35px;
+	width: 70px;
+	height: 13px;
+	background-color: rgba(255,255,255,0.3);
+	border-radius: 6px;
+}
+.promo_nav li {
+	float: left;
+	width: 8px;
+	height: 8px;
+	background-color: #fff;
+	border-radius: 50%;
+	margin: 3px;
+}
+.promo_nav li:hover {
+	background-color: orange;
+}
+
+.peppa {
+	/* display: none; */ /* 隐藏方式1 */
+	/* visibility: hidden; */ /* 隐藏方式2,hidden:隐藏, visible:可见 */
+	overflow: scroll; /* 隐藏方式3,visible:无滚动条显示, hidden:隐藏溢出， scroll:有滚动条显示 auto:溢出的时候显示滚动条，无溢出则无滚动条*/
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+}
+.george {
+	width: 100px;
+	height: 100px;
+	background-color: skyblue;
+}
+
+.todo_demo {
+	position: relative;
+	width: 520px;
+	height: 280px;
+	margin: 20px auto;
+}
+.hidden_box {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 520px;
+	height: 280px;
+	background-color: rgba(0,0,0,0.3);
+	display: none;
+}
+.todo_demo:hover .hidden_box {  /* 因为hidden_box已经被隐藏,所以不能hover,需要todo_demo:hover来显示 */
+	display: block;
+}
+
+.sprites_demo_1 {
+	width: 60px;
+	height: 60px;
+	margin: 10px auto;
+	background: url(../images/sprites.png) no-repeat -182px 0;
+	background-position: -182px 0; /* 默认左上角(0,0),-182表示背景向左移动182像素 */
+}
+
+.sprites_demo_2 {
+	width: 27px;
+	height: 25px;
+	margin: 30px auto;
+	background: url(../images/sprites.png) no-repeat -155px -106px;
+}
+
+.sprites_demo_3 {
+	width: 108px;
+	height: 110px;
+	margin: 30px auto;
+	background: url(../images/charater.png) no-repeat -94px -138px;
+}
+/* 字体声明 */
+@font-face {
+  font-family: 'icomoon';
+  src:  url('../../fonts/icomoon.eot?w72zrc');
+  src:  url('../../fonts/icomoon.eot?w72zrc#iefix') format('embedded-opentype'),
+    url('../../fonts/icomoon.ttf?w72zrc') format('truetype'),
+    url('../../fonts/icomoon.woff?w72zrc') format('woff'),
+    url('../../fonts/icomoon.svg?w72zrc#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+/* 字体图标的使用 */
+.ZiTi_demo {
+	font-family: 'icomoon';
+	font-size: 50px;
+}
+
+.box_demo_8 {
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	position: relative;
+	margin: 10px;
+}
+.box_demo_8 .sanJiaoXing {
+	width: 0;  /* 一个盒子宽和高都是0,则四条边都是三角形 */
+	height: 0;
+	border: 10px solid transparent;  /* 都为透明 */
+	border-left-color: pink;  /* 右边的三角形边有颜色 */
+	position: absolute;
+	left: 100%;
+	top: 10px;
+}
+input,
+textarea {
+	outline: none; /* 取消文本区域的轮廓线 */
+}
+textarea {
+	resize: none; /* 防止拖拽文本域 */
+}
+.demo_11 {
+		border-bottom: 5px solid pink;
+}
+.demo_11 img {
+	vertical-align: middle; /* 图片文字对齐方式,baseline:默认的基线，top：与最高元素的顶端，middle:放在父元素的中部，bottom:最低元素的底端 */
+}
+
+.demo_12 {
+	width: 150px;
+	height: 50px;
+	margin: 10px auto;
+	background-color: pink;
+	white-space: nowrap; /* normal:自动换行, nowrap:强制一行内显示 */
+	overflow: hidden; /* 超出的部分隐藏 */
+	text-overflow: ellipsis; /* 省略号替代超出的部分 */
+}
+
+.demo_13 {
+	width: 150px;
+	height: 45px;
+	margin: 10px auto;
+	background-color: pink;
+	
+	overflow: hidden; /* 超出的部分隐藏 */
+	text-overflow: ellipsis; /* 省略号替代超出的部分 */
+	display: -webkit-box;  /* 改成webkit-box盒子（内核） */
+	-webkit-line-clamp: 2; /* 第几行显示省略号 */
+	-webkit-box-orient: vertical;
+}
+.demo_14 {
+	height: 200px;
+	margin: 10px auto;
+}
+.demo_14 ul li {
+	float: left;
+	width: 150px;
+	height: 200px;
+	border: 1px solid black;
+	margin-left: -1px;
+}
+.demo_14 ul li:hover {
+	position: relative; /* 盒子右边被下个盒子的左边盖住，相对定位会压住标准流和其他浮动的盒子 */
+	border:1px solid blue;
+	z-index: 1; /* 如果盒子都是相对定位,用z-index提高他们的层级,其他默认是auto:0, */
+}
+.demo_15 {
+	width: 200px;
+	height: 100px;
+	background-color: pink;
+	margin: 10 auto;
+}
+.demo_16 {
+	float: left; /* 浮动效果,让文字环绕显示 */
+	width: 100px;
+	background-color: pink;
+	margin: 5px 10px; 
+}
+.demo_16 img {
+	width: 100%;
+}
+.demo_17 {
+	height: 100px;
+	text-align: center;
+}
+.demo_17 a {
+	display: inline-block;
+	width: 36px;
+	height: 36px;
+	background-color: pink;
+	text-align: center;
+	line-height: 36px;
+	font-size: 14px;
+}
+.demo_17 .prev_1,
+.demo_17 .next_1 {
+	width: 85px;
+}
+.demo_17 .current,
+.demo_17 .elp {
+	background-color: #fff;
+	border: none;
+}
+.demo_17 input {
+	height: 36px;
+	width: 45px;
+	border: 1px solid #ccc;
+	outline: none;
+}
+.demo_17 button {
+	width: 60px;
+	height: 36px;
+	background-color: #f7f7f7;
+	border: 1px solid #ccc;
+}
+.demo_18 {
+	position: relative;
+	width: 200px;
+	height: 200px;
+	margin: 10px auto;
+	text-align: center;
+}
+.demo_18 .demo_18_1 {
+	
+	width: 0;
+	height: 0;
+	border-top: 100px solid transparent;
+	border-right: 50px solid red;
+	border-bottom: 0px solid lightgreen;
+	border-left: 0px solid slateblue;
+	/* 简写:border-color:transparent red transparent transparent 
+	border-style:solid;
+	border-width:22px 8px 0 0; */
+}
+.demo_18 .price{
+	width: 160px;
+	height: 24px;
+	border: 1px solid red;
+	margin: 0 auto;
+	text-align: center;
+	line-height: 24px;
+}
+.demo_18 .price .miaoSha {
+	position: relative;
+	float: left;
+	width: 90px;
+	height: 100%;
+	background-color: red;
+	color: #fff;
+	font-weight: 700;
+}
+.miaoSha i {
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 0;
+	height: 0;
+	border-color: transparent #fcfcfc transparent transparent;
+	border-style:solid;
+	border-width:24px 12px 0 0;
+}
+.price p {
+	font-size: 12px;
+	color: gray;
+	text-decoration: line-through;
+}
+
+/* HTML5新特性 */
+header,nav {
+	width: 800px;
+	height: 120px;
+	background-color: pink;
+	border-radius: 15px;
+	margin: 15px auto;
+}
+section {
+	width: 500px;
+	height: 300px;
+	background-color: skyblue;
+}
+
+/* 修改属性的颜色 */
+input::placeholder {
+	color: pink;
+}
+
+/* 属性选择器 */
+/* 修改 带有value的input  中的属性*/
+.CSS_demo_1 input[value] {
+	color: pink;
+}
+/* 修改type=text的input的属性 */
+.CSS_demo_1 input[type=text] {
+	color: skyblue;
+}
+/* 选择div中 class以icon 开头 的那些元素 */
+div[class^=icon] { /* 权重 = div + 属性选择器 = 10 + 1 = 11 */
+	color: mediumseagreen;
+}
+/* 选择div中 class以icon 结尾 的那些元素 */
+div[class$=icon] {
+	color: purple;
+}
+/* 选择div中 class 包含 icon的那些元素 */
+div[class*=icon] {
+	color: goldenrod;
+}
+
+/* 结构伪类选择器 */
+/* 选择第一个孩子 */
+.demo_19 ul li:first-child {
+	background-color: pink;
+}
+/* 选择最后一个孩子 */
+.demo_19 ul li:last-child {
+	background-color: skyblue;
+}
+/* 选择第2个孩子 */
+.demo_19 ul li:nth-child(2) {
+	background-color: greenyellow;
+}
+/* 选择第偶数个孩子 */
+.demo_20 ul li:nth-child(even) { /* even:偶数 */
+	background-color: pink;
+}
+/* 选择第奇数个孩子 */
+.demo_20 ul li:nth-child(odd) { /* odd:奇数 */
+	background-color: skyblue;
+}
+/* 公式选择孩子 */
+.demo_20 ul li:nth-child(n+3) { /* n, 2n, 2n+1, 5n, n+5:从第5个到结束, -n+5:前5个 */
+	background-color: greenyellow;
+}
+
+/* 伪元素选择器 */
+.demo_21 {
+	width: 200px;
+	height: 50px;
+	background-color: pink;
+}
+.demo_21::before {
+	display: inline-block;
+	content: '我';
+	width: 30px;
+	height: 40px;
+	background-color: greenyellow;
+}
+
+.demo_22 {
+	width: 200px;
+	height: 35px;
+	border: 1px solid red;
+	position: relative;
+}
+.demo_22::after {
+	display: inline-block;
+	position: absolute;
+	left: 100%;
+	margin-left: -30px;
+	margin-top: 8px;
+	color: red;
+	font-size: 18px;
+	content: '\ea2b';
+	font-family: 'icomoon';
+}
+
+/* 伪元素仿土豆效果 */
+.demo_23 {
+	position: relative;
+	width: 520px;
+	height: 280px;
+	margin: 20px auto;
+}
+.demo_23::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 520px;
+	height: 280px;
+	background-color: rgba(0,0,0,0.3);
+	display: none;
+}
+.demo_23:hover::before { /* 中间不要有空格 */
+	display: block;
+}
+.box_demo_11 {
+	width: 200px;
+	height: 200px;
+	background-color: pink;
+	border: 20px solid red;
+	padding: 15px;
+	box-sizing: content-box; /* 盒子大小为:width+padding+border(默认) */
+}
+.box_demo_12 {
+	width: 200px;
+	height: 200px;
+	background-color: pink;
+	border: 20px solid red;
+	padding: 15px;
+	box-sizing: border-box; /* 盒子大小为width */
+}
+
+.demo_24 {
+	width: 400px;
+	height: 200px;
+	background-color: pink;
+}
+.demo_24 img {
+	width: calc(100% - 30px); /* 用公式来规定,运算符左右要有空格 */
+	filter: blur(1px); /* 图像模糊 */
+}
+.demo_24 img:hover {
+	filter: blur(0);
+}
+.demo_25 {
+	width: 200px;
+	height: 200px;
+	background-color: skyblue;
+	/* transition: 属性 花费时间 运动曲线 何时开始; */
+	transition: width 0.5s ease 0.3s, height 0.5s ease 0.3s, background-color 0.5s ease 0.3s;
+	/* transition: all 0.5s ease 0.3s; */ /* 变化多个属性的简写 */
+}
+.demo_25:hover {
+	width: 400px;
+	height: 400px;
+	background-color: lightpink;
+}
+/* CSS过渡属性练习 */
+.demo_26 {
+	width: 150px;
+	height: 15px;
+	border: 1px solid red;
+	border-radius: 7px;
+	padding: 1px;
+}
+.demo_26 .son {
+	width: 50%;
+	height: 100%;
+	background-color: red;
+	transition: width 2s ease 0.3s;
+}
+.demo_26:hover .son {
+	width: 100%;
+}
+
+/* 2D转换 */
+/* 移动 */
+.box_demo_30 {
+	width: 200px;
+	height: 200px;
+	background-color: pink;
+	transform: translate(20px,30px);  /* 2D转换之移动 translate(x,y); translateX(); translateX();*/
+}
+.box_demo_31 {
+	position: relative;
+	width: 400px;
+	height: 400px;
+	background-color: pink;
+}
+.box_demo_32 {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 100px;
+	height: 100px;
+	background-color: purple;
+	transform: translate(-50%,-50%);  /* 盒子水平居中新方法：绝对定位和2D移动配合 */
+}
+/* 旋转 */
+.box_demo_33 img {
+	width: 150px;
+	border-radius: 50%;
+	border: 5px solid pink;
+	transition: all 10s;  /* 过渡效果,让图像慢慢旋转 */
+}
+.box_demo_33 img:hover {
+	transform: rotate(360deg); /* 2D转换之旋转 transform: rotate(45deg);*/
+}
+.box_demo_34 {
+	position: relative;
+	width: 249px;
+	height: 35px;
+	border: 1px solid #000;
+}
+.box_demo_34::after {
+	content: '';
+	position: absolute;
+	top: 8px;
+	right: 15px;
+	width: 10px;
+	height: 10px;
+	border-right: 1px solid #000;
+	border-bottom: 1px solid #000;
+	
+	transform: rotate(45deg);
+	/* transition: all 0.6s; */
+}
+.box_demo_34:hover::after {
+	transform-origin: right bottom;
+	transform: rotate(225deg);
+}
+.box_demo_35 {
+	overflow: hidden;
+	width: 200px;
+	height: 200px;
+	border: 1px solid pink;
+	margin: 100px auto;
+}
+.box_demo_35::before {
+	content: '黑马';
+	display: block;
+	width: 100%;
+	height: 100%;
+	background-color: hotpink;
+	transform: rotate(180deg);
+	transform-origin: left bottom;
+	transition: all 0.3s;
+}
+.box_demo_35:hover::before {
+		transform: rotate(0deg);
+}
+/* 缩放 */
+.box_demo_36 {
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	margin: 100px auto;
+	transition: all 0.3s;
+}
+.box_demo_36:hover {
+	transform: scale(1.5,1.5);
+}
+.box_demo_37 {
+	overflow: hidden;
+}
+.box_demo_37 div {
+	overflow: hidden;
+	float: left;
+	margin: 15px;
+	transition: all 0.3s;
+}
+.box_demo_37 div img:hover {
+	transform: scale(1.1);
+}
+.box_demo_37 ul {
+	margin-top: 30px;
+	float: left;
+}
+.box_demo_37 ul li {
+	float: left;
+	width: 30px;
+	height: 30px;
+	border: 1px solid green;
+	margin-left: 20px;
+	text-align: center;
+	line-height: 30px;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: all 0.3;
+}
+.box_demo_37 ul li:hover {
+	transform: scale(1.1);
+}
+.box_demo_38 {
+	width: 250px;
+	height: 250px;
+	background-color: pink;
+	margin: 100px auto;
+	transition: all 0.3s;
+}
+.box_demo_38:hover {
+	transform: translate(200px, 200px) rotate(90deg) scale(1.5);
+}
+
+/* 动画 */
+/* 定义动画 */
+@keyframes demo_move {
+	0% {
+		transform: translate(0px);
+	}
+	100%{
+		transform: translate(500px);
+	}
+}
+.box_demo_39 {
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	/* 调用动画 */
+	animation-name: demo_move;
+	/* 持续时间 */
+	animation-duration: 5s;
+}
+
+@keyframes demo_move_1 {
+	0% {
+		transform: translate(0, 0);
+	}
+	25% {
+		transform: translate(400px, 0);
+	}
+	50% {
+		transform: translate(400px, 200px);
+	}
+	70% {
+		transform: translate(0, 200px);
+	}
+	100%{
+		transform: translate(0, 0);
+	}
+}
+.box_demo_40 {
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	/* 调用动画 */
+	animation-name: demo_move_1;
+	/* 持续时间 */
+	animation-duration: 5s;
+}
+@keyframes demo_move_2 {
+	0% {
+		transform: translate(0, 0);
+	}
+	100%{
+		transform: translate(800px, 0);
+	}
+}
+/* 动画简写 */
+.box_demo_41 {
+	width: 100px;
+	height: 100px;
+	background-color: pink;
+	animation: demo_move_2 2s linear 0.5s infinite alternate; /* 前两个属性一定要写 */
+}
+
+.box_demo_42 {
+	position: relative;
+	width: 1050px;
+	height: 850px;
+	margin: 50px auto;
+	background-color: pink;
+	background: url(../images/demo_3.jpg) no-repeat; 
+}
+.box_demo_42 .city {
+	position: absolute;
+	top: 312px;
+	left: 758px;
+}
+.dotted {
+	width: 8px;
+	height: 8px;
+	background-color: #09f;
+	border-radius: 50%;
+}
+.city div[class^="pulse"]{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 8px;
+	height: 8px;
+	box-shadow: 0 0 12px #009dfd;
+	border-radius: 50%;
+	animation: pulse 1.2s linear infinite;
+}
+.city div.pulse2 { /* div.pulse2 表示 <div class="pulse2">*/
+	animation-delay: 0.4s;
+}
+.city div.pulse3 {
+	animation-delay: 0.8s;
+}
+@keyframes pulse {
+	0% {}
+	70% {
+		width: 40px;
+		height: 40px;
+		opacity: 1; /* 透明度 */
+	}
+	100% {
+		width: 70px;
+		height: 70px;
+		opacity: 0;
+	}
+}
+
+.box_demo_43 {
+	overflow: hidden;
+	width: 0;
+	height: 30px;
+	font-size: 20px;
+	background-color: pink;
+	white-space: nowrap; /* 强制一行显示 */
+	animation: w 4s steps(10) forwards;
+}
+@keyframes w {
+	0% {
+		width: 0;
+	}
+	100% {
+		width: 200px;
+	}
+}
+.box_demo_44 {
+	position: absolute;
+	overflow: hidden;
+	width: 200px;
+	height: 100px;
+	background: url(../images/demo_4.png) no-repeat;
+	background-color: pink;
+	animation: bear 0.5s steps(8) forwards infinite, demo_move_3 2s forwards;
+}
+@keyframes bear {
+	0% {
+		background-position: 0 0;
+	}
+	100% {
+		background-position: -1600px 0;
+	}
+}
+
+@keyframes demo_move_3 {
+	0% {
+		left: 0;
+	}
+	100% {
+		left: 50%;
+		transform: translate(-50%);
+	}
+}
+/* 3D */
+.box_demo_45 {
+	width: 400px;
+	height: 400px;
+	background-color: purple;
+	perspective: 500px; /* 透视 */
+}
+.box_demo_46 {
+	width: 200px;
+	height: 200px;
+	background-color: pink;
+	transform: translateX(100px) translateY(100px) translateZ(100px);
+	/* transform: translate3d(100px, 100px, 100px); *//* 简写，不能省略，没有就写0 */
+}
+/* 旋转 */
+.box_demo_47 {
+	perspective: 500px;
+	height: 250px;
+}
+.box_demo_47 img {
+	display: block;
+	float: left;
+	margin: 50px 50px;
+	transition: all 0.5s;
+}
+.box_demo_47 .img_1:hover {
+	transform: rotateX(360deg);
+}
+.box_demo_47 .img_2:hover {
+	transform: rotateY(360deg);
+}
+.box_demo_47 .img_3:hover {
+	transform: rotateZ(360deg);
+} 
+.box_demo_47 .img_4:hover {
+	transform: rotate3d(1,1,0,45deg);/* 简写 1绕轴，0不饶 */
+} 
+
+.box_demo_51 {
+	perspective: 500px;
+}
+.box_demo_48 {
+	position: relative;
+	transform-style: preserve-3d; /* 子元素开启立体空间 默认是：flat:不开启 */
+	width: 400px;
+	height: 400px;
+	margin: 100px 200px;
+}
+.box_demo_48:hover {
+	transform: rotateY(90deg);
+}
+.box_demo_48 .box_demo_49 {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 200px;
+	height: 200px;
+	background-color: pink;
+}
+.box_demo_48 .box_demo_50 {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 200px;
+	height: 200px;
+	background-color: paleturquoise;
+	transform: rotateX(60deg);
+}
+.box_demo_53 {
+	position: relative;
+	width: 300px;
+	height: 300px;
+	margin: 50px auto;
+	transition: all 0.5s;
+	transform-style: preserve-3d; /* 让背面的紫色盒子保留立体空间 */
+}
+.box_demo_53:hover {
+	transform: rotateY(180deg);
+}
+.box_demo_54,
+.box_demo_55 {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	font-size: 30px;
+	color: #fff;
+	text-align: center;
+	line-height: 300px;
+}
+.box_demo_54 {
+	background-color: pink;
+	z-index: 1;
+}
+.box_demo_55 {
+	background-color: mediumpurple;
+	transform: rotateY(180deg);
+}
+.box_demo_56 ul {
+	margin: 50px;
+}
+.box_demo_56 ul li {
+	float: left;
+	width: 120px;
+	height: 35px;
+	margin-left: 20px;
+	perspective: 500px;
+}
+.box_demo_57 {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	transition: all 0.5s;
+	transform-style: preserve-3d;
+}
+.box_demo_57:hover {
+	transform: rotateX(90deg);
+}
+.box_demo_58,
+.box_demo_59 {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+}
+.box_demo_58 {
+	background-color: pink;
+	z-index: 1;
+	transform: translateZ(17.5px);
+}
+.box_demo_59 {
+	position: absolute;
+	
+	background-color: mediumpurple;
+	/* 一定是负的不然就反了   移动要写前面*/
+	transform: translateY(17.5px) rotateX(-90deg);
+	
+}
+.box_demo_60 {
+	perspective: 800px;
+	margin: 300px auto;
+}
+.section_1 {
+	position: relative;
+	width: 300px;
+	height: 200px;
+	margin: 100px auto;
+	transform-style: preserve-3d;
+	animation: rotate 30s linear infinite;
+}
+.section_1:hover {
+	animation-play-state: paused;
+}
+@keyframes rotate {
+	0% {
+		transform: rotateY(0);
+	}
+	100%{
+		transform: rotateY(360deg);
+	}
+}
+.section_1 div {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: url(../images/2.jpg) no-repeat;
+}
+.section_1 div:nth-child(1) {
+	transform: translateZ(300px);
+}
+.section_1 div:nth-child(2) {
+	transform: rotateY(60deg) translateZ(300px);
+}
+.section_1 div:nth-child(3) {
+	transform: rotateY(120deg) translateZ(300px);
+}
+.section_1 div:nth-child(4) {
+	transform: rotateY(180deg) translateZ(300px);
+}
+.section_1 div:nth-child(5) {
+	transform: rotateY(240deg) translateZ(300px);
+}
+.section_1 div:nth-child(6) {
+	transform: rotateY(300deg) translateZ(300px);
+}

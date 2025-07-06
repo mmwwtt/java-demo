@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>css-总结笔记</title>
+<link rel="stylesheet" type="text/css" href="resources/css/common.css"/>
+<link rel="stylesheet" type="text/css" href="resources/css/study.css"/>
+<style type="text/css">
+	.pink {
+		color: pink;
+	}
+</style>
+</head>
+<body>
+	<h1>css基础</h1>
+	<div>
+		<hr ><br><h3>引入css样式</h3>
+		<span style="color:red; font-size: 15px;">hello</span> <!-- 行内样式 -->
+		<span class='pink'>hello</span>       <!-- 内嵌样式 -->
+		<span class="skyblue fontSize15">hello</span>    <!-- 外部样式表 -->
+	</div>
+	<div>
+		<hr><br><h3>基本选择器</h3>
+		<i>hello</i>                     <!-- 标签选择器 -->
+		<span class="pink">hello</span>  <!-- 类选择器 -->
+		<span id="spanTest">hello</span> <!-- id选择器 -->
+  
+		<br><br><h3>复合选择器</h3>
+		<div class="class1">
+			<a href="#">hello</a>          <!-- 后代选择器 -->
+			<span>hello</span>             <!-- 子选择器 -->
+			<div>
+				<a href="#">hello</a>
+				<span>hello</span>
+			</div>
+		</div>
+		<div class="class2">             <!-- 并集选择器 -->
+			hello
+			<a href="http://www.baidu.com" target="_blank">hello</a>          <!-- 伪类选择器 -->
+			<input type="text">
+		</div>  
+	</div>
+	
+	<hr><br><h3>css属性</h3>
+	<div>
+		<div class="backgroundAttribute">背景属性</div>
+		<div class="borderAttribute fontAttribute">边框属性和字体属性</div>
+		<div class="paddingAndMarginAttribute textAttribute">内边距 、外边距和文本属性</div>
+		<div class="shadowAttribute">阴影属性</div>
+	</div>
+	<div>
+		<ul>
+			<li style="cursor: default;">默认的鼠标样式</li>
+			<li style="cursor: pointer;">小手的鼠标样式</li>
+			<li style="cursor: move;">移动的鼠标样式</li>
+			<li style="cursor: text;">文本的鼠标样式</li>
+			<li style="cursor: not-allowed;">禁止的鼠标样式</li>
+		</ul>
+	</div>
+	
+	<div class="floatAttribute">
+		<div class="floatLeft">left浮动</div>
+		<div class="floatLeft">left浮动</div>
+		<div class="floatRight">right浮动</div>
+	</div>
+	<div class="clearFloat clearfix"> <!-- 双伪元素清除浮动 -->
+		<div class="box"></div>
+		<div class="box"></div>
+		<!-- <div class="clear"></div> --> <!-- 额外标签法 -->
+	</div>
+	
+	<div class="positionAttribute">
+		<div class="relative">relative相对定位</div>
+		<div class="absolute">absolute绝对定位</div>
+		<div class="fixed">fixed固定定位</div>
+	</div>
+  <div class="sticky">sticky粘性定位</div>
+	
+	<div class="hidden clearfix">
+		<div class="display">佩奇钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱</div>
+		<div class="visibility">佩奇钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱</div>
+		<div class="overflow">佩奇钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱</div>
+		<div class="overflow2">佩奇钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱</div>
+		<div class="test">佩奇钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱钱</div>
+	</div>
+	
+	<div class="spritesAndIcon clearfix">
+		<div class="sprites1"></div>
+		<div class="sprites2"></div>
+		<div class="icon1">&#xe62f;</div>
+		<div class="icon2">&#xe638;</div>
+		<div class="sanJiaoXing"></div>
+	</div>
+	
+	
+	<h1>CSS3部分</h1>
+	<div class="CSS3">
+		<!-- 属性选择器 -->
+		<input type="text" name="user"/>
+		<!-- <input type="text" placeholder="默认"/> -->
+		<div class="qqwwee1">CSS属性选择器^</div>
+		<div class="qqwwee2">CSS属性选择器^</div>
+		<div class="1qqwwee">CSS属性选择器$</div>
+		<div class="2qqwwee">CSS属性选择器$</div><br>
+		<!-- 结构伪类选择器 -->
+		<ul>
+			<li>第一个</li>
+			<li>第二个</li>
+			<li>第三个</li>
+			<li>第四个</li>
+			<li>第五个</li>
+			<li>第六个</li>
+			<li>第七个</li>
+			<li>第八个</li>
+		</ul><br>
+		<!-- 伪元素选择器 -->
+		<div class="box"></div>
+	</div>
+	<div class="box-sizing clearfix">
+		<div class="box1">box-sizing: content-box;</div><br>
+		<div class="box2">box-sizing: border-box;</div>
+	</div>
+	
+	<h3>动画</h3>
+	<div class="animation">
+		<div class="transition">CSS过渡属性</div>
+		<!-- 移动 -->
+		<div class="translate1">平移</div><br>
+		<div class="box1">
+			<div class="translate2">平移</div>
+		</div><br>
+		<div class="rotate">旋转</div><br>
+		<div class="scale">缩放</div><br>
+		<div class="all">2D转换混合写法</div><br>
+		
+		<!-- 动画 -->
+		<div class="animationAttribute">
+			<div class="demo1">动画序列</div>
+			<div class="demo2">动画简写</div>
+			<div class="demo3">好好学习，天天向上,天天</div>
+		</div>
+
+		<!-- 3D动画 -->
+		<div class="animation3D">
+			<div class="demo1">
+				<div class="son">透视，Z轴平移会变大</div>
+			</div>
+		</div>
+		
+		<div class="animation3D-rotate">
+			<div class="demo1">
+				<div class="son1"></div>
+				<div class="son2"></div>
+			</div>
+		</div>
+	</div>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body>
+</html>

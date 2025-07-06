@@ -1,0 +1,66 @@
+
+jQuery（https://jquery.com/）
+	轻量级
+	跨浏览器兼容
+	简化DOM操作
+	支持插件
+	免费开源
+	
+$() 
+	表示jQuery代码
+	通常用双引号
+	
+jQuery对象：
+	通过jQuery方式获得的对象
+		var element = $('类选择器');
+	jQuery只能使用jQuery方法
+	DOM对象只能使用原生的 javascript 属性和方法
+	jQuery对象和DOM对象转换
+	jQuery对象不能使用style属性
+
+jQuery效果
+	show()  显示
+	hide()  隐藏
+	toggle()  切换
+		speed:slow/normal/fast/毫秒数
+		easing: swing/linear  匀速/变速
+		fn：动画完成时执行的函数（回调函数）
+		但是一般都不加参数
+
+
+	slideDown()  下滑动
+	slideUp()  上滑动
+	slideToggle() 滑动切换
+		参数同上
+		
+	fadeIn() 淡入
+	fadeOut() 淡出
+	fadeToggle() 淡入淡出切换
+	fadeTo()  修改透明度 ，参数1：速度 参数2：透明度 必须写：
+		参数同上
+		
+	animate()
+		params：left，width,opacity等
+		其余同上
+		
+$(this).parents(".p-num") 返回指定父级元素
+
+浅拷贝：拷贝的是地址，修改后会连着原始数据一起修改
+深拷贝：拷贝的是数据
+
+jQuery插件
+	jQuery插件库 http://www.jq22.com/ 需要登入
+	jQuery之家 http://www.htmleaf.com/  无需登入
+		使用
+			下载插件
+			查看index.html源代码
+			引入css和js文件
+			复制相关代码
+	图片懒加载
+		页面滑倒可视区域，再加载显示图片，可提高网页下载速度，减轻服务器负载压力
+	全屏滚动
+		http://www.dowebok.com/demo/2014/77
+	模态框
+	
+	链式编程：节省代码量，让代码更优雅
+		$(this).css("color", "red").sibling().css("color","");

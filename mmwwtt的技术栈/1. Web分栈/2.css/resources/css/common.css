@@ -1,0 +1,29 @@
+* {
+	padding: 0;             /* 外边距 */
+	margin: 0;              /* 内边距 */
+	text-decoration: none;  /* 文字下划线 */
+	font-style: normal;     /* 文字不倾斜 */
+	outline: none;          /* 取消input标签获得焦点时出现的默认黑色轮廓 */
+	list-style: none;       /* 取消列表的默认样式 */
+	border: none;           /* 取消按钮等元素的默认边框 */
+	resize: none;          	/* 取消对框的拖拽,例如文本域右下角 */
+}
+
+.floatLeft {
+	float: left;
+}
+.floatRight {
+	float: right;
+}
+
+.clearfix {      
+	*zoom:1;
+}
+.clearfix:before,
+.clearfix:after {
+	content: "";
+	display: table;
+}
+.clearfix::after {
+	clear: both;
+}

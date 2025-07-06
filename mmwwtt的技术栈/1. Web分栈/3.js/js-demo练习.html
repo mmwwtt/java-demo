@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>js-demo练习</title>
+		<link rel="stylesheet" type="text/css" href="resources/css/demo.css"/>
+		<link rel="stylesheet" type="text/css" href="resources/css/common.css">
+	</head>
+	<body>
+
+		<button onclick="countDownTime('2099-9-9 0:0:0')">离 2099年9月9号 还有几天</button>
+
+		<div id="div1">
+			<h3>点击图片切换背景</h3>
+			<img src="resources/img/小蒜头王八.jpg" class='imgs'>
+			<img src="resources/img/小火龙.jpg" class="imgs">
+			<img src="resources/img/杰尼龟.jpg" class="imgs">
+		</div>
+			
+
+		<div id='div2'>
+			<h3>全选框</h3>
+			<form action="" method="post" class="formDemo1">
+				<input type="checkbox" class="all" name="all"/>全选
+				<input type="checkbox" class="fruit" name="fruit"/>西瓜
+				<input type="checkbox" class="fruit" name="fruit"/>菠萝
+				<input type="checkbox" class="fruit" name="fruit"/>苹果
+				<input type="checkbox" class="fruit" name="fruit"/>草莓
+			</form>
+		</div>
+
+		
+		<div id="div3" class="clearfix">
+			<h3>tab栏切换</h3>
+			<ul class="ul">
+				<li>商品介绍</li>
+				<li>规格与包装</li>
+				<li>售后保障</li>
+				<li>商品评价</li>
+				<li>手机社区</li>
+			</ul>
+			<div class="content">
+				<div style="display: block;">商品介绍 内容：</div>
+				<div>规格与包装 内容：</div>
+				<div>售后保障 内容：</div>
+				<div>商品评价 内容：</div>
+				<div>手机社区 内容：</div>
+			</div>
+		</div>
+		
+		<!-- 下拉列表 -->
+		<div id="div4">
+			<h3>下拉列表</h3>
+			<ul class="dropDownUl clearfix">
+				<li>
+					<a href="#">水果</a>
+					<ul class="ul">
+						<li>香蕉</li>
+						<li>苹果</li>
+						<li>草莓</li>
+					</ul>
+				</li>
+				<li>
+					<a href="#">水果</a>
+					<ul class="ul">
+						<li>香蕉</li>
+						<li>苹果</li>
+						<li>草莓</li>
+					</ul>
+				</li>
+				<li>
+					<a href="#">水果</a>
+					<ul class="ul">
+						<li>香蕉</li>
+						<li>苹果</li>
+						<li>草莓</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		
+		
+		<!-- 发布留言 -->
+		<div id="div5">
+			<h3>发布留言</h3>
+			<textarea rows="" cols="">123</textarea>
+			<button>发布</button>
+			<ul></ul>
+		</div>
+		<!-- 练习 动态生成表格 -->
+		<div id='div6'>
+			<h3>动态生成表格</h3>
+			<table border="1"  class="studentTable">
+				<tr>
+					<th>姓名</th>
+					<th>科目</th>
+					<th>成绩</th>
+					<th>操作</th>
+				</tr>
+			</table>
+		</div>
+
+		
+		<div id='div7'>
+			<h3>键盘事件</h3>
+			按s光标定于文本框
+			<input type="text" name="" id="" value=""/>
+			<div class="div1">
+				<input type="text" placeholder="请输入快递单号" class="jd">
+				<div class="con"></div>
+			</div>
+		</div>
+
+		
+		<div id='div8'>
+			<h3>定时器练习Demo</h3>
+			<div class="div1">
+				<img src="resources/img/小蒜头王八.jpg" class="ad">
+				<button class="button2">停止计时器</button>
+			</div>
+			<div class="div2">
+				<div class="hour">1</div>
+				<div class="minute">2</div>
+				<div class="second">3</div>		
+				<button type="button" class="button3">停止计时器</button>
+				<br>
+				<button type="button" class="button4">开始计时器</button>
+			</div>	
+			<br>
+			<div class="div3">
+				<input type="text" name="" id="" value="" />
+				<button class="button5">发送验证码（10秒后再发）</button>
+			</div>
+	
+			<button type="button" class="button6">点击5秒后跳转</button>
+		</div>
+		
+		<div id='div9'>
+			<h2>location对象的方法</h2>
+			<button type="button" class="button7">重定向页面</button>
+			<button type="button" class="button8">替换当前页面（转发），不能后退页面</button>
+			<button type="button" class="button9">刷新页面</button>
+			<br><br>
+			<a href="index.html">前往</a>
+			<button class="button10">前进</button>
+			<button class="button11">后退</button>
+			<button class="button12">go</button>
+		</div>
+		
+		<!-- pc练习 -->
+		<div id="div10">显示鼠标在该盒子内的坐标</div>
+			
+		<!-- 模态框拖拽 -->
+		<div id="div11">
+			<h3>点击弹出登入框</h3>
+			<div>
+				<form action="" method="">
+					用户名：<input type="text" ><br>
+					登入密码：<input type="password"><br>
+					<input type="submit" name="" id="" value="登入" />
+				</form>
+				<button>关闭</button>
+			</div>
+		</div>
+
+			
+		<!-- 京东放大镜效果 -->
+		<div id="div12" class="preview_img">
+			<h3>京东放大镜效果</h3>
+			<img src="resources/img/小蒜头王八.jpg" alt="" class="img_1">
+			<div class="mask"></div>
+			<div class="big">
+				<img src="resources/img/小蒜头王八.jpg" alt="" class="bigImg">
+			</div>
+		</div>
+
+	
+
+		<div id="div13">
+			<h3>精斗云案例</h3>
+			<ul>
+				<li>首页新闻</li>
+				<li>师资力量</li>
+				<li>活动策划</li>
+				<li>企业文化</li>
+				<li>招聘信息</li>
+				<li>公司简介</li>
+				<li>上海校区</li>
+				<li>广州校区</li>
+			</ul>
+		</div>
+
+	
+	  <!-- 动画函数封装 -->
+		<div id="div14">
+			<h3>动画函数封装</h3>
+			<button type="button" class="button1">开始动画500</button><br>
+			<button type="button" class="button2">开始动画800</button><br>
+			<div class="div1"></div>  <!-- 动画元素要加定位 -->
+			<div class="div2"></div>
+		</div>
+	
+	
+		<div id="div15">
+			<span>--</span>
+			<div>问题反馈</div>
+		</div>
+
+
+		<div id="div16">
+			<h3>网页轮播图</h3>
+			<a href="javascript:;" class="a1">&lt;</a>
+			<a href="javascript:;" class="a2">&gt;</a>
+			<ul>
+				<li>
+					<a href="javascript:;"><img src="resources/img/3-1.jpg" ></a>
+				</li>
+				<li>
+					<a href="javascript:;"><img src="resources/img/3-2.jpg" ></a>
+				</li>
+				<li>
+					<a href="javascript:;"><img src="resources/img/3-3.jpg" ></a>
+				</li>
+				<li>
+					<a href="javascript:;"><img src="resources/img/3-4.jpg" ></a>
+				</li>
+			</ul>
+			<ol></ol>
+		</div>
+		
+		<!-- 移动端练习 -->
+		<div class="div_1"></div>
+		
+		
+		<br><br><br><br><br><br><br><br><br><br><br><br>
+		<script src="resources/js/demo.js" type="text/javascript" charset="utf-8"></script>
+	</body>
+</html>
