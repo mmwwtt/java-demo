@@ -5,12 +5,14 @@ import com.mmwwtt.demo.se.common.Level_0;
 import com.mmwwtt.demo.se.common.Level_0_1;
 import com.mmwwtt.demo.se.common.Level_0_1_2;
 import com.mmwwtt.demo.se.common.Message;
+import com.mmwwtt.demo.se.基础.枚举.CodeDescEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -71,4 +73,26 @@ public class 泛型Test {
         log.info("");
     }
 
+
+    /**
+     * 泛型T都 继承/实现CodeDescEnum
+     */
+    static  <T extends CodeDescEnum> T getEnumByCode(Class<T> enumClass, String code) {
+        for (T constant : enumClass.getEnumConstants()) {
+            if (Objects.equals(constant.getCode(), code)) {
+                return constant;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * list中元素都 继承/实现CodeDescEnum
+     */
+    public void printCodes(List<? extends CodeDescEnum> list) {
+        for (CodeDescEnum item : list) {
+            System.out.println(item.getCode());
+        }
+    }
 }

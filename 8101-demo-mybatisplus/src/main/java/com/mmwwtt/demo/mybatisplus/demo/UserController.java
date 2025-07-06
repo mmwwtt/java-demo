@@ -1,8 +1,9 @@
 package com.mmwwtt.demo.mybatisplus.demo;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mmwwtt.demo.common.response.ApiResponse;
+import com.mmwwtt.demo.mybatisplus.demo.dao.UserDao;
+import com.mmwwtt.demo.mybatisplus.demo.service.UserService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,9 @@ public class UserController {
 
     @Resource(name = "userServiceImpl")
     private UserService userService;
+
+    @Autowired
+    private UserDao userDao;
 
     @PostMapping("/saveOrUpdate")
     public ApiResponse<User> saveOrUpdate(@RequestBody User user) {
