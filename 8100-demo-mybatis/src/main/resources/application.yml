@@ -5,6 +5,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    #连接串后添加useUnicode=true&characterEncoding=utf8
     url: jdbc:mysql://localhost:3306/demo
     username: root
     password: dev123

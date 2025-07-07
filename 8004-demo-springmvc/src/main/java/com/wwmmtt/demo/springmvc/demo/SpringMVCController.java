@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/spring-mvc")
 @Slf4j
 public class SpringMVCController {
+
     @Resource
     private LttRedisProperties lttRedisProperties;
 
@@ -26,7 +27,12 @@ public class SpringMVCController {
         String xToken = request.getHeader("X-token");
     }
 
-    @PostMapping("/get")
+    @PostMapping("/getParam")
     public void getParam(@RequestBody BaseInfoDTO baseInfoDTO) {
+    }
+
+    @PostMapping("/getParam1")
+    public void getParam1(BaseInfoDTO baseInfoDTO) {
+        log.info(baseInfoDTO.toString());
     }
 }

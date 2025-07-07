@@ -48,4 +48,5 @@ public class ReflectTest {
         method.invoke(list1, 123);
         assertEquals(list1.size(), 2);
     }
+
 }

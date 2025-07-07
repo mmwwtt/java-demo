@@ -55,6 +55,10 @@
         values (#{user.name}, #{user.sexCode}, #{user.height}, #{user.birthDate})
     </insert>
 
+    <!--
+    useGeneratedKeys = true： 表示使用数据库的自增主键
+    keyProperty 属性 ：将数据库的自增主键与实体类的属性进行绑定
+    -->
     <insert id="saveAll" useGeneratedKeys="true" keyProperty="userId">
         insert into user_t
         (name,sex_code,height,birth_date)

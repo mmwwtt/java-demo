@@ -126,6 +126,9 @@ public class JDK8新特性 {
         String str1 = ableNull.orElse("hell0");
         String str2 = ableNull.orElseGet(() -> "hello");
         String str3 = ableNull.orElseThrow();
+
+        BaseInfo baseInfo = null;
+        String name = Optional.ofNullable(baseInfo).map(BaseInfo::getName).orElse("");
     }
 
 
@@ -301,7 +304,7 @@ public class JDK8新特性 {
     }
 
     @Test
-    @DisplayName("stream并行流parallelStream")
+    @DisplayName("stream并行流parallelStream, 并行执行")
     public void test22() {
         List<Integer> sortedNumbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         List<Integer> result = sortedNumbers.parallelStream()
@@ -311,12 +314,12 @@ public class JDK8新特性 {
     }
 
     @Test
-    @DisplayName("stream无序流unordered, 并行时转为无序，性能更好")
+    @DisplayName("stream无序流unordered, 无序执行")
     public void test21() {
         List<Integer> sortedNumbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         List<Integer> result = sortedNumbers.parallelStream()
                 .unordered()
-                .filter(n -> n % 2 == 0)
+                .map(item -> item+1)
                 .collect(Collectors.toList());
         System.out.println(result);
     }
