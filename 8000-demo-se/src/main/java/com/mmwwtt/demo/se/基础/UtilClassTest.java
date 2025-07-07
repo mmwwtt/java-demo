@@ -325,7 +325,9 @@ public class UtilClassTest {
     @DisplayName("Objects基本使用")
     public void test11() {
         Objects.isNull(null);
+        Objects.nonNull(null);
         Objects.equals("hello", "hello");
-
+        boolean res = Objects.equals(Integer.valueOf("1000"), Integer.valueOf("1000"));
+        System.out.println(res);
     }
 }

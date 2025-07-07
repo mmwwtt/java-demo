@@ -12,10 +12,18 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class BaseInfoLombok {
+public class BaseInfo {
     private Long baseInfoId;
     private String name;
     private String sexCode;
     private Double height;
     private LocalDate birthDate;
+
+    //lombok默认为boolean自动生成isXX方法
+    private boolean show;
+
+    public static void main(String[] args) {
+        BaseInfo baseInfo = new BaseInfo();
+        baseInfo.isShow();
+    }
 }

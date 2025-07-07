@@ -299,4 +299,25 @@ public class JDK8新特性 {
                 .stream().toList();
         log.info("{},{}", map1,map2,list);
     }
+
+    @Test
+    @DisplayName("stream并行流parallelStream")
+    public void test22() {
+        List<Integer> sortedNumbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        List<Integer> result = sortedNumbers.parallelStream()
+                .filter(n -> n % 2 == 0)
+                .collect(Collectors.toList());
+        System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("stream无序流unordered, 并行时转为无序，性能更好")
+    public void test21() {
+        List<Integer> sortedNumbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        List<Integer> result = sortedNumbers.parallelStream()
+                .unordered()
+                .filter(n -> n % 2 == 0)
+                .collect(Collectors.toList());
+        System.out.println(result);
+    }
 }
