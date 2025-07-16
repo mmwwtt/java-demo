@@ -1,0 +1,1 @@
+oracle中number可以表示任意精度， gauss中用Decimal替换
