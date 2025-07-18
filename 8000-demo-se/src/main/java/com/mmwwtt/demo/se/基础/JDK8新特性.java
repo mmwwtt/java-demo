@@ -177,7 +177,7 @@ public class JDK8新特性 {
     }
 
     @Test
-    @DisplayName("测试flatMap 合并两个list")
+    @DisplayName("测试flatMap 将List<List<String>> 扁平化成List<String>")
     public void test9() {
         List<BaseInfo> list = Stream.of(list1, list2)
                 .flatMap(List::stream)

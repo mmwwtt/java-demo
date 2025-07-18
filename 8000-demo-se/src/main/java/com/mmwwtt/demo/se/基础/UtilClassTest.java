@@ -48,6 +48,7 @@ public class UtilClassTest {
     @DisplayName("Integer基本使用")
     public void test2() {
         Integer num1 = 123;
+        //valueOf返回包装类型
         Integer num2 = Integer.valueOf("123");
 
         //Integer 转为 String
@@ -56,7 +57,7 @@ public class UtilClassTest {
         //Integer 比较值相等
         log.info("{}",num1.equals(1));
 
-        //字符串转为16进制
+        //字符串转为16进制 parseInt返回基本类型
         int num = Integer.parseInt("FF", 16);
         log.info("{}",num);
     }
@@ -170,6 +171,9 @@ public class UtilClassTest {
         //前位补0
         String str3 = String.format("%03d", num2);
 
+        //将list中数据拼接成字符串
+        HashMap<String, String> map = new HashMap<>();
+        String rangeStr = String.join("、", map.values());
         log.info(str1, str2, str3);
     }
 
@@ -249,6 +253,18 @@ public class UtilClassTest {
         Pattern pattern = Pattern.compile("he");
         Matcher matcher = pattern.matcher(str);
         String str2 = matcher.replaceAll("hhee");
+
+
+        String name = "qqwwee";
+        //字母开头， 字母,数字.下划线_， 连接线- 组成
+        Pattern pattern1 = Pattern.compile("^[A-Za-z][A-Za-z0-9_-]*$");
+        Matcher matcher1 = pattern.matcher(name);
+        //判断是否匹配
+        boolean isOk = matcher.find();
+
+        //链式
+        isOk = Pattern.compile("^[A-Za-z][A-Za-z0-9_-]*$").matcher(name).find();
+
         CommonUtils.println(str1,str2);
     }
 

@@ -2,6 +2,7 @@ package com.mmwwtt.demo.se.reflect;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -14,6 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 public class ReflectTest {
+
+
 
     @Test
     public void reflectDemo() throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
@@ -49,4 +52,53 @@ public class ReflectTest {
         assertEquals(list1.size(), 2);
     }
 
+    @Test
+    @Disabled("反射-Class类测试")
+    public void testClass() throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        Integer num = strTo( Integer.class,"1");
+    }
+
+    //根据 class对象 进行数据处理
+    private <T> T strTo(Class<T> clazz, String str) throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        List<T> res = new ArrayList<>();
+
+        //判断当前类对象是什么并处理
+        if (clazz == Integer.class) {
+            //将对象强转为对应的泛型类 ， 不同类型转换会报错，所以需要Integer.parseInt解析字符串
+             T tmp =  clazz.cast(Integer.parseInt(str));
+        }
+
+        //把类对象转换成子类的对象
+        //Class<? extends Animal> animalClass = clazz.asSubclass(Animal.class);
+
+        //获得类的加载器 可以通过类加载器加载资源
+        clazz.getClassLoader();
+
+        //返回类中所有公共类和接口类对象
+        Class<?>[] classes = clazz.getClasses();
+
+        //返回类中所有类和接口类对象
+        Class<?>[] declaredClasses = clazz.getDeclaredClasses();
+
+        //根据类的全限定路径返回类对象
+        Class<?> t = Class.forName("java.lang.Integer");
+        String tClassName = t.getName();
+
+        //通过反射创建实例化对象， jdk9已弃用.newInstance, 使用.getDeclaredConstructor().newInstance()
+        Object object = t.newInstance();
+        object = t.getDeclaredConstructor().newInstance();
+
+        //获得类的包名
+        clazz.getPackage();
+
+        //获得类的名字
+        clazz.getSimpleName();
+
+        //获得当前类的父类名字
+        clazz.getSuperclass();
+
+        //获得当前类实现的类/接口
+        clazz.getInterfaces();
+        return null;
+    }
 }
