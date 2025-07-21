@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UserQuery extends Page {
+public class UserQuery extends Page<User> {
     private Long userId;
     private String name;
 

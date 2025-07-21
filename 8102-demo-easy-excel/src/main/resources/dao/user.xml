@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mmwwtt.demo.easyexcel.demo.dao.UserDao">
+   <sql id="userQuerySql">
+       <where>
+           <if test="query.name != null and query.name != ''">
+               AND name like CONCAT('%', #{query.name}, '%')
+           </if>
+           <if test="query.sexCodeList != null and !query.sexCodeList.isEmpty()">
+               AND sex_code IN
+               <foreach collection="query.sexCodeList" item="sexCode" open="(" separator="," close=")">
+                   #{sexCode}
+               </foreach>
+           </if>
+           <if test="query.userIdList != null and !query.userIdList.isEmpty()">
+               AND user_id IN
+               <foreach collection="query.userIdList" item="userId" open="(" separator="," close=")">
+                   #{userId}
+               </foreach>
+           </if>
+       </where>
+   </sql>
+    <select id="queryPage" resultType="com.mmwwtt.demo.mybatisplus.demo.User">
+        select * from user_t
+        <include refid="userQuerySql"/>
+    </select>
+    <select id="queryList" resultType="com.mmwwtt.demo.mybatisplus.demo.User">
+        select * from user_t
+        <include refid="userQuerySql"/>
+    </select>
+</mapper>

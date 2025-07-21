@@ -3,15 +3,13 @@ package com.mmwwtt.demo.easyexcel.demo;
 import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 public class BaseInfoExcel {
-    @ExcelProperty(value = "姓名")
+
+    @ExcelProperty(value = "excel.name")
     private String name;
-    @ExcelProperty(value = "学号")
+
+    @ExcelProperty(value = "excel.sutdentNumber")
     private String studentNumber;
 
-    @ExcelProperty(value = "生日")
-    private LocalDateTime birthDate;
 }

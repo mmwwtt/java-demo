@@ -2,6 +2,8 @@ server:
   port: 8102
 
 spring:
+  messages:
+    basename: i18n/messages
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/demo
@@ -14,7 +16,7 @@ spring:
     minimum-idle: 10
 
 mybatis-plus:
-  mapper-locations: classpath:mybatis-plus/mapper/*.xml
+  mapper-locations: classpath:dao/*.xml
   configuration:
     #配置MyBatis的日志，输出到指定控制台
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
