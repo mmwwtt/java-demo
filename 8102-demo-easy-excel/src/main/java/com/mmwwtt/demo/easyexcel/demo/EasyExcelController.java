@@ -93,7 +93,7 @@ public class EasyExcelController {
     @PostMapping("/importDemo")
     public ApiResponse<Void> importDemo() {
         // 读取的excel文件路径
-        String filename = "D:\\test\\excel\\student_export.xlsx";
+        String filename = "D:\\student_import.xlsx";
         List<BaseInfoExcel> list = new ArrayList<>();
         // 读取excel
         EasyExcel.read(filename, BaseInfoExcel.class, new AnalysisEventListener<BaseInfoExcel>() {

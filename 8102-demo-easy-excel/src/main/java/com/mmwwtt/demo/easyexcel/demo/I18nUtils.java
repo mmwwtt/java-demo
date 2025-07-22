@@ -40,7 +40,7 @@ public final class I18nUtils {
     public  String get(String code) {
         Locale locale = LocaleContextHolder.getLocale();
         try {
-            return messageSource.getMessage(code,new Object[0],locale);
+            return messageSource.getMessage(code,null,locale);
         }catch (Exception e) {
             return code;
         }

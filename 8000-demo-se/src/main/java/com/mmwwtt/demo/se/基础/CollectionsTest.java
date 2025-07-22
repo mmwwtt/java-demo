@@ -15,6 +15,9 @@ public class CollectionsTest {
     @Test
     @DisplayName("Arrays基本使用")
     public void test() {
+        //创建一个Object集合
+        Object[] objects = {1, "hello"};
+
         Integer[] array0 = {1, 2, 3};
         int[] array1 = {1, 3, 5};
         //array转list
