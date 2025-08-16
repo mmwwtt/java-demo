@@ -16,7 +16,7 @@ public class CollectionsTest {
     @DisplayName("Arrays基本使用")
     public void test() {
         //创建一个Object集合
-        Object[] objects = {1, "hello"};
+//        {1, "hello"}
 
         Integer[] array0 = {1, 2, 3};
         int[] array1 = {1, 3, 5};
@@ -244,6 +244,9 @@ public class CollectionsTest {
         set1.toArray(list1);
 
         List<Integer> list2 = new ArrayList<>(set1);
+
+        //list转set
+        Set<Integer> set11 = new HashSet<>(list2);
     }
 
     @Test
@@ -290,7 +293,7 @@ public class CollectionsTest {
             log.info("{} : {}", str, map1.get(str));
         }
         //遍历map,不能在遍历的时候进行插入和移除操作
-        for (Map.Entry entry : map1.entrySet()) {
+        for (Map.Entry<String, Integer> entry : map1.entrySet()) {
             log.info("{},{}",entry.getKey(), entry.getValue());
         }
         //forEach遍历map
@@ -298,6 +301,27 @@ public class CollectionsTest {
 
         //删除元素
         map1.entrySet().removeIf(entry -> entry.getValue() == 2);
+
+        Map<String, List<Integer>> map2 = new HashMap<>();
+
+
+        String key =  "hello";
+        if(map2.containsKey(key)) {
+            List<Integer>list= new ArrayList<>();
+            list.add(1);
+            map2.put(key, list);
+        }else {
+            map2.get(key).add(1);
+        }
+        //computeIfAbsent,: key时 将(k,v)插入，并将v返回
+        //可替换为
+        map2.computeIfAbsent(key, k->new ArrayList<>()).add(1);
+
+        //可替换为
+        map2.compute("hello", (k,v)-> v==null?new ArrayList<>() : {map2.get("hello")})
+        map2.computeIfPresent()
+
+
     }
 
     @Test

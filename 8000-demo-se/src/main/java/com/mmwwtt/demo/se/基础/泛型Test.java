@@ -5,7 +5,9 @@ import com.mmwwtt.demo.se.common.Level_0;
 import com.mmwwtt.demo.se.common.Level_0_1;
 import com.mmwwtt.demo.se.common.Level_0_1_2;
 import com.mmwwtt.demo.se.common.Message;
-import com.mmwwtt.demo.se.基础.枚举.CodeDescEnum;
+import com.mmwwtt.demo.se.基础.枚举.BaseEnum;
+import com.mmwwtt.demo.se.基础.枚举.MyEnum;
+import com.mmwwtt.demo.se.基础.枚举.MyEnum1;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,11 +75,18 @@ public class 泛型Test {
         log.info("");
     }
 
+    /**
+     *  泛型接收同个父类的子类
+     */
+    @Test
+    public void test() {
+        Class<? extends BaseEnum> enumClass = true ? MyEnum1.class : MyEnum.class;
+    }
 
     /**
      * 泛型T都 继承/实现CodeDescEnum
      */
-    static  <T extends CodeDescEnum> T getEnumByCode(Class<T> enumClass, String code) {
+    static  <T extends BaseEnum> T getEnumByCode(Class<T> enumClass, String code) {
         for (T constant : enumClass.getEnumConstants()) {
             if (Objects.equals(constant.getCode(), code)) {
                 return constant;
@@ -90,8 +99,8 @@ public class 泛型Test {
     /**
      * list中元素都 继承/实现CodeDescEnum
      */
-    public void printCodes(List<? extends CodeDescEnum> list) {
-        for (CodeDescEnum item : list) {
+    public void printCodes(List<? extends BaseEnum> list) {
+        for (BaseEnum item : list) {
             System.out.println(item.getCode());
         }
     }

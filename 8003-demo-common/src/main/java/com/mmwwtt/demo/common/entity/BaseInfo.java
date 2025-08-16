@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -21,6 +22,7 @@ public class BaseInfo extends BaseModel {
     private LocalDate birthDate;
     private Contact contact;
     private List<Family> familyList;
+    private Map<String, Family> map;
 
 
     /**

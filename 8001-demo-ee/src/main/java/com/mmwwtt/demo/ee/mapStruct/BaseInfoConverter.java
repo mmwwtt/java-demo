@@ -8,10 +8,15 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper(builder = @Builder(disableBuilder = true))
+@Mapper(builder = @Builder(disableBuilder = true),
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE   //为null的字段不进行拷贝(不会把老值改成null)
+)
 public interface BaseInfoConverter {
     BaseInfoConverter INSTANCE = Mappers.getMapper( BaseInfoConverter.class );
 
+    /**
+     * mapStruct 默认是浅拷贝， 类里面的对象属性(list,map,set,自定义对象)都是直接浅拷贝了引用
+     */
     @Mappings({
             @Mapping(target = "name", source = "name"),
             @Mapping(target = "email", source = "contact.email"),

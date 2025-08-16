@@ -305,7 +305,7 @@ public class JDK8新特性 {
 
     @Test
     @DisplayName("stream并行流parallelStream, 并行执行")
-    public void test22() {
+    public void test21() {
         List<Integer> sortedNumbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         List<Integer> result = sortedNumbers.parallelStream()
                 .filter(n -> n % 2 == 0)
@@ -315,12 +315,21 @@ public class JDK8新特性 {
 
     @Test
     @DisplayName("stream无序流unordered, 无序执行")
-    public void test21() {
+    public void test22() {
         List<Integer> sortedNumbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         List<Integer> result = sortedNumbers.parallelStream()
                 .unordered()
                 .map(item -> item+1)
                 .collect(Collectors.toList());
         System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("stream ifPresent, 如果存在再执行")
+    public void test23() {
+        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        list.stream().filter(item -> item>=10)
+                .findFirst()
+                .ifPresent(System.out::println);
     }
 }
