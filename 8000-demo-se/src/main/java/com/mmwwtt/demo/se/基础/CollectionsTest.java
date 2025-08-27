@@ -109,6 +109,10 @@ public class CollectionsTest {
                 return 0;
             }
         });
+
+        //sort排序
+        baseInfoList.sort(Comparator.comparing(BaseInfoVO::getHeight)
+                .thenComparing(BaseInfoVO::getName));
     }
 
     @Test
@@ -313,40 +317,24 @@ public class CollectionsTest {
         }else {
             map2.get(key).add(1);
         }
-        //computeIfAbsent,: key时 将(k,v)插入，并将v返回
-        //可替换为
+        //computeIfAbsent: key不存在时 将(k,v)插入, 返回v
         map2.computeIfAbsent(key, k->new ArrayList<>()).add(1);
 
-        //可替换为
-        map2.compute("hello", (k,v)-> v==null?new ArrayList<>() : {map2.get("hello")})
-        map2.computeIfPresent()
+        //compute 需要自行判断key是否存在
+        map2.compute("hello", (k, v) -> {
+            if (v == null) {
+                return new ArrayList<>(List.of(1));
+            } else {
+                v.add(1);
+                return v;
+            }
+        });
 
+        //computeIfAbsent: key存在时 将新的(k,v)插入，返回v
+        //putIfAbsent : key不存在时再插入
+        map2.putIfAbsent("hello", new ArrayList<>());
+        map2.computeIfPresent("hello", (k, v) -> { v.add(1); return v; });
 
-    }
-
-    @Test
-    public void LinkedHashMap作为定长LRU缓存() {
-
-        // 16表示初始map大小
-        //0.75f表示容量达到 75% 后进行自动扩容
-        // true表示启动得带顺序特性， 访问元素后，将元素放到最后面
-        Map<Integer, Integer> map =
-                new LinkedHashMap<Integer, Integer>(16, 0.75f, true) {
-                    @Override
-                    protected boolean removeEldestEntry(Map.Entry<Integer, Integer> eldest) {
-                        //重写删除实例方法，当容量大于5时删除最老的数据
-                        return size() > 5;
-                    }
-                };
-
-        for (int i = 0; i < 10; i++) {
-            map.put(i, i);
-        }
-
-        log.info("{}",map.keySet());
-
-        map.get(6);
-        log.info("{}",map.keySet());
 
     }
 }

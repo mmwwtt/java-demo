@@ -129,6 +129,11 @@ public class JDK8新特性 {
 
         BaseInfo baseInfo = null;
         String name = Optional.ofNullable(baseInfo).map(BaseInfo::getName).orElse("");
+
+        //当某个值不为空指针时执行后续代码
+        Optional.ofNullable(baseInfo.getName()).ifPresent(name1 -> {
+
+        });
     }
 
 
