@@ -66,6 +66,9 @@ public class ReflectTest {
         if (clazz == Integer.class) {
             //将对象强转为对应的泛型类 ， 不同类型转换会报错，所以需要Integer.parseInt解析字符串
              T tmp =  clazz.cast(Integer.parseInt(str));
+        } if (clazz == Long.class) {
+            // return Long.parseLong(str);  会报错 需要返回T  但是返回的是Long
+            return clazz.cast(Long.parseLong(str));
         }
 
         //把类对象转换成子类的对象

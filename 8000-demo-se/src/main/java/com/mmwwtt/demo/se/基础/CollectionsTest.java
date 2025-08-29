@@ -15,6 +15,9 @@ public class CollectionsTest {
     @Test
     @DisplayName("Arrays基本使用")
     public void test() {
+        //创建一个Object集合
+//        {1, "hello"}
+
         Integer[] array0 = {1, 2, 3};
         int[] array1 = {1, 3, 5};
         //array转list
@@ -106,6 +109,10 @@ public class CollectionsTest {
                 return 0;
             }
         });
+
+        //sort排序
+        baseInfoList.sort(Comparator.comparing(BaseInfoVO::getHeight)
+                .thenComparing(BaseInfoVO::getName));
     }
 
     @Test
@@ -241,6 +248,9 @@ public class CollectionsTest {
         set1.toArray(list1);
 
         List<Integer> list2 = new ArrayList<>(set1);
+
+        //list转set
+        Set<Integer> set11 = new HashSet<>(list2);
     }
 
     @Test
@@ -287,7 +297,7 @@ public class CollectionsTest {
             log.info("{} : {}", str, map1.get(str));
         }
         //遍历map,不能在遍历的时候进行插入和移除操作
-        for (Map.Entry entry : map1.entrySet()) {
+        for (Map.Entry<String, Integer> entry : map1.entrySet()) {
             log.info("{},{}",entry.getKey(), entry.getValue());
         }
         //forEach遍历map
@@ -295,31 +305,36 @@ public class CollectionsTest {
 
         //删除元素
         map1.entrySet().removeIf(entry -> entry.getValue() == 2);
-    }
 
-    @Test
-    public void LinkedHashMap作为定长LRU缓存() {
+        Map<String, List<Integer>> map2 = new HashMap<>();
 
-        // 16表示初始map大小
-        //0.75f表示容量达到 75% 后进行自动扩容
-        // true表示启动得带顺序特性， 访问元素后，将元素放到最后面
-        Map<Integer, Integer> map =
-                new LinkedHashMap<Integer, Integer>(16, 0.75f, true) {
-                    @Override
-                    protected boolean removeEldestEntry(Map.Entry<Integer, Integer> eldest) {
-                        //重写删除实例方法，当容量大于5时删除最老的数据
-                        return size() > 5;
-                    }
-                };
 
-        for (int i = 0; i < 10; i++) {
-            map.put(i, i);
+        String key =  "hello";
+        if(map2.containsKey(key)) {
+            List<Integer>list= new ArrayList<>();
+            list.add(1);
+            map2.put(key, list);
+        }else {
+            map2.get(key).add(1);
         }
+        //computeIfAbsent: key不存在时 将(k,v)插入, 返回v
+        map2.computeIfAbsent(key, k->new ArrayList<>()).add(1);
 
-        log.info("{}",map.keySet());
+        //compute 需要自行判断key是否存在
+        map2.compute("hello", (k, v) -> {
+            if (v == null) {
+                return new ArrayList<>(List.of(1));
+            } else {
+                v.add(1);
+                return v;
+            }
+        });
 
-        map.get(6);
-        log.info("{}",map.keySet());
+        //computeIfAbsent: key存在时 将新的(k,v)插入，返回v
+        //putIfAbsent : key不存在时再插入
+        map2.putIfAbsent("hello", new ArrayList<>());
+        map2.computeIfPresent("hello", (k, v) -> { v.add(1); return v; });
+
 
     }
 }

@@ -57,4 +57,15 @@ public class FastJsonDemo {
         jsonObject.put("array", jsonArray);
         log.info(jsonObject.toJSONString());
     }
+
+    @Test
+    public void test2() {
+        JSONObject object = new JSONObject();
+        object.put("k","");
+        JSONObject object1 = new JSONObject();
+        object.put("k",null);
+        Integer k1= object.getInteger("k");
+        Integer k = object1.getInteger("k");
+        System.out.println();
+    }
 }
