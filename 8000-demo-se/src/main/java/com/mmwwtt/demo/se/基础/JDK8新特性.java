@@ -36,7 +36,7 @@ public class JDK8新特性 {
     @DisplayName("测试Lambda表达")
     public void test1() {
         List<Integer> list = Arrays.asList(3,6,4,10,88,22);
-        list.sort((s1, s2) -> s1 - s2);
+        list.sort(Comparator.comparingInt(s -> s));
         assertNotNull(list);
     }
 
@@ -131,6 +131,7 @@ public class JDK8新特性 {
         String name = Optional.ofNullable(baseInfo).map(BaseInfo::getName).orElse("");
 
         //当某个值不为空指针时执行后续代码
+        //ifPresent中name1变量为stream中流的对象，未必是最开始的，所以有存在的必要(之后可以不用，但是不能没有)
         Optional.ofNullable(baseInfo.getName()).ifPresent(name1 -> {
 
         });

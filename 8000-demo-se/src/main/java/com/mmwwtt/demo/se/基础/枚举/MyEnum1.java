@@ -1,5 +1,6 @@
 package com.mmwwtt.demo.se.基础.枚举;
 
+import com.mmwwtt.demo.common.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,0 +1,16 @@
+Pair 使用pair的好处，可以提取成公共处理，并且在方法内可以用作用域的变量，不用像方法一样进行传参
+mysql 每次执行会自动提交事务
+Collections.emptyMap,  等不可变的空集合 不能被后续修改
+DTO(Data Transfer Object)
+thread 拷贝对象的引用副本
+grpc 和 rpc(rpc和http接口的区别的好处)
+类型强转只能在父子类之间，不同类型强转会报错(如(Long)str 会报错)
+方法入参为int, 但是传了个Integer, 如果integer值为null，在拆箱时会报空指针异常
+stream流中Collectors.toMap，key可以为null,但value不能为null，否则会抛空指针异常，改为foreach.一个个put
+CollectionUtil.emptyList，Arrays.asList表示集合不能修改，如果要增删，需要使用new ArrayList<>()
+当前线程创建子线程后，当前线程的ThreadLocal中的上下文数据(语言，用户id)不会传递到子线程中，ThreadLoacl是线程隔离的，需要通过方法传递参数
+当静态方法要用到spring组件时，需要组件也用static修饰，@Autowried无法将组件注入为static，要改成set/构造方式注入
+
+计算密集型  线程数 = CPU核心数
+IO密集型	  线程数 = 2×CPU
+混合型	  中间值

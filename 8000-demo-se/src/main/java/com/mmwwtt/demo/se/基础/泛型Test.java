@@ -1,11 +1,11 @@
 package com.mmwwtt.demo.se.基础;
 
 
+import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.demo.se.common.Level_0;
 import com.mmwwtt.demo.se.common.Level_0_1;
 import com.mmwwtt.demo.se.common.Level_0_1_2;
 import com.mmwwtt.demo.se.common.Message;
-import com.mmwwtt.demo.se.基础.枚举.BaseEnum;
 import com.mmwwtt.demo.se.基础.枚举.MyEnum;
 import com.mmwwtt.demo.se.基础.枚举.MyEnum1;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +79,7 @@ public class 泛型Test {
      *  泛型接收同个父类的子类
      */
     @Test
-    public void test() {
+    public void test5() {
         Class<? extends BaseEnum> enumClass = true ? MyEnum1.class : MyEnum.class;
     }
 
@@ -102,6 +102,22 @@ public class 泛型Test {
     public void printCodes(List<? extends BaseEnum> list) {
         for (BaseEnum item : list) {
             System.out.println(item.getCode());
+        }
+    }
+
+    @Test
+    @DisplayName("instanceof 会判断子类， 哪怕使用父类接收后，泛型中还是保留了子类信息")
+    public void test6() {
+        Object object = "1";
+        String str = "2";
+        TValue(object);
+        TValue(str);
+    }
+    public <T> void TValue( T value) {
+        if (value instanceof String) {
+            log.info("string");
+        } else {
+            log.info("object");
         }
     }
 }

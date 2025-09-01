@@ -133,7 +133,7 @@ public class BaseDemoTest {
      * switch语句
      */
     @Test
-    @DisplayName("switch使用")
+    @DisplayName("switch使用, 不要过度依赖case穿透的特性，不利于代码理解和可读(分不清哪些是漏了break还是故意利用了穿透)， 建议将公共代码提取成方法使用")
     public void test7() {
         String str = "a";
         switch (str) {
@@ -148,6 +148,18 @@ public class BaseDemoTest {
             default:
                 log.info("default");
                 break;
+        }
+    }
+    /**
+     * switch语句
+     */
+    @Test
+    @DisplayName("switch使用2, lambda 写法天然支持break")
+    public void test7_1() {
+        String str = "a";
+        switch (str) {
+            case "e", "f", "g" -> log.info("efg");
+            default -> log.info("efg");
         }
     }
 
