@@ -3,5 +3,7 @@ package com.wwmmtt.demo.springmvc.demo.将service注入为static;
 import org.springframework.stereotype.Service;
 
 @Service
-public class Service2 {
+public class Service11 {
+
+   // private Service2 service2;
 }

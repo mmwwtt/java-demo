@@ -7,12 +7,14 @@ import com.mmwwtt.demo.common.response.ApiResponse;
 import com.mmwwtt.demo.common.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.jackson.JsonObjectDeserializer;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -67,5 +69,14 @@ public class FastJsonDemo {
         Integer k1= object.getInteger("k");
         Integer k = object1.getInteger("k");
         System.out.println();
+    }
+
+    @Test
+    public void test3() {
+        JSONObject json = new JSONObject();
+        json.put("map", new HashMap<>());
+        Object map = json.get("map");
+        //JSONObject mapJson = (JSONObject) map;  //不能直接转换，因为map中是Map结构，无法转成JSONObject
+        JSONObject mapJson = (JSONObject) JSON.toJSON(map);  //toJSON 将内部结构转成JSON后再进行强转
     }
 }
