@@ -30,4 +30,10 @@ public class BaseInfo {
 
     private List<String> list;
     private Set<String> set;
+
+    //jackson只序列化有getter方法的字段，
+    // 通过getter方法暴露static字段给jackSon做序列化(用于controller中返回json)
+    public String getName4() {
+        return name4;
+    }
 }
