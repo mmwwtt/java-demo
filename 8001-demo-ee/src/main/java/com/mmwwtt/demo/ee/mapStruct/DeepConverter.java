@@ -3,6 +3,7 @@ package com.mmwwtt.demo.ee.mapStruct;
 import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.demo.ee.mapStruct.tmpEntity.A;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.control.DeepClone;
 import org.mapstruct.factory.Mappers;
 
@@ -22,4 +23,14 @@ public interface DeepConverter {
     Map<String, Map<String,BaseInfo>> convert(Map<String,Map<String,BaseInfo>>  map);
     List<Map<String,BaseInfo>> convert(List<Map<String,BaseInfo>> list);
     Map<String,BaseInfo> convert1(Map<String,BaseInfo> map);
+
+
+    /**
+     * 将指定值赋给新对象
+     * @param baseInfo
+     * @param name
+     * @return
+     */
+    @Mapping(target = "name", expression = "java(name)")
+    BaseInfo convertToReactionGroup(BaseInfo baseInfo, String name);
 }
