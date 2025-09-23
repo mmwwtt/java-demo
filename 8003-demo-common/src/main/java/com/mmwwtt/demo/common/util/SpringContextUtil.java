@@ -1,27 +1,26 @@
-package com.wwmmtt.demo.springmvc;
+package com.mmwwtt.demo.common.util;
 
+import lombok.Getter;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+/**
+ * 动态获取bean, 接口中无法注入bean,写默认方法时要用到可以动态获取
+ */
 @Component
 public class SpringContextUtil implements ApplicationContextAware {
 
-
+    //将bean注入为static属性
+    //获取applicationContext
+    @Getter
     private static ApplicationContext applicationContext;
 
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         SpringContextUtil.applicationContext = applicationContext;
-    }
-
-
-    //获取applicationContext
-    public static ApplicationContext getApplicationContext() {
-
-        return applicationContext;
     }
 
 
