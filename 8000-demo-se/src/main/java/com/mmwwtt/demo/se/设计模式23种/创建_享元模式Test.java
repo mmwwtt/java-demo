@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
  * 享元模式为了对象复用，减少重复对象创建
  * 单例模式为了限制对象个数，而不是复用
  */
-public class 结构_享元模式Test {
+public class 创建_享元模式Test {
 
     @Test
     @DisplayName("测试享元模式")
