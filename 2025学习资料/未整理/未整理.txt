@@ -10,7 +10,33 @@ stream流中Collectors.toMap，key可以为null,但value不能为null，否则�
 CollectionUtil.emptyList，Arrays.asList表示集合不能修改，如果要增删，需要使用new ArrayList<>()
 当前线程创建子线程后，当前线程的ThreadLocal中的上下文数据(语言，用户id)不会传递到子线程中，ThreadLoacl是线程隔离的，需要通过方法传递参数
 当静态方法要用到spring组件时，需要组件也用static修饰，@Autowried无法将组件注入为static，要改成set/构造方式注入
+JSON不区分list和set,只有反序列化的时候区分
+Java，instanceof无法判断泛型类型的具体类型是什么，泛型在运行时会被类型擦除，运行时无法获取泛型的具体类型参数
+List 的contains 是一个一个找，没用哈希表，会比较慢，建议转Set判断
+idea热部署：修改代码时无需重启(修改配置文件，增加/删除方法，字段、类修改 无法生效)
+
+Optional.ofNullable(T value) 是为了处理可能为 null 的值，如果值为 null，会返回 Optional.empty()。
+Optional.of(T value) 则是用于明确知道值不为 null 的情况，如果传入 null，会抛出 NullPointerException。
+
 
 计算密集型  线程数 = CPU核心数
 IO密集型	  线程数 = 2×CPU
 混合型	  中间值
+
+
+
+
+通过springboot整合webSocket
+Java Redis-NoSql缓存面试题
+
+
+线程池中如何加多个队列
+多线程中短时间的线程被长时间的线程抢占资源，导致短时间的任务执行了很长，该怎么处理
+使用 PriorityBlockingQueue 实现优先级队列（模拟多队列）
+二：多队列 + 多线程池（资源隔离）
+自定义线程池 + 多个队列 + 调度器（高级方案）
+
+
+
+profile和jmeter 的使用
+KryoUtil.deepCopy

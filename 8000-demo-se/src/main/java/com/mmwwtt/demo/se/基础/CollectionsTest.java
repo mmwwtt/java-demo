@@ -111,7 +111,7 @@ public class CollectionsTest {
             }
         });
 
-        //sort排序
+        //sort排序(默认升序排序)
         baseInfoList.sort(Comparator.comparing(BaseInfoVO::getHeight)
                 .thenComparing(BaseInfoVO::getName));
     }

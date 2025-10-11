@@ -16,6 +16,7 @@ public interface BaseInfoConverter {
 
     /**
      * mapStruct 默认是浅拷贝， 类里面的对象属性(list,map,set,自定义对象)都是直接浅拷贝了引用
+     * 需要对每个引用类型都增加converter方法
      */
     @Mappings({
             @Mapping(target = "name", source = "name"),
