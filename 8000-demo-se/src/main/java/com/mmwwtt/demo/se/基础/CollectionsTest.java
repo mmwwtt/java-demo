@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class CollectionsTest {
@@ -269,7 +270,22 @@ public class CollectionsTest {
 
         //LinkedHashMap 会记录插入时的顺序
         Map<String, Integer> map3 = new LinkedHashMap<>();
-        CommonUtils.println(map1, map2, map3);
+
+        //ConcurrentHashMap 线程安全的map, key和value都不能为null
+        Map<String, Integer> map4 = new ConcurrentHashMap<>();
+        try {
+            map4.put(null, 1);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            map4.put("1", null);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        CommonUtils.println(map1, map2, map3, map4);
     }
 
     @Test

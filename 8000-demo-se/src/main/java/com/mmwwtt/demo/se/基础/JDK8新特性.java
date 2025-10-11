@@ -35,7 +35,7 @@ public class JDK8新特性 {
     @Test
     @DisplayName("测试Lambda表达")
     public void test1() {
-        List<Integer> list = Arrays.asList(3,6,4,10,88,22);
+        List<Integer> list = Arrays.asList(3, 6, 4, 10, 88, 22);
         list.sort(Comparator.comparingInt(s -> s));
         assertNotNull(list);
     }
@@ -50,33 +50,33 @@ public class JDK8新特性 {
 
 
         LocalDate now = LocalDate.now();
-        int year = now.getYear();						// 获取年份
-        int month = now.getMonthValue();				// 获取月份（1-12）
-        Month monthEnum = now.getMonth();				// 获取月份的枚举值
-        int dayOfMonth = now.getDayOfMonth();			// 获取月份中的第几天（1-31）
-        int dayOfYear = now.getDayOfYear();				// 获取一年中的第几天（1-366）
-        DayOfWeek dayOfWeek = now.getDayOfWeek();		// 获取现在是星期几
-        int lengthOfYear = now.lengthOfYear();			// 获得当年总天数
-        int lengthOfMonth = now.lengthOfMonth();		// 获得当月总天数
-        long epochDay = now.toEpochDay();				// 与时间纪元（1970年1月1日）相差的天数
+        int year = now.getYear();                        // 获取年份
+        int month = now.getMonthValue();                // 获取月份（1-12）
+        Month monthEnum = now.getMonth();                // 获取月份的枚举值
+        int dayOfMonth = now.getDayOfMonth();            // 获取月份中的第几天（1-31）
+        int dayOfYear = now.getDayOfYear();                // 获取一年中的第几天（1-366）
+        DayOfWeek dayOfWeek = now.getDayOfWeek();        // 获取现在是星期几
+        int lengthOfYear = now.lengthOfYear();            // 获得当年总天数
+        int lengthOfMonth = now.lengthOfMonth();        // 获得当月总天数
+        long epochDay = now.toEpochDay();                // 与时间纪元（1970年1月1日）相差的天数
 
 
-        LocalDate localDate1 = now.plusDays(1);			// 给当前时间加一天
-        LocalDate localDate2 = now.plusDays(1);			// 给当前时间加一周
-        LocalDate localDate3 = now.plusMonths(1);		// 给当前时间加一月
-        LocalDate localDate4 = now.plusYears(1);		// 给当前时间加一年
-        LocalDate localDate5 = now.minusDays(1);		// 给当前时间减一天
-        LocalDate localDate6 = now.minusWeeks(1);		// 给当前时间减一周
-        LocalDate localDate7 = now.minusMonths(1);		// 给当前时间减一月
-        LocalDate localDate8 = now.minusYears(1);		// 给当前时间减一年
+        LocalDate localDate1 = now.plusDays(1);            // 给当前时间加一天
+        LocalDate localDate2 = now.plusDays(1);            // 给当前时间加一周
+        LocalDate localDate3 = now.plusMonths(1);        // 给当前时间加一月
+        LocalDate localDate4 = now.plusYears(1);        // 给当前时间加一年
+        LocalDate localDate5 = now.minusDays(1);        // 给当前时间减一天
+        LocalDate localDate6 = now.minusWeeks(1);        // 给当前时间减一周
+        LocalDate localDate7 = now.minusMonths(1);        // 给当前时间减一月
+        LocalDate localDate8 = now.minusYears(1);        // 给当前时间减一年
 
 
-        LocalDate localDate9 = now.withYear(2020);		// 修改日期对象年份为2020
-        LocalDate localDate10 = now.withMonth(1);		// 修改日期对象月份为1
-        LocalDate localDate11 = now.withDayOfMonth(1);	// 修改日期对象的日期(一月中的第几天)
-        LocalDate localDate12 = now.withDayOfYear(1);	// 修改日期对象的日期(一年中的第几天)
+        LocalDate localDate9 = now.withYear(2020);        // 修改日期对象年份为2020
+        LocalDate localDate10 = now.withMonth(1);        // 修改日期对象月份为1
+        LocalDate localDate11 = now.withDayOfMonth(1);    // 修改日期对象的日期(一月中的第几天)
+        LocalDate localDate12 = now.withDayOfYear(1);    // 修改日期对象的日期(一年中的第几天)
 
-        log.info("{},{},{},{}",now1, now2, now3, localDate);
+        log.info("{},{},{},{}", now1, now2, now3, localDate);
 
         //将时间格式化成字符串
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMdd-HHmmss");
@@ -113,14 +113,14 @@ public class JDK8新特性 {
     @DisplayName("测试Optinoal")
     public void test4() {
         Optional<String> empty = Optional.empty();
-        log.info("{}",empty.isPresent());
+        log.info("{}", empty.isPresent());
         empty.get();
 
         Optional<String> notNull = Optional.of("hello");
-        log.info("{}",notNull.isPresent());
+        log.info("{}", notNull.isPresent());
 
         Optional<String> ableNull = Optional.ofNullable(null);
-        log.info("{}",ableNull.isPresent());
+        log.info("{}", ableNull.isPresent());
 
         String str = ableNull.get();
         String str1 = ableNull.orElse("hell0");
@@ -289,7 +289,7 @@ public class JDK8新特性 {
     }
 
     /**
-     * list转map
+     * list转map 返回的是HashMap, 但是value不能为null，设计如此，为了避免stream流后续操作报空指针
      * Student::getName 建
      * Function.identity() 返回一个输出和输入一样的lambda表达式对象，等价于 item -> item
      * (key1, key2) -> key2 表示键相同的，后来的会覆盖之前的   不写如果出现该情况会报错
@@ -303,10 +303,29 @@ public class JDK8新特性 {
         Map<String, Long> map2 = list1.stream()
                 .collect(Collectors.toMap(BaseInfo::getName, BaseInfo::getBaseInfoId,
                         (key1, key2) -> key2));
+
+        try {
+            //value不能为null，会报错，
+            Map<String, Long> map3 = list1.stream()
+                    .collect(Collectors.toMap(BaseInfo::getName, item -> null, (key1, key2) -> key2));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //list转map可以为null值
+        Map<String, String> collect = list1.stream().collect(
+                HashMap::new,
+                (m, v) -> m.put(v.getName(), null),
+                HashMap::putAll
+        );
+
+        //key可以为null
+        Map<String, Long> map3 = list1.stream()
+                .collect(Collectors.toMap(item -> null, BaseInfo::getBaseInfoId, (key1, key2) -> key2));
+
+
         // map转list
-        List<BaseInfo> list = map1.values()
-                .stream().toList();
-        log.info("{},{}", map1,map2,list);
+        List<BaseInfo> list = map1.values().stream().toList();
+        log.info("{},{}", map1, map2, list);
     }
 
     @Test
@@ -325,7 +344,7 @@ public class JDK8新特性 {
         List<Integer> sortedNumbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         List<Integer> result = sortedNumbers.parallelStream()
                 .unordered()
-                .map(item -> item+1)
+                .map(item -> item + 1)
                 .collect(Collectors.toList());
         System.out.println(result);
     }
@@ -334,7 +353,7 @@ public class JDK8新特性 {
     @DisplayName("stream ifPresent, 如果存在再执行")
     public void test23() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-        list.stream().filter(item -> item>=10)
+        list.stream().filter(item -> item >= 10)
                 .findFirst()
                 .ifPresent(System.out::println);
     }
