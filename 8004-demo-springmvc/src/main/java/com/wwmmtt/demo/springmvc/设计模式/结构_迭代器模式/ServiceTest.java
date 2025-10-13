@@ -1,4 +1,4 @@
-package com.mmwwtt.demo.se.设计模式23种;
+package com.wwmmtt.demo.springmvc.设计模式.结构_迭代器模式;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Slf4j
-public class 结构_迭代器模式Test {
+public class ServiceTest {
 
     @Test
     @DisplayName("测试迭代器模式")

@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+/**
+ * 根据不同的状态找对应的实现类中的方法来执行
+ */
 @Slf4j
 public class 行为_状态模式Test {
     @Test

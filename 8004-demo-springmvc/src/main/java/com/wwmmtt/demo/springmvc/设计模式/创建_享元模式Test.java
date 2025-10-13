@@ -1,4 +1,4 @@
-package com.mmwwtt.demo.se.设计模式23种;
+package com.wwmmtt.demo.springmvc.设计模式;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
