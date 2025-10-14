@@ -1,5 +1,6 @@
 package com.mmwwtt.demo.se.设计模式23种;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,11 +45,9 @@ public class 行为_命令模式Test {
 
     }
 
+    @Data
     class Command implements ICommand {
         private Receiver receiver;
-        public void setReceiver(Receiver receiver) {
-            this.receiver = receiver;
-        }
 
         @Override
         public void execute() {
@@ -56,11 +55,10 @@ public class 行为_命令模式Test {
         }
     }
 
+    @Data
     class Subject {
         private Command command;
-        public void setCommand(Command command) {
-            this.command = command;
-        }
+
         //发出命令
         public void invoke() {
             command.execute();

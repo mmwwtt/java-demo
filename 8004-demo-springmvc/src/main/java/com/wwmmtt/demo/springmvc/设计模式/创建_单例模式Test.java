@@ -1,4 +1,4 @@
-package com.mmwwtt.demo.se.设计模式23种;
+package com.wwmmtt.demo.springmvc.设计模式;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ public class 创建_单例模式Test {
 
 
     /**
-     * 饿汉式-双重校验
+     * 懒汉式-双重校验
      * 既提升了性能，也保证了线程安全
      * volatile保证了对象创建后，其他线程立即可知
      */
