@@ -1,5 +1,6 @@
 package com.wwmmtt.demo.springmvc;
 
+import com.mmwwtt.demo.common.entity.多态.Animal;
 import lombok.Data;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public class BaseInfo {
     private static String name4 = "name4";
     private static String name5 ="name5";
 
-
+    private List<Animal> animalList;
     {
         name3 = "name3-update";
     }

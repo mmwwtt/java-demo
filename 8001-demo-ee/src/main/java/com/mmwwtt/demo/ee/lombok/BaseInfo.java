@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)  //callSuper= true   打印时父类属性也打印
 @EqualsAndHashCode
 @Builder
 @AllArgsConstructor
