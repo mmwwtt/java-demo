@@ -3,11 +3,11 @@ package com.mmwwtt.demo.fastjson.demo;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.demo.common.response.ApiResponse;
 import com.mmwwtt.demo.common.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.jackson.JsonObjectDeserializer;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,11 +28,15 @@ public class FastJsonDemo {
         // java对象转JSON字符串
         String jsonStr = JSON.toJSONString(baseInfoFastJson);
         String jsonListStr = JSON.toJSONString(Arrays.asList(baseInfoFastJson));
+
+
+        JSONObject obj = JSONObject.parseObject(jsonListStr);
+        List<BaseInfoFastJson> listtt = obj.toJavaObject(List.class);
+
         // JSON字符串转java对象
         BaseInfoFastJson baseInfo2 = JSON.parseObject(jsonStr, BaseInfoFastJson.class);
         //JSON字符串转List
         List<BaseInfoFastJson> list = JSON.parseArray(jsonListStr, BaseInfoFastJson.class);
-
 
         // JSONObject使用, 用键值对存储属性
         JSONObject jsonObject1 = new JSONObject();
@@ -78,5 +82,12 @@ public class FastJsonDemo {
         Object map = json.get("map");
         //JSONObject mapJson = (JSONObject) map;  //不能直接转换，因为map中是Map结构，无法转成JSONObject
         JSONObject mapJson = (JSONObject) JSON.toJSON(map);  //toJSON 将内部结构转成JSON后再进行强转
+    }
+
+    @Test
+    public void test4(){
+        JSONObject obj = JSONObject.parseObject(JSONObject.toJSONString(BaseInfo.getPresetList()));
+        List<BaseInfoFastJson> listtt = obj.toJavaObject(List.class);
+        System.out.println();
     }
 }

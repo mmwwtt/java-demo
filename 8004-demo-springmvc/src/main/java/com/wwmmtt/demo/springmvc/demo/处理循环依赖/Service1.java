@@ -14,7 +14,6 @@ public class Service1 {
 
     private Service3 service3;
 
-
     //解决方式2：set方式注入
     public void setService3(Service3 service3) {
         this.service3 = service3;

@@ -1,0 +1,1 @@
+多态序列化  @JsonTypeInfo和@JsonSubTypes  根据入参决定序列化成哪个子类对象
