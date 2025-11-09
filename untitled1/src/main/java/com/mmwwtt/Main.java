@@ -23,7 +23,7 @@ public class Main {
     @Test
     public void test() throws InterruptedException {
         RestTemplate restTemplate = new RestTemplate();
-        //restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
+        restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
         Map<String, String> map = new HashMap<>();
         map.put(LICENCE, BI_YING_LICENCE);
         ResponseEntity<List<Stock>> stocksListResponse = restTemplate.exchange(STOCK_LIST_URL, HttpMethod.GET,
@@ -111,5 +111,108 @@ public class Main {
      */
     private boolean quentityIsMoreThan(float num1, float num2) {
         return Math.abs(num1 - num2) / num1 < 0.05 || num1 > num2;
+    }
+
+
+    @Test
+    public void test1() throws InterruptedException {
+        RestTemplate restTemplate = new RestTemplate();
+        //restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
+        Map<String, String> map = new HashMap<>();
+        map.put(LICENCE, BI_YING_LICENCE);
+        ResponseEntity<List<Stock>> stocksListResponse = restTemplate.exchange(STOCK_LIST_URL, HttpMethod.GET,
+                null, new ParameterizedTypeReference<>() {
+                }, map);
+        List<Stock> stockList = stocksListResponse.getBody();
+
+        int cnt = 0;
+        for (Stock stock : stockList) {
+            cnt++;
+            if(cnt%200==0) {
+                Thread.sleep(10000);
+            }
+            //System.out.println(stock.getMc());
+            Thread.sleep(100);
+            Map<String, String> map1 = new HashMap<>();
+            map1.put(LICENCE, BI_YING_LICENCE);
+            map1.put(STOCK_CODE, stock.getDm());
+            map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
+            map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
+            map1.put(START_DATA, "20251101");
+            map1.put(END_DATA, "20251107");
+            map1.put(MAX_SIZE, "30");
+            ResponseEntity<List<StockDetail>> stockDetailResponse=null;
+            try {
+                stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
+                        null, new ParameterizedTypeReference<>() {
+                        }, map1);
+            } catch (Exception e) {
+                System.out.println("");
+                e.printStackTrace();
+                continue;
+            }
+            List<StockDetail> stockDetailList = stockDetailResponse.getBody();
+            if (quentityAndPerc(stockDetailList)) {
+                System.out.printf("-----------------------------------------------------------------------  %s_%s\n", stock.getDm(), stock.getMc());
+            }
+        }
+    }
+
+    @Test
+    public void test1_1() throws InterruptedException {
+        RestTemplate restTemplate = new RestTemplate();
+
+            Thread.sleep(100);
+            Map<String, String> map1 = new HashMap<>();
+            map1.put(LICENCE, BI_YING_LICENCE);
+            map1.put(STOCK_CODE, "002836.SZ");
+            map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
+            map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
+            map1.put(START_DATA, "20251101");
+            map1.put(END_DATA, "20251107");
+            map1.put(MAX_SIZE, "30");
+            ResponseEntity<List<StockDetail>> stockDetailResponse=null;
+            try {
+                stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
+                        null, new ParameterizedTypeReference<>() {
+                        }, map1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            List<StockDetail> stockDetailList = stockDetailResponse.getBody();
+            quentityAndPerc(stockDetailList);
+
+    }
+
+    /**
+     * 涨跌百分比/成交量   的值    在扩大
+     */
+    private boolean quentityAndPerc(StockDetail stockDetail1, StockDetail stockDetail2) {
+        float res2 = (stockDetail2.getPert() / stockDetail2.getV());
+        float res1 = (stockDetail1.getPert() / stockDetail1.getV());
+        return res2 - res1 > 0 + Math.abs(res1 * 0.05);
+    }
+
+    /**
+     * 涨跌百分比/成交量   的值    在扩大
+     */
+    private boolean quentityAndPerc(List<StockDetail> stockDetailList) {
+//        for(int i = 4; i >0; i--) {
+//            StockDetail stockDetail =stockDetailList.get(stockDetailList.size() - i);
+//            System.out.printf("%s   涨幅：%s:  成交量：%s:     结果：%s \n",i, stockDetail.getPert() ,stockDetail.getV(), stockDetail.getPert()/stockDetail.getV());
+//        }
+        if (Objects.isNull(stockDetailList) || stockDetailList.size() < 4) {
+            return false;
+        }
+        StockDetail stockDetail4 = stockDetailList.get(stockDetailList.size() - 4);
+        StockDetail stockDetail3 = stockDetailList.get(stockDetailList.size() - 3);
+        StockDetail stockDetail2 = stockDetailList.get(stockDetailList.size() - 2);
+        StockDetail stockDetail1 = stockDetailList.get(stockDetailList.size() - 1);
+        if(stockDetail1.getPert() > 0.05) {
+            return false;
+        }
+        return quentityAndPerc(stockDetail4,stockDetail3)
+                &&quentityAndPerc(stockDetail3, stockDetail2)
+                &&quentityAndPerc(stockDetail2, stockDetail1);
     }
 }

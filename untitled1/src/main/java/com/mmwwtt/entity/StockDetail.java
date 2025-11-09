@@ -48,4 +48,8 @@ public class StockDetail {
      * 1停牌；  0不停牌
      */
     private int sf;
+
+    public float getPert() {
+        return (c-o)/o;
+    }
 }
