@@ -1,9 +1,9 @@
-package com.mmwwtt.entity;
+package com.mmwwtt.stock.entity;
 
 import lombok.Data;
 
 @Data
-public class StockDetail {
+public class StockDetailVO {
     /**
      * 交易时间
      */
@@ -50,6 +50,6 @@ public class StockDetail {
     private int sf;
 
     public float getPert() {
-        return (c-o)/o;
+        return (c-pc)/pc;
     }
 }

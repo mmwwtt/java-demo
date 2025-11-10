@@ -1,4 +1,4 @@
-package com.mmwwtt.common;
+package com.mmwwtt.stock.common;
 
 import lombok.Data;
 

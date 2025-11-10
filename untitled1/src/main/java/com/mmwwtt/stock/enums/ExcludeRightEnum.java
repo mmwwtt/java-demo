@@ -1,4 +1,4 @@
-package com.mmwwtt.enums;
+package com.mmwwtt.stock.enums;
 
 import com.mmwwtt.demo.common.BaseEnum;
 import lombok.AllArgsConstructor;

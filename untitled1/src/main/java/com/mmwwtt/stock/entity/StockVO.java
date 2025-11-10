@@ -1,9 +1,9 @@
-package com.mmwwtt.entity;
+package com.mmwwtt.stock.entity;
 
 import lombok.Data;
 
 @Data
-public class Stock {
+public class StockVO {
     /**
      * 股票代码
      */

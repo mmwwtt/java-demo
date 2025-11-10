@@ -1,8 +1,7 @@
-package com.mmwwtt.enums;
+package com.mmwwtt.stock.enums;
 
 import com.mmwwtt.demo.common.BaseEnum;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
