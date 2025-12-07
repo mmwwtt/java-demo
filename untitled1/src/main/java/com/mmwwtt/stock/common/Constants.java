@@ -60,4 +60,7 @@ public class Constants {
      */
     public static final String HISTORY_DATA_URL= "https://api.biyingapi.com/hsstock/history/{stockCode}/{timeLevel}/" +
             "{excludeRight}/{licence}?st={startData}&et={endData}&lt={maxSize}";
+
+
+    public static final String REAL_TIME_URL = "https://api.biyingapi.com/hsstock/real/time/{stockCode}/{licence}";
 }

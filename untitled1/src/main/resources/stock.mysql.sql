@@ -25,6 +25,10 @@ CREATE TABLE stock_Detail_t
     end_price         float       NOT NULL COMMENT '收盘价',
     all_deal_quantity float       NOT NULL COMMENT '成交量',
     all_deal_price    float       NOT NULL COMMENT '成交额',
-    last_rice         float       NOT NULL COMMENT '前收盘价',
-    price_ert         float       NOT NULL COMMENT '涨跌幅'
+    last_price         float       NOT NULL COMMENT '前收盘价',
+    price_pert         float       NOT NULL COMMENT '涨跌幅'
 ) COMMENT '股票详情表';
+
+create index stock_code on stock_detail_t(stock_code);
+
+create index stock_code_deal_date on stock_detail_t(stock_code,deal_date);

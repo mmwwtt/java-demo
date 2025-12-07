@@ -16,7 +16,7 @@ import java.util.List;
 public interface StockConverter {
     StockConverter INSTANCE = Mappers.getMapper(StockConverter.class);
     @Mappings({
-            @Mapping(target = "stockCode", expression = "java(stockCode)"),
+            @Mapping(target = "stockCode", source = "stockDetailVO.stockCode"),
             @Mapping(target = "dealDate", source = "stockDetailVO.t"),
             @Mapping(target = "startPrice", source = "stockDetailVO.o"),
             @Mapping(target = "highPrice", source = "stockDetailVO.h"),
@@ -27,7 +27,9 @@ public interface StockConverter {
             @Mapping(target = "lastPrice", source = "stockDetailVO.pc"),
             @Mapping(target = "pricePert", expression = "java((stockDetailVO.getC()-stockDetailVO.getPc())/stockDetailVO.getPc())")
     })
-    StockDetail convertToStockDetail(StockDetailVO stockDetailVO, String stockCode);
+    StockDetail convertToStockDetail(StockDetailVO stockDetailVO);
+
+    List<StockDetail> convertToStockDetail(List<StockDetailVO> stockDetailVO);
 
     @Mappings({
             @Mapping(target = "code", source = "stock.dm"),

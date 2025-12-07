@@ -49,6 +49,8 @@ public class StockDetailVO {
      */
     private int sf;
 
+    private String stockCode;
+
     public float getPert() {
         return (c-pc)/pc;
     }

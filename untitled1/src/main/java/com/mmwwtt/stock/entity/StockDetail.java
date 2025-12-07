@@ -1,5 +1,7 @@
 package com.mmwwtt.stock.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -7,9 +9,11 @@ import lombok.Data;
 @TableName("stock_detail_t")
 public class StockDetail {
 
+
     /**
      * 主键
      */
+    @TableId(type = IdType.AUTO)
     private Long stockDetailId;
 
     /**
