@@ -175,3 +175,19 @@ mapstruct 实现类没更新 则重新compiler编译下
 			最少连接：根据连接数分配权重，连接数少的多发点请求
 			最快响应：根据接口响应时间分配权重，响应快的多发点请求
 
+
+
+
+自动补全等号左边：Ctrl+Alt+V
+自动导入jar包-自动抛出异常： Alt+Enter
+字符串转为大写/小写：Ctrl+Shift+U
+Ctrl+Alt+v 快速生成对象
+Shift+F6 重命名
+类名右击 Copy Reference 复制类所在的路径
+
+e-8
+
+grouping写法
+      Map<Integer, List<Long>> collect = genVarSimResp.getData().getModuleList().stream().map(ModuleDataListResp::getModule)
+                .collect(Collectors.groupingBy(ModuleDataListResp.ModuleData::getErrorLevel,
+                        Collectors.mapping(ModuleDataListResp.ModuleData::getModuleID, Collectors.toList())));
