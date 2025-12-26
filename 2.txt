@@ -191,3 +191,5 @@ grouping写法
       Map<Integer, List<Long>> collect = genVarSimResp.getData().getModuleList().stream().map(ModuleDataListResp::getModule)
                 .collect(Collectors.groupingBy(ModuleDataListResp.ModuleData::getErrorLevel,
                         Collectors.mapping(ModuleDataListResp.ModuleData::getModuleID, Collectors.toList())));
+
+引用传递 中 用父类接收子类对象后，里面的类信息依旧是子类的， 属性也都是子类的 .class也是子类的类
