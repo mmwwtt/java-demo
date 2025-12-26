@@ -236,6 +236,9 @@ public class JDK8新特性 {
     public void test15() {
         Map<String, List<BaseInfo>> map = list1.stream()
                 .collect(Collectors.groupingBy(BaseInfo::getSexCode));
+
+        Map<String, List<String>> map1 = list1.stream()
+                .collect(Collectors.groupingBy(BaseInfo::getSexCode, Collectors.mapping(BaseInfo::getName, Collectors.toList())));
         log.info("{}", map);
     }
 
@@ -270,6 +273,11 @@ public class JDK8新特性 {
         String str = list1.stream()
                 .map(item -> String.valueOf(item.getName()))
                 .collect(Collectors.joining());
+        List<BaseInfo> list2 = list1.stream()
+                .map(item -> {
+                    item.setName("tt");
+                    return item;
+                }).toList();
         log.info("{}", str);
     }
 

@@ -103,6 +103,12 @@ public class EasyExcelController {
                 list.add(demoData);
             }
 
+            @Override
+            public void onException(Exception exception, AnalysisContext analysisContext) {
+            }
+
+
+
             // 全部解析完成被调用
             @Override
             public void doAfterAllAnalysed(AnalysisContext analysisContext) {

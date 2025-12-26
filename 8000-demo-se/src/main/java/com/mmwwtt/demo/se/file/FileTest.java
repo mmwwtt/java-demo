@@ -46,4 +46,16 @@ public class FileTest {
         List<String> lines = Files.readAllLines(path, Charset.forName("GB2312"));
         log.info(lines.toString());
     }
+
+    @Test
+    @DisplayName("通过文件路径读取文件内容")
+    public void test3() throws IOException {
+        String filePath = "C:\\Users\\moweitao\\Desktop\\htridat templete(1).dat";
+        Path path = Path.of(filePath);
+        List<String> lines = Files.readAllLines(path, Charset.forName("GB2312"));
+        for (String line : lines) {
+            System.out.println(line);
+        }
+        log.info(lines.toString());
+    }
 }

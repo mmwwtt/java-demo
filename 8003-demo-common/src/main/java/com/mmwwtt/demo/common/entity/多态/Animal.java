@@ -2,6 +2,8 @@ package com.mmwwtt.demo.common.entity.多态;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.mmwwtt.demo.common.entity.多态.level1.Brid;
+import com.mmwwtt.demo.common.entity.多态.level1.Dog;
 import lombok.Data;
 
 /**
@@ -9,6 +11,7 @@ import lombok.Data;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
         visible = true,
+        defaultImpl = Animal.class,  //所有子类type都没匹配上时，指定的实例化类
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Dog.class, name = "dog"),

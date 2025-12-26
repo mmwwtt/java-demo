@@ -1,4 +1,4 @@
-package com.mmwwtt.demo.common.entity.animal;
+package com.mmwwtt.demo.common.entity;
 
 import lombok.Data;
 

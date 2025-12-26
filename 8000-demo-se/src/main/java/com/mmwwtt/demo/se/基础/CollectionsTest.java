@@ -333,7 +333,7 @@ public class CollectionsTest {
         }else {
             map2.get(key).add(1);
         }
-        //computeIfAbsent: key不存在时 将(k,v)插入, 返回v
+        //comcomputeIfAbsent: key不存在时 将(k,v)插入, 返回v
         map2.computeIfAbsent(key, k->new ArrayList<>()).add(1);
 
         //compute 需要自行判断key是否存在

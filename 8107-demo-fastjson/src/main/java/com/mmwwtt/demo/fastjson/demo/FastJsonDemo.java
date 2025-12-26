@@ -3,6 +3,7 @@ package com.mmwwtt.demo.fastjson.demo;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.demo.common.response.ApiResponse;
 import com.mmwwtt.demo.common.util.CommonUtils;
@@ -67,10 +68,10 @@ public class FastJsonDemo {
     @Test
     public void test2() {
         JSONObject object = new JSONObject();
-        object.put("k","");
+        object.put("k", "");
         JSONObject object1 = new JSONObject();
-        object.put("k",null);
-        Integer k1= object.getInteger("k");
+        object.put("k", null);
+        Integer k1 = object.getInteger("k");
         Integer k = object1.getInteger("k");
         System.out.println();
     }
@@ -85,9 +86,53 @@ public class FastJsonDemo {
     }
 
     @Test
-    public void test4(){
+    public void test4() {
         JSONObject obj = JSONObject.parseObject(JSONObject.toJSONString(BaseInfo.getPresetList()));
         List<BaseInfoFastJson> listtt = obj.toJavaObject(List.class);
         System.out.println();
+    }
+
+    /**
+     * fastJson序列化时会忽略null值
+     * WriteMapNullValue  将为null的值继续序列化
+     */
+    @Test
+    public void test5() {
+        BaseInfo baseInfo = new BaseInfo();
+        String json1 = JSONObject.toJSONString(baseInfo);
+        String json2 = JSONObject.toJSONString(baseInfo, JSONWriter.Feature.WriteMapNullValue);
+
+        System.out.println(json1);
+        System.out.println(json2);
+    }
+
+    @Test
+    public void test6() {
+        JSONObject json = new JSONObject();
+        json.put("name", "tt");
+        json.put("age", 12);
+
+        JSONObject json2 = new JSONObject();
+        json2.put("age", 12);
+        json2.put("name", "tt");
+        String json11 = JSONObject.toJSONString(json);
+        String json22 = JSONObject.toJSONString(json2);
+
+        System.out.println();
+    }
+
+    @PostMapping("/fastJsonDemo1")
+    public ApiResponse<JSONArray> fastJsonDemo1() {
+        JSONArray array = new JSONArray();
+        JSONObject json = new JSONObject();
+        json.put("name", "tt");
+        json.put("age", 12);
+
+        JSONObject json2 = new JSONObject();
+        json2.put("age", 12);
+        json2.put("name", "tt");
+        array.add(json);
+        array.add(json2);
+        return ApiResponse.success(array);
     }
 }

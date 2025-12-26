@@ -1,8 +1,10 @@
 package com.wwmmtt.demo.springmvc.demo;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.mmwwtt.demo.common.dto.BaseInfoDTO;
-import com.mmwwtt.demo.common.entity.animal.Animal1;
 import com.mmwwtt.demo.common.entity.多态.Animal;
+import com.mmwwtt.demo.common.response.ApiResponse;
 import com.wwmmtt.demo.springmvc.BaseInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -56,11 +58,18 @@ public class SpringMVCController {
         System.out.println(list);
     }
 
-    /**
-     * 用父类对象接收子类对象
-     */
-    @PostMapping("/testSonClass")
-    public void voidTestRequestBody(@RequestBody Animal1 animal){
-        System.out.println(animal);
+    @PostMapping("/fastJsonDemo1")
+    public ApiResponse<JSONArray> fastJsonDemo1() {
+        JSONArray array = new JSONArray();
+        JSONObject json = new JSONObject();
+        json.put("name", "tt");
+        json.put("age", 12);
+
+        JSONObject json2 = new JSONObject();
+        json2.put("age", 12);
+        json2.put("name", "tt");
+        array.add(json);
+        array.add(json2);
+        return ApiResponse.success(array);
     }
 }

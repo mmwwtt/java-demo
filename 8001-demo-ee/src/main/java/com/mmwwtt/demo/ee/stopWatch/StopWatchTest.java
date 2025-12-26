@@ -7,10 +7,10 @@ public class StopWatchTest {
     @Test
     public void test() throws InterruptedException {
         StopWatch sw = new StopWatch("任务总览");
-
         sw.start("任务A");
         Thread.sleep(120);
         sw.stop();
+
 
         sw.start("任务B");
         Thread.sleep(230);

@@ -1,0 +1,177 @@
+
+
+
+
+
+Character.isLetterOrDigit  判断char是数字/字母
+
+Character.compare(c1, c2);     char的字典序排序
+list.sort(str1, str2)   // 1排前面， -1排后面
+list的removeAll方法
+	前端修改数据后，后端生成数据的状态，并向前端发送webSocket请求，通知前端哪些状态被联动更新，用于图标刷新
+
+hutool JSONUtil中支持jackSon操作
+json中put对象序列化后的字符串和put对象，最后再序列化给前端的区别
+	put序列化后的字符串会有\" 不会被转义
+
+
+jackson 和 fastJson的区别
+序列化时jackson保留为null的字段(给前端用)， fastJson忽略为null的字段(后端用)
+内部类可以是public修饰吗
+
+            List<Triple<String, List<Double>, Consumer<List<Double>>>> arrTripleList = new ArrayList<>();
+			 overall::setCompMassFlow   对象中方法的引用
+			 Objects::nonNull 类方法的引用
+
+     @Mappings({
+            @Mapping(target = "orderIndex", expression = "java(orderIndex)")
+    })
+    PhysicalPropertyItem convertPhyPropItem(PhysicalPropertyNewEnum physicalPropertyNewEnum, Integer orderIndex);
+
+
+	 ExceptionUtil.clientException()  展示给用户的报错，需要国际化
+
+	 mapstruct : @afterMapping所有方法结束后都执行该方法
+	 @build会因为大小写命名导致没set进去如pType，需要禁用builder模式   需要改成target="PType"
+	 @Mapper(mappingControl = DeepClone.class, builder = @Builder(disableBuilder = true))
+
+	  什么时候用内部类
+	  getter方法引用
+       如何将字节流 变成 浏览器中文件下载
+
+       看起来是空白的字符空格  ， 如何知道他是什么字符
+       List<Object>入参不能接收List<String>
+       (类型)强转会失败
+       stream中map和peek的区别
+       Arrays.stream用法
+
+       pair中 传递get set方法
+
+       ！Consumer<T> 是 单参数、无返回值
+       Supplier<T> —— 无参、有返回。
+
+为什么注入的接口 而不上实体类
+
+webStocke 在断网后 还能重连吗
+Collects.toList 出来的是新数组，数组里依旧是老对象的引用
+将多个字符流文件 在内存中压缩成zip(全在内存)
+流式生成，临时文件+边写边zip  适合数据量大的时候
+new HashSe<>(list)  将list转为set
+map.forEach((k,v)-> {})
+//多层级下的空指针处理
+public static String getCityName(Order order) {
+    return Optional.ofNullable(order)
+                   .map(Order::getUser)
+                   .map(User::getAddress)
+                   .map(Address::getCity)
+                   .map(City::getName)
+                   .orElse("UNKNOWN");
+}
+
+
+double Nan除数为0
+finde
+除0和除0.0的问题
+easyExcel 分标签页导出， 对单个标签页加密
+
+
+					接口中如何注入bean
+					SpringContextUtil.getBean(xxx.class)
+
+						getColumnNameFromApiModelProperty  获取@Api注解中的内容
+                    					Class<? extends BaseEnum> enumClass = flag ? FooEnum.class : BarEnum.class;
+
+                    						在查询的时候通过条件维护某个字段(冷热物流曲线的是否可计算按钮)   / 在过程中实时维护该字段
+	computeIfPresent   computeIfAbsent
+
+
+
+	ApiModelProperty tt = field.getAnnotation(ApiModelProperty.class)
+
+    		triple中  Function<类名， 返回值>  传递 方法引用  如getter方法
+    		.collect(Collectors.toCollection(LinkedList::new));
+
+    		stream 自定义去重方式
+    			   List<Person> distinct = list.stream()
+                    .collect(Collectors.collectingAndThen(
+                            Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(p -> p.name))),
+                            ArrayList::new));
+
+
+    						JSONObject jsonObject = new JSONObject(new LinkedHashMap());
+    						序列化时字段会和插入的顺序保持一致
+
+    						sort如何根据两个外部字段排序  两个枚举  有对应的orderIndex
+
+    						program 是项目
+    						project 是工程
+    			sort中根据某个enumId去找枚举中的orderIndex 排序，如果enum找不到则过滤 如何实现
+
+
+
+
+List<Dog> dogs = new ArrayList<>();
+List<Animal> animals = dogs;   // ❌ 编译失败
+
+如果你只是要读里面的元素，而不往里写，可以用「上界通配符」：
+List<Dog> dogs = new ArrayList<>();
+List<? extends Animal> animals = dogs;  // ✅ 只读
+Animal a = animals.get(0);              // 可以读
+animals.add(new Dog());                 // ❌ 编译失败，不能写
+
+
+反过来，如果你只想往里写元素，而不依赖读出来的精确类型，可以用「下界通配符」：
+List<Animal> animals = new ArrayList<>();
+List<? super Dog> dogs = animals;  // 可以安全地写入 Dog 及其子类
+dogs.add(new Dog());               // ✅
+dogs.add(new Husky());             // ✅
+Animal a = dogs.get(0);       // 读出来只能是 Object，需要强转
+
+从application中获取值， 带默认值的方式
+LocalContextHolder.setLocale() //获取当前线程
+LocalContextHolder.setLocale()  //往线程塞上下文呢
+
+// A − B
+Set<String> diff = SetUtils.difference(a, b);
+
+对list1 用另一个list2替换该list1中的部分
+    src.subList(from, to).clear();   // 先删掉旧段  subList 左闭右开， 不包含to
+        src.addAll(from, repl);          // 再插入新段  左闭
+
+		private 和protected的区别
+
+		SetsUtils.union()  //set工具类
+		list.addAll(null) 会报错吗
+		mapStruct 会调用构造方法吗，   json tojavaList会调用构造方法吗   会带上默认值吗 字段 = new ArrayList()<>;
+
+		stream ifPresent
+		Stream isPresent
+
+
+
+
+
+子类继承父类，序列化会不有父类的字段，包括接口返回的报文也是序列化后的结果
+mapstruct 实现类没更新 则重新compiler编译下
+接收MultipartFile 类的文件   在类中 和直接接收
+在查询的时候通过条件维护某个字段(冷热物流曲线的是否可计算按钮)   / 在过程中实时维护该字段
+
+
+状态管理 为什么要改成新的
+为什么要修改成新的, 每个修改接口中返回修改了的状态，对代码的入侵太大
+
+
+
+
+ 中间件中的算法
+	负载均衡
+		静态：
+			轮询：按服务器列表顺序，循环的将请求发到服务器
+			随机：随机分发请求
+			源Hash算法：根据IP地址哈希后进行路由，相同用户的请求会到同个服务器(避免服务器上的缓存失效,如登录信息)
+		动态：服务器在时间T内的平均 CPU占用率， 内存，响应时间， 定时上报给负载均衡调度器，并计算出权重
+			加权轮询：根据权重，轮询到的多发些请求
+			加权随机：根据权重，随机到的多发点请求
+			最少连接：根据连接数分配权重，连接数少的多发点请求
+			最快响应：根据接口响应时间分配权重，响应快的多发点请求
+
