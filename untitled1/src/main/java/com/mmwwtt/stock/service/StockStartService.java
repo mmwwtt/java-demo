@@ -622,6 +622,7 @@ public class StockStartService {
         allTask.get();
 
         log.info("开始计算");
+        LocalDateTime dataTime = LocalDateTime.now();
         for (StockService stockService : stockServiceList) {
             pool.submit(() -> {
                 List<OneRes> allRes = new ArrayList<>();
@@ -638,8 +639,8 @@ public class StockStartService {
                 StockCalcRes calcRes = new StockCalcRes();
                 calcRes.setStrategy(stockService.getStrategy());
                 calcRes.setWinRate((double) correctCount / allRes.size());
-                calcRes.setPercRate(percRate);
-                calcRes.setCreateDate(LocalDateTime.now());
+                calcRes.setPercRate(percRate/allRes.size());
+                calcRes.setCreateDate(dataTime);
                 stockCalcResDao.insert(calcRes);
             });
         }
