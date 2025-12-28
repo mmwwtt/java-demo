@@ -25,10 +25,22 @@ CREATE TABLE stock_Detail_t
     end_price         float       NOT NULL COMMENT '收盘价',
     all_deal_quantity float       NOT NULL COMMENT '成交量',
     all_deal_price    float       NOT NULL COMMENT '成交额',
-    last_price         float       NOT NULL COMMENT '前收盘价',
-    price_pert         float       NOT NULL COMMENT '涨跌幅'
+    last_price        float       NOT NULL COMMENT '前收盘价',
+    price_pert        float       NOT NULL COMMENT '涨跌幅'
 ) COMMENT '股票详情表';
 
-create index stock_code on stock_detail_t(stock_code);
+create index stock_code on stock_detail_t (stock_code);
 
-create index stock_code_deal_date on stock_detail_t(stock_code,deal_date);
+create index stock_code_deal_date on stock_detail_t (stock_code, deal_date);
+
+
+
+DROP TABLE IF EXISTS stock_calculation_result_t;
+CREATE TABLE stock_calculation_result_t
+(
+    calc_res_id int(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy              VARCHAR(256) COMMENT '策略描述',
+    win_rate              DOUBLE COMMENT '胜率',
+    perc_rate             DOUBLE COMMENT '百分比叠加后的结果',
+    create_date           DATETIME(64) NOT NULL COMMENT '创建日期'
+) COMMENT '股票计算结果表';
