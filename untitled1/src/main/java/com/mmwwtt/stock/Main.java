@@ -1,6 +1,7 @@
 package com.mmwwtt.stock;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.StockConverter;
 import com.mmwwtt.stock.dao.StockDao;
@@ -12,6 +13,7 @@ import com.mmwwtt.stock.entity.StockVO;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
 import org.apache.commons.collections.CollectionUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,10 +24,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.Constants.*;
@@ -43,9 +45,13 @@ public class Main {
     @Autowired
     private StockDetailDao stockDetailDao;
 
+    private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+
+
     private RestTemplate restTemplate = new RestTemplate();
 
     @Test
+    @DisplayName("调接口获取每日的股票数据")
     public void dataDownLoad() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
@@ -60,6 +66,7 @@ public class Main {
     }
 
     @Test
+    @DisplayName("调接口获取每日的股票详细数据")
     public void dataDetailDownLoad() throws InterruptedException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String nowDate = LocalDate.now().format(formatter);
@@ -105,6 +112,29 @@ public class Main {
                 e.printStackTrace();
             }
         }
+    }
 
+    @Test
+    @DisplayName("计算股票的衍生数据")
+    public void dataDetailCalc() throws InterruptedException, ExecutionException {
+        QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
+        List<Stock> stockList = stockDao.selectList(queryWrapper);
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (Stock stock : stockList) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                //30开头是创业板  68开头是科创版
+                if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68")) {
+                    return;
+                }
+                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+                detailWapper.eq("stock_code", stock.getCode());
+                detailWapper.orderByDesc("deal_date");
+                List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+                stockDetailDao.updateById(stockDetails);
+            }, pool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
     }
 }

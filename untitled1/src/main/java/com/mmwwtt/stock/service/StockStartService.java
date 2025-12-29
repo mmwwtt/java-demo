@@ -208,6 +208,7 @@ public class StockStartService {
                 //最新的日期在最前面
                 List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
                 stockDetails.forEach(StockDetail::calc);
+                StockDetail.calc(stockDetails);
                 codeToDetailMap.put(stock.getCode(), stockDetails);
             }, pool);
             futures.add(future);

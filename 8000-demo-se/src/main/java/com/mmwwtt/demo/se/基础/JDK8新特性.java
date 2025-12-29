@@ -164,10 +164,12 @@ public class JDK8新特性 {
     }
 
     @Test
-    @DisplayName("测试mapToXX 映射成基本类型")
+    @DisplayName("测试mapToXX 将stream映射成基本类型  后才能进行数学运算sum, average等")
     public void test7() {
         double sum = list1.stream()
                 .mapToDouble(BaseInfo::getHeight).sum();
+        double average = list1.stream()
+                .mapToDouble(BaseInfo::getHeight).average().orElse(0);
         log.info("{}", sum);
     }
 
@@ -366,5 +368,23 @@ public class JDK8新特性 {
                 .ifPresent(System.out::println);
     }
 
+    /**
+     * lambda内部对临时变量赋给一个用final修饰的副本变量，之后都访问这个副本
+     * 如果局部变量修改后，副本变量不会变， 所以有了lambda中的局部变量在外面都得是final修改的规则,
+     * 避免外面的和内部的副本不一致的情况出现
+     */
+    @Test
+    @DisplayName("lambda中的局部变量")
+    public void test24() {
+        int tmp = 6;
+        BaseInfo baseInfo = new BaseInfo();
+        List<Integer> list = Arrays.asList(1,2);
+        tmp = LocalDateTime.now().getSecond();
+        baseInfo = new BaseInfo();
+        int finalTmp = tmp;
+        BaseInfo finalBaseInfo = baseInfo;
+        list.stream().filter(item -> finalTmp > 2 && Objects.nonNull(finalBaseInfo.getName()))
+                .toList();
+    }
 
 }
