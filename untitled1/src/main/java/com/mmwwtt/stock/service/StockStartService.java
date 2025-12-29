@@ -199,13 +199,15 @@ public class StockStartService {
         for (Stock stock : stockList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 //30开头是创业板  68开头是科创版
-                if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68")) {
+                if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68") || stock.getName().contains("ST")) {
                     return;
                 }
                 QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                 detailWapper.eq("stock_code", stock.getCode());
                 detailWapper.orderByDesc("deal_date");
+                //最新的日期在最前面
                 List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+                stockDetails.forEach(StockDetail::calc);
                 codeToDetailMap.put(stock.getCode(), stockDetails);
             }, pool);
             futures.add(future);
@@ -228,7 +230,7 @@ public class StockStartService {
                                 double finalEntityPertLimit = entityPertLimit;
                                 double finalPricePertLimit = pricePertLimit;
                                 pool.submit(() -> {
-                                    String strategt = String.format("上阴线占比大于：%s  上阴线占比小于:%s    下影线占比大于:%s    下影线占比小于:%s  实体占比：%s    涨跌幅占比:%s      ",
+                                    String strategt = String.format("上影线占比大于：%s  上影线占比小于:%s    下影线占比大于:%s    下影线占比小于:%s  实体占比：%s    涨跌幅占比:%s      ",
                                             finalUpShadowUpLimit, finalUpShadowLowLimit, finalLowShadowUpLimit, finalLowShadowLowLimit, finalEntityPertLimit,
                                             finalPricePertLimit);
                                     List<OneRes> allRes = new ArrayList<>();
@@ -295,7 +297,7 @@ public class StockStartService {
     }
 
     //MORE: 上影线大于阈值的返回true
-    private static boolean filterForMoreUpShadowPert(StockDetail stockDetail, double limit, ModeEnum enumm) {
+    private boolean filterForMoreUpShadowPert(StockDetail stockDetail, double limit, ModeEnum enumm) {
         return Objects.equals(ModeEnum.MORE, enumm)
                 ? stockDetail.getUpShadowPert() > limit
                 : stockDetail.getUpShadowPert() < limit;
@@ -303,23 +305,42 @@ public class StockStartService {
 
 
     //MORE:  下影线大于阈值的返回true
-    private static boolean filterForMoreLowShadowPert(StockDetail stockDetail, double limit, ModeEnum enumm) {
+    private boolean filterForMoreLowShadowPert(StockDetail stockDetail, double limit, ModeEnum enumm) {
         return Objects.equals(ModeEnum.MORE, enumm)
                 ? stockDetail.getLowShadowPert() > limit
                 : stockDetail.getLowShadowPert() < limit;
     }
 
     //MORE:  实体长度大于阈值的返回true
-    private static boolean filterForMoreEntityPert(StockDetail stockDetail, double limit, ModeEnum enumm) {
+    private boolean filterForMoreEntityPert(StockDetail stockDetail, double limit, ModeEnum enumm) {
         return Objects.equals(ModeEnum.MORE, enumm)
                 ? stockDetail.getEntityPert() > limit
                 : stockDetail.getEntityPert() < limit;
     }
 
     //MORE: 涨跌幅大于阈值的返回true
-    private static boolean filterForMorePricePert(StockDetail stockDetail, double limit, ModeEnum enumm) {
+    private boolean filterForMorePricePert(StockDetail stockDetail, double limit, ModeEnum enumm) {
         return Objects.equals(ModeEnum.MORE, enumm)
                 ? stockDetail.getPricePert() > limit
                 : stockDetail.getPricePert() < limit;
+    }
+
+    /**
+     * 判断 成交量是否逐渐放大
+     * @param list
+     * @param curIdx   当前日期
+     * @param continueDays  持续天数
+     * @return
+     */
+    private boolean filterForMoreQuentity(List<StockDetail> list, int curIdx, int continueDays) {
+        if(curIdx <0 || list.size() <= curIdx + continueDays) {
+            return false;
+        }
+        for(int i = 0; i < continueDays; i++) {
+            if(list.get(curIdx+i).getAllDealQuantity() < list.get(curIdx+i+1).getAllDealQuantity()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

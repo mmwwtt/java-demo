@@ -193,3 +193,7 @@ grouping写法
                         Collectors.mapping(ModuleDataListResp.ModuleData::getModuleID, Collectors.toList())));
 
 引用传递 中 用父类接收子类对象后，里面的类信息依旧是子类的， 属性也都是子类的 .class也是子类的类
+
+
+Lambda表达式内部访问的局部变量必须是final
+    为了保证Lambda表达式的线程安全性，lambda会在另一个线程中执行，引用变量存在堆中， 局部变量存在栈中，如果在线程中要直接访问一个局部变量，可能线程执行时该局部变量已经被销毁了
