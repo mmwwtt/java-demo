@@ -68,55 +68,73 @@ public class StockDetail {
 
 
     // ------------- 新增：K线分析常用计算方法（适配后续判断逻辑）-------------
-    /**
-     * 计算K线实体长度（|收盘价-开盘价|）
-     */
-    public double getEntityLength() {
-        return Math.abs(endPrice - startPrice);
-    }
 
-    public double getAllLength() {
-        return highPrice- lowPrice;
-    }
-    /**
-     * 计算上影线长度（最高价 - 开盘/收盘的较高值）
-     */
-    public double getUpperShadowLength() {
-        double maxOpenClose = Math.max(startPrice, endPrice);
-        return highPrice - maxOpenClose;
-    }
 
     /**
-     * 计算下影线长度（开盘/收盘的较低值 - 最低价）
+     * 上影线长度
      */
-    public double getLowerShadowLength() {
-        double minOpenClose = Math.min(startPrice, endPrice);
-        return minOpenClose - lowPrice;
-    }
+    public double upShadowLen;
 
     /**
-     * 判断是否为阳线（收盘价 > 开盘价）
+     * 上影线站总长的百分比
      */
-    public boolean isYangLine() {
-        return endPrice > startPrice;
-    }
+    public double upShadowPert;
 
     /**
-     * 判断是否为阴线（收盘价 < 开盘价）
+     * 下影线长度
      */
-    public boolean isYinLine() {
-        return endPrice < startPrice;
-    }
+    public double lowShadowLen;
 
     /**
-     * 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
-     * 总振幅 = 最高价 - 最低价
+     * 下影线站总长的百分比
      */
-    public boolean isDoji() {
-        double totalRange = highPrice - lowPrice;
-        if (totalRange == 0) {
-            return false;
-        }
-        return (getEntityLength() / totalRange) <= 0.05d;
+    public double lowShadowPert;
+
+    /**
+     * 实体长度
+     */
+    public double entityLen;
+
+    /**
+     * 实体占总长的百分比
+     */
+    public double entityPert;
+
+    /**
+     * 总长
+     */
+    public double allLen;
+
+    /**
+     * 是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)
+     */
+    public boolean isUp;
+
+    /**
+     * 是否为阴线
+     */
+    public boolean isDown;
+
+    /**
+     * 开盘价是否等于收盘价
+     */
+    public boolean isBalance;
+
+    /**
+     * 是否为十字星
+     */
+    public boolean isTenStar;
+
+    public void calc() {
+        upShadowLen = highPrice - Math.max(startPrice, endPrice);
+        lowShadowLen = Math.min(startPrice, endPrice) - lowPrice;
+        allLen = Math.abs(highPrice- lowPrice);
+        entityLen = Math.abs(endPrice - startPrice);
+        isUp = endPrice > startPrice;
+        isDown = endPrice < startPrice;
+        isBalance = endPrice == startPrice;
+
+        // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
+        isTenStar = (entityLen / allLen) <= 0.05d;
     }
 }
