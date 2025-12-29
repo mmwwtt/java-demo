@@ -12,6 +12,7 @@ import com.mmwwtt.stock.entity.StockDetailVO;
 import com.mmwwtt.stock.entity.StockVO;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ import static com.mmwwtt.stock.common.Constants.*;
 /**
  * 必盈url   https://www.biyingapi.com/
  */
+@Slf4j
 @SpringBootTest
 public class Main {
 
@@ -62,7 +64,11 @@ public class Main {
                 }, map);
         List<StockVO> stockVOList = stocksListResponse.getBody();
         List<Stock> stockList = StockConverter.INSTANCE.convertToStock(stockVOList);
+        stockList = stockList.stream().filter(stock -> !stock.getCode().startsWith("30")
+                && !stock.getCode().startsWith("68")
+                && !stock.getName().contains("ST")).toList();
         stockDao.insert(stockList);
+        log.info("end");
     }
 
     @Test
@@ -74,7 +80,7 @@ public class Main {
         List<Stock> stockList = stockDao.selectList(queryWrapper);
         int cnt = 0;
         for (Stock stock : stockList) {
-            if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68")) {
+            if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68") || stock.getName().contains("ST")) {
                 continue;
             }
             cnt++;
@@ -123,13 +129,15 @@ public class Main {
         for (Stock stock : stockList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 //30开头是创业板  68开头是科创版
-                if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68")) {
+                if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68") || stock.getName().contains("ST")) {
                     return;
                 }
                 QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                 detailWapper.eq("stock_code", stock.getCode());
                 detailWapper.orderByDesc("deal_date");
                 List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+                stockDetails.forEach(item ->item.calc());
+                StockDetail.calc(stockDetails);
                 stockDetailDao.updateById(stockDetails);
             }, pool);
             futures.add(future);

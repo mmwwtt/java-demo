@@ -156,10 +156,13 @@ public class StockDetail {
     public Boolean isTenStar;
 
     public void calc() {
-        upShadowLen = highPrice - Math.max(startPrice, endPrice);
-        lowShadowLen = Math.min(startPrice, endPrice) - lowPrice;
         allLen = Math.abs(highPrice - lowPrice);
+        upShadowLen = highPrice - Math.max(startPrice, endPrice);
+        upShadowPert =allLen==0 ? 0 : upShadowLen / allLen;
+        lowShadowLen = Math.min(startPrice, endPrice) - lowPrice;
+        lowShadowPert =allLen==0 ? 0 : lowShadowLen / allLen;
         entityLen = Math.abs(endPrice - startPrice);
+        entityPert = allLen==0 ? 0 :entityLen / allLen;
         isUp = endPrice > startPrice;
         isDown = endPrice < startPrice;
         isBalance = isEquals(endPrice, startPrice);
@@ -171,19 +174,19 @@ public class StockDetail {
     public static void calc(List<StockDetail> list) {
         for (int i = 0; i < list.size(); i++) {
             StockDetail cur = list.get(i);
-            if (list.size() < i + 5) {
+            if (list.size() > i + 5) {
                 double fiveAverage = list.stream().skip(i).limit(5).mapToDouble(StockDetail::getEndPrice).average().orElse(0);
                 cur.setFiveDayLine(fiveAverage);
             }
-            if (list.size() < i + 10) {
+            if (list.size() > i + 10) {
                 double tenAverage = list.stream().skip(i).limit(10).mapToDouble(StockDetail::getEndPrice).average().orElse(0);
                 cur.setTenDayLine(tenAverage);
             }
-            if (list.size() < i + 20) {
+            if (list.size() > i + 20) {
                 double twentyAverage = list.stream().skip(i).limit(20).mapToDouble(StockDetail::getEndPrice).average().orElse(0);
                 cur.setTwentyDayLine(twentyAverage);
             }
-            if (list.size() < i + 60) {
+            if (list.size() > i + 60) {
                 double sixtyAverage = list.stream().skip(i).limit(60).mapToDouble(StockDetail::getEndPrice).average().orElse(0);
                 cur.setSixtyDayLine(sixtyAverage);
             }
