@@ -326,18 +326,48 @@ public class StockStartService {
     }
 
     /**
-     * 判断 成交量是否逐渐放大
+     * MORE: 判断 成交量 持续放大则返回true
+     *
      * @param list
-     * @param curIdx   当前日期
-     * @param continueDays  持续天数
+     * @param curIdx       当前日期
+     * @param continueDays 持续天数
      * @return
      */
-    private boolean filterForMoreQuentity(List<StockDetail> list, int curIdx, int continueDays) {
-        if(curIdx <0 || list.size() <= curIdx + continueDays) {
+    private boolean filterForMoreQuentity(List<StockDetail> list, int curIdx, int continueDays, ModeEnum enumm) {
+        if (curIdx < 0 || list.size() <= curIdx + continueDays) {
             return false;
         }
-        for(int i = 0; i < continueDays; i++) {
-            if(list.get(curIdx+i).getAllDealQuantity() < list.get(curIdx+i+1).getAllDealQuantity()) {
+        for (int i = 0; i < continueDays; i++) {
+            if(Objects.equals(enumm, ModeEnum.MORE)) {
+                //比前一天小则返回false
+                if (list.get(curIdx + i).getAllDealQuantity() < list.get(curIdx + i + 1).getAllDealQuantity()) {
+                    return false;
+                }
+            } else {
+                //比前一天大则返回false
+                if (list.get(curIdx + i).getAllDealQuantity() > list.get(curIdx + i + 1).getAllDealQuantity()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 判断 涨跌成交比(涨幅/成交量)  持续放大则返回true
+     *
+     * @param list
+     * @param curIdx       当前日期
+     * @param continueDays 持续天数
+     * @return
+     */
+    private boolean filterForMorePertDivisionQuentity(List<StockDetail> list, int curIdx, int continueDays) {
+        if (curIdx < 0 || list.size() <= curIdx + continueDays) {
+            return false;
+        }
+        for (int i = 0; i < continueDays; i++) {
+            //比前一天小则直接  返回false
+            if (list.get(curIdx + i).getPertDivisionQuentity() < list.get(curIdx + i + 1).getPertDivisionQuentity()) {
                 return false;
             }
         }

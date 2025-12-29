@@ -29,42 +29,42 @@ public class StockDetail {
     /**
      * 开盘价
      */
-    private double startPrice;
+    private Double startPrice;
 
     /**
      * 最高价
      */
-    private double highPrice;
+    private Double highPrice;
 
     /**
      * 最低价
      */
-    private double lowPrice;
+    private Double lowPrice;
 
     /**
      * 收盘价
      */
-    private double endPrice;
+    private Double endPrice;
 
     /**
      * 成交量
      */
-    private double allDealQuantity;
+    private Double allDealQuantity;
 
     /**
      * 成交额
      */
-    private double allDealPrice;
+    private Double allDealPrice;
 
     /**
      * 前收盘价
      */
-    private double lastPrice;
+    private Double lastPrice;
 
     /**
      * 涨跌幅
      */
-    private double pricePert;
+    private Double pricePert;
 
 
     // ------------- 新增：K线分析常用计算方法（适配后续判断逻辑）-------------
@@ -73,57 +73,62 @@ public class StockDetail {
     /**
      * 上影线长度
      */
-    public double upShadowLen;
+    public Double upShadowLen;
 
     /**
      * 上影线站总长的百分比
      */
-    public double upShadowPert;
+    public Double upShadowPert;
 
     /**
      * 下影线长度
      */
-    public double lowShadowLen;
+    public Double lowShadowLen;
 
     /**
      * 下影线站总长的百分比
      */
-    public double lowShadowPert;
+    public Double lowShadowPert;
 
     /**
      * 实体长度
      */
-    public double entityLen;
+    public Double entityLen;
 
     /**
      * 实体占总长的百分比
      */
-    public double entityPert;
+    public Double entityPert;
 
     /**
      * 总长
      */
-    public double allLen;
+    public Double allLen;
+
+    /**
+     * 涨跌成交比
+     */
+    public Double pertDivisionQuentity;
 
     /**
      * 是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)
      */
-    public boolean isUp;
+    public Boolean isUp;
 
     /**
      * 是否为阴线
      */
-    public boolean isDown;
+    public Boolean isDown;
 
     /**
      * 开盘价是否等于收盘价
      */
-    public boolean isBalance;
+    public Boolean isBalance;
 
     /**
      * 是否为十字星
      */
-    public boolean isTenStar;
+    public Boolean isTenStar;
 
     public void calc() {
         upShadowLen = highPrice - Math.max(startPrice, endPrice);
@@ -133,7 +138,7 @@ public class StockDetail {
         isUp = endPrice > startPrice;
         isDown = endPrice < startPrice;
         isBalance = endPrice == startPrice;
-
+        pertDivisionQuentity = pricePert / allDealQuantity;
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
         isTenStar = (entityLen / allLen) <= 0.05d;
     }

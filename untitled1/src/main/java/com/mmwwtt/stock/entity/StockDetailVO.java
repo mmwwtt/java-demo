@@ -12,37 +12,37 @@ public class StockDetailVO {
     /**
      * 开盘价
      */
-    private float o;
+    private Double o;
 
     /**
      * 最高价
      */
-    private float h;
+    private Double h;
 
     /**
      * 最低价
      */
-    private float l;
+    private Double l;
 
     /**
      * 收盘价
      */
-    private float c;
+    private Double c;
 
     /**
      * 成交量
      */
-    private float v;
+    private Double v;
 
     /**
      * 成交额
      */
-    private float a;
+    private Double a;
 
     /**
      * 前收盘价
      */
-    private float pc;
+    private Double pc;
 
     /**
      * 1停牌；  0不停牌
@@ -51,7 +51,7 @@ public class StockDetailVO {
 
     private String stockCode;
 
-    public float getPert() {
+    public Double getPert() {
         return (c-pc)/pc;
     }
 }
