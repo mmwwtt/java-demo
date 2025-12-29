@@ -58,5 +58,5 @@ CREATE TABLE stock_calculation_result_t
     strategy    VARCHAR(256) COMMENT '策略描述',
     win_rate    DOUBLE COMMENT '胜率',
     perc_rate   DOUBLE COMMENT '百分比叠加后的结果',
-    create_date DATETIME(64) NOT NULL COMMENT '创建日期'
+    create_date DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '股票计算结果表';
