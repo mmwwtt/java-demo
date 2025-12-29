@@ -63,4 +63,6 @@ public class Constants {
 
 
     public static final String REAL_TIME_URL = "https://api.biyingapi.com/hsstock/real/time/{stockCode}/{licence}";
+
+    public static final Double TOLERANCE = 0.00001;
 }

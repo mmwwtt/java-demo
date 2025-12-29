@@ -1,21 +1,27 @@
 package com.mmwwtt.stock.controller;
 
-import com.mmwwtt.stock.StockService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mmwwtt.stock.dao.StockDao;
+import com.mmwwtt.stock.service.StockStartService;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RestController
+@RequestMapping("/stock")
 public class StockController {
-//
-//    @Autowired
-//    private StockService stockService;
-//
-//    @GetMapping
-//    public List<String> getCurStockList() {
-//        return stockService.getStockRecommendByHistory();
-//    }
+
+    @Resource
+    private StockStartService stockStartService;
+
+    @Resource
+    private StockDao stockDao;
+
+    @GetMapping("/calc")
+    public Boolean getCurStockList() throws ExecutionException, InterruptedException {
+        stockStartService.startCalc();
+        return true;
+    }
 }
