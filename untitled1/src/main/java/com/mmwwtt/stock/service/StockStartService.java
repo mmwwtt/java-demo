@@ -207,8 +207,6 @@ public class StockStartService {
                 detailWapper.orderByDesc("deal_date");
                 //最新的日期在最前面
                 List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
-                stockDetails.forEach(StockDetail::calc);
-                StockDetail.calc(stockDetails);
                 codeToDetailMap.put(stock.getCode(), stockDetails);
             }, pool);
             futures.add(future);
@@ -217,21 +215,31 @@ public class StockStartService {
         allTask.get();
 
         log.info("开始计算");
+        futures = new ArrayList<>();
         LocalDateTime dataTime = LocalDateTime.now();
         for (double upShadowUpLimit = 0; upShadowUpLimit < 1; upShadowUpLimit += 0.1) {
             for (double upShadowLowLimit = 0; upShadowLowLimit < 1; upShadowLowLimit += 0.1) {
+                if(upShadowUpLimit > upShadowLowLimit){
+                    continue;
+                }
                 for (double lowShadowUpLimit = 0; lowShadowUpLimit < 1; lowShadowUpLimit += 0.1) {
                     for (double lowShadowLowLimit = 0; lowShadowLowLimit < 1; lowShadowLowLimit += 0.1) {
+                        if(lowShadowUpLimit > lowShadowLowLimit){
+                            continue;
+                        }
                         for (double entityPertLimit = 0; entityPertLimit < 1; entityPertLimit += 0.1) {
-                            for (double pricePertLimit = 0; pricePertLimit < 1; pricePertLimit += 0.1) {
+                            if(entityPertLimit + upShadowUpLimit + lowShadowUpLimit >1) {
+                                continue;
+                            }
+                            for (double pricePertLimit = -0.1; pricePertLimit < 0.1; pricePertLimit += 0.01) {
                                 double finalUpShadowUpLimit = upShadowUpLimit;
                                 double finalLowShadowUpLimit = lowShadowUpLimit;
                                 double finalUpShadowLowLimit = upShadowLowLimit;
                                 double finalLowShadowLowLimit = lowShadowLowLimit;
                                 double finalEntityPertLimit = entityPertLimit;
                                 double finalPricePertLimit = pricePertLimit;
-                                pool.submit(() -> {
-                                    String strategt = String.format("上影线占比大于：%s  上影线占比小于:%s    下影线占比大于:%s    下影线占比小于:%s  实体占比：%s    涨跌幅占比:%s      ",
+                                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                                    String strategt = String.format("上影线占比大于：%.3f   上影线占比小于:%.3f     下影线占比大于:%.3f     下影线占比小于:%.3f     实体占比大于：%.3f     涨跌幅占比大于:%.3f      ",
                                             finalUpShadowUpLimit, finalUpShadowLowLimit, finalLowShadowUpLimit, finalLowShadowLowLimit, finalEntityPertLimit,
                                             finalPricePertLimit);
                                     List<OneRes> allRes = new ArrayList<>();
@@ -266,7 +274,7 @@ public class StockStartService {
                                         allRes.addAll(oneResList);
                                     });
                                     if (CollectionUtils.isEmpty(allRes)) {
-                                        return;
+                                       return;
                                     }
                                     long correctCount = allRes.stream().filter(OneRes::getIsCorrect).count();
                                     double percRate = allRes.stream().filter(OneRes::getIsCorrect).mapToDouble(OneRes::getPricePert).sum();
@@ -275,14 +283,19 @@ public class StockStartService {
                                     calcRes.setWinRate((double) correctCount / allRes.size());
                                     calcRes.setPercRate(percRate / allRes.size());
                                     calcRes.setCreateDate(dataTime);
+                                    calcRes.setAllCnt(allRes.size());
+                                    log.info(strategt);
                                     stockCalcResDao.insert(calcRes);
                                 });
+                                futures.add(future);
                             }
                         }
                     }
                 }
             }
         }
+        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
         log.info("结束计算");
     }
 

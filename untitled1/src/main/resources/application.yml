@@ -11,5 +11,5 @@ spring:
 mybatis-plus:
   mapper-locations: classpath:dao/*.xml
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl      #MyBatis的sql日志，输出到控制台
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl      #MyBatis的sql日志，输出到控制台
     map-underscore-to-camel-case: true  #开启MyBatis的驼峰命名自动映射开关 a_colum --->  aColum

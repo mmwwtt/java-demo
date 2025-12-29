@@ -158,17 +158,17 @@ public class StockDetail {
     public void calc() {
         allLen = Math.abs(highPrice - lowPrice);
         upShadowLen = highPrice - Math.max(startPrice, endPrice);
-        upShadowPert =allLen==0 ? 0 : upShadowLen / allLen;
+        upShadowPert = allLen == 0 ? 0 : upShadowLen / allLen;
         lowShadowLen = Math.min(startPrice, endPrice) - lowPrice;
-        lowShadowPert =allLen==0 ? 0 : lowShadowLen / allLen;
+        lowShadowPert = allLen == 0 ? 0 : lowShadowLen / allLen;
         entityLen = Math.abs(endPrice - startPrice);
-        entityPert = allLen==0 ? 0 :entityLen / allLen;
+        entityPert = allLen == 0 ? 0 : entityLen / allLen;
         isUp = endPrice > startPrice;
         isDown = endPrice < startPrice;
         isBalance = isEquals(endPrice, startPrice);
-        pertDivisionQuentity = pricePert / allDealQuantity;
+        pertDivisionQuentity = allDealQuantity == 0 ? 0 : pricePert / allDealQuantity;
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
-        isTenStar = (entityLen / allLen) <= 0.05d;
+        isTenStar = allLen != 0 && (entityLen / allLen) <= 0.05d;
     }
 
     public static void calc(List<StockDetail> list) {

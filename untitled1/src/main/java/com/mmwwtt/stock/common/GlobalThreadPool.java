@@ -18,11 +18,11 @@ public class GlobalThreadPool {
 
 
     // 定义线程池的核心线程数
-    private static final int CORE_POOL_SIZE = 5;
+    private static final int CORE_POOL_SIZE = 10;
     // 定义线程池的最大线程数
-    private static final int MAXIMUM_POOL_SIZE = 10;
+    private static final int MAXIMUM_POOL_SIZE = 20;
     // 线程空闲存活时间
-    private static final long KEEP_ALIVE_TIME = 60;
+    private static final long KEEP_ALIVE_TIME = 6000;
     // 时间单位（秒）
     private static final TimeUnit UNIT = TimeUnit.SECONDS;
     // 用于存放任务的阻塞队列

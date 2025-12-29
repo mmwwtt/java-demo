@@ -27,9 +27,14 @@ public class StockCalcRes {
     private Double winRate;
 
     /**
-     * 百分比叠加后的胜率
+     * 预测后的平均涨幅
      */
     private Double percRate;
+
+    /**
+     * 符合条件的数据量
+     */
+    private Integer allCnt;
 
     /**
      * 创建日期

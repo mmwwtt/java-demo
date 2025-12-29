@@ -24,4 +24,10 @@ public class StockController {
         stockStartService.startCalc();
         return true;
     }
+
+    @GetMapping("/calc1")
+    public Boolean getCur1StockList() throws ExecutionException, InterruptedException {
+        stockStartService.startCalc1();
+        return true;
+    }
 }
