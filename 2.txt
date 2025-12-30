@@ -201,3 +201,16 @@ Lambda表达式内部访问的局部变量必须是final
 
 
 2核CPU开4个线程可以吗
+
+
+
+#执行后 mysql8.0的插入速度大大提升
+set global innodb_flush_log_at_trx_commit = 2;
+set global sync_binlog = 100000;
+
+currentHashMap entrySet()  values()  都不是实时的， 在遍历时如果map新put了数据不会报错，也不会感知到
+    处理方式：待调研
+
+    @Transient   transient  @UnSerializeField的不同
+    jdk代理  和cgXX代理
+    AOp是什么代理类型
