@@ -1,5 +1,6 @@
 package com.mmwwtt.stock.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.stock.common.GlobalThreadPool;
@@ -23,6 +24,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -170,17 +173,23 @@ public class StockStartService {
                     List<OneRes> calcResList = stockService.run(v);
                     allRes.addAll(calcResList);
                 });
-                long correctCount = allRes.stream().filter(OneRes::getIsCorrect).count();
-                double percRate = allRes.stream().filter(OneRes::getIsCorrect).mapToDouble(OneRes::getPricePert).sum();
-
                 if (CollectionUtils.isEmpty(allRes)) {
+                    return;
+                }
+                long correctCount = allRes.stream().filter(OneRes::getIsCorrect).count();
+                BigDecimal percRate = allRes.stream().filter(OneRes::getIsCorrect).map(OneRes::getPricePert)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);
+                BigDecimal winRate = new BigDecimal(correctCount).divide(new BigDecimal(allRes.size()), 4, RoundingMode.HALF_UP);
+                if (winRate.compareTo(new BigDecimal("0.5")) < 0) {
                     return;
                 }
                 StockCalcRes calcRes = new StockCalcRes();
                 calcRes.setStrategy(stockService.getStrategy());
-                calcRes.setWinRate((double) correctCount / allRes.size());
-                calcRes.setPercRate(percRate / allRes.size());
+                calcRes.setWinRate(winRate);
+                calcRes.setPercRate(percRate.divide(new BigDecimal(allRes.size()), 4, RoundingMode.HALF_UP));
                 calcRes.setCreateDate(dataTime);
+                calcRes.setAllCnt(allRes.size());
                 stockCalcResDao.insert(calcRes);
             });
         }
@@ -213,55 +222,52 @@ public class StockStartService {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-
+        final BigDecimal tenPert = new BigDecimal("0.1");
         log.info("开始计算");
         futures = new ArrayList<>();
         LocalDateTime dataTime = LocalDateTime.now();
-        for (double upShadowUpLimit = 0; upShadowUpLimit < 1; upShadowUpLimit += 0.1) {
-            for (double upShadowLowLimit = 0; upShadowLowLimit < 1; upShadowLowLimit += 0.1) {
-                if(upShadowUpLimit > upShadowLowLimit){
+        for (BigDecimal upShadowLowLimit = BigDecimal.ZERO; upShadowLowLimit.compareTo(BigDecimal.ONE) < 0; upShadowLowLimit = upShadowLowLimit.add(tenPert)) {
+            for (BigDecimal upShadowUpLimit = BigDecimal.ZERO; upShadowUpLimit.compareTo(BigDecimal.ONE) < 0; upShadowUpLimit = upShadowUpLimit.add(tenPert)) {
+                if (upShadowLowLimit.compareTo(upShadowUpLimit) >= 0) {
                     continue;
                 }
-                for (double lowShadowUpLimit = 0; lowShadowUpLimit < 1; lowShadowUpLimit += 0.1) {
-                    for (double lowShadowLowLimit = 0; lowShadowLowLimit < 1; lowShadowLowLimit += 0.1) {
-                        if(lowShadowUpLimit > lowShadowLowLimit){
+                for (BigDecimal lowShadowLowLimit = BigDecimal.ZERO; lowShadowLowLimit.compareTo(BigDecimal.ONE) < 0; lowShadowLowLimit = lowShadowLowLimit.add(tenPert)) {
+                    for (BigDecimal lowShadowUpLimit = BigDecimal.ZERO; lowShadowUpLimit.compareTo(BigDecimal.ONE) < 0; lowShadowUpLimit = lowShadowUpLimit.add(tenPert)) {
+                        if (lowShadowLowLimit.compareTo(lowShadowUpLimit) >= 0) {
                             continue;
                         }
-                        for (double entityPertLimit = 0; entityPertLimit < 1; entityPertLimit += 0.1) {
-                            if(entityPertLimit + upShadowUpLimit + lowShadowUpLimit >1) {
-                                continue;
-                            }
-                            for (double pricePertLimit = -0.1; pricePertLimit < 0.1; pricePertLimit += 0.01) {
-                                double finalUpShadowUpLimit = upShadowUpLimit;
-                                double finalLowShadowUpLimit = lowShadowUpLimit;
-                                double finalUpShadowLowLimit = upShadowLowLimit;
-                                double finalLowShadowLowLimit = lowShadowLowLimit;
-                                double finalEntityPertLimit = entityPertLimit;
-                                double finalPricePertLimit = pricePertLimit;
-                                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                                    String strategt = String.format("上影线占比大于：%.3f   上影线占比小于:%.3f     下影线占比大于:%.3f     下影线占比小于:%.3f     实体占比大于：%.3f     涨跌幅占比大于:%.3f      ",
-                                            finalUpShadowUpLimit, finalUpShadowLowLimit, finalLowShadowUpLimit, finalLowShadowLowLimit, finalEntityPertLimit,
-                                            finalPricePertLimit);
+                        BigDecimal finalUpShadowLowLimit = upShadowLowLimit;
+                        BigDecimal finalUpShadowUpLimit = upShadowUpLimit;
+                        BigDecimal finalLowShadowLowLimit = lowShadowLowLimit;
+                        BigDecimal finalLowShadowUpLimit = lowShadowUpLimit;
+                        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                            for (BigDecimal pricePertLowLimit = new BigDecimal("-0.1"); pricePertLowLimit.compareTo(tenPert) < 0; pricePertLowLimit = pricePertLowLimit.add(new BigDecimal("0.01"))) {
+                                for (BigDecimal pricePertUpLimit = new BigDecimal("-0.1"); pricePertUpLimit.compareTo(tenPert) < 0; pricePertUpLimit = pricePertUpLimit.add(new BigDecimal("0.01"))) {
+                                    if (pricePertLowLimit.compareTo(pricePertUpLimit) >= 0) {
+                                        continue;
+                                    }
+                                    BigDecimal finalPricePertLowLimit = pricePertLowLimit;
+                                    BigDecimal finalPricePertUpLimit = pricePertUpLimit;
                                     List<OneRes> allRes = new ArrayList<>();
                                     codeToDetailMap.forEach((stockCode, detailList) -> {
                                         List<OneRes> oneResList = new ArrayList<>();
                                         for (int i = 0; i < detailList.size(); i++) {
-                                            if (!filterForMoreUpShadowPert(detailList.get(i), finalUpShadowUpLimit, ModeEnum.MORE)) {
+                                            if (!filterForMoreUpShadowPert(detailList.get(i), finalUpShadowLowLimit, ModeEnum.MORE)) {
                                                 continue;
                                             }
-                                            if (!filterForMoreUpShadowPert(detailList.get(i), finalUpShadowLowLimit, ModeEnum.LESS)) {
+                                            if (!filterForMoreUpShadowPert(detailList.get(i), finalUpShadowUpLimit, ModeEnum.LESS)) {
                                                 continue;
                                             }
-                                            if (!filterForMoreLowShadowPert(detailList.get(i), finalLowShadowUpLimit, ModeEnum.MORE)) {
+                                            if (!filterForMoreLowShadowPert(detailList.get(i), finalLowShadowLowLimit, ModeEnum.MORE)) {
                                                 continue;
                                             }
-                                            if (!filterForMoreLowShadowPert(detailList.get(i), finalLowShadowLowLimit, ModeEnum.LESS)) {
+                                            if (!filterForMoreLowShadowPert(detailList.get(i), finalLowShadowUpLimit, ModeEnum.LESS)) {
                                                 continue;
                                             }
-                                            if (!filterForMoreEntityPert(detailList.get(i), finalEntityPertLimit, ModeEnum.MORE)) {
+                                            if (!filterForMorePricePert(detailList.get(i), finalPricePertLowLimit, ModeEnum.MORE)) {
                                                 continue;
                                             }
-                                            if (!filterForMorePricePert(detailList.get(i), finalPricePertLimit, ModeEnum.MORE)) {
+                                            if (!filterForMorePricePert(detailList.get(i), finalPricePertUpLimit, ModeEnum.LESS)) {
                                                 continue;
                                             }
 
@@ -274,26 +280,36 @@ public class StockStartService {
                                         allRes.addAll(oneResList);
                                     });
                                     if (CollectionUtils.isEmpty(allRes)) {
-                                       return;
-                                    }
-                                    long correctCount = allRes.stream().filter(OneRes::getIsCorrect).count();
-                                    double percRate = allRes.stream().filter(OneRes::getIsCorrect).mapToDouble(OneRes::getPricePert).sum();
-                                    StockCalcRes calcRes = new StockCalcRes();
-                                    calcRes.setStrategy(strategt);
-                                    double winRate = (double) correctCount / allRes.size();
-                                    if(winRate < 0.5) {
                                         return;
                                     }
+                                    long correctCount = allRes.stream().filter(OneRes::getIsCorrect).count();
+                                    BigDecimal percRate = allRes.stream().filter(OneRes::getIsCorrect).map(OneRes::getPricePert)
+                                            .reduce(BigDecimal.ZERO, BigDecimal::add)
+                                            .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);
+                                    BigDecimal winRate = new BigDecimal(correctCount).divide(new BigDecimal(allRes.size()), 4, RoundingMode.HALF_UP);
+                                    if (winRate.compareTo(new BigDecimal("0.5")) < 0) {
+                                        return;
+                                    }
+                                    StockStrategy stockStrategy = StockStrategy.builder()
+                                            .upShadowLowLimit(finalUpShadowLowLimit)
+                                            .upShadowUpLimit(finalUpShadowUpLimit)
+                                            .lowShadowLowLimit(finalLowShadowLowLimit)
+                                            .lowShadowUpLimit(finalLowShadowUpLimit)
+                                            .pricePertLowLimit(finalPricePertLowLimit)
+                                            .pricePertUpLimit(finalPricePertUpLimit)
+                                            .build();
+                                    StockCalcRes calcRes = new StockCalcRes();
+                                    calcRes.setStrategy(JSON.toJSONString(stockStrategy));
                                     calcRes.setWinRate(winRate);
-                                    calcRes.setPercRate(percRate / allRes.size());
+                                    calcRes.setPercRate(percRate.divide(new BigDecimal(allRes.size()), 4, RoundingMode.HALF_UP));
                                     calcRes.setCreateDate(dataTime);
                                     calcRes.setAllCnt(allRes.size());
-                                    log.info(strategt);
+                                    log.info(JSON.toJSONString(stockStrategy));
                                     stockCalcResDao.insert(calcRes);
-                                });
-                                futures.add(future);
+                                }
                             }
-                        }
+                        });
+                        futures.add(future);
                     }
                 }
             }
@@ -315,32 +331,32 @@ public class StockStartService {
     }
 
     //MORE: 上影线大于阈值的返回true
-    private boolean filterForMoreUpShadowPert(StockDetail stockDetail, double limit, ModeEnum enumm) {
+    private boolean filterForMoreUpShadowPert(StockDetail stockDetail, BigDecimal limit, ModeEnum enumm) {
         return Objects.equals(ModeEnum.MORE, enumm)
-                ? stockDetail.getUpShadowPert() > limit
-                : stockDetail.getUpShadowPert() < limit;
+                ? stockDetail.getUpShadowPert().compareTo(limit) > 0
+                : stockDetail.getUpShadowPert().compareTo(limit) < 0;
     }
 
 
     //MORE:  下影线大于阈值的返回true
-    private boolean filterForMoreLowShadowPert(StockDetail stockDetail, double limit, ModeEnum enumm) {
+    private boolean filterForMoreLowShadowPert(StockDetail stockDetail, BigDecimal limit, ModeEnum enumm) {
         return Objects.equals(ModeEnum.MORE, enumm)
-                ? stockDetail.getLowShadowPert() > limit
-                : stockDetail.getLowShadowPert() < limit;
+                ? stockDetail.getLowShadowPert().compareTo(limit) > 0
+                : stockDetail.getLowShadowPert().compareTo(limit) < 0;
     }
 
     //MORE:  实体长度大于阈值的返回true
-    private boolean filterForMoreEntityPert(StockDetail stockDetail, double limit, ModeEnum enumm) {
+    private boolean filterForMoreEntityPert(StockDetail stockDetail, BigDecimal limit, ModeEnum enumm) {
         return Objects.equals(ModeEnum.MORE, enumm)
-                ? stockDetail.getEntityPert() > limit
-                : stockDetail.getEntityPert() < limit;
+                ? stockDetail.getEntityPert().compareTo(limit) > 0
+                : stockDetail.getEntityPert().compareTo(limit) < 0;
     }
 
     //MORE: 涨跌幅大于阈值的返回true
-    private boolean filterForMorePricePert(StockDetail stockDetail, double limit, ModeEnum enumm) {
+    private boolean filterForMorePricePert(StockDetail stockDetail, BigDecimal limit, ModeEnum enumm) {
         return Objects.equals(ModeEnum.MORE, enumm)
-                ? stockDetail.getPricePert() > limit
-                : stockDetail.getPricePert() < limit;
+                ? stockDetail.getPricePert().compareTo(limit) > 0
+                : stockDetail.getPricePert().compareTo(limit) < 0;
     }
 
     /**
@@ -356,14 +372,14 @@ public class StockStartService {
             return false;
         }
         for (int i = 0; i < continueDays; i++) {
-            if(Objects.equals(enumm, ModeEnum.MORE)) {
+            if (Objects.equals(enumm, ModeEnum.MORE)) {
                 //比前一天小则返回false
-                if (list.get(curIdx + i).getAllDealQuantity() < list.get(curIdx + i + 1).getAllDealQuantity()) {
+                if (list.get(curIdx + i).getAllDealQuantity().compareTo(list.get(curIdx + i + 1).getAllDealQuantity()) < 0) {
                     return false;
                 }
             } else {
                 //比前一天大则返回false
-                if (list.get(curIdx + i).getAllDealQuantity() > list.get(curIdx + i + 1).getAllDealQuantity()) {
+                if (list.get(curIdx + i).getAllDealQuantity().compareTo(list.get(curIdx + i + 1).getAllDealQuantity()) > 0) {
                     return false;
                 }
             }
@@ -385,7 +401,7 @@ public class StockStartService {
         }
         for (int i = 0; i < continueDays; i++) {
             //比前一天小则直接  返回false
-            if (list.get(curIdx + i).getPertDivisionQuentity() < list.get(curIdx + i + 1).getPertDivisionQuentity()) {
+            if (list.get(curIdx + i).getPertDivisionQuentity().compareTo(list.get(curIdx + i + 1).getPertDivisionQuentity()) < 0) {
                 return false;
             }
         }

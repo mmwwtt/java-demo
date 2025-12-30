@@ -33,4 +33,13 @@ public interface BaseInfoConverter {
     default String getPhoneNumber(Contact contact) {
         return contact.getPhoneNumber();
     }
+
+    /**
+     * @MappingTarget 编辑目标对象
+     * @return
+     */
+    @AfterMapping
+    default void fun1(@MappingTarget BaseInfoDTO dto) {
+        dto.setBaseInfoId(dto.getBaseInfoId());
+    }
 }

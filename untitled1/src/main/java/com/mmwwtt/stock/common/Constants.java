@@ -2,6 +2,9 @@ package com.mmwwtt.stock.common;
 
 import lombok.Data;
 
+import java.math.MathContext;
+import java.math.RoundingMode;
+
 @Data
 public class Constants {
 
@@ -65,4 +68,6 @@ public class Constants {
     public static final String REAL_TIME_URL = "https://api.biyingapi.com/hsstock/real/time/{stockCode}/{licence}";
 
     public static final Double TOLERANCE = 0.00001;
+
+    public static final MathContext MC = new MathContext(4, RoundingMode.HALF_UP);
 }

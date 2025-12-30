@@ -82,7 +82,6 @@ public class Main {
         int cnt = 0;
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (Stock stock : stockList) {
-
             if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68") || stock.getName().contains("ST")) {
                 continue;
             }
@@ -100,30 +99,30 @@ public class Main {
             map1.put(START_DATA, "20250301");
             map1.put(END_DATA, nowDate);
             map1.put(MAX_SIZE, "300");
-            try {
-                ResponseEntity<List<StockDetailVO>> stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
-                        null, new ParameterizedTypeReference<>() {
-                        }, map1);
-                List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
-                        .peek(item -> item.setStockCode(stock.getCode()))
-                        .collect(Collectors.toList());
-                List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            ResponseEntity<List<StockDetailVO>> stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
+                    null, new ParameterizedTypeReference<>() {
+                    }, map1);
+            List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
+                    .peek(item -> item.setStockCode(stock.getCode()))
+                    .collect(Collectors.toList());
+            List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                try {
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
-                    Map<String, StockDetail> dateToMap= stockDetailDao.selectList(detailWapper).stream()
+                    Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
                             .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
                     for (StockDetail stockDetail : stockDetails) {
-                        if(dateToMap.containsKey(stockDetail.getDealDate())) {
+                        if (dateToMap.containsKey(stockDetail.getDealDate())) {
                             stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
                         }
                     }
                     stockDetailDao.insertOrUpdate(stockDetails);
-                });
-                futures.add(future);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
@@ -169,13 +168,14 @@ public class Main {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
-                    Map<String, StockDetail> dateToMap= stockDetailDao.selectList(detailWapper).stream()
+                    Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
                             .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
                     for (StockDetail stockDetail : stockDetails) {
-                        if(dateToMap.containsKey(stockDetail.getDealDate())) {
+                        if (dateToMap.containsKey(stockDetail.getDealDate())) {
                             stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
                         }
                     }
+                    stockDetails.forEach(item -> item.calc());
                     stockDetailDao.insertOrUpdate(stockDetails);
                 });
                 futures.add(future);
@@ -186,7 +186,6 @@ public class Main {
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
     }
-
 
 
     @Test

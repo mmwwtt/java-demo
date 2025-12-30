@@ -2,6 +2,8 @@ package com.mmwwtt.stock.entity;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class StockDetailVO {
     /**
@@ -12,37 +14,37 @@ public class StockDetailVO {
     /**
      * 开盘价
      */
-    private Double o;
+    private BigDecimal o;
 
     /**
      * 最高价
      */
-    private Double h;
+    private BigDecimal h;
 
     /**
      * 最低价
      */
-    private Double l;
+    private BigDecimal l;
 
     /**
      * 收盘价
      */
-    private Double c;
+    private BigDecimal c;
 
     /**
      * 成交量
      */
-    private Double v;
+    private BigDecimal v;
 
     /**
      * 成交额
      */
-    private Double a;
+    private BigDecimal a;
 
     /**
      * 前收盘价
      */
-    private Double pc;
+    private BigDecimal pc;
 
     /**
      * 1停牌；  0不停牌
@@ -50,8 +52,4 @@ public class StockDetailVO {
     private int sf;
 
     private String stockCode;
-
-    public Double getPert() {
-        return (c-pc)/pc;
-    }
 }
