@@ -280,7 +280,11 @@ public class StockStartService {
                                     double percRate = allRes.stream().filter(OneRes::getIsCorrect).mapToDouble(OneRes::getPricePert).sum();
                                     StockCalcRes calcRes = new StockCalcRes();
                                     calcRes.setStrategy(strategt);
-                                    calcRes.setWinRate((double) correctCount / allRes.size());
+                                    double winRate = (double) correctCount / allRes.size();
+                                    if(winRate < 0.5) {
+                                        return;
+                                    }
+                                    calcRes.setWinRate(winRate);
                                     calcRes.setPercRate(percRate / allRes.size());
                                     calcRes.setCreateDate(dataTime);
                                     calcRes.setAllCnt(allRes.size());
