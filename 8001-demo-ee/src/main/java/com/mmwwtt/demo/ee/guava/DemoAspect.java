@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class Demo {
+public class DemoAspect {
     /**
      * 布隆过滤器(存在误报可能)
      * put : 放对象

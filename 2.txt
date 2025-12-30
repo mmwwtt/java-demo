@@ -212,5 +212,5 @@ currentHashMap entrySet()  values()  都不是实时的， 在遍历时如果map
     处理方式：待调研
 
     @Transient   transient  @UnSerializeField的不同
-    jdk代理  和cgXX代理
+    jdk代理  和cgXX代理   不能用idea查看cgLib动态代理生成的源码类
     AOp是什么代理类型

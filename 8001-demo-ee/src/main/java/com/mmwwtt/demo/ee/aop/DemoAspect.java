@@ -5,10 +5,14 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 
+/**
+ * AOP切面
+ * 根据方法路径和方法名称匹配切点
+ */
 @Component
 @Aspect
 @Slf4j
-public class Demo {
+public class DemoAspect {
     /**
      * 定义切点
      *  *:任意一层类路径
