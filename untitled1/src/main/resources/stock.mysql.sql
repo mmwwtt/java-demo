@@ -56,7 +56,8 @@ CREATE TABLE stock_calculation_result_t
 (
     calc_res_id int(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy    VARCHAR(256) COMMENT '策略描述',
-    win_rate    DOUBLE COMMENT '胜率',
+    win_rate    DOUBLE COMMENT '预测后的平均涨幅',
+    all_cnt    int(11) COMMENT '符合条件的数据量',
     perc_rate   DOUBLE COMMENT '百分比叠加后的结果',
     create_date DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '股票计算结果表';
