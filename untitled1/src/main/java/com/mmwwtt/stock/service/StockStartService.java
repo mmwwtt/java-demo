@@ -4,23 +4,15 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.common.LoggingInterceptor;
-import com.mmwwtt.stock.convert.StockConverter;
 import com.mmwwtt.stock.dao.StockCalcResDao;
 import com.mmwwtt.stock.dao.StockDao;
 import com.mmwwtt.stock.dao.StockDetailDao;
 import com.mmwwtt.stock.entity.*;
-import com.mmwwtt.stock.enums.ExcludeRightEnum;
-import com.mmwwtt.stock.enums.TimeLevelEnum;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,9 +23,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
-
-import static com.mmwwtt.stock.common.Constants.*;
 
 @Service
 @Slf4j
@@ -54,89 +43,6 @@ public class StockStartService {
     private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
 
     private RestTemplate restTemplate = new RestTemplate();
-
-    // 可配置参数（根据策略调整）
-    // 均线周期
-    private static final int MA5_DAYS = 5;
-    private static final int MA10_DAYS = 10;
-    private static final int MA60_DAYS = 60;
-    private static final int MA20_DAYS = 20;
-    // 成交量增长参数
-    private static final int VOL_STEP_DAYS = 5;
-    private static final Double VOL_GROWTH_RATIO = 0.05; // 单日成交量最低增长5%
-    // 趋势参数：近20日涨幅≥5%视为上升趋势
-    private static final Double TREND_UP_RATIO = 0.05;
-    // 早晨之星：阳线深入阴线实体的比例≥50%
-    private static final Double MORNING_STAR_PENETRATION = 0.5;
-    // 金针探底：下影线长度≥实体长度的2倍
-    private static final Double GOLDEN_PIN_RATIO = 2.0;
-
-
-    public void dataDownLoad() {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
-        Map<String, String> map = new HashMap<>();
-        map.put(LICENCE, BI_YING_LICENCE);
-        ResponseEntity<List<StockVO>> stocksListResponse = restTemplate.exchange(STOCK_LIST_URL, HttpMethod.GET,
-                null, new ParameterizedTypeReference<>() {
-                }, map);
-        List<StockVO> stockVOList = stocksListResponse.getBody();
-        List<Stock> stockList = StockConverter.INSTANCE.convertToStock(stockVOList);
-        stockDao.insert(stockList);
-    }
-
-    /**
-     * 更新每日股票涨跌信息
-     *
-     * @throws InterruptedException
-     */
-    //@PostConstruct
-    @Scheduled(cron = "0 30 3 * * ?")
-    public void dataDetailDownLoad() throws InterruptedException {
-        QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
-        List<Stock> stockList = stockDao.selectList(queryWrapper);
-        int cnt = 0;
-        for (Stock stock : stockList) {
-            if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68")) {
-                continue;
-            }
-            cnt++;
-            if (cnt % 200 == 0) {
-                Thread.sleep(10000);
-            }
-            Thread.sleep(100);
-            Map<String, String> map1 = new HashMap<>();
-            map1.put(LICENCE, BI_YING_LICENCE);
-            map1.put(STOCK_CODE, stock.getCode());
-            map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
-            map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
-            map1.put(START_DATA, "20251101");
-            map1.put(END_DATA, "20251113");
-            map1.put(MAX_SIZE, "30");
-            try {
-                ResponseEntity<List<StockDetailVO>> stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
-                        null, new ParameterizedTypeReference<>() {
-                        }, map1);
-                List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
-                        .peek(item -> item.setStockCode(stock.getCode()))
-                        .collect(Collectors.toList());
-                List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
-                for (StockDetail stockDetail : stockDetails) {
-                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                    detailWapper.eq("stock_code", stockDetail.getStockCode());
-                    detailWapper.eq("deal_date", stockDetail.getDealDate());
-                    List<StockDetail> stockDetails1 = stockDetailDao.selectList(detailWapper);
-                    if (CollectionUtils.isNotEmpty(stockDetails1)) {
-                        stockDetail.setStockDetailId(stockDetails1.get(0).getStockDetailId());
-                    }
-                    stockDetailDao.insertOrUpdate(stockDetail);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
 
     /**
      * 开始计算
@@ -185,7 +91,7 @@ public class StockStartService {
                     return;
                 }
                 StockCalcRes calcRes = new StockCalcRes();
-                calcRes.setStrategy(stockService.getStrategy());
+                calcRes.setStrategyDesc(stockService.getStrategy());
                 calcRes.setWinRate(winRate);
                 calcRes.setPercRate(percRate.divide(new BigDecimal(allRes.size()), 4, RoundingMode.HALF_UP));
                 calcRes.setCreateDate(dataTime);
@@ -197,7 +103,7 @@ public class StockStartService {
     }
 
     /**
-     * 开始计算
+     * 开始计算   通过上/下影线占比  和涨跌百分比区间 计算预测胜率
      */
     public void startCalc1() throws ExecutionException, InterruptedException {
         QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
@@ -226,13 +132,16 @@ public class StockStartService {
         log.info("开始计算");
         futures = new ArrayList<>();
         LocalDateTime dataTime = LocalDateTime.now();
+        final List<StockCalcRes> stockCalcResList = new ArrayList<>();
         for (BigDecimal upShadowLowLimit = BigDecimal.ZERO; upShadowLowLimit.compareTo(BigDecimal.ONE) < 0; upShadowLowLimit = upShadowLowLimit.add(tenPert)) {
             for (BigDecimal upShadowUpLimit = BigDecimal.ZERO; upShadowUpLimit.compareTo(BigDecimal.ONE) < 0; upShadowUpLimit = upShadowUpLimit.add(tenPert)) {
                 if (upShadowLowLimit.compareTo(upShadowUpLimit) >= 0) {
                     continue;
                 }
-                for (BigDecimal lowShadowLowLimit = BigDecimal.ZERO; lowShadowLowLimit.compareTo(BigDecimal.ONE) < 0; lowShadowLowLimit = lowShadowLowLimit.add(tenPert)) {
-                    for (BigDecimal lowShadowUpLimit = BigDecimal.ZERO; lowShadowUpLimit.compareTo(BigDecimal.ONE) < 0; lowShadowUpLimit = lowShadowUpLimit.add(tenPert)) {
+                for (BigDecimal lowShadowLowLimit = BigDecimal.ZERO; lowShadowLowLimit.compareTo(BigDecimal.ONE) < 0; lowShadowLowLimit =
+                        lowShadowLowLimit.add(tenPert)) {
+                    for (BigDecimal lowShadowUpLimit = BigDecimal.ZERO; lowShadowUpLimit.compareTo(BigDecimal.ONE) < 0; lowShadowUpLimit =
+                            lowShadowUpLimit.add(tenPert)) {
                         if (lowShadowLowLimit.compareTo(lowShadowUpLimit) >= 0) {
                             continue;
                         }
@@ -241,8 +150,10 @@ public class StockStartService {
                         BigDecimal finalLowShadowLowLimit = lowShadowLowLimit;
                         BigDecimal finalLowShadowUpLimit = lowShadowUpLimit;
                         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                            for (BigDecimal pricePertLowLimit = new BigDecimal("-0.1"); pricePertLowLimit.compareTo(tenPert) < 0; pricePertLowLimit = pricePertLowLimit.add(new BigDecimal("0.01"))) {
-                                for (BigDecimal pricePertUpLimit = new BigDecimal("-0.1"); pricePertUpLimit.compareTo(tenPert) < 0; pricePertUpLimit = pricePertUpLimit.add(new BigDecimal("0.01"))) {
+                            for (BigDecimal pricePertLowLimit = new BigDecimal("-0.1"); pricePertLowLimit.compareTo(tenPert) < 0; pricePertLowLimit =
+                                    pricePertLowLimit.add(new BigDecimal("0.01"))) {
+                                for (BigDecimal pricePertUpLimit = new BigDecimal("-0.1"); pricePertUpLimit.compareTo(tenPert) < 0; pricePertUpLimit =
+                                        pricePertUpLimit.add(new BigDecimal("0.01"))) {
                                     if (pricePertLowLimit.compareTo(pricePertUpLimit) >= 0) {
                                         continue;
                                     }
@@ -299,13 +210,16 @@ public class StockStartService {
                                             .pricePertUpLimit(finalPricePertUpLimit)
                                             .build();
                                     StockCalcRes calcRes = new StockCalcRes();
-                                    calcRes.setStrategy(JSON.toJSONString(stockStrategy));
+                                    String strategyDesc = JSON.toJSONString(stockStrategy);
+                                    calcRes.setStrategyDesc(strategyDesc);
+                                    calcRes.setStockStrategy(stockStrategy);
                                     calcRes.setWinRate(winRate);
                                     calcRes.setPercRate(percRate.divide(new BigDecimal(allRes.size()), 4, RoundingMode.HALF_UP));
                                     calcRes.setCreateDate(dataTime);
                                     calcRes.setAllCnt(allRes.size());
-                                    log.info(JSON.toJSONString(stockStrategy));
-                                    stockCalcResDao.insert(calcRes);
+                                    calcRes.setType(StockCalcRes.TypeEnum.INTERVAL.getCode());
+                                    log.info(strategyDesc);
+                                    stockCalcResList.add(calcRes);
                                 }
                             }
                         });
@@ -316,9 +230,72 @@ public class StockStartService {
         }
         allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        stockCalcResDao.insert(stockCalcResList);
+        List<StockCalcRes> needDelList = getDelListBySmallInterval(stockCalcResList);
+        stockCalcResDao.deleteByIds(needDelList);
         log.info("结束计算");
     }
 
+    /**
+     * 缩小区间  [0.5,0.6]   和[0.5,0.8] 的胜率都是0.6        则[0.5，0.8] 是无效的
+     */
+    public List<StockCalcRes> getDelListBySmallInterval(List<StockCalcRes> list) {
+        List<StockCalcRes> resList = new ArrayList<>();
+        list.forEach(item -> item.setStockStrategy(JSON.toJavaObject(JSON.parseObject(item.getStrategyDesc()), StockStrategy.class)));
+        list.forEach(res -> {
+            StockCalcRes stockCalcRes = list.stream()
+                    .filter(item -> !Objects.equals(item.getCalcResId(), res.getCalcResId()))
+                    .filter(item -> item.getWinRate().compareTo(res.getWinRate()) == 0)
+                    .filter(item -> Objects.equals(item.getAllCnt(), res.getAllCnt()))
+                    .filter(item -> item.getStockStrategy().getLowShadowLowLimit().compareTo(res.getStockStrategy().getLowShadowLowLimit()) >= 0)
+                    .filter(item -> item.getStockStrategy().getLowShadowUpLimit().compareTo(res.getStockStrategy().getLowShadowUpLimit()) <= 0)
+                    .filter(item -> item.getStockStrategy().getUpShadowLowLimit().compareTo(res.getStockStrategy().getUpShadowLowLimit()) >= 0)
+                    .filter(item -> item.getStockStrategy().getUpShadowUpLimit().compareTo(res.getStockStrategy().getUpShadowUpLimit()) <= 0)
+                    .filter(item -> item.getStockStrategy().getPricePertLowLimit().compareTo(res.getStockStrategy().getPricePertLowLimit()) >= 0)
+                    .filter(item -> item.getStockStrategy().getPricePertUpLimit().compareTo(res.getStockStrategy().getPricePertUpLimit()) <= 0)
+                    .findFirst().orElse(null);
+            if(Objects.nonNull(stockCalcRes)) {
+                resList.add(res);
+            }
+        });
+        return resList;
+    }
+
+    public List<StockCalcRes> smallInterval() {
+        List<StockCalcRes> list = getNewCalcRes();
+        list.forEach(item -> item.setStockStrategy(JSON.toJavaObject(JSON.parseObject(item.getStrategyDesc()), StockStrategy.class)));
+        list.removeIf(res -> {
+            StockCalcRes stockCalcRes = list.stream()
+                    .filter(item -> !Objects.equals(item.getCalcResId(), res.getCalcResId()))
+                    .filter(item -> item.getWinRate().compareTo(res.getWinRate()) == 0)
+                    .filter(item -> Objects.equals(item.getAllCnt(), res.getAllCnt()))
+                    .filter(item -> item.getStockStrategy().getLowShadowLowLimit().compareTo(res.getStockStrategy().getLowShadowLowLimit()) >= 0)
+                    .filter(item -> item.getStockStrategy().getLowShadowUpLimit().compareTo(res.getStockStrategy().getLowShadowUpLimit()) <= 0)
+                    .filter(item -> item.getStockStrategy().getUpShadowLowLimit().compareTo(res.getStockStrategy().getUpShadowLowLimit()) >= 0)
+                    .filter(item -> item.getStockStrategy().getUpShadowUpLimit().compareTo(res.getStockStrategy().getUpShadowUpLimit()) <= 0)
+                    .filter(item -> item.getStockStrategy().getPricePertLowLimit().compareTo(res.getStockStrategy().getPricePertLowLimit()) >= 0)
+                    .filter(item -> item.getStockStrategy().getPricePertUpLimit().compareTo(res.getStockStrategy().getPricePertUpLimit()) <= 0)
+                    .findFirst().orElse(null);
+            return Objects.nonNull(stockCalcRes);
+        });
+        stockCalcResDao.insertOrUpdate(list);
+        return list;
+    }
+
+
+
+    /**
+     * 查询最新的计算结果信息
+     * @return
+     */
+    public List<StockCalcRes> getNewCalcRes() {
+        QueryWrapper<StockCalcRes> wrapper = new QueryWrapper<>();
+        wrapper.apply("create_date = (SELECT MAX(create_date) FROM stock_calculation_result_t)")   // 子查询
+                .orderByDesc("win_rate")                   // 第一排序字段
+                .orderByDesc("all_cnt");                   // 第二排序字段
+        List<StockCalcRes> list = stockCalcResDao.selectList(wrapper);
+        return list;
+    }
 
     @Getter
     @AllArgsConstructor

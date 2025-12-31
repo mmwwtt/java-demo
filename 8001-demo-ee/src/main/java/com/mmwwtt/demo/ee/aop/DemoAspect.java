@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 /**
  * AOP切面
  * 根据方法路径和方法名称匹配切点
+ * 默认顺序  环绕-前置-真正方法-后置-环绕
  */
 @Component
 @Aspect
@@ -60,16 +61,18 @@ public class DemoAspect {
      */
     @Before("@annotation(aspect1)")
     public void fun1(Aspect1 aspect1) throws Throwable {
-        log.info("aspect1");
+        log.info("before - aspect1");
     }
 
-    @Before("@annotation(aspect2)")
-    public void fun2(Aspect2 aspect2) throws Throwable {
-        log.info("aspect2");
+    @Around("@annotation(aspect2)")
+    public void fun2(ProceedingJoinPoint joinPoint, Aspect2 aspect2) throws Throwable {
+        log.info("around - after- aspect2");
+        joinPoint.proceed();
+        log.info("around - after- aspect2");
     }
 
-    @Before("@annotation(aspect3)")
+    @After("@annotation(aspect3)")
     public void fun3(Aspect3 aspect3) throws Throwable {
-        log.info("aspect3");
+        log.info("after - aspect3");
     }
 }

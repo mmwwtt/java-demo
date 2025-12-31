@@ -25,12 +25,4 @@ public class AopController {
     public String demo1Annotation() {
         return "调用成功";
     }
-
-    @Aspect1
-    @Aspect2
-    @Aspect3
-    @GetMapping("/demo2/annotation")
-    public String demo2Annotation() {
-        return "调用成功";
-    }
 }

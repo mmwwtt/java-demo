@@ -30,4 +30,10 @@ public class StockController {
         stockStartService.startCalc1();
         return true;
     }
+
+    @GetMapping("/smallInterval")
+    public Boolean smallInterval() throws ExecutionException, InterruptedException {
+        stockStartService.smallInterval();
+        return true;
+    }
 }

@@ -16,30 +16,30 @@ public class StockStrategy {
     /**
      * 上影线下限
      */
-    public BigDecimal upShadowLowLimit;
+    private BigDecimal upShadowLowLimit;
 
     /**
      * 上影线上线
      */
-    public BigDecimal upShadowUpLimit;
+    private BigDecimal upShadowUpLimit;
 
     /**
      * 下影线 下限
      */
-    public BigDecimal lowShadowLowLimit;
+    private BigDecimal lowShadowLowLimit;
 
     /**
      * 下影线 上限
      */
-    public BigDecimal lowShadowUpLimit;
+    private BigDecimal lowShadowUpLimit;
 
     /**
      * 涨跌幅下限
      */
-    public BigDecimal pricePertLowLimit;
+    private BigDecimal pricePertLowLimit;
 
     /**
      * 涨跌幅上限
      */
-    public BigDecimal pricePertUpLimit;
+    private BigDecimal pricePertUpLimit;
 }

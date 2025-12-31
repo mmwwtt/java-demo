@@ -1,9 +1,13 @@
 package com.mmwwtt.stock.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.mmwwtt.demo.common.BaseEnum;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,12 +19,23 @@ public class StockCalcRes {
      * 主键id
      */
     @TableId(type = IdType.AUTO)
-    private Long calResId;
+    private Long calcResId;
 
     /**
      * 策略描述
      */
-    private String strategy;
+    private String type;
+
+    /**
+     * 策略描述
+     */
+    private String strategyDesc;
+
+    /**
+     * 策略描述
+     */
+    @TableField(exist = false)
+    private StockStrategy stockStrategy;
 
     /**
      * 胜率
@@ -41,4 +56,13 @@ public class StockCalcRes {
      * 创建日期
      */
     private LocalDateTime createDate;
+
+    @AllArgsConstructor
+    @Getter
+    public enum TypeEnum implements BaseEnum {
+        INTERVAL("0", "上下影线和涨跌幅区间计算胜率"),
+        ;
+        private final String code;
+        private final String desc;
+    }
 }

@@ -16,9 +16,9 @@ CREATE TABLE stock_t
 DROP TABLE IF EXISTS stock_Detail_t;
 CREATE TABLE stock_Detail_t
 (
-    stock_detail_Id        INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    stock_code             VARCHAR(64)   NOT NULL COMMENT '股票代码',
-    deal_date              VARCHAR(64)   NOT NULL COMMENT '交易日期',
+    stock_detail_Id        INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    stock_code             VARCHAR(64)    NOT NULL COMMENT '股票代码',
+    deal_date              VARCHAR(64)    NOT NULL COMMENT '交易日期',
     start_price            DECIMAL(30, 4) NOT NULL COMMENT '开盘价',
     high_price             DECIMAL(30, 4) NOT NULL COMMENT '最高价',
     low_price              DECIMAL(30, 4) NOT NULL COMMENT '最低价',
@@ -54,25 +54,47 @@ create index stock_code_deal_date on stock_detail_t (stock_code, deal_date);
 DROP TABLE IF EXISTS stock_calculation_result_t;
 CREATE TABLE stock_calculation_result_t
 (
-    calc_res_id int(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    strategy    VARCHAR(256) COMMENT '策略描述',
-    win_rate    DECIMAL(8, 4) COMMENT '预测后的平均涨幅',
-    all_cnt     int(11) COMMENT '符合条件的数据量',
-    perc_rate   DECIMAL(8, 4) COMMENT '百分比叠加后的结果',
-    create_date DATETIME NOT NULL COMMENT '创建日期'
+    calc_res_id   INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    type          VARCHAR(64) COMMENT '策略类型',
+    strategy_desc VARCHAR(256) COMMENT '策略描述',
+    win_rate      DECIMAL(8, 4) COMMENT '预测后的平均涨幅',
+    all_cnt       INT(11) COMMENT '符合条件的数据量',
+    perc_rate     DECIMAL(8, 4) COMMENT '百分比叠加后的结果',
+    create_date   DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '股票计算结果表';
 
 
-select count(*) from stock_t;
-select count(*) from stock_detail_t;
-select count(*) from stock_calculation_result_t;
+select count(*)
+from stock_t;
 
-select * from stock_t;
-select * from stock_detail_t;
-select * from stock_calculation_result_t;
+select count(*)
+from stock_detail_t;
+
+select count(*)
+from stock_calculation_result_t;
+
+select *
+from stock_t;
+
+select *
+from stock_detail_t;
+
+select *
+from stock_calculation_result_t;
 
 
 
-select * from stock_calculation_result_t
+select *
+from stock_calculation_result_t
 where create_date = (select max(create_date) from stock_calculation_result_t)
-order by win_rate desc, all_cnt desc
+and all_cnt > 10
+order by win_rate desc, all_cnt desc;
+
+
+select count(*)
+from stock_calculation_result_t
+where create_date = (select max(create_date) from stock_calculation_result_t);
+
+
+
+
