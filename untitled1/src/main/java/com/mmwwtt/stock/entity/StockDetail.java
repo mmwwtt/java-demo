@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
-
-import static com.mmwwtt.stock.common.CommonUtils.isEquals;
 
 @Data
 @TableName("stock_detail_t")
@@ -33,42 +33,42 @@ public class StockDetail {
     /**
      * 开盘价
      */
-    private Double startPrice;
+    private BigDecimal startPrice;
 
     /**
      * 最高价
      */
-    private Double highPrice;
+    private BigDecimal highPrice;
 
     /**
      * 最低价
      */
-    private Double lowPrice;
+    private BigDecimal lowPrice;
 
     /**
      * 收盘价
      */
-    private Double endPrice;
+    private BigDecimal endPrice;
 
     /**
      * 成交量
      */
-    private Double allDealQuantity;
+    private BigDecimal allDealQuantity;
 
     /**
      * 成交额
      */
-    private Double allDealPrice;
+    private BigDecimal allDealPrice;
 
     /**
      * 前收盘价
      */
-    private Double lastPrice;
+    private BigDecimal lastPrice;
 
     /**
      * 涨跌幅
      */
-    private Double pricePert;
+    private BigDecimal pricePert;
 
 
     // ------------- 新增：K线分析常用计算方法（适配后续判断逻辑）-------------
@@ -77,63 +77,63 @@ public class StockDetail {
     /**
      * 上影线长度
      */
-    public Double upShadowLen;
+    public BigDecimal upShadowLen;
 
     /**
      * 上影线站总长的百分比
      */
-    public Double upShadowPert;
+    public BigDecimal upShadowPert;
 
     /**
      * 下影线长度
      */
-    public Double lowShadowLen;
+    public BigDecimal lowShadowLen;
 
     /**
      * 下影线站总长的百分比
      */
-    public Double lowShadowPert;
+    public BigDecimal lowShadowPert;
 
     /**
      * 实体长度
      */
-    public Double entityLen;
+    public BigDecimal entityLen;
 
     /**
      * 实体占总长的百分比
      */
-    public Double entityPert;
+    public BigDecimal entityPert;
 
     /**
      * 总长
      */
-    public Double allLen;
+    public BigDecimal allLen;
 
 
     /**
      * 5日线
      */
-    public Double fiveDayLine;
+    public BigDecimal fiveDayLine;
 
     /**
      * 10日线
      */
-    public Double tenDayLine;
+    public BigDecimal tenDayLine;
 
     /**
      * 20日线
      */
-    public Double twentyDayLine;
+    public BigDecimal twentyDayLine;
 
     /**
      * 60日线
      */
-    public Double sixtyDayLine;
+    public BigDecimal sixtyDayLine;
 
     /**
      * 涨跌成交比
      */
-    public Double pertDivisionQuentity;
+    public BigDecimal pertDivisionQuentity;
 
     /**
      * 是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)
@@ -156,38 +156,50 @@ public class StockDetail {
     public Boolean isTenStar;
 
     public void calc() {
-        allLen = Math.abs(highPrice - lowPrice);
-        upShadowLen = highPrice - Math.max(startPrice, endPrice);
-        upShadowPert = allLen == 0 ? 0 : upShadowLen / allLen;
-        lowShadowLen = Math.min(startPrice, endPrice) - lowPrice;
-        lowShadowPert = allLen == 0 ? 0 : lowShadowLen / allLen;
-        entityLen = Math.abs(endPrice - startPrice);
-        entityPert = allLen == 0 ? 0 : entityLen / allLen;
-        isUp = endPrice > startPrice;
-        isDown = endPrice < startPrice;
-        isBalance = isEquals(endPrice, startPrice);
-        pertDivisionQuentity = allDealQuantity == 0 ? 0 : pricePert / allDealQuantity;
+        allLen = highPrice.subtract(lowPrice).abs();
+        upShadowLen = highPrice.subtract(startPrice.max(endPrice));
+        upShadowPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : upShadowLen.divide(allLen, 4, RoundingMode.HALF_UP);
+        lowShadowLen = startPrice.min(endPrice).subtract(lowPrice);
+        lowShadowPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : lowShadowLen.divide(allLen, 4, RoundingMode.HALF_UP);
+        entityLen = endPrice.subtract(startPrice).abs();
+        entityPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : entityLen.divide(allLen, 4, RoundingMode.HALF_UP);
+        isUp = endPrice.compareTo(startPrice) > 0;
+        isDown = endPrice.compareTo(startPrice) < 0;
+        isBalance = endPrice.compareTo(startPrice) == 0;
+        pertDivisionQuentity = allDealQuantity.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : pricePert.divide(allDealQuantity, 4, RoundingMode.HALF_UP);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
-        isTenStar = allLen != 0 && (entityLen / allLen) <= 0.05d;
+        isTenStar = allLen.compareTo(BigDecimal.ZERO) > 0 && entityLen.divide(allLen, 4, RoundingMode.HALF_UP).compareTo(new BigDecimal("0.05")) <= 0;
     }
 
     public static void calc(List<StockDetail> list) {
         for (int i = 0; i < list.size(); i++) {
             StockDetail cur = list.get(i);
             if (list.size() > i + 5) {
-                double fiveAverage = list.stream().skip(i).limit(5).mapToDouble(StockDetail::getEndPrice).average().orElse(0);
+                BigDecimal fiveAverage = list.stream().skip(i).limit(5)
+                        .map(StockDetail::getEndPrice)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);
                 cur.setFiveDayLine(fiveAverage);
             }
             if (list.size() > i + 10) {
-                double tenAverage = list.stream().skip(i).limit(10).mapToDouble(StockDetail::getEndPrice).average().orElse(0);
+                BigDecimal tenAverage = list.stream().skip(i).limit(10)
+                        .map(StockDetail::getEndPrice)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(10), 4, RoundingMode.HALF_UP);
                 cur.setTenDayLine(tenAverage);
             }
             if (list.size() > i + 20) {
-                double twentyAverage = list.stream().skip(i).limit(20).mapToDouble(StockDetail::getEndPrice).average().orElse(0);
+                BigDecimal twentyAverage = list.stream().skip(i).limit(20)
+                        .map(StockDetail::getEndPrice)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(20), 4, RoundingMode.HALF_UP);
                 cur.setTwentyDayLine(twentyAverage);
             }
             if (list.size() > i + 60) {
-                double sixtyAverage = list.stream().skip(i).limit(60).mapToDouble(StockDetail::getEndPrice).average().orElse(0);
+                BigDecimal sixtyAverage = list.stream().skip(i).limit(60)
+                        .map(StockDetail::getEndPrice)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(60), 4, RoundingMode.HALF_UP);
                 cur.setSixtyDayLine(sixtyAverage);
             }
         }

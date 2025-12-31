@@ -214,3 +214,11 @@ currentHashMap entrySet()  values()  都不是实时的， 在遍历时如果map
     @Transient   transient  @UnSerializeField的不同
     jdk代理  和cgXX代理   不能用idea查看cgLib动态代理生成的源码类
     AOp是什么代理类型
+
+如果有40万个线程，但是每个线程执行任务所需的时间很短，则可能大量时间消耗在上下文切换中，建议增加线程的颗粒度，一个线程中执行更多的逻辑，避免频繁切换上下文
+builder会执行set方法吗
+
+ MathContext mc = new MathContext(4, RoundingMode.HALF_UP);  bigDecimal 四舍五入
+
+ reduce(BigDecimal.ZERO, BigDecimal::add)
+  reduce( BigDecimal::add)  累加的区别

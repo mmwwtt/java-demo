@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,11 +24,11 @@ public class OneRes {
     /**
      * 第二天的涨幅
      */
-    private double pricePert;
+    private BigDecimal pricePert;
 
     public OneRes(StockDetail tomorrow) {
         this.pricePert = tomorrow.getPricePert();
-        this.setIsCorrect(tomorrow.getPricePert() > 0);
+        this.setIsCorrect(tomorrow.getPricePert().compareTo(BigDecimal.ZERO)>0);
         this.setDealDate(tomorrow.getDealDate());
     }
 }

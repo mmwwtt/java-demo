@@ -4,12 +4,11 @@ import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockDetailVO;
 import com.mmwwtt.stock.entity.StockVO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import org.mapstruct.*;
 import org.mapstruct.control.DeepClone;
 import org.mapstruct.factory.Mappers;
 
+import java.math.RoundingMode;
 import java.util.List;
 
 @Mapper(mappingControl = DeepClone.class)
@@ -24,8 +23,7 @@ public interface StockConverter {
             @Mapping(target = "endPrice", source = "stockDetailVO.c"),
             @Mapping(target = "allDealQuantity", source = "stockDetailVO.v"),
             @Mapping(target = "allDealPrice", source = "stockDetailVO.a"),
-            @Mapping(target = "lastPrice", source = "stockDetailVO.pc"),
-            @Mapping(target = "pricePert", expression = "java((stockDetailVO.getC()-stockDetailVO.getPc())/stockDetailVO.getPc())")
+            @Mapping(target = "lastPrice", source = "stockDetailVO.pc")
     })
     StockDetail convertToStockDetail(StockDetailVO stockDetailVO);
 
@@ -38,4 +36,16 @@ public interface StockConverter {
     Stock convertToStock(StockVO stock);
 
     List<Stock> convertToStock(List<StockVO> stockList);
+
+    @AfterMapping
+    default void convertBigDecimal(@MappingTarget StockDetail stockDetail) {
+        stockDetail.setPricePert(stockDetail.getEndPrice().subtract(stockDetail.getLastPrice()).divide(stockDetail.getLastPrice(),4, RoundingMode.HALF_UP));
+        stockDetail.setStartPrice(stockDetail.getStartPrice().setScale(4, RoundingMode.HALF_UP));
+        stockDetail.setHighPrice(stockDetail.getHighPrice().setScale(4, RoundingMode.HALF_UP));
+        stockDetail.setLowPrice(stockDetail.getLowPrice().setScale(4, RoundingMode.HALF_UP));
+        stockDetail.setEndPrice(stockDetail.getEndPrice().setScale(4, RoundingMode.HALF_UP));
+        stockDetail.setAllDealPrice(stockDetail.getAllDealQuantity().setScale(4, RoundingMode.HALF_UP));
+        stockDetail.setAllDealPrice(stockDetail.getAllDealPrice().setScale(4, RoundingMode.HALF_UP));
+        stockDetail.setLastPrice(stockDetail.getLastPrice().setScale(4, RoundingMode.HALF_UP));
+    }
 }

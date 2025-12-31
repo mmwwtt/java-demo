@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,12 +25,12 @@ public class StockCalcRes {
     /**
      * 胜率
      */
-    private Double winRate;
+    private BigDecimal winRate;
 
     /**
      * 预测后的平均涨幅
      */
-    private Double percRate;
+    private BigDecimal percRate;
 
     /**
      * 符合条件的数据量
