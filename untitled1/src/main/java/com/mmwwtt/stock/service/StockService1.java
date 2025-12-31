@@ -8,22 +8,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 啥也不做
+ * 十字星
  */
 @Service
-public class StockService0 implements StockService {
+public class StockService1 implements StockService {
 
 
     public List<OneRes> run(List<StockDetail> list){
         List<OneRes> res = new ArrayList<>();
         for(int i = 1; i <= list.size()-getDayNum();i++) {
+            StockDetail stockDetail = list.get(i);
+            if(!stockDetail.getIsTenStar()) {
+                continue;
+            }
             res.add(new OneRes(list.get(i - 1)));
         }
         return res;
     }
 
     public String getStrategy() {
-        return String.format("%s    %s",this.getClass().getSimpleName(), "啥也不做");
+        return String.format("%s    %s",this.getClass().getSimpleName(), "十字星");
     }
 
     public int getDayNum() {

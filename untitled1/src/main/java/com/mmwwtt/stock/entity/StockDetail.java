@@ -77,83 +77,83 @@ public class StockDetail {
     /**
      * 上影线长度
      */
-    public BigDecimal upShadowLen;
+    private BigDecimal upShadowLen;
 
     /**
      * 上影线站总长的百分比
      */
-    public BigDecimal upShadowPert;
+    private BigDecimal upShadowPert;
 
     /**
      * 下影线长度
      */
-    public BigDecimal lowShadowLen;
+    private BigDecimal lowShadowLen;
 
     /**
      * 下影线站总长的百分比
      */
-    public BigDecimal lowShadowPert;
+    private BigDecimal lowShadowPert;
 
     /**
      * 实体长度
      */
-    public BigDecimal entityLen;
+    private BigDecimal entityLen;
 
     /**
      * 实体占总长的百分比
      */
-    public BigDecimal entityPert;
+    private BigDecimal entityPert;
 
     /**
      * 总长
      */
-    public BigDecimal allLen;
+    private BigDecimal allLen;
 
 
     /**
      * 5日线
      */
-    public BigDecimal fiveDayLine;
+    private BigDecimal fiveDayLine;
 
     /**
      * 10日线
      */
-    public BigDecimal tenDayLine;
+    private BigDecimal tenDayLine;
 
     /**
      * 20日线
      */
-    public BigDecimal twentyDayLine;
+    private BigDecimal twentyDayLine;
 
     /**
      * 60日线
      */
-    public BigDecimal sixtyDayLine;
+    private BigDecimal sixtyDayLine;
 
     /**
      * 涨跌成交比
      */
-    public BigDecimal pertDivisionQuentity;
+    private BigDecimal pertDivisionQuentity;
 
     /**
      * 是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)
      */
-    public Boolean isUp;
+    private Boolean isUp;
 
     /**
      * 是否为阴线
      */
-    public Boolean isDown;
+    private Boolean isDown;
 
     /**
      * 开盘价是否等于收盘价
      */
-    public Boolean isBalance;
+    private Boolean isBalance;
 
     /**
      * 是否为十字星
      */
-    public Boolean isTenStar;
+    private Boolean isTenStar;
 
     public void calc() {
         allLen = highPrice.subtract(lowPrice).abs();

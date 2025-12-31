@@ -61,6 +61,7 @@ public class StockCalcRes {
     @Getter
     public enum TypeEnum implements BaseEnum {
         INTERVAL("0", "上下影线和涨跌幅区间计算胜率"),
+        DETAIL("1", "具体的策略"),
         ;
         private final String code;
         private final String desc;

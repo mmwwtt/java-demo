@@ -85,17 +85,15 @@ public class StockStartService {
                 long correctCount = allRes.stream().filter(OneRes::getIsCorrect).count();
                 BigDecimal percRate = allRes.stream().filter(OneRes::getIsCorrect).map(OneRes::getPricePert)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);
+                        .divide(new BigDecimal(allRes.size()), 4, RoundingMode.HALF_UP);
                 BigDecimal winRate = new BigDecimal(correctCount).divide(new BigDecimal(allRes.size()), 4, RoundingMode.HALF_UP);
-                if (winRate.compareTo(new BigDecimal("0.5")) < 0) {
-                    return;
-                }
                 StockCalcRes calcRes = new StockCalcRes();
                 calcRes.setStrategyDesc(stockService.getStrategy());
                 calcRes.setWinRate(winRate);
-                calcRes.setPercRate(percRate.divide(new BigDecimal(allRes.size()), 4, RoundingMode.HALF_UP));
+                calcRes.setPercRate(percRate);
                 calcRes.setCreateDate(dataTime);
                 calcRes.setAllCnt(allRes.size());
+                calcRes.setType(StockCalcRes.TypeEnum.DETAIL.getCode());
                 stockCalcResDao.insert(calcRes);
             });
         }
@@ -260,28 +258,6 @@ public class StockStartService {
         });
         return resList;
     }
-
-    public List<StockCalcRes> smallInterval() {
-        List<StockCalcRes> list = getNewCalcRes();
-        list.forEach(item -> item.setStockStrategy(JSON.toJavaObject(JSON.parseObject(item.getStrategyDesc()), StockStrategy.class)));
-        list.removeIf(res -> {
-            StockCalcRes stockCalcRes = list.stream()
-                    .filter(item -> !Objects.equals(item.getCalcResId(), res.getCalcResId()))
-                    .filter(item -> item.getWinRate().compareTo(res.getWinRate()) == 0)
-                    .filter(item -> Objects.equals(item.getAllCnt(), res.getAllCnt()))
-                    .filter(item -> item.getStockStrategy().getLowShadowLowLimit().compareTo(res.getStockStrategy().getLowShadowLowLimit()) >= 0)
-                    .filter(item -> item.getStockStrategy().getLowShadowUpLimit().compareTo(res.getStockStrategy().getLowShadowUpLimit()) <= 0)
-                    .filter(item -> item.getStockStrategy().getUpShadowLowLimit().compareTo(res.getStockStrategy().getUpShadowLowLimit()) >= 0)
-                    .filter(item -> item.getStockStrategy().getUpShadowUpLimit().compareTo(res.getStockStrategy().getUpShadowUpLimit()) <= 0)
-                    .filter(item -> item.getStockStrategy().getPricePertLowLimit().compareTo(res.getStockStrategy().getPricePertLowLimit()) >= 0)
-                    .filter(item -> item.getStockStrategy().getPricePertUpLimit().compareTo(res.getStockStrategy().getPricePertUpLimit()) <= 0)
-                    .findFirst().orElse(null);
-            return Objects.nonNull(stockCalcRes);
-        });
-        stockCalcResDao.insertOrUpdate(list);
-        return list;
-    }
-
 
 
     /**

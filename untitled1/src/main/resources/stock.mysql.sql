@@ -86,8 +86,16 @@ from stock_calculation_result_t;
 
 select *
 from stock_calculation_result_t
-where create_date = (select max(create_date) from stock_calculation_result_t)
+where create_date = (select max(create_date) from stock_calculation_result_t where type = '0')
+and type = 0
 and all_cnt > 10
+order by win_rate desc, all_cnt desc;
+
+
+select *
+from stock_calculation_result_t
+where  type = 1
+and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')
 order by win_rate desc, all_cnt desc;
 
 
