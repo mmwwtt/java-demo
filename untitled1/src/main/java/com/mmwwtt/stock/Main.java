@@ -126,6 +126,7 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        dataDetailCalc();
     }
 
 

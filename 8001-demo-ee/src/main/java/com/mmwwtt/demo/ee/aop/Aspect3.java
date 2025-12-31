@@ -6,11 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 自定义注解
+ * 注解3 通过注解来 AOP
  */
-// 定义注解的生命周期为运行时
 @Retention(RetentionPolicy.RUNTIME)
-// 定义注解只能应用于方法
 @Target(ElementType.METHOD)
 public @interface Aspect3 {
     String value() default "";
