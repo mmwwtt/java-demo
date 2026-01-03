@@ -1,17 +1,17 @@
 package com.mmwwtt.stock;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.StockConverter;
+import com.mmwwtt.stock.dao.StockCalcResDao;
 import com.mmwwtt.stock.dao.StockDao;
 import com.mmwwtt.stock.dao.StockDetailDao;
-import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StockDetailVO;
-import com.mmwwtt.stock.entity.StockVO;
+import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +22,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -51,6 +54,9 @@ public class Main {
 
 
     private RestTemplate restTemplate = new RestTemplate();
+
+    @Resource
+    private StockCalcResDao stockCalcResDao;
 
     @Test
     @DisplayName("调接口获取每日的股票数据")
@@ -213,5 +219,71 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+    }
+
+    @Test
+    @DisplayName("根据百分比区间预测明日会上涨的股票")
+    public void getStock() throws InterruptedException, ExecutionException {
+        QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
+        List<Stock> stockList = stockDao.selectList(queryWrapper);
+        //百分比策略
+        for (int i = 0; i < 4; i++) {
+            List<Stock> resList = new ArrayList<>();
+            QueryWrapper<StockCalcRes> calcWapper = new QueryWrapper<>();
+            calcWapper.apply(" create_date = (select max(create_date) from stock_calculation_result_t where type = '0')")
+                    .eq("type", StockCalcRes.TypeEnum.INTERVAL.getCode())
+                    .ge("all_cnt", 450)
+                    .ge("win_rate", 0.6 + i * 0.05)
+                    .le("win_rate", 0.65 + i * 0.05);
+            List<StockCalcRes> stockCalcResList = stockCalcResDao.selectList(calcWapper);
+            stockCalcResList.forEach(item -> item.setStockStrategy(
+                    JSON.toJavaObject(JSON.parseObject(item.getStrategyDesc()), StockStrategy.class)));
+
+
+            for (Stock stock : stockList) {
+                //30开头是创业板  68开头是科创版
+                if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68")) {
+                    return;
+                }
+                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+                detailWapper.eq("stock_code", stock.getCode())
+                        .last("limit 1")
+                        .orderByDesc("deal_date");
+                List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+                StockDetail stockDetail = stockDetails.stream().findFirst().orElse(null);
+                if (Objects.nonNull(stockDetail)) {
+                    boolean isOk = stockCalcResList.stream().anyMatch(calc -> {
+                        StockStrategy strategy = calc.getStockStrategy();
+                        return strategy.getLowShadowLowLimit().compareTo(stockDetail.getLowShadowPert()) <= 0
+                                && strategy.getLowShadowUpLimit().compareTo(stockDetail.getLowShadowPert()) >= 0
+                                && strategy.getUpShadowLowLimit().compareTo(stockDetail.getUpShadowPert()) <= 0
+                                && strategy.getUpShadowUpLimit().compareTo(stockDetail.getUpShadowPert()) >= 0
+                                && strategy.getPricePertLowLimit().compareTo(stockDetail.getPricePert()) <= 0
+                                && strategy.getPricePertUpLimit().compareTo(stockDetail.getPricePert()) >= 0;
+                    });
+                    if (isOk) {
+                        resList.add(stock);
+                    }
+                }
+
+            }
+            String filePath = "src/main/resources/file/test.txt";
+
+            File file = new File(filePath);
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+
+            try (FileOutputStream fos = new FileOutputStream(file, true)) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+                String nowDate = LocalDate.now().format(formatter);
+                fos.write(String.format("\n\n%s    win_rate:%3f  - %3f\n", nowDate, 0.6 + i * 0.05, 0.65 + i * 0.05).getBytes());
+                for (Stock item : resList) {
+                    String str = String.format("%s_%s\n", item.getCode(), item.getName());
+                    fos.write(str.getBytes());
+                }
+            } catch (IOException e) {
+            }
+        }
     }
 }

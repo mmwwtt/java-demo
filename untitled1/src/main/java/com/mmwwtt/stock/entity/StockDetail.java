@@ -1,6 +1,7 @@
 package com.mmwwtt.stock.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -154,6 +155,12 @@ public class StockDetail {
      * 是否为十字星
      */
     private Boolean isTenStar;
+
+    /**
+     * 是否被百分比策略过滤 true保留  false被过滤
+     */
+    @TableField(exist = false)
+    private Boolean isFilterPert;
 
     public void calc() {
         allLen = highPrice.subtract(lowPrice).abs();
