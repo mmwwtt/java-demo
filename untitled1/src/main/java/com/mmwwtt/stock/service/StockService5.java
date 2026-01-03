@@ -14,24 +14,21 @@ import java.util.List;
 @Service
 public class StockService5 implements StockService {
 
-    public List<OneRes> run(List<StockDetail> list){
+    public List<OneRes> run(List<StockDetail> list) {
         List<OneRes> res = new ArrayList<>();
-        for(int i = 1; i <= list.size()-getDayNum();i++) {
-            StockDetail before = list.get(i-1);
+        for (int i = 1; i <= list.size() - getDayNum(); i++) {
+            StockDetail before = list.get(i + 1);
             StockDetail stockDetail = list.get(i);
-            if(stockDetail.getAllDealQuantity().compareTo(before.getAllDealQuantity())>0) {
-                continue;
+            if (stockDetail.getAllDealQuantity().compareTo(before.getAllDealQuantity()) < 0
+                    && stockDetail.getPricePert().compareTo(BigDecimal.ZERO) < 0) {
+                res.add(new OneRes(list.get(i - 1)));
             }
-            if(stockDetail.getPricePert().compareTo(BigDecimal.ZERO) >0) {
-                continue;
-            }
-            res.add(new OneRes(list.get(i - 1)));
         }
         return res;
     }
 
     public String getStrategy() {
-        return String.format("%s    %s",this.getClass().getSimpleName(), "绿且缩量") ;
+        return String.format("%s    %s", this.getClass().getSimpleName(), "绿且缩量");
     }
 
     public int getDayNum() {

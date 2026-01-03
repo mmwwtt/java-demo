@@ -14,16 +14,16 @@ import java.util.List;
 public class StockService0 implements StockService {
 
 
-    public List<OneRes> run(List<StockDetail> list){
+    public List<OneRes> run(List<StockDetail> list) {
         List<OneRes> res = new ArrayList<>();
-        for(int i = 1; i <= list.size()-getDayNum();i++) {
+        for (int i = 1; i <= list.size() - getDayNum(); i++) {
             res.add(new OneRes(list.get(i - 1)));
         }
         return res;
     }
 
     public String getStrategy() {
-        return String.format("%s    %s",this.getClass().getSimpleName(), "啥也不做");
+        return String.format("%s    %s", this.getClass().getSimpleName(), "啥也不做");
     }
 
     public int getDayNum() {

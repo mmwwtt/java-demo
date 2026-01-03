@@ -166,7 +166,7 @@ public class StockDetail {
         isUp = endPrice.compareTo(startPrice) > 0;
         isDown = endPrice.compareTo(startPrice) < 0;
         isBalance = endPrice.compareTo(startPrice) == 0;
-        pertDivisionQuentity = allDealQuantity.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : pricePert.divide(allDealQuantity, 4, RoundingMode.HALF_UP);
+        pertDivisionQuentity = allDealQuantity.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : pricePert.divide(allDealQuantity, 20, RoundingMode.HALF_UP);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
         isTenStar = allLen.compareTo(BigDecimal.ZERO) > 0 && entityLen.divide(allLen, 4, RoundingMode.HALF_UP).compareTo(new BigDecimal("0.05")) <= 0;
     }

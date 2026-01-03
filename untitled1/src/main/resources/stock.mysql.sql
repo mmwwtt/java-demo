@@ -38,7 +38,7 @@ CREATE TABLE stock_Detail_t
     ten_day_line           DECIMAL(30, 4) COMMENT '10日线',
     twenty_day_line        DECIMAL(30, 4) COMMENT '20日线',
     sixty_day_line         DECIMAL(30, 4) COMMENT '60日线',
-    pert_division_quentity DECIMAL(30, 4) COMMENT '涨跌成交比',
+    pert_division_quentity DECIMAL(30, 20) COMMENT '涨跌成交比',
     is_up                  BOOLEAN COMMENT '是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)',
     is_down                BOOLEAN COMMENT '是否为阴线',
     is_balance             BOOLEAN COMMENT '开盘价是否等于收盘价',

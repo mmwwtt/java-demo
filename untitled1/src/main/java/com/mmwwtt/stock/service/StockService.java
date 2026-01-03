@@ -16,5 +16,6 @@ public interface StockService {
     List<OneRes> run(List<StockDetail> list);
 
     String getStrategy();
+
     int getDayNum();
 }
