@@ -8,18 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 成交量比前一天大
+ * 当天是红
  */
 @Service
-public class StockService2 implements StockService {
+public class 当天是红 implements StockService {
 
 
     public List<OneRes> run(List<StockDetail> list) {
         List<OneRes> res = new ArrayList<>();
         for (int i = 1; i <= list.size() - getDayNum(); i++) {
-            StockDetail before = list.get(i + 1);
-            StockDetail stockDetail = list.get(i);
-            if (stockDetail.getDealQuantity().compareTo(before.getDealQuantity()) > 0) {
+            StockDetail t0 = list.get(i);
+            if (t0.getIsUp()) {
                 res.add(new OneRes(list.get(i - 1)));
             }
         }
@@ -27,7 +26,7 @@ public class StockService2 implements StockService {
     }
 
     public String getStrategy() {
-        return String.format("%s    %s", this.getClass().getSimpleName(), "成交量比前一天大");
+        return String.format("%s", this.getClass().getSimpleName());
     }
 
     public int getDayNum() {

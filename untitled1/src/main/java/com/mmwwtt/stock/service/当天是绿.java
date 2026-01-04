@@ -8,21 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 红三兵
+ * 当天是绿
  */
 @Service
-public class 红三兵 implements StockService {
+public class 当天是绿 implements StockService {
 
 
     public List<OneRes> run(List<StockDetail> list) {
         List<OneRes> res = new ArrayList<>();
-        for (int i = 1; i < list.size() - getDayNum(); i++) {
+        for (int i = 1; i <= list.size() - getDayNum(); i++) {
             StockDetail t0 = list.get(i);
-            StockDetail t1 = list.get(i + 1);
-            StockDetail t2 = list.get(i + 2);
-            if (t0.getIsUp() && t1.getIsUp() && t2.getIsUp()
-                    && t1.getEntityLen().compareTo(t2.getEntityLen()) > 0
-                    && t0.getEntityLen().compareTo(t1.getEntityLen()) > 0) {
+            if (t0.getIsDown()) {
                 res.add(new OneRes(list.get(i - 1)));
             }
         }

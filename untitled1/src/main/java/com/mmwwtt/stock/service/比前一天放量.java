@@ -8,17 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 十字星
+ * 成交量比前一天大
  */
 @Service
-public class StockService1 implements StockService {
+public class 比前一天放量 implements StockService {
 
 
     public List<OneRes> run(List<StockDetail> list) {
         List<OneRes> res = new ArrayList<>();
         for (int i = 1; i <= list.size() - getDayNum(); i++) {
-            StockDetail stockDetail = list.get(i);
-            if (stockDetail.getIsTenStar()) {
+            StockDetail t1 = list.get(i + 1);
+            StockDetail t0 = list.get(i);
+            if (t0.getDealQuantity().compareTo(t1.getDealQuantity()) > 0) {
                 res.add(new OneRes(list.get(i - 1)));
             }
         }
@@ -26,7 +27,7 @@ public class StockService1 implements StockService {
     }
 
     public String getStrategy() {
-        return String.format("%s    %s", this.getClass().getSimpleName(), "十字星");
+        return String.format("%s", this.getClass().getSimpleName());
     }
 
     public int getDayNum() {

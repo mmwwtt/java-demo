@@ -102,13 +102,14 @@ public class Main {
             map1.put(STOCK_CODE, stock.getCode());
             map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
             map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
-            map1.put(START_DATA, "20250301");
+            map1.put(START_DATA, "20250101");
             map1.put(END_DATA, nowDate);
-            map1.put(MAX_SIZE, "300");
+            map1.put(MAX_SIZE, "350");
             ResponseEntity<List<StockDetailVO>> stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
                     null, new ParameterizedTypeReference<>() {
                     }, map1);
             List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
+                    .filter(item -> item.getSf()==0)
                     .peek(item -> item.setStockCode(stock.getCode()))
                     .collect(Collectors.toList());
             List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
@@ -169,6 +170,7 @@ public class Main {
                         null, new ParameterizedTypeReference<>() {
                         }, map1);
                 List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
+                        .filter(item -> item.getSf()==0)
                         .peek(item -> item.setStockCode(stock.getCode()))
                         .collect(Collectors.toList());
                 List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);

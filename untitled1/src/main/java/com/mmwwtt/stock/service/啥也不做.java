@@ -11,7 +11,7 @@ import java.util.List;
  * 啥也不做
  */
 @Service
-public class StockService0 implements StockService {
+public class 啥也不做 implements StockService {
 
 
     public List<OneRes> run(List<StockDetail> list) {
@@ -23,7 +23,7 @@ public class StockService0 implements StockService {
     }
 
     public String getStrategy() {
-        return String.format("%s    %s", this.getClass().getSimpleName(), "啥也不做");
+        return String.format("%s", this.getClass().getSimpleName());
     }
 
     public int getDayNum() {

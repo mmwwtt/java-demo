@@ -1,7 +1,8 @@
-package com.mmwwtt.stock.service;
+package com.mmwwtt.stock.service.蜡烛图;
 
 import com.mmwwtt.stock.entity.OneRes;
 import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.service.StockService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
