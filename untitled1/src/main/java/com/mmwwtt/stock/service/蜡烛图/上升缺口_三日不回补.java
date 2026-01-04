@@ -26,14 +26,14 @@ public class 上升缺口_三日不回补 implements StockService {
 
             //  缺口日： 最低点比前一天的最高点高，形成缺口
             //  3日不会回补， 随后3天都不破缺口日前一天的最低点
-            boolean gapUp = t3.getStartPrice().compareTo(t4.getHighPrice()) > 0
-                    &&t2.getLowPrice().compareTo(t4.getHighPrice())>0
-                    &&t1.getLowPrice().compareTo(t4.getHighPrice())>0
-                    &&t0.getLowPrice().compareTo(t4.getHighPrice())>0;
+            boolean gapUp = t3.getLowPrice().compareTo(t4.getHighPrice()) > 0
+                    && t2.getLowPrice().compareTo(t4.getHighPrice()) > 0
+                    && t1.getLowPrice().compareTo(t4.getHighPrice()) > 0
+                    && t0.getLowPrice().compareTo(t4.getHighPrice()) > 0;
 
             //  缺口日放量 ≥ 20 日均量
-            boolean volBreak = t3.getDealQuantity().compareTo(t3.getTwentyDayLine()) >= 0;
-            if ( gapUp && volBreak) {
+            boolean volBreak = t3.getDealQuantity().compareTo(t3.getFiveDayDealQuantity()) >= 0;
+            if (gapUp && volBreak) {
                 res.add(new OneRes(list.get(i - 1)));
             }
         }
@@ -45,6 +45,6 @@ public class 上升缺口_三日不回补 implements StockService {
     }
 
     public int getDayNum() {
-        return 25;
+        return 61;
     }
 }

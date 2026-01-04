@@ -393,7 +393,7 @@ public class StockStartService {
         }
         for (int i = 0; i < continueDays; i++) {
             //比前一天小则直接  返回false
-            if (list.get(curIdx + i).getPertDivisionQuentity().compareTo(list.get(curIdx + i + 1).getPertDivisionQuentity()) < 0) {
+            if (list.get(curIdx + i).getPertDivisionQuantity().compareTo(list.get(curIdx + i + 1).getPertDivisionQuantity()) < 0) {
                 return false;
             }
         }

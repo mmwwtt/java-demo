@@ -192,7 +192,7 @@ public class StockDetail {
     /**
      * 涨跌成交比
      */
-    private BigDecimal pertDivisionQuentity;
+    private BigDecimal pertDivisionQuantity;
 
     /**
      * 是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)
@@ -231,7 +231,7 @@ public class StockDetail {
         isUp = endPrice.compareTo(lastPrice) > 0;
         isDown = endPrice.compareTo(startPrice) < 0;
         isBalance = endPrice.compareTo(startPrice) == 0;
-        pertDivisionQuentity = dealQuantity.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 20, RoundingMode.HALF_UP);
+        pertDivisionQuantity = dealQuantity.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 20, RoundingMode.HALF_UP);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
         isTenStar = allLen.compareTo(BigDecimal.ZERO) > 0 && entityPert.compareTo(new BigDecimal("0.05")) <= 0;
     }

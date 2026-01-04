@@ -11,6 +11,7 @@ import com.mmwwtt.stock.dao.StockDetailDao;
 import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
+import com.mmwwtt.stock.service.StockService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +58,9 @@ public class Main {
 
     @Resource
     private StockCalcResDao stockCalcResDao;
+
+    @Resource
+    private Map<String, StockService> strategyMap;
 
     @Test
     @DisplayName("调接口获取每日的股票数据")
@@ -109,7 +113,7 @@ public class Main {
                     null, new ParameterizedTypeReference<>() {
                     }, map1);
             List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
-                    .filter(item -> item.getSf()==0)
+                    .filter(item -> item.getSf() == 0)
                     .peek(item -> item.setStockCode(stock.getCode()))
                     .collect(Collectors.toList());
             List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
@@ -170,7 +174,7 @@ public class Main {
                         null, new ParameterizedTypeReference<>() {
                         }, map1);
                 List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
-                        .filter(item -> item.getSf()==0)
+                        .filter(item -> item.getSf() == 0)
                         .peek(item -> item.setStockCode(stock.getCode()))
                         .collect(Collectors.toList());
                 List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
@@ -215,7 +219,11 @@ public class Main {
                 List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
                 stockDetails.forEach(item -> item.calc());
                 StockDetail.calc(stockDetails);
-                stockDetailDao.updateById(stockDetails);
+                try {
+                    stockDetailDao.updateById(stockDetails);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }, pool);
             futures.add(future);
         }
@@ -287,5 +295,71 @@ public class Main {
             } catch (IOException e) {
             }
         }
+    }
+
+    @Test
+    @DisplayName("根据上升缺口_三日不回补预测股票")
+    public void getStock1() throws InterruptedException, ExecutionException {
+        QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
+        List<Stock> stockList = stockDao.selectList(queryWrapper);
+        List<Stock> resList = new ArrayList<>();
+
+        String dealData = "2025-12-31 00:00:00";
+        for (Stock stock : stockList) {
+            //30开头是创业板  68开头是科创版
+            if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68")) {
+                return;
+            }
+            QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+            detailWapper.eq("stock_code", stock.getCode())
+                    .last("limit 50")
+                    .orderByDesc("deal_date");
+            List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+            if (stockDetails.size() < 10) {
+                continue;
+            }
+            StockDetail t0 = stockDetails.get(0);
+            StockDetail t1 = stockDetails.get(1);
+            StockDetail t2 = stockDetails.get(2);
+            StockDetail t3 = stockDetails.get(3);
+            StockDetail t4 = stockDetails.get(4);
+
+            //  缺口日： 最低点比前一天的最高点高，形成缺口
+            //  3日不会回补， 随后3天都不破缺口日前一天的最低点
+            boolean gapUp = t3.getLowPrice().compareTo(t4.getHighPrice()) > 0
+                    && t2.getLowPrice().compareTo(t4.getHighPrice()) > 0
+                    && t1.getLowPrice().compareTo(t4.getHighPrice()) > 0
+                    && t0.getLowPrice().compareTo(t4.getHighPrice()) > 0;
+
+            //  缺口日放量 ≥ 20 日均量
+
+            boolean volBreak = t3.getDealQuantity().compareTo(t3.getFiveDayDealQuantity()) >= 0;
+            if (gapUp && volBreak
+                    && t0.getFiveDayLine().compareTo(t0.getTwentyDayLine()) > 0
+                    && t0.getPertDivisionQuantity().compareTo(t1.getPertDivisionQuantity()) > 0
+                    && t0.getDealQuantity().compareTo(t1.getDealQuantity()) < 0
+                    && t0.getIsUp() && t1.getIsUp()) {
+                resList.add(stock);
+            }
+        }
+
+        String filePath = "src/main/resources/file/test.txt";
+
+        File file = new File(filePath);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        try (FileOutputStream fos = new FileOutputStream(file, true)) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+            String nowDate = LocalDate.now().format(formatter);
+            fos.write(String.format("\n\n%s\n", nowDate).getBytes());
+            for (Stock item : resList) {
+                String str = String.format("%s_%s\n", item.getCode(), item.getName());
+                fos.write(str.getBytes());
+            }
+        } catch (IOException e) {
+        }
+
     }
 }

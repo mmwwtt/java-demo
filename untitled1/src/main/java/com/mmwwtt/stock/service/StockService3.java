@@ -19,7 +19,7 @@ public class StockService3 implements StockService {
         for (int i = 1; i <= list.size() - getDayNum(); i++) {
             StockDetail before = list.get(i + 1);
             StockDetail stockDetail = list.get(i);
-            if (stockDetail.getPertDivisionQuentity().compareTo(before.getPertDivisionQuentity()) > 0) {
+            if (stockDetail.getPertDivisionQuantity().compareTo(before.getPertDivisionQuantity()) > 0) {
                 res.add(new OneRes(list.get(i - 1)));
             }
         }
