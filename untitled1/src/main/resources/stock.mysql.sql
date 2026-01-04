@@ -16,33 +16,45 @@ CREATE TABLE stock_t
 DROP TABLE IF EXISTS stock_Detail_t;
 CREATE TABLE stock_Detail_t
 (
-    stock_detail_Id        INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    stock_code             VARCHAR(64)    NOT NULL COMMENT '股票代码',
-    deal_date              VARCHAR(64)    NOT NULL COMMENT '交易日期',
-    start_price            DECIMAL(30, 4) NOT NULL COMMENT '开盘价',
-    high_price             DECIMAL(30, 4) NOT NULL COMMENT '最高价',
-    low_price              DECIMAL(30, 4) NOT NULL COMMENT '最低价',
-    end_price              DECIMAL(30, 4) NOT NULL COMMENT '收盘价',
-    all_deal_quantity      DECIMAL(30, 4) NOT NULL COMMENT '成交量',
-    all_deal_price         DECIMAL(30, 4) NOT NULL COMMENT '成交额',
-    last_price             DECIMAL(30, 4) NOT NULL COMMENT '前收盘价',
-    price_pert             DECIMAL(30, 4) NOT NULL COMMENT '涨跌幅',
-    up_shadow_len          DECIMAL(30, 4) COMMENT '上影线长度',
-    up_shadow_pert         DECIMAL(30, 4) COMMENT '上影线站总长的百分比',
-    low_shadow_len         DECIMAL(30, 4) COMMENT '下影线长度',
-    low_shadow_pert        DECIMAL(30, 4) COMMENT '下影线站总长的百分比',
-    entity_len             DECIMAL(30, 4) COMMENT '实体长度',
-    entity_pert            DECIMAL(30, 4) COMMENT '实体占总长的百分比',
-    all_len                DECIMAL(30, 4) COMMENT '总长',
-    five_day_line          DECIMAL(30, 4) COMMENT '5日线',
-    ten_day_line           DECIMAL(30, 4) COMMENT '10日线',
-    twenty_day_line        DECIMAL(30, 4) COMMENT '20日线',
-    sixty_day_line         DECIMAL(30, 4) COMMENT '60日线',
-    pert_division_quentity DECIMAL(30, 20) COMMENT '涨跌成交比',
-    is_up                  BOOLEAN COMMENT '是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)',
-    is_down                BOOLEAN COMMENT '是否为阴线',
-    is_balance             BOOLEAN COMMENT '开盘价是否等于收盘价',
-    is_ten_star            BOOLEAN COMMENT '是否为十字星'
+    stock_detail_Id         INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    stock_code              VARCHAR(64)    NOT NULL COMMENT '股票代码',
+    deal_date               VARCHAR(64)    NOT NULL COMMENT '交易日期',
+    start_price             decimal(10, 4) NOT NULL COMMENT '开盘价',
+    high_price              decimal(10, 4) NOT NULL COMMENT '最高价',
+    low_price               decimal(10, 4) NOT NULL COMMENT '最低价',
+    end_price               decimal(10, 4) NOT NULL COMMENT '收盘价',
+    deal_quantity           decimal(20, 4) NOT NULL COMMENT '成交量',
+    deal_price              decimal(20, 4) NOT NULL COMMENT '成交额',
+    last_price              decimal(10, 4) NOT NULL COMMENT '前收盘价',
+    price_pert              decimal(10, 4) NOT NULL COMMENT '涨跌幅',
+    up_shadow_len           decimal(10, 4) COMMENT '上影线长度',
+    up_shadow_pert          decimal(10, 4) COMMENT '上影线站总长的百分比',
+    low_shadow_len          decimal(10, 4) COMMENT '下影线长度',
+    low_shadow_pert         decimal(10, 4) COMMENT '下影线站总长的百分比',
+    entity_len              decimal(10, 4) COMMENT '实体长度',
+    entity_pert             decimal(10, 4) COMMENT '实体占总长的百分比',
+    all_len                 decimal(10, 4) COMMENT '总长',
+    five_day_line           decimal(10, 4) COMMENT '5日线',
+    five_day_high           decimal(10, 4) COMMENT '5日最高',
+    five_day_low            decimal(10, 4) COMMENT '5日最低',
+    five_day_deal_uantity   decimal(10, 4) COMMENT '5日均量',
+    ten_day_line            decimal(10, 4) COMMENT '10日线',
+    ten_day_high            decimal(10, 4) COMMENT '10日最高',
+    ten_day_low             decimal(10, 4) COMMENT '10日最低',
+    ten_day_deal_uantity    decimal(10, 4) COMMENT '10日均量',
+    twenty_day_line         decimal(10, 4) COMMENT '20日线',
+    twenty_day_high         decimal(10, 4) COMMENT '20日最高',
+    twenty_day_low          decimal(10, 4) COMMENT '20日最低',
+    twenty_day_deal_uantity decimal(10, 4) COMMENT '20日均量',
+    sixty_day_line          decimal(10, 4) COMMENT '60日线',
+    sixty_day_high          decimal(10, 4) COMMENT '60日最高',
+    sixty_day_low           decimal(10, 4) COMMENT '60日最低',
+    sixty_day_deal_uantity  decimal(10, 4) COMMENT '60日均量',
+    pert_division_quentity  decimal(20, 15) COMMENT '涨跌成交比',
+    is_up                   boolean COMMENT '是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)',
+    is_down                 boolean COMMENT '是否为阴线',
+    is_balance              boolean COMMENT '开盘价是否等于收盘价',
+    is_ten_star             boolean COMMENT '是否为十字星'
 ) COMMENT '股票详情表';
 
 create index stock_code on stock_detail_t (stock_code);
@@ -87,16 +99,16 @@ from stock_calculation_result_t;
 select *
 from stock_calculation_result_t
 where create_date = (select max(create_date) from stock_calculation_result_t where type = '0')
-and type = 0
-and all_cnt > 300
-and win_rate>0.6
+  and type = 0
+  and all_cnt > 300
+  and win_rate > 0.6
 order by win_rate desc, all_cnt desc;
 
 
 select *
 from stock_calculation_result_t
-where  type = 1
-and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')
+where type = 1
+  and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')
 order by win_rate desc, all_cnt desc;
 
 

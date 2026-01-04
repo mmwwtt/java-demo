@@ -220,10 +220,6 @@ builder会执行set方法吗
 
  MathContext mc = new MathContext(4, RoundingMode.HALF_UP);  bigDecimal 四舍五入
 
- reduce(BigDecimal.ZERO, BigDecimal::add)
-  reduce( BigDecimal::add)  累加的区别
+
 
   mybatis之前没id字段， save后，实体中id会存在吗，还是要重新查询一遍    (会存在，mybatis将id赋给了对象)
-
-  @JsonFormat(shape = JsonFormat.Shape.String)
-  Long转String给前端， 避免精度丢失

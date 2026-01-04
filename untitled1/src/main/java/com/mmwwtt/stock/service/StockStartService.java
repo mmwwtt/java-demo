@@ -43,23 +43,21 @@ public class StockStartService {
     private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
 
     private RestTemplate restTemplate = new RestTemplate();
-    private static int cnt =0;
     /**
      * 开始计算
      */
     public void startCalc() throws ExecutionException, InterruptedException {
 
         //百分比策略
-        QueryWrapper<StockCalcRes> calcWapper = new QueryWrapper<>();
-        calcWapper.apply(" create_date = (select max(create_date) from stock_calculation_result_t where type = '0')")
-                .eq("type", StockCalcRes.TypeEnum.INTERVAL.getCode())
-                .gt("all_cnt", 50)
-                .gt("win_rate", 0.6);
-        List<StockCalcRes> stockCalcResList = stockCalcResDao.selectList(calcWapper);
-        stockCalcResList.forEach(item -> item.setStockStrategy(
-                JSON.toJavaObject(JSON.parseObject(item.getStrategyDesc()), StockStrategy.class)));
+//        QueryWrapper<StockCalcRes> calcWapper = new QueryWrapper<>();
+//        calcWapper.apply(" create_date = (select max(create_date) from stock_calculation_result_t where type = '0')")
+//                .eq("type", StockCalcRes.TypeEnum.INTERVAL.getCode())
+//                .gt("all_cnt", 50)
+//                .gt("win_rate", 0.6);
+//        List<StockCalcRes> stockCalcResList = stockCalcResDao.selectList(calcWapper);
+//        stockCalcResList.forEach(item -> item.setStockStrategy(
+//                JSON.toJavaObject(JSON.parseObject(item.getStrategyDesc()), StockStrategy.class)));
 
-        cnt = 0;
         QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
         List<Stock> stockList = stockDao.selectList(queryWrapper);
         Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>();
@@ -76,21 +74,20 @@ public class StockStartService {
                     detailWapper.eq("stock_code", stock.getCode());
                     detailWapper.orderByDesc("deal_date");
                     List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
-                    stockDetails.forEach(item -> {
-                        boolean isOk = stockCalcResList.stream().anyMatch(calc -> {
-                            StockStrategy strategy = calc.getStockStrategy();
-                            return strategy.getLowShadowLowLimit().compareTo(item.getLowShadowPert()) <= 0
-                                    && strategy.getLowShadowUpLimit().compareTo(item.getLowShadowPert()) >= 0
-                                    && strategy.getUpShadowLowLimit().compareTo(item.getUpShadowPert()) <= 0
-                                    && strategy.getUpShadowUpLimit().compareTo(item.getUpShadowPert()) >= 0
-                                    && strategy.getPricePertLowLimit().compareTo(item.getPricePert()) <= 0
-                                    && strategy.getPricePertUpLimit().compareTo(item.getPricePert()) >= 0;
-                        });
-                        item.setIsFilterPert(isOk);
-                        if (isOk){
-                            cnt++;
-                        }
-                    });
+//                    stockDetails.forEach(item -> {
+//                        boolean isOk = stockCalcResList.stream().anyMatch(calc -> {
+//                            StockStrategy strategy = calc.getStockStrategy();
+//                            return strategy.getLowShadowLowLimit().compareTo(item.getLowShadowPert()) <= 0
+//                                    && strategy.getLowShadowUpLimit().compareTo(item.getLowShadowPert()) >= 0
+//                                    && strategy.getUpShadowLowLimit().compareTo(item.getUpShadowPert()) <= 0
+//                                    && strategy.getUpShadowUpLimit().compareTo(item.getUpShadowPert()) >= 0
+//                                    && strategy.getPricePertLowLimit().compareTo(item.getPricePert()) <= 0
+//                                    && strategy.getPricePertUpLimit().compareTo(item.getPricePert()) >= 0;
+//                        });
+//                        item.setIsFilterPert(isOk);
+//                        if (isOk){
+//                        }
+//                    });
                     codeToDetailMap.put(stock.getCode(), stockDetails);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -369,12 +366,12 @@ public class StockStartService {
         for (int i = 0; i < continueDays; i++) {
             if (Objects.equals(enumm, ModeEnum.MORE)) {
                 //比前一天小则返回false
-                if (list.get(curIdx + i).getAllDealQuantity().compareTo(list.get(curIdx + i + 1).getAllDealQuantity()) < 0) {
+                if (list.get(curIdx + i).getDealQuantity().compareTo(list.get(curIdx + i + 1).getDealQuantity()) < 0) {
                     return false;
                 }
             } else {
                 //比前一天大则返回false
-                if (list.get(curIdx + i).getAllDealQuantity().compareTo(list.get(curIdx + i + 1).getAllDealQuantity()) > 0) {
+                if (list.get(curIdx + i).getDealQuantity().compareTo(list.get(curIdx + i + 1).getDealQuantity()) > 0) {
                     return false;
                 }
             }

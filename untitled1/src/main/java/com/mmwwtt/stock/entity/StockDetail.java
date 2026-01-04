@@ -54,12 +54,12 @@ public class StockDetail {
     /**
      * 成交量
      */
-    private BigDecimal allDealQuantity;
+    private BigDecimal dealQuantity;
 
     /**
      * 成交额
      */
-    private BigDecimal allDealPrice;
+    private BigDecimal dealPrice;
 
     /**
      * 前收盘价
@@ -110,11 +110,25 @@ public class StockDetail {
      */
     private BigDecimal allLen;
 
-
     /**
      * 5日线
      */
     private BigDecimal fiveDayLine;
+
+    /**
+     * 5日最高
+     */
+    private BigDecimal fiveDayHigh;
+
+    /**
+     * 5日最低
+     */
+    private BigDecimal fiveDayLow;
+
+    /**
+     * 5日均量
+     */
+    private BigDecimal fiveDayDealQuantity;
 
     /**
      * 10日线
@@ -122,14 +136,58 @@ public class StockDetail {
     private BigDecimal tenDayLine;
 
     /**
+     * 10日最高
+     */
+    private BigDecimal tenDayHigh;
+
+    /**
+     * 10日最低
+     */
+    private BigDecimal tenDayLow;
+    /**
+     * 10日均量
+     */
+    private BigDecimal tenDayDealQuantity;
+
+    /**
      * 20日线
      */
     private BigDecimal twentyDayLine;
 
     /**
+     * 20日最高
+     */
+    private BigDecimal twentyDayHigh;
+
+    /**
+     * 20日最低
+     */
+    private BigDecimal twentyDayLow;
+
+    /**
+     * 20日均量
+     */
+    private BigDecimal twentyDayDealQuantity;
+
+    /**
      * 60日线
      */
     private BigDecimal sixtyDayLine;
+
+    /**
+     * 60日最高
+     */
+    private BigDecimal sixtyDayHigh;
+
+    /**
+     * 60日最低
+     */
+    private BigDecimal sixtyDayLow;
+
+    /**
+     * 60日均量
+     */
+    private BigDecimal sixtyDayDealQuantity;
 
     /**
      * 涨跌成交比
@@ -152,7 +210,7 @@ public class StockDetail {
     private Boolean isBalance;
 
     /**
-     * 是否为十字星
+     * 是否为十字星(英文名 doji)
      */
     private Boolean isTenStar;
 
@@ -164,50 +222,112 @@ public class StockDetail {
 
     public void calc() {
         allLen = highPrice.subtract(lowPrice).abs();
-        upShadowLen = highPrice.subtract(startPrice.max(endPrice));
+        upShadowLen = highPrice.subtract(startPrice.max(endPrice)).abs();
         upShadowPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : upShadowLen.divide(allLen, 4, RoundingMode.HALF_UP);
-        lowShadowLen = startPrice.min(endPrice).subtract(lowPrice);
+        lowShadowLen = startPrice.min(endPrice).subtract(lowPrice).abs();
         lowShadowPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : lowShadowLen.divide(allLen, 4, RoundingMode.HALF_UP);
         entityLen = endPrice.subtract(startPrice).abs();
         entityPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : entityLen.divide(allLen, 4, RoundingMode.HALF_UP);
-        isUp = endPrice.compareTo(startPrice) > 0;
+        isUp = endPrice.compareTo(lastPrice) > 0;
         isDown = endPrice.compareTo(startPrice) < 0;
         isBalance = endPrice.compareTo(startPrice) == 0;
-        pertDivisionQuentity = allDealQuantity.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : pricePert.divide(allDealQuantity, 20, RoundingMode.HALF_UP);
+        pertDivisionQuentity = dealQuantity.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 20, RoundingMode.HALF_UP);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
-        isTenStar = allLen.compareTo(BigDecimal.ZERO) > 0 && entityLen.divide(allLen, 4, RoundingMode.HALF_UP).compareTo(new BigDecimal("0.05")) <= 0;
+        isTenStar = allLen.compareTo(BigDecimal.ZERO) > 0 && entityPert.compareTo(new BigDecimal("0.05")) <= 0;
     }
 
     public static void calc(List<StockDetail> list) {
         for (int i = 0; i < list.size(); i++) {
             StockDetail cur = list.get(i);
             if (list.size() > i + 5) {
-                BigDecimal fiveAverage = list.stream().skip(i).limit(5)
+                List<StockDetail> fiveList = list.stream().skip(i).limit(5).toList();
+                BigDecimal fiveAverage = fiveList.stream()
                         .map(StockDetail::getEndPrice)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);
                 cur.setFiveDayLine(fiveAverage);
+
+                BigDecimal fiveDayHigh = fiveList.stream().map(StockDetail::getHighPrice).max(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
+                cur.setFiveDayHigh(fiveDayHigh);
+
+                BigDecimal fiveDayLow = fiveList.stream().map(StockDetail::getLowPrice).min(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
+                cur.setFiveDayLow(fiveDayLow);
+
+                BigDecimal fiveDayDealQuantity = fiveList.stream()
+                        .map(StockDetail::getDealQuantity)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);;
+                cur.setFiveDayDealQuantity(fiveDayDealQuantity);
             }
             if (list.size() > i + 10) {
-                BigDecimal tenAverage = list.stream().skip(i).limit(10)
+                List<StockDetail> tenList = list.stream().skip(i).limit(10).toList();
+                BigDecimal tenAverage = tenList.stream()
                         .map(StockDetail::getEndPrice)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .divide(new BigDecimal(10), 4, RoundingMode.HALF_UP);
                 cur.setTenDayLine(tenAverage);
+
+                BigDecimal tenDayHigh = tenList.stream().map(StockDetail::getHighPrice).max(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
+                cur.setTenDayHigh(tenDayHigh);
+
+                BigDecimal tenDayLow = tenList.stream().map(StockDetail::getLowPrice).min(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
+                cur.setTenDayLow(tenDayLow);
+
+                BigDecimal tenDayDealQuantity = tenList.stream()
+                        .map(StockDetail::getDealQuantity)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(10), 4, RoundingMode.HALF_UP);
+                cur.setTenDayDealQuantity(tenDayDealQuantity);
             }
+
             if (list.size() > i + 20) {
-                BigDecimal twentyAverage = list.stream().skip(i).limit(20)
+                List<StockDetail> twentyList = list.stream().skip(i).limit(20).toList();
+                BigDecimal twentyAverage = twentyList.stream()
                         .map(StockDetail::getEndPrice)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .divide(new BigDecimal(20), 4, RoundingMode.HALF_UP);
                 cur.setTwentyDayLine(twentyAverage);
+
+                BigDecimal twentyDayHigh = twentyList.stream().map(StockDetail::getHighPrice).max(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
+                cur.setTwentyDayHigh(twentyDayHigh);
+
+                BigDecimal twentyDayLow = twentyList.stream().map(StockDetail::getLowPrice).min(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
+                cur.setTwentyDayLow(twentyDayLow);
+
+                BigDecimal twentyDayDealQuantity = twentyList.stream()
+                        .map(StockDetail::getDealQuantity)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(20), 4, RoundingMode.HALF_UP);
+                cur.setTwentyDayDealQuantity(twentyDayDealQuantity);
             }
+
             if (list.size() > i + 60) {
-                BigDecimal sixtyAverage = list.stream().skip(i).limit(60)
+                List<StockDetail> sixtyList = list.stream().skip(i).limit(60).toList();
+                BigDecimal sixtyAverage = sixtyList.stream()
                         .map(StockDetail::getEndPrice)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .divide(new BigDecimal(60), 4, RoundingMode.HALF_UP);
                 cur.setSixtyDayLine(sixtyAverage);
+
+                BigDecimal sixtyDayHigh = sixtyList.stream().map(StockDetail::getHighPrice).max(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
+                cur.setSixtyDayHigh(sixtyDayHigh);
+
+                BigDecimal sixtyDayLow = sixtyList.stream().map(StockDetail::getLowPrice).min(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
+                cur.setSixtyDayLow(sixtyDayLow);
+
+                BigDecimal sixtyDayDealQuantity = sixtyList.stream()
+                        .map(StockDetail::getDealQuantity)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(60), 4, RoundingMode.HALF_UP);
+                cur.setTwentyDayDealQuantity(sixtyDayDealQuantity);
             }
         }
     }

@@ -21,8 +21,8 @@ public interface StockConverter {
             @Mapping(target = "highPrice", source = "stockDetailVO.h"),
             @Mapping(target = "lowPrice", source = "stockDetailVO.l"),
             @Mapping(target = "endPrice", source = "stockDetailVO.c"),
-            @Mapping(target = "allDealQuantity", source = "stockDetailVO.v"),
-            @Mapping(target = "allDealPrice", source = "stockDetailVO.a"),
+            @Mapping(target = "dealQuantity", source = "stockDetailVO.v"),
+            @Mapping(target = "dealPrice", source = "stockDetailVO.a"),
             @Mapping(target = "lastPrice", source = "stockDetailVO.pc")
     })
     StockDetail convertToStockDetail(StockDetailVO stockDetailVO);
@@ -44,8 +44,8 @@ public interface StockConverter {
         stockDetail.setHighPrice(stockDetail.getHighPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setLowPrice(stockDetail.getLowPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setEndPrice(stockDetail.getEndPrice().setScale(4, RoundingMode.HALF_UP));
-        stockDetail.setAllDealPrice(stockDetail.getAllDealQuantity().setScale(4, RoundingMode.HALF_UP));
-        stockDetail.setAllDealPrice(stockDetail.getAllDealPrice().setScale(4, RoundingMode.HALF_UP));
+        stockDetail.setDealPrice(stockDetail.getDealQuantity().setScale(4, RoundingMode.HALF_UP));
+        stockDetail.setDealPrice(stockDetail.getDealPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setLastPrice(stockDetail.getLastPrice().setScale(4, RoundingMode.HALF_UP));
     }
 }
