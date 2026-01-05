@@ -11,7 +11,7 @@ import com.mmwwtt.stock.dao.StockDetailDao;
 import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
-import com.mmwwtt.stock.service.StockService;
+import com.mmwwtt.stock.service.StockStartService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -49,6 +49,9 @@ public class Main {
     private StockDao stockDao;
 
     @Autowired
+    private StockStartService stockStartService;
+
+    @Autowired
     private StockDetailDao stockDetailDao;
 
     private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
@@ -58,9 +61,6 @@ public class Main {
 
     @Resource
     private StockCalcResDao stockCalcResDao;
-
-    @Resource
-    private Map<String, StockService> strategyMap;
 
     @Test
     @DisplayName("调接口获取每日的股票数据")
@@ -87,14 +87,10 @@ public class Main {
     public void dataDetailDownLoad() throws InterruptedException, ExecutionException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String nowDate = LocalDate.now().format(formatter);
-        QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
-        List<Stock> stockList = stockDao.selectList(queryWrapper);
+        List<Stock> stockList = stockStartService.getAllStock();
         int cnt = 0;
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (Stock stock : stockList) {
-            if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68") || stock.getName().contains("ST")) {
-                continue;
-            }
             cnt++;
             log.info("第{}个", cnt);
             if (cnt % 200 == 0) {
@@ -146,15 +142,10 @@ public class Main {
     public void dataDetailDownLoadAdd() throws InterruptedException, ExecutionException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String nowDate = LocalDate.now().format(formatter);
-        QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
-        List<Stock> stockList = stockDao.selectList(queryWrapper);
+        List<Stock> stockList = stockStartService.getAllStock();
         int cnt = 0;
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (Stock stock : stockList) {
-
-            if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68") || stock.getName().contains("ST")) {
-                continue;
-            }
             cnt++;
             log.info("第{}个", cnt);
             if (cnt % 200 == 0) {

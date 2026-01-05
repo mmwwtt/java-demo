@@ -294,7 +294,8 @@ public class StockDetail {
                 BigDecimal fiveDayDealQuantity = fiveList.stream()
                         .map(StockDetail::getDealQuantity)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);;
+                        .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);
+                ;
                 cur.setFiveDayDealQuantity(fiveDayDealQuantity);
             }
             if (list.size() > i + 10) {

@@ -19,12 +19,6 @@ public class StockController {
     @Resource
     private StockDao stockDao;
 
-    @GetMapping("/calc")
-    public Boolean getCurStockList() throws ExecutionException, InterruptedException {
-        stockStartService.startCalc();
-        return true;
-    }
-
     @GetMapping("/calc1")
     public Boolean getCur1StockList() throws ExecutionException, InterruptedException {
         stockStartService.startCalc1();
