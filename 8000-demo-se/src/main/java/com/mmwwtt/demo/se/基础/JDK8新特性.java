@@ -234,7 +234,7 @@ public class JDK8新特性 {
     }
 
     @Test
-    @DisplayName("测试groupingBy 对集合进行分组")
+    @DisplayName("测试groupingBy 对集合/某个属性进行分组,")
     public void test15() {
         Map<String, List<BaseInfo>> map = list1.stream()
                 .collect(Collectors.groupingBy(BaseInfo::getSexCode));

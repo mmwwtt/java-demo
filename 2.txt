@@ -161,23 +161,6 @@ mapstruct 实现类没更新 则重新compiler编译下
 为什么要修改成新的, 每个修改接口中返回修改了的状态，对代码的入侵太大
 
 
-
-
- 中间件中的算法
-	负载均衡
-		静态：
-			轮询：按服务器列表顺序，循环的将请求发到服务器
-			随机：随机分发请求
-			源Hash算法：根据IP地址哈希后进行路由，相同用户的请求会到同个服务器(避免服务器上的缓存失效,如登录信息)
-		动态：服务器在时间T内的平均 CPU占用率， 内存，响应时间， 定时上报给负载均衡调度器，并计算出权重
-			加权轮询：根据权重，轮询到的多发些请求
-			加权随机：根据权重，随机到的多发点请求
-			最少连接：根据连接数分配权重，连接数少的多发点请求
-			最快响应：根据接口响应时间分配权重，响应快的多发点请求
-
-
-
-
 自动补全等号左边：Ctrl+Alt+V
 自动导入jar包-自动抛出异常： Alt+Enter
 字符串转为大写/小写：Ctrl+Shift+U
@@ -185,41 +168,19 @@ Ctrl+Alt+v 快速生成对象
 Shift+F6 重命名
 类名右击 Copy Reference 复制类所在的路径
 
-e-8
-
-grouping写法
-      Map<Integer, List<Long>> collect = genVarSimResp.getData().getModuleList().stream().map(ModuleDataListResp::getModule)
-                .collect(Collectors.groupingBy(ModuleDataListResp.ModuleData::getErrorLevel,
-                        Collectors.mapping(ModuleDataListResp.ModuleData::getModuleID, Collectors.toList())));
-
-引用传递 中 用父类接收子类对象后，里面的类信息依旧是子类的， 属性也都是子类的 .class也是子类的类
-
-
-Lambda表达式内部访问的局部变量必须是final
-    为了保证Lambda表达式的线程安全性，lambda会在另一个线程中执行，引用变量存在堆中， 局部变量存在栈中，如果在线程中要直接访问一个局部变量，可能线程执行时该局部变量已经被销毁了
-
-
-
-2核CPU开4个线程可以吗
-
 
 
 #执行后 mysql8.0的插入速度大大提升
 set global innodb_flush_log_at_trx_commit = 2;
 set global sync_binlog = 100000;
 
-currentHashMap entrySet()  values()  都不是实时的， 在遍历时如果map新put了数据不会报错，也不会感知到
-    处理方式：待调研
 
     @Transient   transient  @UnSerializeField的不同
     jdk代理  和cgXX代理   不能用idea查看cgLib动态代理生成的源码类
     AOp是什么代理类型
 
-如果有40万个线程，但是每个线程执行任务所需的时间很短，则可能大量时间消耗在上下文切换中，建议增加线程的颗粒度，一个线程中执行更多的逻辑，避免频繁切换上下文
-builder会执行set方法吗
 
+开启新线程后要想上下文给到新线程，如果是线程池复用，则需要用完后清理，避免残留
  MathContext mc = new MathContext(4, RoundingMode.HALF_UP);  bigDecimal 四舍五入
 
 
-
-  mybatis之前没id字段， save后，实体中id会存在吗，还是要重新查询一遍    (会存在，mybatis将id赋给了对象)
