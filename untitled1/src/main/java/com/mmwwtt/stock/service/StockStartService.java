@@ -393,6 +393,7 @@ public class StockStartService {
                 t0.setT5(stockDetails.get(i + 5));
             }
         }
+        stockDetails.removeIf(item -> Objects.isNull(item.getSixtyDayDealQuantity()));
         return stockDetails;
     }
 

@@ -364,7 +364,7 @@ public class StockDetail {
                         .map(StockDetail::getDealQuantity)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .divide(new BigDecimal(60), 4, RoundingMode.HALF_UP);
-                cur.setTwentyDayDealQuantity(sixtyDayDealQuantity);
+                cur.setSixtyDayDealQuantity(sixtyDayDealQuantity);
             }
         }
     }
