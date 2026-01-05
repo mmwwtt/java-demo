@@ -2,6 +2,7 @@ package com.mmwwtt.stock.service;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Lists;
 import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.dao.StockCalcResDao;
@@ -13,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,6 +25,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Function;
 
 @Service
 @Slf4j
@@ -43,6 +46,7 @@ public class StockStartService {
     private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
 
     private RestTemplate restTemplate = new RestTemplate();
+
     /**
      * 开始计算
      */
@@ -398,5 +402,108 @@ public class StockStartService {
             }
         }
         return true;
+    }
+
+    /**
+     * 开始计算
+     */
+    public void startCalc2() throws ExecutionException, InterruptedException {
+        List<Stock> stockList = getAllStock();
+        Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>();
+        log.info("开始查询股票数据");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<List<Stock>> parts = Lists.partition(stockList, 100);
+        for (List<Stock> part : parts) {
+            for (Stock stock : part) {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    List<StockDetail> stockDetails = getAllStockDetail(stock.getCode());
+                    codeToDetailMap.put(stock.getCode(), stockDetails);
+                }, pool);
+                futures.add(future);
+            }
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+
+
+        log.info("开始计算");
+        futures = new ArrayList<>();
+        LocalDateTime dataTime = LocalDateTime.now();
+        List<Pair<String, Function<StockDetail, Boolean>>> strategyList = StockStrategyUtils.STRATEGY_LIST;
+
+        for (Pair<String, Function<StockDetail, Boolean>> strategy : strategyList) {
+            String desc = strategy.getLeft();
+            Function<StockDetail, Boolean> func = strategy.getRight();
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                List<StockDetail> allAfterList = new ArrayList<>();
+                codeToDetailMap.forEach((stockCode, detailList) -> {
+                    List<StockDetail> afterList = detailList.stream().filter(func::apply).toList();
+                    allAfterList.addAll(afterList);
+                });
+                saveCalcRes(allAfterList, desc, dataTime);
+            }, pool);
+            futures.add(future);
+        }
+        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        log.info("结束计算");
+    }
+
+    private List<Stock> getAllStock() {
+        QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
+        List<Stock> stockList = stockDao.selectList(queryWrapper);
+        //30开头是创业板  68开头是科创版  不参与
+        stockList = stockList.stream()
+                .filter(stock -> !stock.getCode().startsWith("30") && stock.getCode().startsWith("68"))
+                .toList();
+        return stockList;
+    }
+
+    private List<StockDetail> getAllStockDetail(String stockCode) {
+        QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+        detailWapper.eq("stock_code", stockCode);
+        detailWapper.orderByDesc("deal_date");
+        List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+        for (int i = 0; i < stockDetails.size(); i++) {
+            StockDetail t0 = stockDetails.get(i);
+            if (i - 1 > 0) {
+                t0.setT1(stockDetails.get(i - 1));
+            }
+            if (stockDetails.size() > i + 1) {
+                t0.setT1(stockDetails.get(i + 1));
+            }
+            if (stockDetails.size() > i + 2) {
+                t0.setT2(stockDetails.get(i + 2));
+            }
+            if (stockDetails.size() > i + 3) {
+                t0.setT3(stockDetails.get(i + 3));
+            }
+            if (stockDetails.size() > i + 4) {
+                t0.setT4(stockDetails.get(i + 4));
+            }
+            if (stockDetails.size() > i + 5) {
+                t0.setT5(stockDetails.get(i + 5));
+            }
+        }
+        return stockDetails;
+    }
+
+    private void saveCalcRes(List<StockDetail> allAfterList, String strategyDesc, LocalDateTime dataTime) {
+        if (CollectionUtils.isEmpty(allAfterList)) {
+            return;
+        }
+        long correctCount = allAfterList.stream().filter(detail -> detail.getNext().getIsUp()).count();
+        BigDecimal percRate = allAfterList.stream().map(item -> item.getNext().getPricePert())
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(new BigDecimal(allAfterList.size()), 4, RoundingMode.HALF_UP);
+        BigDecimal winRate = new BigDecimal(correctCount).divide(new BigDecimal(allAfterList.size()), 4, RoundingMode.HALF_UP);
+        StockCalcRes calcRes = new StockCalcRes();
+        calcRes.setStrategyDesc(strategyDesc);
+        calcRes.setWinRate(winRate);
+        calcRes.setPercRate(percRate);
+        calcRes.setCreateDate(dataTime);
+        calcRes.setAllCnt(allAfterList.size());
+        calcRes.setType(StockCalcRes.TypeEnum.DETAIL.getCode());
+        stockCalcResDao.insert(calcRes);
     }
 }

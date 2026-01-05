@@ -88,7 +88,8 @@ easyExcel 分标签页导出， 对单个标签页加密
 
 	ApiModelProperty tt = field.getAnnotation(ApiModelProperty.class)
 
-    		triple中  Function<类名， 返回值>  传递 方法引用  如getter方法
+    		triple中  Function<入参类型， 返回类型>  只支持一个入参 传递 方法引用  如getter方法
+    		java.util.function.BiFunction<T, U, R>  第一入参类型  第二入参类型   返回类型
     		.collect(Collectors.toCollection(LinkedList::new));
 
     		stream 自定义去重方式
@@ -183,4 +184,5 @@ set global sync_binlog = 100000;
 开启新线程后要想上下文给到新线程，如果是线程池复用，则需要用完后清理，避免残留
  MathContext mc = new MathContext(4, RoundingMode.HALF_UP);  bigDecimal 四舍五入
 
-
+//将list分成10份
+List<List<Integer>> parts = Lists.partition(list, (list.size() + 9) / 10);

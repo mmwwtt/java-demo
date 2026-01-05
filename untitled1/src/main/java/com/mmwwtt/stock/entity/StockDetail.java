@@ -220,6 +220,42 @@ public class StockDetail {
     @TableField(exist = false)
     private Boolean isFilterPert;
 
+    /**
+     * 下个交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail next;
+
+    /**
+     * 前1天交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail t1;
+
+    /**
+     * 前2天交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail t2;
+
+    /**
+     * 前3天交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail t3;
+
+    /**
+     * 前4天交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail t4;
+
+    /**
+     * 前5天交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail t5;
+
     public void calc() {
         allLen = highPrice.subtract(lowPrice).abs();
         upShadowLen = highPrice.subtract(startPrice.max(endPrice)).abs();
