@@ -45,7 +45,6 @@ public class StockStartService {
     private RestTemplate restTemplate = new RestTemplate();
 
 
-
     /**
      * 开始计算   通过上/下影线占比  和涨跌百分比区间 计算预测胜率
      */
@@ -319,13 +318,13 @@ public class StockStartService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 100);
         for (List<Stock> part : parts) {
-            for (Stock stock : part) {
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
                     List<StockDetail> stockDetails = getAllStockDetail(stock.getCode());
                     codeToDetailMap.put(stock.getCode(), stockDetails);
-                }, pool);
-                futures.add(future);
-            }
+                }
+            }, pool);
+            futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
@@ -343,7 +342,7 @@ public class StockStartService {
                 List<StockDetail> allAfterList = new ArrayList<>();
                 codeToDetailMap.forEach((stockCode, detailList) -> {
                     List<StockDetail> afterList = detailList.stream()
-                            .filter(item-> Objects.nonNull(item.getNext()))
+                            .filter(item -> Objects.nonNull(item.getNext()))
                             .filter(func::apply).toList();
                     allAfterList.addAll(afterList);
                 });
