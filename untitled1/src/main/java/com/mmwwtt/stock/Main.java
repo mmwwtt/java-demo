@@ -195,15 +195,10 @@ public class Main {
     @Test
     @DisplayName("计算股票的衍生数据")
     public void dataDetailCalc() throws InterruptedException, ExecutionException {
-        QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
-        List<Stock> stockList = stockDao.selectList(queryWrapper);
+        List<Stock> stockList = stockStartService.getAllStock();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (Stock stock : stockList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                //30开头是创业板  68开头是科创版
-                if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68") || stock.getName().contains("ST")) {
-                    return;
-                }
                 QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                 detailWapper.eq("stock_code", stock.getCode());
                 detailWapper.orderByDesc("deal_date");
