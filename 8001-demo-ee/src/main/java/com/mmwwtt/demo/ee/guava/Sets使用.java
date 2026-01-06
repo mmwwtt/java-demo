@@ -24,7 +24,6 @@ public class Sets使用 {
 
         // 差集（a - b）
         Set<Integer> diff  = Sets.difference(set1, set2);
-
         System.out.println();
     }
 }

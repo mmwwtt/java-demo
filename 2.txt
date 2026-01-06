@@ -67,9 +67,6 @@ easyExcel 分标签页导出， 对单个标签页加密
     						序列化时字段会和插入的顺序保持一致
 
     						sort如何根据两个外部字段排序  两个枚举  有对应的orderIndex
-
-    						program 是项目
-    						project 是工程
     			sort中根据某个enumId去找枚举中的orderIndex 排序，如果enum找不到则过滤 如何实现
 
 
@@ -96,16 +93,10 @@ Animal a = dogs.get(0);       // 读出来只能是 Object，需要强转
 LocalContextHolder.setLocale() //获取当前线程
 LocalContextHolder.setLocale()  //往线程塞上下文呢
 
-// A − B
-Set<String> diff = SetUtils.difference(a, b);
-
 对list1 用另一个list2替换该list1中的部分
     src.subList(from, to).clear();   // 先删掉旧段  subList 左闭右开， 不包含to
         src.addAll(from, repl);          // 再插入新段  左闭
 
-		private 和protected的区别
-
-		SetsUtils.union()  //set工具类
 		list.addAll(null) 会报错吗
 		mapStruct 会调用构造方法吗，   json tojavaList会调用构造方法吗   会带上默认值吗 字段 = new ArrayList()<>;
 
@@ -126,15 +117,6 @@ mapstruct 实现类没更新 则重新compiler编译下
 为什么要修改成新的, 每个修改接口中返回修改了的状态，对代码的入侵太大
 
 
-自动补全等号左边：Ctrl+Alt+V
-自动导入jar包-自动抛出异常： Alt+Enter
-字符串转为大写/小写：Ctrl+Shift+U
-Ctrl+Alt+v 快速生成对象
-Shift+F6 重命名
-类名右击 Copy Reference 复制类所在的路径
-
-
-
 #执行后 mysql8.0的插入速度大大提升
 set global innodb_flush_log_at_trx_commit = 2;
 set global sync_binlog = 100000;
@@ -146,8 +128,9 @@ set global sync_binlog = 100000;
 
 
 开启新线程后要想上下文给到新线程，如果是线程池复用，则需要用完后清理，避免残留
- MathContext mc = new MathContext(4, RoundingMode.HALF_UP);  bigDecimal 四舍五入
+MathContext mc = new MathContext(4, RoundingMode.HALF_UP);  bigDecimal 四舍五入
 
-//将list分成10份
-List<List<Integer>> parts = Lists.partition(list, (list.size() + 9) / 10);
-  Collections.reverse(list); 将list顺序反转
+
+guava 工具类使用
+Lists
+Sets
