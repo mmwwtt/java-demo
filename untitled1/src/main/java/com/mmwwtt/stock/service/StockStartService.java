@@ -18,6 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -392,5 +393,15 @@ public class StockStartService {
         calcRes.setAllCnt(allAfterList.size());
         calcRes.setType(type);
         stockCalcResDao.insert(calcRes);
+
+        if(strategyDesc.contains("双针探底")) {
+            allAfterList.forEach(item -> {
+                try {
+                    StockGuiUitls.genDetailImage(item);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
     }
 }

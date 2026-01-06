@@ -186,3 +186,4 @@ set global sync_binlog = 100000;
 
 //将list分成10份
 List<List<Integer>> parts = Lists.partition(list, (list.size() + 9) / 10);
+  Collections.reverse(list); 将list顺序反转

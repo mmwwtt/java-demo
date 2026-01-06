@@ -233,6 +233,7 @@ public class StockStrategyUtils {
 
         // 5. 放量确认（今日量 > 10日均量）
         boolean volUp = t0.getDealQuantity().compareTo(t0.getTenDayLine()) > 0;
+
         return longShadow1 && longShadow2 && smallBody1 && smallBody2
                 && t0.getIsUp() && breakHigh && volUp;
     }
