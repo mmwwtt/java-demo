@@ -2,6 +2,7 @@ package com.mmwwtt.stock;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
@@ -147,7 +148,7 @@ public class Main {
             cnt++;
             log.info("第{}个", cnt);
             if (cnt % 200 == 0) {
-                Thread.sleep(5000);
+                Thread.sleep(10000);
             }
             Thread.sleep(100);
             Map<String, String> map1 = new HashMap<>();
@@ -158,32 +159,72 @@ public class Main {
             map1.put(START_DATA, "20251220");
             map1.put(END_DATA, nowDate);
             map1.put(MAX_SIZE, "30");
-            try {
-                ResponseEntity<List<StockDetailVO>> stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
-                        null, new ParameterizedTypeReference<>() {
-                        }, map1);
-                List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
-                        .filter(item -> item.getSf() == 0)
-                        .peek(item -> item.setStockCode(stock.getCode()))
-                        .collect(Collectors.toList());
-                List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                    detailWapper.eq("stock_code", stock.getCode());
-                    Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
-                            .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
-                    for (StockDetail stockDetail : stockDetails) {
-                        if (dateToMap.containsKey(stockDetail.getDealDate())) {
-                            stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
-                        }
+            ResponseEntity<List<StockDetailVO>> stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
+                    null, new ParameterizedTypeReference<>() {
+                    }, map1);
+            List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
+                    .filter(item -> item.getSf() == 0)
+                    .peek(item -> item.setStockCode(stock.getCode()))
+                    .collect(Collectors.toList());
+            List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+                detailWapper.eq("stock_code", stock.getCode());
+                Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
+                        .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
+                for (StockDetail stockDetail : stockDetails) {
+                    if (dateToMap.containsKey(stockDetail.getDealDate())) {
+                        stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
                     }
-                    stockDetails.forEach(item -> item.calc());
-                    stockDetailDao.insertOrUpdate(stockDetails);
-                });
-                futures.add(future);
-            } catch (Exception e) {
+                }
+                stockDetailDao.insertOrUpdate(stockDetails);
+            });
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+    }
+
+
+    @Test
+    @DisplayName("调接口获取实时数据")
+    public void dataDetailDownLoadOnTime() throws InterruptedException, ExecutionException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        String nowDate = LocalDate.now().format(formatter);
+        List<Stock> stockList = stockStartService.getAllStock();
+        int cnt = 0;
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (Stock stock : stockList) {
+            cnt++;
+            log.info("第{}个", cnt);
+            if (cnt % 200 == 0) {
+                Thread.sleep(10000);
+            }
+            Thread.sleep(100);
+            Map<String, String> map1 = new HashMap<>();
+            map1.put(LICENCE, BI_YING_LICENCE);
+            map1.put(STOCK_CODE, stock.getCode().split("\\.")[0]);
+
+            ResponseEntity<StockDetailOnTimeVO> response = restTemplate.exchange(ON_TIME_DATA_URL, HttpMethod.GET,
+                    null, new ParameterizedTypeReference<>() {}, map1);
+            try {
+                StockConverter.INSTANCE.convertToStockDetail(response.getBody());
+            }catch (Exception e) {
                 e.printStackTrace();
             }
+            StockDetail stockDetail = StockConverter.INSTANCE.convertToStockDetail(response.getBody());
+            stockDetail.setStockCode(stock.getCode());
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+                detailWapper.eq("stock_code", stock.getCode());
+                detailWapper.likeLeft("deal_date", stockDetail.getDealDate().substring(0,10));
+                List<StockDetail> list = stockDetailDao.selectList(detailWapper);
+                if(CollectionUtils.isNotEmpty(list)) {
+                    stockDetail.setStockDetailId(list.get(0).getStockDetailId());
+                }
+                stockDetailDao.insertOrUpdate(stockDetail);
+            });
+            futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
@@ -282,7 +323,7 @@ public class Main {
     }
 
     @Test
-    @DisplayName("根据上升缺口_三日不回补预测股票")
+    @DisplayName("上升缺口 成交量超过5日线")
     public void getStock1() throws InterruptedException, ExecutionException {
         List<Stock> stockList = stockStartService.getAllStock();
         List<Stock> resList = new ArrayList<>();
@@ -292,7 +333,10 @@ public class Main {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
                     List<StockDetail> stockDetails = stockStartService.getAllStockDetail(stock.getCode());
-                    if (StockStrategyUtils.strategy16(stockDetails.get(0))) {
+                    if(CollectionUtils.isEmpty(stockDetails)) {
+                        continue;
+                    }
+                    if (StockStrategyUtils.strategy13(stockDetails.get(0))) {
                         resList.add(stock);
                     }
                 }

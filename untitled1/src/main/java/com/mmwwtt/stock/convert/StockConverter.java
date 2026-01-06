@@ -1,9 +1,6 @@
 package com.mmwwtt.stock.convert;
 
-import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StockDetailVO;
-import com.mmwwtt.stock.entity.StockVO;
+import com.mmwwtt.stock.entity.*;
 import org.mapstruct.*;
 import org.mapstruct.control.DeepClone;
 import org.mapstruct.factory.Mappers;
@@ -14,6 +11,7 @@ import java.util.List;
 @Mapper(mappingControl = DeepClone.class)
 public interface StockConverter {
     StockConverter INSTANCE = Mappers.getMapper(StockConverter.class);
+
     @Mappings({
             @Mapping(target = "stockCode", source = "stockDetailVO.stockCode"),
             @Mapping(target = "dealDate", source = "stockDetailVO.t"),
@@ -48,4 +46,18 @@ public interface StockConverter {
         stockDetail.setDealPrice(stockDetail.getDealPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setLastPrice(stockDetail.getLastPrice().setScale(4, RoundingMode.HALF_UP));
     }
+
+
+    @Mappings({
+            @Mapping(target = "stockCode", source = "stockDetailVO.stockCode"),
+            @Mapping(target = "dealDate", source = "stockDetailVO.t"),
+            @Mapping(target = "startPrice", source = "stockDetailVO.o"),
+            @Mapping(target = "highPrice", source = "stockDetailVO.h"),
+            @Mapping(target = "lowPrice", source = "stockDetailVO.l"),
+            @Mapping(target = "endPrice", source = "stockDetailVO.p"),
+            @Mapping(target = "dealQuantity", source = "stockDetailVO.v"),
+            @Mapping(target = "lastPrice", source = "stockDetailVO.yc")
+    })
+    StockDetail convertToStockDetail(StockDetailOnTimeVO stockDetailVO);
+
 }

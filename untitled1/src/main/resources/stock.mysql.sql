@@ -117,5 +117,9 @@ from stock_calculation_result_t
 where create_date = (select max(create_date) from stock_calculation_result_t);
 
 
+select * from stock_detail_t where stock_code = '000001.SZ'
+order by  deal_date desc;
 
 
+select * from stock_detail_t
+order by  stock_detail_Id desc;
