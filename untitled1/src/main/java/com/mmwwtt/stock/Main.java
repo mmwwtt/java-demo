@@ -116,20 +116,16 @@ public class Main {
                     .collect(Collectors.toList());
             List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                try {
-                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                    detailWapper.eq("stock_code", stock.getCode());
-                    Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
-                            .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
-                    for (StockDetail stockDetail : stockDetails) {
-                        if (dateToMap.containsKey(stockDetail.getDealDate())) {
-                            stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
-                        }
+                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+                detailWapper.eq("stock_code", stock.getCode());
+                Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
+                        .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
+                for (StockDetail stockDetail : stockDetails) {
+                    if (dateToMap.containsKey(stockDetail.getDealDate())) {
+                        stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
                     }
-                    stockDetailDao.insertOrUpdate(stockDetails);
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+                stockDetailDao.insertOrUpdate(stockDetails);
             });
             futures.add(future);
         }
@@ -294,12 +290,13 @@ public class Main {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            for (Stock stock : part) {
-                List<StockDetail> stockDetails = stockStartService.getAllStockDetail(stock.getCode());
-                if (StockStrategyUtils.strategy16(stockDetails.get(0))) {
-                    resList.add(stock);
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = stockStartService.getAllStockDetail(stock.getCode());
+                    if (StockStrategyUtils.strategy16(stockDetails.get(0))) {
+                        resList.add(stock);
+                    }
                 }
-            }   }, pool);
+            }, pool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
