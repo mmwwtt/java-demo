@@ -1,42 +1,15 @@
 
-
-
-
-
-Character.isLetterOrDigit  判断char是数字/字母
-
-Character.compare(c1, c2);     char的字典序排序
-list.sort(str1, str2)   // 1排前面， -1排后面
-list的removeAll方法
-	前端修改数据后，后端生成数据的状态，并向前端发送webSocket请求，通知前端哪些状态被联动更新，用于图标刷新
+前端修改数据后，后端生成数据的状态，并向前端发送webSocket请求，通知前端哪些状态被联动更新，用于图标刷新
 
 hutool JSONUtil中支持jackSon操作
-json中put对象序列化后的字符串和put对象，最后再序列化给前端的区别
-	put序列化后的字符串会有\" 不会被转义
 
-
-jackson 和 fastJson的区别
-序列化时jackson保留为null的字段(给前端用)， fastJson忽略为null的字段(后端用)
 内部类可以是public修饰吗
 
-            List<Triple<String, List<Double>, Consumer<List<Double>>>> arrTripleList = new ArrayList<>();
-			 overall::setCompMassFlow   对象中方法的引用
-			 Objects::nonNull 类方法的引用
-
-     @Mappings({
-            @Mapping(target = "orderIndex", expression = "java(orderIndex)")
-    })
-    PhysicalPropertyItem convertPhyPropItem(PhysicalPropertyNewEnum physicalPropertyNewEnum, Integer orderIndex);
-
-
-	 ExceptionUtil.clientException()  展示给用户的报错，需要国际化
-
-	 mapstruct : @afterMapping所有方法结束后都执行该方法
 	 @build会因为大小写命名导致没set进去如pType，需要禁用builder模式   需要改成target="PType"
 	 @Mapper(mappingControl = DeepClone.class, builder = @Builder(disableBuilder = true))
 
 	  什么时候用内部类
-	  getter方法引用
+
        如何将字节流 变成 浏览器中文件下载
 
        看起来是空白的字符空格  ， 如何知道他是什么字符
@@ -44,11 +17,6 @@ jackson 和 fastJson的区别
        (类型)强转会失败
        stream中map和peek的区别
        Arrays.stream用法
-
-       pair中 传递get set方法
-
-       ！Consumer<T> 是 单参数、无返回值
-       Supplier<T> —— 无参、有返回。
 
 为什么注入的接口 而不上实体类
 
@@ -87,10 +55,6 @@ easyExcel 分标签页导出， 对单个标签页加密
 
 
 	ApiModelProperty tt = field.getAnnotation(ApiModelProperty.class)
-
-    		triple中  Function<入参类型， 返回类型>  只支持一个入参 传递 方法引用  如getter方法
-    		java.util.function.BiFunction<T, U, R>  第一入参类型  第二入参类型   返回类型
-    		.collect(Collectors.toCollection(LinkedList::new));
 
     		stream 自定义去重方式
     			   List<Person> distinct = list.stream()

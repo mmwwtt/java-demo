@@ -346,4 +346,16 @@ public class UtilClassTest {
         boolean res = Objects.equals(Integer.valueOf("1000"), Integer.valueOf("1000"));
         System.out.println(res);
     }
+
+    @Test
+    @DisplayName("Character基本使用")
+    public void test12() {
+        char c1 = 'a';
+        char c2 = '1';
+        boolean flag = Character.isLetterOrDigit(c1);   //判断char是数字/字母
+
+        int res = Character.compare(c1, c2);     //char的字典序排序   1排前面， -1排后面
+    }
+
+
 }

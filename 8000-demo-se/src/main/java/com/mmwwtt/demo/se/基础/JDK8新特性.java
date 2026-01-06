@@ -37,6 +37,12 @@ public class JDK8新特性 {
     public void test1() {
         List<Integer> list = Arrays.asList(3, 6, 4, 10, 88, 22);
         list.sort(Comparator.comparingInt(s -> s));
+
+        //Objects::isNull  类中静态方法的引用
+        list.stream().filter(Objects::isNull).collect(Collectors.toSet());
+
+        //overall::setCompMassFlow 方法引用
+
         assertNotNull(list);
     }
 

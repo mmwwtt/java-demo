@@ -172,6 +172,9 @@ public class CollectionsTest {
         //截取集合
         List<Integer> list4 = list2.subList(0,1);
 
+        //list排序 会改变自生
+        list.sort(Integer::compareTo);   // 1排前面， -1排后面
+
     }
 
     @Test
@@ -350,6 +353,13 @@ public class CollectionsTest {
         //putIfAbsent : key不存在时再插入
         map2.putIfAbsent("hello", new ArrayList<>());
         map2.computeIfPresent("hello", (k, v) -> { v.add(1); return v; });
+
+
+    }
+
+    @Test
+    @DisplayName("Collection基本使用 list和set都继承于该类")
+    public void test9() {
 
 
     }

@@ -11,10 +11,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.*;
 
 @Slf4j
 public class CommonsLang3Test {
@@ -47,28 +44,45 @@ public class CommonsLang3Test {
     }
 
     /**
-     * Consumer :只能接收一个参数
-     * BiConsumer : 可以接收两个参数
+     * Consumer<T> :只能接收一个参数
+     * BiConsumer<T, U> : 可以接收两个参数
+     * Supplier<R>  : 无参数， 有返回值
+     * Function<T, R>  : 入参类型， 返回值类型
+     * BiFunction<T,U, R>  : 入参类型， 返回值类型
      */
     @Test
     @DisplayName("测试Consumer使用")
     public void test3() {
         BaseInfoVO baseInfoVO = BaseInfoVO.getInstance();
         String str = "hello";
-        Pair<String, Consumer<String>> pair = Pair.of("",StringUtils::isBlank);
-        Consumer<String> func1 = pair.getRight();
-        String str1 = pair.getLeft();
-        func1.accept(str1);
+
+        //适合set方法引用
+        Consumer<String> consumer1 = StringUtils::isBlank;
+        consumer1.accept(str);
+        Consumer<String> consumer2 = str::indexOf;
+        consumer2.accept("h");
 
 
-        List<Triple<Double, String, BiConsumer<Double, String>>> tripleList = new ArrayList<>();
-        tripleList.add(Triple.of(175.00, "0", baseInfoVO::valid));
-        tripleList.forEach(triple -> {
-            Double height = triple.getLeft();
-            String sexCode = triple.getMiddle();
-            BiConsumer<Double, String> func = triple.getRight();
-            func.accept(height, sexCode);
-        });
-        log.info("");
+        BiConsumer<String, Character> biConsumer1 = StringUtils::indexOf;
+        biConsumer1.accept(str, 'e');
+        BiConsumer<Integer, Integer> biConsumer2 = str::substring;
+        biConsumer2.accept(1,3);
+
+
+        //适合get方法引用
+        Supplier<byte[]> supplier1 = str::getBytes;
+        byte[] supplierRes1 =  supplier1.get();
+
+        Function<String, Boolean> function1 = StringUtils::isBlank;
+        Boolean funRes1= function1.apply(str);
+        Function<String, Integer> function2 = str::indexOf;
+        Integer funRes2 = function2.apply("h");
+
+
+        BiFunction<String,Character, Integer> biFunction1 = StringUtils::indexOf;
+        Integer biFunRes1= biFunction1.apply(str, 'h');
+        BiFunction<Integer, Integer, String> biFunction2 = str::substring;
+        String biFunRes2 = biFunction2.apply(1,2);
+
     }
 }

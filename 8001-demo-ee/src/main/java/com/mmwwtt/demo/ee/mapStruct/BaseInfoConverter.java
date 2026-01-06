@@ -35,6 +35,7 @@ public interface BaseInfoConverter {
     }
 
     /**
+     * 所有方法结束后都执行该方法
      * @MappingTarget 编辑目标对象
      * @return
      */
