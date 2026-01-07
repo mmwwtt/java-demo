@@ -91,42 +91,52 @@ public class Main {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String nowDate = LocalDate.now().format(formatter);
         List<Stock> stockList = stockStartService.getAllStock();
-        int cnt = 0;
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (Stock stock : stockList) {
-            cnt++;
-            log.info("第{}个", cnt);
-            if (cnt % 200 == 0) {
-                Thread.sleep(10000);
-            }
-            Thread.sleep(100);
-            Map<String, String> map1 = new HashMap<>();
-            map1.put(LICENCE, BI_YING_LICENCE);
-            map1.put(STOCK_CODE, stock.getCode());
-            map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
-            map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
-            map1.put(START_DATA, "20250101");
-            map1.put(END_DATA, nowDate);
-            map1.put(MAX_SIZE, "350");
-            ResponseEntity<List<StockDetailVO>> stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
-                    null, new ParameterizedTypeReference<>() {
-                    }, map1);
-            List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
-                    .filter(item -> item.getSf() == 0)
-                    .peek(item -> item.setStockCode(stock.getCode()))
-                    .collect(Collectors.toList());
-            List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
+        for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                detailWapper.eq("stock_code", stock.getCode());
-                Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
-                        .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
-                for (StockDetail stockDetail : stockDetails) {
-                    if (dateToMap.containsKey(stockDetail.getDealDate())) {
-                        stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
+                for (Stock stock : part) {
+                    Map<String, String> map1 = new HashMap<>();
+                    map1.put(LICENCE, BI_YING_LICENCE);
+                    map1.put(STOCK_CODE, stock.getCode());
+                    map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
+                    map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
+                    map1.put(START_DATA, "20250101");
+                    map1.put(END_DATA, nowDate);
+                    map1.put(MAX_SIZE, "350");
+                    ResponseEntity<List<StockDetailVO>> response =null;
+                    while (true) {
+                        try {
+                            response = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET, null, new ParameterizedTypeReference<List<StockDetailVO>>() {
+                            }, map1);
+                            break;
+                        } catch (Exception e) {
+
+                            try {
+                                Thread.sleep(5000);
+                            } catch (InterruptedException ex) {
+                                throw new RuntimeException(ex);
+                            }
+
+                        }
                     }
+                    List<StockDetailVO> stockDetailVOs = response.getBody().stream()
+                            .filter(item -> item.getSf() == 0)
+                            .peek(item -> item.setStockCode(stock.getCode()))
+                            .collect(Collectors.toList());
+                    List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
+
+                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+                    detailWapper.eq("stock_code", stock.getCode());
+                    Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
+                            .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
+                    for (StockDetail stockDetail : stockDetails) {
+                        if (dateToMap.containsKey(stockDetail.getDealDate())) {
+                            stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
+                        }
+                    }
+                    stockDetailDao.insertOrUpdate(stockDetails);
                 }
-                stockDetailDao.insertOrUpdate(stockDetails);
             });
             futures.add(future);
         }
@@ -142,42 +152,50 @@ public class Main {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String nowDate = LocalDate.now().format(formatter);
         List<Stock> stockList = stockStartService.getAllStock();
-        int cnt = 0;
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (Stock stock : stockList) {
-            cnt++;
-            log.info("第{}个", cnt);
-            if (cnt % 200 == 0) {
-                Thread.sleep(10000);
-            }
-            Thread.sleep(100);
-            Map<String, String> map1 = new HashMap<>();
-            map1.put(LICENCE, BI_YING_LICENCE);
-            map1.put(STOCK_CODE, stock.getCode());
-            map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
-            map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
-            map1.put(START_DATA, "20251220");
-            map1.put(END_DATA, nowDate);
-            map1.put(MAX_SIZE, "30");
-            ResponseEntity<List<StockDetailVO>> stockDetailResponse = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET,
-                    null, new ParameterizedTypeReference<>() {
-                    }, map1);
-            List<StockDetailVO> stockDetailVOs = stockDetailResponse.getBody().stream()
-                    .filter(item -> item.getSf() == 0)
-                    .peek(item -> item.setStockCode(stock.getCode()))
-                    .collect(Collectors.toList());
-            List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
+        for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                detailWapper.eq("stock_code", stock.getCode());
-                Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
-                        .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
-                for (StockDetail stockDetail : stockDetails) {
-                    if (dateToMap.containsKey(stockDetail.getDealDate())) {
-                        stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
+                for (Stock stock : part) {
+                    Map<String, String> map1 = new HashMap<>();
+                    map1.put(LICENCE, BI_YING_LICENCE);
+                    map1.put(STOCK_CODE, stock.getCode());
+                    map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
+                    map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
+                    map1.put(START_DATA, "20251220");
+                    map1.put(END_DATA, nowDate);
+                    map1.put(MAX_SIZE, "30");
+                    ResponseEntity<List<StockDetailVO>> response =null;
+                    while (true) {
+                        try {
+                            response = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET, null, new ParameterizedTypeReference<List<StockDetailVO>>() {
+                            }, map1);
+                            break;
+                        } catch (Exception e) {
+                            try {
+                                Thread.sleep(5000);
+                            } catch (Exception e1) {
+                                break;
+                            }
+                        }
                     }
+                    List<StockDetailVO> stockDetailVOs = response.getBody().stream()
+                            .filter(item -> item.getSf() == 0)
+                            .peek(item -> item.setStockCode(stock.getCode()))
+                            .collect(Collectors.toList());
+                    List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
+
+                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+                    detailWapper.eq("stock_code", stock.getCode());
+                    Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
+                            .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
+                    for (StockDetail stockDetail : stockDetails) {
+                        if (dateToMap.containsKey(stockDetail.getDealDate())) {
+                            stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
+                        }
+                    }
+                    stockDetailDao.insertOrUpdate(stockDetails);
                 }
-                stockDetailDao.insertOrUpdate(stockDetails);
             });
             futures.add(future);
         }
@@ -192,42 +210,44 @@ public class Main {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String nowDate = LocalDate.now().format(formatter);
         List<Stock> stockList = stockStartService.getAllStock();
-        int cnt = 0;
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (Stock stock : stockList) {
-            cnt++;
-            log.info("第{}个", cnt);
-            if (cnt % 200 == 0) {
-                Thread.sleep(10000);
-            }
-            Thread.sleep(100);
-            Map<String, String> map1 = new HashMap<>();
-            map1.put(LICENCE, BI_YING_LICENCE);
-            map1.put(STOCK_CODE, stock.getCode().split("\\.")[0]);
-
-            ResponseEntity<StockDetailOnTimeVO> response = restTemplate.exchange(ON_TIME_DATA_URL, HttpMethod.GET,
-                    null, new ParameterizedTypeReference<>() {}, map1);
-            try {
-                StockConverter.INSTANCE.convertToStockDetail(response.getBody());
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-            StockDetail stockDetail = StockConverter.INSTANCE.convertToStockDetail(response.getBody());
-            stockDetail.setStockCode(stock.getCode());
+        for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                detailWapper.eq("stock_code", stock.getCode());
-                detailWapper.likeLeft("deal_date", stockDetail.getDealDate().substring(0,10));
-                List<StockDetail> list = stockDetailDao.selectList(detailWapper);
-                if(CollectionUtils.isNotEmpty(list)) {
-                    stockDetail.setStockDetailId(list.get(0).getStockDetailId());
+                for (Stock stock : part) {
+                    Map<String, String> map1 = new HashMap<>();
+                    map1.put(LICENCE, BI_YING_LICENCE);
+                    map1.put(STOCK_CODE, stock.getCode().split("\\.")[0]);
+                    ResponseEntity<StockDetailOnTimeVO> response= restTemplate.exchange(ON_TIME_DATA_URL, HttpMethod.GET, null,  StockDetailOnTimeVO.class, map1);
+                    while (true) {
+                        try {
+                            response = restTemplate.exchange(ON_TIME_DATA_URL, HttpMethod.GET, null,  StockDetailOnTimeVO.class, map1);
+                            break;
+                        } catch (Exception e) {
+                            try {
+                                Thread.sleep(5000);
+                            } catch (Exception e1) {
+                                break;
+                            }
+                        }
+                    }
+                    StockDetail stockDetail = StockConverter.INSTANCE.convertToStockDetail(response.getBody());
+                    stockDetail.setStockCode(stock.getCode());
+
+                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+                    detailWapper.eq("stock_code", stock.getCode());
+                    detailWapper.likeLeft("deal_date", stockDetail.getDealDate().substring(0, 10));
+                    List<StockDetail> list = stockDetailDao.selectList(detailWapper);
+                    if (CollectionUtils.isNotEmpty(list)) {
+                        stockDetail.setStockDetailId(list.get(0).getStockDetailId());
+                    }
+                    stockDetailDao.insertOrUpdate(stockDetail);
                 }
-                stockDetailDao.insertOrUpdate(stockDetail);
             });
             futures.add(future);
+            CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            allTask.get();
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
     }
 
 
@@ -235,19 +255,18 @@ public class Main {
     @DisplayName("计算股票的衍生数据")
     public void dataDetailCalc() throws InterruptedException, ExecutionException {
         List<Stock> stockList = stockStartService.getAllStock();
+        List<List<Stock>> parts = Lists.partition(stockList, 100);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (Stock stock : stockList) {
+        for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                detailWapper.eq("stock_code", stock.getCode());
-                detailWapper.orderByDesc("deal_date");
-                List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
-                stockDetails.forEach(item -> item.calc());
-                StockDetail.calc(stockDetails);
-                try {
+                for (Stock stock : part) {
+                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+                    detailWapper.eq("stock_code", stock.getCode());
+                    detailWapper.orderByDesc("deal_date");
+                    List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+                    stockDetails.forEach(item -> item.calc());
+                    StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }, pool);
             futures.add(future);
@@ -333,7 +352,7 @@ public class Main {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
                     List<StockDetail> stockDetails = stockStartService.getAllStockDetail(stock.getCode());
-                    if(CollectionUtils.isEmpty(stockDetails)) {
+                    if (CollectionUtils.isEmpty(stockDetails)) {
                         continue;
                     }
                     if (StockStrategyUtils.strategy13(stockDetails.get(0))) {
@@ -363,5 +382,10 @@ public class Main {
         } catch (IOException e) {
         }
 
+    }
+
+    private String getNowData() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+        return LocalDate.now().format(formatter);
     }
 }

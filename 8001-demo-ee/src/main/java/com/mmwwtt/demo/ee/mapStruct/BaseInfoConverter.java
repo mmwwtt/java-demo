@@ -8,6 +8,9 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
+/**
+ * 	  @Builder(disableBuilder = true):禁用builder    @build会因为大小写命名导致没set进去如pType，需要禁用builder模式  或 改成target="PType"
+ */
 @Mapper(builder = @Builder(disableBuilder = true),
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE   //为null的字段不进行拷贝(不会把老值改成null)
 )

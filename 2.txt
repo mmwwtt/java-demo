@@ -1,26 +1,15 @@
 
-前端修改数据后，后端生成数据的状态，并向前端发送webSocket请求，通知前端哪些状态被联动更新，用于图标刷新
 
+后端通知前端：webStocket方式， 断网后还能重连吗
 hutool JSONUtil中支持jackSon操作
-
-内部类可以是public修饰吗
-
-	 @build会因为大小写命名导致没set进去如pType，需要禁用builder模式   需要改成target="PType"
-	 @Mapper(mappingControl = DeepClone.class, builder = @Builder(disableBuilder = true))
-
-	  什么时候用内部类
-
-       如何将字节流 变成 浏览器中文件下载
-
-       看起来是空白的字符空格  ， 如何知道他是什么字符
-       List<Object>入参不能接收List<String>
-       (类型)强转会失败
-       stream中map和peek的区别
-       Arrays.stream用法
+什么时候用内部类，内部类可以是public修饰吗
+如何将字节流 变成 浏览器中文件下载
+List<Object>入参不能接收List<String>
+(类型)强转会失败
+stream中map和peek的区别
+Arrays.stream用法
 
 为什么注入的接口 而不上实体类
-
-webStocke 在断网后 还能重连吗
 Collects.toList 出来的是新数组，数组里依旧是老对象的引用
 将多个字符流文件 在内存中压缩成zip(全在内存)
 流式生成，临时文件+边写边zip  适合数据量大的时候
@@ -43,8 +32,6 @@ finde
 easyExcel 分标签页导出， 对单个标签页加密
 
 
-					接口中如何注入bean
-					SpringContextUtil.getBean(xxx.class)
 
 						getColumnNameFromApiModelProperty  获取@Api注解中的内容
                     					Class<? extends BaseEnum> enumClass = flag ? FooEnum.class : BarEnum.class;
@@ -93,18 +80,10 @@ Animal a = dogs.get(0);       // 读出来只能是 Object，需要强转
 LocalContextHolder.setLocale() //获取当前线程
 LocalContextHolder.setLocale()  //往线程塞上下文呢
 
-对list1 用另一个list2替换该list1中的部分
-    src.subList(from, to).clear();   // 先删掉旧段  subList 左闭右开， 不包含to
-        src.addAll(from, repl);          // 再插入新段  左闭
-
-		list.addAll(null) 会报错吗
 		mapStruct 会调用构造方法吗，   json tojavaList会调用构造方法吗   会带上默认值吗 字段 = new ArrayList()<>;
 
 		stream ifPresent
 		Stream isPresent
-
-
-
 
 
 子类继承父类，序列化会不有父类的字段，包括接口返回的报文也是序列化后的结果
@@ -134,3 +113,17 @@ MathContext mc = new MathContext(4, RoundingMode.HALF_UP);  bigDecimal 四舍五
 guava 工具类使用
 Lists
 Sets
+
+
+JSONObject obj = JSON.parseObject("123");
+System.out.println(obj);        // 输出 null
+
+
+//面向切面， 获取方法中的参数的方式
+Object result = joinPoint.proceed();
+MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+String[] parameterNames = signature.getParameterNames();
+Object[] args = joinPoint.getArgs();
+
+
+List<StockDetailVO> 作为泛型怎么办

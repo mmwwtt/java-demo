@@ -114,6 +114,10 @@ public class CollectionsTest {
         //sort排序(默认升序排序)
         baseInfoList.sort(Comparator.comparing(BaseInfoVO::getHeight)
                 .thenComparing(BaseInfoVO::getName));
+
+        //用list2替换该list1中的部分内容
+        list.subList(1, 2).clear();   // 先删掉旧段  subList 左闭右开， 不包含to
+        list.addAll(1, Arrays.asList("1"));          // 再插入新段  左闭
     }
 
     @Test

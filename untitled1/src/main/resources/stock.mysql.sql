@@ -89,7 +89,8 @@ select *
 from stock_t;
 
 select *
-from stock_detail_t;
+from stock_detail_t
+order by  stock_detail_Id desc;
 
 select *
 from stock_calculation_result_t;
