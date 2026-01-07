@@ -107,13 +107,15 @@ public class JDK8新特性 {
 
     /**
      * Optional类：避免大量的是否为null判断，代码更加优雅
-     * isPresent() 非null返回ture
+     * isPresent() 判断是否为null
      * Optional.empty():创建空的Optional对象
      * Optional.of(): 创建非空的Optional对象
      * Optional.ofNullable: 创建可能为空的Optional对象
      * orElse: 如果是null返回默认值
      * orElseGet：如果是null返回方法结果值
      * orElseThrow: 如果是null则抛出异常
+     * ifPresent:如果不为null则继续执行逻辑
+     *
      */
     @Test
     @DisplayName("测试Optinoal")
@@ -165,6 +167,11 @@ public class JDK8新特性 {
 
         List<String> nameList2 = list1.stream()
                 .map(item -> "hello: " + item.getName())
+                .collect(Collectors.toList());
+
+        //在遍历中修改数据，并还能执行后续节点
+        List<BaseInfo> list2 = list1.stream()
+                .map(item ->{item.setName( "hello: " + item.getName()); return item;})
                 .collect(Collectors.toList());
         log.info("{}\n{}", nameList1, nameList2);
     }

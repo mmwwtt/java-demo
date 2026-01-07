@@ -6,14 +6,13 @@ hutool JSONUtil中支持jackSon操作
 如何将字节流 变成 浏览器中文件下载
 List<Object>入参不能接收List<String>
 (类型)强转会失败
-stream中map和peek的区别
-Arrays.stream用法
+
 
 为什么注入的接口 而不上实体类
 Collects.toList 出来的是新数组，数组里依旧是老对象的引用
 将多个字符流文件 在内存中压缩成zip(全在内存)
 流式生成，临时文件+边写边zip  适合数据量大的时候
-new HashSe<>(list)  将list转为set
+
 map.forEach((k,v)-> {})
 //多层级下的空指针处理
 public static String getCityName(Order order) {
@@ -82,10 +81,6 @@ LocalContextHolder.setLocale()  //往线程塞上下文呢
 
 		mapStruct 会调用构造方法吗，   json tojavaList会调用构造方法吗   会带上默认值吗 字段 = new ArrayList()<>;
 
-		stream ifPresent
-		Stream isPresent
-
-
 子类继承父类，序列化会不有父类的字段，包括接口返回的报文也是序列化后的结果
 mapstruct 实现类没更新 则重新compiler编译下
 接收MultipartFile 类的文件   在类中 和直接接收
@@ -127,3 +122,11 @@ Object[] args = joinPoint.getArgs();
 
 
 List<StockDetailVO> 作为泛型怎么办
+
+lock 使用
+tyrLock(时间，单位) 超时后返回false;
+
+可重入锁 ，同一把锁同一个线程可以反复拿到（可重入），
+
+
+stream Map 中  类名::方法名的用法
