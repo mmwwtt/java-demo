@@ -1,118 +1,21 @@
-
-
 后端通知前端：webStocket方式， 断网后还能重连吗
 hutool JSONUtil中支持jackSon操作
 什么时候用内部类，内部类可以是public修饰吗
-如何将字节流 变成 浏览器中文件下载
+文件下载 ：1.直接通过字节流下载   2.保存到服务器，再通过下载接口下载
 List<Object>入参不能接收List<String>
 (类型)强转会失败
 
-
-为什么注入的接口 而不上实体类
-Collects.toList 出来的是新数组，数组里依旧是老对象的引用
-将多个字符流文件 在内存中压缩成zip(全在内存)
-流式生成，临时文件+边写边zip  适合数据量大的时候
-
-map.forEach((k,v)-> {})
-//多层级下的空指针处理
-public static String getCityName(Order order) {
-    return Optional.ofNullable(order)
-                   .map(Order::getUser)
-                   .map(User::getAddress)
-                   .map(Address::getCity)
-                   .map(City::getName)
-                   .orElse("UNKNOWN");
-}
-
-
-double Nan除数为0
-finde
-除0和除0.0的问题
-easyExcel 分标签页导出， 对单个标签页加密
-
-
-
-						getColumnNameFromApiModelProperty  获取@Api注解中的内容
-                    					Class<? extends BaseEnum> enumClass = flag ? FooEnum.class : BarEnum.class;
-
-                    						在查询的时候通过条件维护某个字段(冷热物流曲线的是否可计算按钮)   / 在过程中实时维护该字段
-	computeIfPresent   computeIfAbsent
-
-
-
-	ApiModelProperty tt = field.getAnnotation(ApiModelProperty.class)
-
-    		stream 自定义去重方式
-    			   List<Person> distinct = list.stream()
-                    .collect(Collectors.collectingAndThen(
-                            Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(p -> p.name))),
-                            ArrayList::new));
-
-
-    						JSONObject jsonObject = new JSONObject(new LinkedHashMap());
-    						序列化时字段会和插入的顺序保持一致
-
-    						sort如何根据两个外部字段排序  两个枚举  有对应的orderIndex
-    			sort中根据某个enumId去找枚举中的orderIndex 排序，如果enum找不到则过滤 如何实现
-
-
-
-
-List<Dog> dogs = new ArrayList<>();
-List<Animal> animals = dogs;   // ❌ 编译失败
-
-如果你只是要读里面的元素，而不往里写，可以用「上界通配符」：
-List<Dog> dogs = new ArrayList<>();
-List<? extends Animal> animals = dogs;  // ✅ 只读
-Animal a = animals.get(0);              // 可以读
-animals.add(new Dog());                 // ❌ 编译失败，不能写
-
-
-反过来，如果你只想往里写元素，而不依赖读出来的精确类型，可以用「下界通配符」：
-List<Animal> animals = new ArrayList<>();
-List<? super Dog> dogs = animals;  // 可以安全地写入 Dog 及其子类
-dogs.add(new Dog());               // ✅
-dogs.add(new Husky());             // ✅
-Animal a = dogs.get(0);       // 读出来只能是 Object，需要强转
-
 从application中获取值， 带默认值的方式
-LocalContextHolder.setLocale() //获取当前线程
-LocalContextHolder.setLocale()  //往线程塞上下文呢
 
-		mapStruct 会调用构造方法吗，   json tojavaList会调用构造方法吗   会带上默认值吗 字段 = new ArrayList()<>;
-
-子类继承父类，序列化会不有父类的字段，包括接口返回的报文也是序列化后的结果
-mapstruct 实现类没更新 则重新compiler编译下
 接收MultipartFile 类的文件   在类中 和直接接收
-在查询的时候通过条件维护某个字段(冷热物流曲线的是否可计算按钮)   / 在过程中实时维护该字段
-
-
-状态管理 为什么要改成新的
-为什么要修改成新的, 每个修改接口中返回修改了的状态，对代码的入侵太大
-
 
 #执行后 mysql8.0的插入速度大大提升
 set global innodb_flush_log_at_trx_commit = 2;
 set global sync_binlog = 100000;
 
-
-    @Transient   transient  @UnSerializeField的不同
     jdk代理  和cgXX代理   不能用idea查看cgLib动态代理生成的源码类
     AOp是什么代理类型
-
-
-开启新线程后要想上下文给到新线程，如果是线程池复用，则需要用完后清理，避免残留
-MathContext mc = new MathContext(4, RoundingMode.HALF_UP);  bigDecimal 四舍五入
-
-
-guava 工具类使用
-Lists
-Sets
-
-
-JSONObject obj = JSON.parseObject("123");
-System.out.println(obj);        // 输出 null
-
+guava 工具类使用，Lists，Sets
 
 //面向切面， 获取方法中的参数的方式
 Object result = joinPoint.proceed();
@@ -122,11 +25,4 @@ Object[] args = joinPoint.getArgs();
 
 
 List<StockDetailVO> 作为泛型怎么办
-
-lock 使用
-tyrLock(时间，单位) 超时后返回false;
-
-可重入锁 ，同一把锁同一个线程可以反复拿到（可重入），
-
-
 stream Map 中  类名::方法名的用法

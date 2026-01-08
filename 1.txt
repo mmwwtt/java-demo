@@ -1,8 +1,0 @@
-licence证书：868DA37C-9636-4050-9DC6-443B40E82AFC
-
-支付订单编号：4200002897202510205066949134
-
-
-
- //获得当前类的名字
-        return this.getClass().getSimpleName();

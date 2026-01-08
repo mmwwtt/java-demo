@@ -28,6 +28,7 @@ public class UtilClassTest {
 
         BigDecimal num1 = new BigDecimal("123.123");
         BigDecimal num2 = new BigDecimal("12345.12345678910");
+
         //加  scale(保留位数， 四舍五入类型）
         BigDecimal num3 = num1.add(num2).setScale(2, RoundingMode.HALF_UP);
         //减

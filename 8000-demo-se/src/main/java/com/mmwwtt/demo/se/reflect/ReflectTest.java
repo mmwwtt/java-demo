@@ -3,7 +3,9 @@ package com.mmwwtt.demo.se.reflect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -15,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 public class ReflectTest {
-
 
 
     @Test
@@ -55,18 +56,20 @@ public class ReflectTest {
     @Test
     @Disabled("反射-Class类测试")
     public void testClass() throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        Integer num = strTo( Integer.class,"1");
+        Integer num = strTo(Integer.class, "1");
     }
 
     //根据 class对象 进行数据处理
-    private <T> T strTo(Class<T> clazz, String str) throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    private <T> T strTo(Class<T> clazz, String str) throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            InvocationTargetException {
         List<T> res = new ArrayList<>();
 
         //判断当前类对象是什么并处理
         if (clazz == Integer.class) {
             //将对象强转为对应的泛型类 ， 不同类型转换会报错，所以需要Integer.parseInt解析字符串
-             T tmp =  clazz.cast(Integer.parseInt(str));
-        } if (clazz == Long.class) {
+            T tmp = clazz.cast(Integer.parseInt(str));
+        }
+        if (clazz == Long.class) {
             // return Long.parseLong(str);  会报错 需要返回T  但是返回的是Long
             return clazz.cast(Long.parseLong(str));
         }
@@ -103,5 +106,18 @@ public class ReflectTest {
         //获得当前类实现的类/接口
         clazz.getInterfaces();
         return null;
+    }
+
+
+    private static void getAnn(Field field) {
+        //获得字段上的注解
+        field.getAnnotation(RequestMapping.class);
+    }
+
+    @Test
+    @DisplayName("获得当前类的类名")
+    public void test9() {
+        String className = this.getClass().getSimpleName();
+        log.info("{}", className);
     }
 }

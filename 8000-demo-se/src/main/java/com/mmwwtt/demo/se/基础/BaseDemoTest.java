@@ -224,4 +224,17 @@ public class BaseDemoTest {
 
     }
 
+
+    /**
+     * 直接除0会报错
+     * 除 0.0 会得到 Infinity
+     * 0.0 除 0.0 会得到 NaN
+     */
+    @Test
+    public void test11() {
+        Double a = 7/0.0;
+        Double b = 0.0/0.0;
+        log.info("{} {}",a,  b);
+    }
+
 }

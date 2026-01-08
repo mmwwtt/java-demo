@@ -44,14 +44,24 @@ public class 泛型Test {
     }
 
     /**
+     * <? extends T>: 父类接收子类对象
+     */
+    @Test
+    @DisplayName("<? extends T>: 父类接收子类对象")
+    public void test3_0() {
+        //父类接收子类
+        Class<? extends Level_0_1> clazz = Level_0_1_2.class;
+    }
+
+    /**
      * 泛型限定符
-     * <? extends T>: 生产者，不能使用add方法，只能从集合中get元素(用T及T的父类接收)
+     * <? extends T>: 父类接收子类对象，  不能使用add方法，只能从集合中get元素(用T及T的父类接收)
      * <? super T>: 消费者，不能使用get方法，只能往集合中add元素(T及T的子类),读取时要强转
      */
     @Test
     @DisplayName("通过限定符限制可用的泛型类型")
     public void test3() {
-        //用T及T的父类接收
+        //父类接收子类
         List<? extends Level_0_1> level1List1 = List.of(new Level_0_1());
         Level_0 level_0 = level1List1.get(0);
 

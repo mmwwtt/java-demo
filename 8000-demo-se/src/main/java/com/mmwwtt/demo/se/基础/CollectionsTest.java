@@ -113,7 +113,8 @@ public class CollectionsTest {
 
         //sort排序(默认升序排序)
         baseInfoList.sort(Comparator.comparing(BaseInfoVO::getHeight)
-                .thenComparing(BaseInfoVO::getName));
+                .thenComparing(BaseInfoVO::getName)
+                .thenComparing(item -> item.getName()));
 
         //用list2替换该list1中的部分内容
         list.subList(1, 2).clear();   // 先删掉旧段  subList 左闭右开， 不包含to
@@ -340,7 +341,7 @@ public class CollectionsTest {
         }else {
             map2.get(key).add(1);
         }
-        //comcomputeIfAbsent: key不存在时 将(k,v)插入, 返回v
+        //computeIfAbsent: key不存在时 将(k,v)插入, 返回v
         map2.computeIfAbsent(key, k->new ArrayList<>()).add(1);
 
         //compute 需要自行判断key是否存在

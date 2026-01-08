@@ -128,6 +128,14 @@ public class JDK8新特性 {
         log.info("{}", notNull.isPresent());
 
         Optional<String> ableNull = Optional.ofNullable(null);
+
+        //多层级下的空指针处理  一层层get
+//         Optional.ofNullable(order)
+//                .map(Order::getUser)
+//                .map(User::getAddress)
+//                .map(Address::getCity)
+//                .map(City::getName)
+//                .orElse("UNKNOWN");
         log.info("{}", ableNull.isPresent());
 
         String str = ableNull.get();
@@ -400,4 +408,12 @@ public class JDK8新特性 {
                 .toList();
     }
 
+    @Test
+    @DisplayName("list中的对象根据某个字段去重")
+    public void test25() {
+        List<BaseInfo> distinct = list1.stream()
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(BaseInfo::getName))),
+                        ArrayList::new));
+    }
 }

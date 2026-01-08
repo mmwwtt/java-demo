@@ -9,6 +9,7 @@ import com.wwmmtt.demo.springmvc.BaseInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -71,5 +72,10 @@ public class SpringMVCController {
         array.add(json);
         array.add(json2);
         return ApiResponse.success(array);
+    }
+
+    @PostMapping("tt")
+    public void fun(@RequestPart("files")List<MultipartFile> files) {
+
     }
 }
