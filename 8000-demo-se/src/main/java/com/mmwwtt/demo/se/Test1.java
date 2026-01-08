@@ -3,8 +3,7 @@ package com.mmwwtt.demo.se;
 import com.mmwwtt.demo.se.thread.GlobalThreadPool;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class Test1 {
@@ -63,5 +62,12 @@ public class Test1 {
         }
         pool.shutdown();
 
+    }
+
+    @Test
+    public void test2() {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("1", Collections.singletonList("1"));
+        map.get("1").add("2");
     }
 }

@@ -3,6 +3,7 @@ package com.mmwwtt.demo.ee.aop;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.Order;
 import org.springframework.stereotype.Component;
 
@@ -47,8 +48,15 @@ public class DemoAspect {
     //环绕通知  只有环绕通知能用  joinPoint
     @Around("pointcut()")
     public Object aroundAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        // 获取方法中的参数的入参
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        String[] parameterNames = signature.getParameterNames();
+        Object[] args = joinPoint.getArgs();
+
         log.info("Around advice: 方法执行之前");
         Object result = joinPoint.proceed(); // 执行目标方法
+
         log.info("Around advice: 方法执行之后");
         return result;
     }

@@ -2,27 +2,13 @@
 hutool JSONUtil中支持jackSon操作
 什么时候用内部类，内部类可以是public修饰吗
 文件下载 ：1.直接通过字节流下载   2.保存到服务器，再通过下载接口下载
-List<Object>入参不能接收List<String>
-(类型)强转会失败
-
-从application中获取值， 带默认值的方式
-
-接收MultipartFile 类的文件   在类中 和直接接收
 
 #执行后 mysql8.0的插入速度大大提升
 set global innodb_flush_log_at_trx_commit = 2;
 set global sync_binlog = 100000;
 
-    jdk代理  和cgXX代理   不能用idea查看cgLib动态代理生成的源码类
-    AOp是什么代理类型
+jdk代理  和cgXX代理   不能用idea查看cgLib动态代理生成的源码类
+AOp是什么代理类型
 guava 工具类使用，Lists，Sets
 
-//面向切面， 获取方法中的参数的方式
-Object result = joinPoint.proceed();
-MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-String[] parameterNames = signature.getParameterNames();
-Object[] args = joinPoint.getArgs();
 
-
-List<StockDetailVO> 作为泛型怎么办
-stream Map 中  类名::方法名的用法

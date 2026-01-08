@@ -1,6 +1,7 @@
 package com.mmwwtt.demo.ee.apachecommons;
 
 
+import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.demo.common.util.CommonUtils;
 import com.mmwwtt.demo.common.vo.BaseInfoVO;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.function.*;
 
 @Slf4j
@@ -84,5 +86,8 @@ public class CommonsLang3Test {
         BiFunction<Integer, Integer, String> biFunction2 = str::substring;
         String biFunRes2 = biFunction2.apply(1,2);
 
+
+        //此处类名::方法名 等价于 item -> item.方法名()
+        List<String> list = BaseInfo.getPresetList().stream().map(BaseInfo::getName).toList();
     }
 }

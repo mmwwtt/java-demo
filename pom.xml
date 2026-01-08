@@ -34,7 +34,7 @@
     <module>8004-demo-springmvc</module>
     <module>8116-demo-activiti</module>
     <module>8117-demo-security</module>
-      <module>untitled1</module>
+      <module>8301-stock</module>
       <module>8201-demo-springmvc-context</module>
   </modules>
 

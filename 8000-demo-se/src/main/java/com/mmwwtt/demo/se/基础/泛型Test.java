@@ -6,7 +6,6 @@ import com.mmwwtt.demo.se.common.Level_0;
 import com.mmwwtt.demo.se.common.Level_0_1;
 import com.mmwwtt.demo.se.common.Level_0_1_2;
 import com.mmwwtt.demo.se.common.Message;
-import com.mmwwtt.demo.se.基础.枚举.MyEnum;
 import com.mmwwtt.demo.se.基础.枚举.MyEnum1;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -51,6 +50,22 @@ public class 泛型Test {
     public void test3_0() {
         //父类接收子类
         Class<? extends Level_0_1> clazz = Level_0_1_2.class;
+
+        List<String> strList = new ArrayList<>();
+        List<Object> objList = new ArrayList<>();
+
+
+        List<? extends Object> objList1 = strList;
+        List<? super String> strList1 = objList;
+
+        //会报错
+//        List<Object> objList2 = strList;
+//        List<String> strList2 = objList;
+
+    }
+
+    public void fun(List<? extends  Object> list) {
+
     }
 
     /**
@@ -90,7 +105,7 @@ public class 泛型Test {
      */
     @Test
     public void test5() {
-        Class<? extends BaseEnum> enumClass = true ? MyEnum1.class : MyEnum.class;
+        Class<? extends BaseEnum> enumClass = MyEnum1.class;
     }
 
     /**
@@ -130,4 +145,10 @@ public class 泛型Test {
             log.info("object");
         }
     }
+
+    //泛型中 还有泛型的入参方法示例
+    public <T> T fun1(String str, Class<T> clazz, Class<?> paramClazz) {
+        return null;
+    }
+
 }

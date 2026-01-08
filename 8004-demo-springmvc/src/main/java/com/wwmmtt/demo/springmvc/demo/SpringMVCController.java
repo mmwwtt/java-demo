@@ -7,6 +7,7 @@ import com.mmwwtt.demo.common.entity.多态.Animal;
 import com.mmwwtt.demo.common.response.ApiResponse;
 import com.wwmmtt.demo.springmvc.BaseInfo;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -75,7 +76,19 @@ public class SpringMVCController {
     }
 
     @PostMapping("tt")
-    public void fun(@RequestPart("files")List<MultipartFile> files) {
+    public void fun(@RequestParam("file") MultipartFile imgFile) {
+        log.info(imgFile.toString());
+    }
+
+    @PostMapping("tt")
+    public void fun1(fileVO fileVO) {
+        log.info(fileVO.toString());
+    }
+
+    @Data
+    public class fileVO {
+       private MultipartFile file;
+       private String name;
 
     }
 }

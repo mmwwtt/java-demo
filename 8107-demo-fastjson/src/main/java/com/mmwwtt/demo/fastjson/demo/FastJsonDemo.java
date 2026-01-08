@@ -8,6 +8,7 @@ import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.demo.common.response.ApiResponse;
 import com.mmwwtt.demo.common.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -134,5 +135,12 @@ public class FastJsonDemo {
         array.add(json);
         array.add(json2);
         return ApiResponse.success(array);
+    }
+
+    @Test
+    @DisplayName("java对象转 JSONObject对象")
+    public void test7() {
+        JSONObject json = (JSONObject)JSON.toJSON(BaseInfo.getInstance());
+        log.info(json.toJSONString());
     }
 }
