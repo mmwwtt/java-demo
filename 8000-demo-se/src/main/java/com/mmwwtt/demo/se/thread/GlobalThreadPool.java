@@ -16,7 +16,6 @@ public class GlobalThreadPool {
     private final ExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(100);
 
 
-
     // 定义线程池的核心线程数
     private static final int CORE_POOL_SIZE = 5;
     // 定义线程池的最大线程数
@@ -44,7 +43,10 @@ public class GlobalThreadPool {
                             UNIT,
                             WORK_QUEUE,
                             new ThreadPoolExecutor.AbortPolicy()
-                    );
+                    ) {{
+                        // 设置允许核心线程超时空闲 后也被销毁
+                        allowCoreThreadTimeOut(true);
+                    }};
                 }
             }
         }

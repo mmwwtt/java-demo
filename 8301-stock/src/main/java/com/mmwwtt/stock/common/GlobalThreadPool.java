@@ -20,7 +20,7 @@ public class GlobalThreadPool {
     // 定义线程池的核心线程数
     private static final int CORE_POOL_SIZE = 10;
     // 定义线程池的最大线程数
-    private static final int MAXIMUM_POOL_SIZE = 20;
+    private static final int MAXIMUM_POOL_SIZE = 40;
     // 线程空闲存活时间
     private static final long KEEP_ALIVE_TIME = 6000;
     // 时间单位（秒）
