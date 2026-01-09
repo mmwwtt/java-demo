@@ -22,7 +22,7 @@ public class StockStrategyUtils {
         STRATEGY_LIST.add(Pair.of("当天是红", StockStrategyUtils::strategy3));
         STRATEGY_LIST.add(Pair.of("当天是绿", StockStrategyUtils::strategy4));
         STRATEGY_LIST.add(Pair.of("比前一天放量", StockStrategyUtils::strategy5));
-        STRATEGY_LIST.add(Pair.of("连续两天缩量且 当天是阳线", StockStrategyUtils::strategy6));
+        STRATEGY_LIST.add(Pair.of("连续2天放量，且当天是红", StockStrategyUtils::strategy6));
         STRATEGY_LIST.add(Pair.of("缩量红", StockStrategyUtils::strategy7));
         STRATEGY_LIST.add(Pair.of("缩量绿", StockStrategyUtils::strategy8));
         STRATEGY_LIST.add(Pair.of("涨幅成交比扩大 缩量 二连红", StockStrategyUtils::strategy9));
@@ -48,11 +48,18 @@ public class StockStrategyUtils {
 
     }
 
+    /**
+     * 十字星
+     * 实体占比 ≤ 5%
+     */
     public static boolean strategy0(StockDetail t0) {
         return t0.getIsTenStar();
     }
 
 
+    /**
+     * 二连红
+     */
     public static boolean strategy1(StockDetail t0) {
         if (Objects.isNull(t0.getT1())) {
             return false;
@@ -61,21 +68,35 @@ public class StockStrategyUtils {
     }
 
 
+    /**
+     * 啥也不做
+     */
     public static boolean strategy2(StockDetail t0) {
         return true;
     }
 
 
+    /**
+     * 当天是红
+     */
     public static boolean strategy3(StockDetail t0) {
         return t0.getIsUp();
     }
 
 
+    /**
+     * 当天是绿
+     * @param t0
+     * @return
+     */
     public static boolean strategy4(StockDetail t0) {
         return t0.getIsDown();
     }
 
 
+    /**
+     * 成交量比前一天大
+     */
     public static boolean strategy5(StockDetail t0) {
         if (Objects.isNull(t0.getT1())) {
             return false;
@@ -84,16 +105,23 @@ public class StockStrategyUtils {
     }
 
 
+    /**
+     *
+     * 连续2天放量，且当天是红
+     */
     public static boolean strategy6(StockDetail t0) {
         if (Objects.isNull(t0.getT1()) || Objects.isNull(t0.getT2())) {
             return false;
         }
         return t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) < 0
                 && t0.getT1().getDealQuantity().compareTo(t0.getT2().getDealQuantity()) < 0
-                && t0.getPricePert().compareTo(BigDecimal.ZERO) > 0;
+                && t0.getIsUp();
     }
 
 
+    /**
+     * 缩量红
+     */
     public static boolean strategy7(StockDetail t0) {
         if (Objects.isNull(t0.getT1())) {
             return false;
@@ -103,6 +131,9 @@ public class StockStrategyUtils {
     }
 
 
+    /**
+     * 缩量绿
+     */
     public static boolean strategy8(StockDetail t0) {
         if (Objects.isNull(t0.getT1())) {
             return false;
@@ -112,6 +143,9 @@ public class StockStrategyUtils {
     }
 
 
+    /**
+     * 涨幅成交比扩大 缩量 二连红
+     */
     public static boolean strategy9(StockDetail t0) {
         if (Objects.isNull(t0.getT1())) {
             return false;
@@ -123,6 +157,9 @@ public class StockStrategyUtils {
     }
 
 
+    /**
+     * 涨幅成交比扩大 缩量红
+     */
     public static boolean strategy10(StockDetail t0) {
         if (Objects.isNull(t0.getT1())) {
             return false;
@@ -133,6 +170,9 @@ public class StockStrategyUtils {
     }
 
 
+    /**
+     * 涨幅成交比扩大 缩量
+     */
     public static boolean strategy11(StockDetail t0) {
         if (Objects.isNull(t0.getT1())) {
             return false;
@@ -142,6 +182,9 @@ public class StockStrategyUtils {
     }
 
 
+    /**
+     * 涨幅成交比扩大
+     */
     public static boolean strategy12(StockDetail t0) {
         if (Objects.isNull(t0.getT1())) {
             return false;
@@ -150,6 +193,9 @@ public class StockStrategyUtils {
     }
 
 
+    /**
+     * 上升缺口 成交量超过5日线
+     */
     public static boolean strategy13(StockDetail t0) {
         if (Objects.isNull(t0.getT1())) {
             return false;
@@ -345,6 +391,13 @@ public class StockStrategyUtils {
                 t0.getEntityPert().compareTo(new BigDecimal("1")) >= 0;
 
         // 3. 振幅 ≥ 4%
+        try {
+            BigDecimal amplitude = t0.getHighPrice()
+                    .subtract(t0.getLowPrice())
+                    .divide(t0.getLowPrice(), 4, RoundingMode.HALF_UP);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         BigDecimal amplitude = t0.getHighPrice()
                 .subtract(t0.getLowPrice())
                 .divide(t0.getLowPrice(), 4, RoundingMode.HALF_UP);

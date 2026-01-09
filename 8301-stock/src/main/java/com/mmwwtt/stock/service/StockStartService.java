@@ -295,7 +295,7 @@ public class StockStartService {
         Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>();
         log.info("开始查询股票数据");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<List<Stock>> parts = Lists.partition(stockList, 100);
+        List<List<Stock>> parts = Lists.partition(stockList, 10);
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {

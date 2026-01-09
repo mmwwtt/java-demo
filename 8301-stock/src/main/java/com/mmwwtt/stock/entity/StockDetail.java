@@ -127,6 +127,10 @@ public class StockDetail {
 
     /**
      * 5日均量
+     * 当日/5日均量
+     * 大于 1.5 为温和放量
+     * 大于2 为明显放量
+     * 小于0.5为严重缩量
      */
     private BigDecimal fiveDayDealQuantity;
 
@@ -255,6 +259,51 @@ public class StockDetail {
      */
     @TableField(exist = false)
     private StockDetail t5;
+
+
+    /**
+     * 量比  相较5日线
+     */
+    @TableField(exist = false)
+    private BigDecimal quantityRatio;
+
+
+    /**
+     * 放量
+     */
+    @TableField(exist = false)
+    private Boolean isUpQuantity = false;
+
+    /**
+     * 明显放量
+     */
+    @TableField(exist = false)
+    private Boolean getIsBigUpQuantity = false;
+
+    /**
+     * 缩量
+     */
+    @TableField(exist = false)
+    private Boolean getIsDownQuantity = false;
+
+
+    /**
+     * 较五日均量  放量
+     */
+    @TableField(exist = false)
+    private Boolean isUpQuantityForFive = false;
+
+    /**
+     * 较五日均量  明显放量
+     */
+    @TableField(exist = false)
+    private Boolean getIsBigUpQuantityForFive = false;
+
+    /**
+     * 较五日均量  缩量
+     */
+    @TableField(exist = false)
+    private Boolean getIsDownQuantityForFive = false;
 
     public void calc() {
         allLen = highPrice.subtract(lowPrice).abs();

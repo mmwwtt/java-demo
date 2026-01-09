@@ -43,6 +43,7 @@ import static com.mmwwtt.stock.common.Constants.*;
 
 /**
  * 必盈url   https://www.biyingapi.com/
+ * 限流 每分钟200次接口调用
  */
 @Slf4j
 @SpringBootTest
@@ -66,16 +67,29 @@ public class Main {
     private StockCalcResDao stockCalcResDao;
 
     @Test
+    @DisplayName("获得数据")
+    public void getDataTest() {
+        Map<String, String> map1 = new HashMap<>();
+        map1.put(LICENCE, BI_YING_LICENCE);
+        map1.put(STOCK_CODE, "600721.SH");
+        map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
+        map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
+        map1.put(START_DATA, "20251201");
+        map1.put(END_DATA, getNowData());
+        map1.put(MAX_SIZE, "350");
+        List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
+        });
+        log.info(stockDetailVOs.toString());
+    }
+
+    @Test
     @DisplayName("调接口获取每日的股票数据")
     public void dataDownLoad() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
         Map<String, String> map = new HashMap<>();
         map.put(LICENCE, BI_YING_LICENCE);
-        ResponseEntity<List<StockVO>> stocksListResponse = restTemplate.exchange(STOCK_LIST_URL, HttpMethod.GET,
-                null, new ParameterizedTypeReference<>() {
-                }, map);
-        List<StockVO> stockVOList = stocksListResponse.getBody();
+        List<StockVO> stockVOList = getResponse(STOCK_LIST_URL, map, new ParameterizedTypeReference<List<StockVO>>() {});
         List<Stock> stockList = StockConverter.INSTANCE.convertToStock(stockVOList);
         stockList = stockList.stream().filter(stock -> !stock.getCode().startsWith("30")
                 && !stock.getCode().startsWith("68")
@@ -88,8 +102,7 @@ public class Main {
     @Test
     @DisplayName("调接口获取每日的股票详细数据-全量")
     public void dataDetailDownLoad() throws InterruptedException, ExecutionException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        String nowDate = LocalDate.now().format(formatter);
+        String nowDate = getNowData();
         List<Stock> stockList = stockStartService.getAllStock();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
@@ -183,6 +196,7 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        dataDetailCalc();
     }
 
 
@@ -220,17 +234,19 @@ public class Main {
                 }
             },pool);
             futures.add(future);
-            CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-            allTask.get();
         }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        dataDetailCalc();
     }
 
 
     @Test
     @DisplayName("计算股票的衍生数据")
     public void dataDetailCalc() throws InterruptedException, ExecutionException {
+        log.info("计算衍生数据--开始");
         List<Stock> stockList = stockStartService.getAllStock();
-        List<List<Stock>> parts = Lists.partition(stockList, 100);
+        List<List<Stock>> parts = Lists.partition(stockList, 10);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
@@ -248,6 +264,7 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        log.info("衍生数据计算--完毕");
     }
 
     @Test
@@ -320,13 +337,28 @@ public class Main {
     @DisplayName("上升缺口 成交量超过5日线")
     public void getStock1() throws InterruptedException, ExecutionException {
         List<Stock> stockList = stockStartService.getAllStock();
-        List<Stock> resList = new ArrayList<>();
-        List<List<Stock>> parts = Lists.partition(stockList, 100);
+        Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>();
+        log.info("开始查询股票数据");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<List<Stock>> parts = Lists.partition(stockList, 10);
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
                     List<StockDetail> stockDetails = stockStartService.getAllStockDetail(stock.getCode());
+                    codeToDetailMap.put(stock.getCode(), stockDetails);
+                }
+            }, pool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+
+        log.info("开始计算");
+        List<Stock> resList = new ArrayList<>();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = codeToDetailMap.get(stock.getCode());
                     if (CollectionUtils.isEmpty(stockDetails)) {
                         continue;
                     }
@@ -337,8 +369,9 @@ public class Main {
             }, pool);
             futures.add(future);
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        log.info("计算结束");
         String filePath = "src/main/resources/file/test.txt";
 
         File file = new File(filePath);
