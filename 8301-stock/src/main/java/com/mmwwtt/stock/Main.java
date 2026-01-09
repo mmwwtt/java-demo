@@ -104,25 +104,16 @@ public class Main {
                     map1.put(START_DATA, "20250101");
                     map1.put(END_DATA, nowDate);
                     map1.put(MAX_SIZE, "350");
-                    ResponseEntity<List<StockDetailVO>> response =null;
-                    while (true) {
-                        try {
-                            response = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET, null, new ParameterizedTypeReference<List<StockDetailVO>>() {
-                            }, map1);
-                            break;
-                        } catch (Exception e) {
-
-                            try {
-                                Thread.sleep(5000);
-                            } catch (InterruptedException ex) {
-                                throw new RuntimeException(ex);
-                            }
-
-                        }
+                    log.info(stock.getCode());
+                    List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
+                    });
+                    if (Objects.isNull(stockDetailVOs)) {
+                        continue;
                     }
-                    List<StockDetailVO> stockDetailVOs = response.getBody().stream()
-                            .filter(item -> item.getSf() == 0)
+                    String json = JSON.toJSONString(stockDetailVOs);
+                    stockDetailVOs = stockDetailVOs.stream()
                             .peek(item -> item.setStockCode(stock.getCode()))
+                            .filter(item -> item.getSf() == 0)
                             .collect(Collectors.toList());
                     List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
 
@@ -137,7 +128,7 @@ public class Main {
                     }
                     stockDetailDao.insertOrUpdate(stockDetails);
                 }
-            });
+            },pool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -165,21 +156,12 @@ public class Main {
                     map1.put(START_DATA, "20251220");
                     map1.put(END_DATA, nowDate);
                     map1.put(MAX_SIZE, "30");
-                    ResponseEntity<List<StockDetailVO>> response =null;
-                    while (true) {
-                        try {
-                            response = restTemplate.exchange(HISTORY_DATA_URL, HttpMethod.GET, null, new ParameterizedTypeReference<List<StockDetailVO>>() {
-                            }, map1);
-                            break;
-                        } catch (Exception e) {
-                            try {
-                                Thread.sleep(5000);
-                            } catch (Exception e1) {
-                                break;
-                            }
-                        }
+                    log.info(stock.getCode());
+                    List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {});
+                    if (Objects.isNull(stockDetailVOs)) {
+                        continue;
                     }
-                    List<StockDetailVO> stockDetailVOs = response.getBody().stream()
+                    stockDetailVOs = stockDetailVOs.stream()
                             .filter(item -> item.getSf() == 0)
                             .peek(item -> item.setStockCode(stock.getCode()))
                             .collect(Collectors.toList());
@@ -196,7 +178,7 @@ public class Main {
                     }
                     stockDetailDao.insertOrUpdate(stockDetails);
                 }
-            });
+            },pool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -218,20 +200,13 @@ public class Main {
                     Map<String, String> map1 = new HashMap<>();
                     map1.put(LICENCE, BI_YING_LICENCE);
                     map1.put(STOCK_CODE, stock.getCode().split("\\.")[0]);
-                    ResponseEntity<StockDetailOnTimeVO> response= restTemplate.exchange(ON_TIME_DATA_URL, HttpMethod.GET, null,  StockDetailOnTimeVO.class, map1);
-                    while (true) {
-                        try {
-                            response = restTemplate.exchange(ON_TIME_DATA_URL, HttpMethod.GET, null,  StockDetailOnTimeVO.class, map1);
-                            break;
-                        } catch (Exception e) {
-                            try {
-                                Thread.sleep(5000);
-                            } catch (Exception e1) {
-                                break;
-                            }
-                        }
+                    log.info(stock.getCode());
+                    StockDetailOnTimeVO stockDetailOnTimeVO = getResponse(ON_TIME_DATA_URL, map1, new ParameterizedTypeReference<StockDetailOnTimeVO>() {
+                    });
+                    if (Objects.isNull(stockDetailOnTimeVO)) {
+                        continue;
                     }
-                    StockDetail stockDetail = StockConverter.INSTANCE.convertToStockDetail(response.getBody());
+                    StockDetail stockDetail = StockConverter.INSTANCE.convertToStockDetail(stockDetailOnTimeVO);
                     stockDetail.setStockCode(stock.getCode());
 
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
@@ -243,7 +218,7 @@ public class Main {
                     }
                     stockDetailDao.insertOrUpdate(stockDetail);
                 }
-            });
+            },pool);
             futures.add(future);
             CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
             allTask.get();
@@ -388,4 +363,30 @@ public class Main {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         return LocalDate.now().format(formatter);
     }
+
+    private <T> T getResponse(String url, Map<String, String> paramMap, ParameterizedTypeReference reference) {
+        int cnt = 0;
+        while (true) {
+            cnt++;
+            if (cnt > 4) {
+                return null;
+            }
+            try {
+                ResponseEntity<T> res = restTemplate.exchange(url, HttpMethod.GET, null, reference, paramMap);
+                return res.getBody();
+            } catch (Exception e) {
+                try {
+                    Thread.sleep(5000);
+                } catch (Exception e1) {
+                    break;
+                }
+                //打印除限流外的错误
+                if(e.getMessage().startsWith("429")) {
+                    log.info("{}", e);
+                }
+            }
+        }
+        return null;
+    }
+
 }
