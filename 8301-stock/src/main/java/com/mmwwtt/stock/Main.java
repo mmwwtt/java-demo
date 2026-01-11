@@ -123,7 +123,6 @@ public class Main {
                     if (Objects.isNull(stockDetailVOs)) {
                         continue;
                     }
-                    String json = JSON.toJSONString(stockDetailVOs);
                     stockDetailVOs = stockDetailVOs.stream()
                             .peek(item -> item.setStockCode(stock.getCode()))
                             .filter(item -> item.getSf() == 0)
@@ -259,7 +258,7 @@ public class Main {
                     StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);
                 }
-            }, pool);
+            });
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -362,7 +361,7 @@ public class Main {
                     if (CollectionUtils.isEmpty(stockDetails)) {
                         continue;
                     }
-                    if (StockStrategyUtils.strategy13(stockDetails.get(0))) {
+                    if (StockStrategyUtils.strategy28(stockDetails.get(0))) {
                         resList.add(stock);
                     }
                 }

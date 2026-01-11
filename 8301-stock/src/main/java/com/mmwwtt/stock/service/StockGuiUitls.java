@@ -7,6 +7,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +21,7 @@ public class StockGuiUitls {
     private static final int MARGIN = 40;   // 四边留白
     private static final int GAP    = 10;   // K 线区与量区间距
 
-    public static void genDetailImage(StockDetail t0) throws IOException {
+    public static void genDetailImage(StockDetail t0, String path) throws IOException {
         List<StockDetail> list = new ArrayList<>();
         list.add(t0.getNext());
         list.add(t0);
@@ -33,7 +35,8 @@ public class StockGuiUitls {
         /* 2. 绘图并保存 */
         BufferedImage img = draw(list);
         String imageName = String.format("%s_%s.png", t0.getStockCode(),t0.getDealDate().substring(0,10));
-        String filePath = "D:\\1.moweitao\\test\\";
+        String filePath = "D:\\1.moweitao\\test\\" + path + "\\";
+        Files.createDirectories(Path.of(filePath));
         File file = new File(filePath + imageName);
         ImageIO.write(img, "PNG", file);
     }

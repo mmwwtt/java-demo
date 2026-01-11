@@ -46,6 +46,8 @@ public class StockStrategyUtils {
         STRATEGY_LIST.add(Pair.of("缩量十字星 次日放量阳", StockStrategyUtils::strategy26));
         STRATEGY_LIST.add(Pair.of("缩量回踩10日线后放量", StockStrategyUtils::strategy27));
 
+        STRATEGY_LIST.add(Pair.of("上升缺口", StockStrategyUtils::strategy28));
+
     }
 
     /**
@@ -498,5 +500,15 @@ public class StockStrategyUtils {
         boolean above10 = t0.getEndPrice().compareTo(t0.getTenDayLine()) > 0;
 
         return shrink && touch10 && upToday && above10;
+    }
+
+    /**
+     * 上升缺口
+     */
+    public static boolean strategy28(StockDetail t0) {
+        if (Objects.isNull(t0.getT1())) {
+            return false;
+        }
+        return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0;
     }
 }

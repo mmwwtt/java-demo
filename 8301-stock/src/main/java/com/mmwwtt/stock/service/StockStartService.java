@@ -394,10 +394,11 @@ public class StockStartService {
         calcRes.setType(type);
         stockCalcResDao.insert(calcRes);
 
-        if(strategyDesc.contains("双针探底")) {
+        String desc ="上升缺口";
+        if(strategyDesc.equals(desc)) {
             allAfterList.forEach(item -> {
                 try {
-                    StockGuiUitls.genDetailImage(item);
+                    StockGuiUitls.genDetailImage(item, desc);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
