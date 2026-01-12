@@ -52,4 +52,8 @@ public class StockDetailVO {
     private int sf;
 
     private String stockCode;
+
+    public void setT(String t){
+        this.t = t.substring(0, 10);
+    }
 }

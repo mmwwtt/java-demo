@@ -383,6 +383,12 @@ public class StockStartService {
         BigDecimal percRate = allAfterList.stream().map(item -> item.getNext().getPricePert())
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .divide(new BigDecimal(allAfterList.size()), 4, RoundingMode.HALF_UP);
+
+        BigDecimal winPercRate = allAfterList.stream()
+                .filter(StockDetail::getIsUp)
+                .map(item -> item.getNext().getPricePert())
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(new BigDecimal(allAfterList.size()), 4, RoundingMode.HALF_UP);
         BigDecimal winRate = new BigDecimal(correctCount).divide(new BigDecimal(allAfterList.size()), 4, RoundingMode.HALF_UP);
         StockCalcRes calcRes = new StockCalcRes();
         calcRes.setStrategyDesc(strategyDesc);

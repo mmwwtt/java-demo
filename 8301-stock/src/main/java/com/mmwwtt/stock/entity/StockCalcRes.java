@@ -48,6 +48,11 @@ public class StockCalcRes {
     private BigDecimal percRate;
 
     /**
+     * 预测后的预测对的平均涨幅
+     */
+    private BigDecimal winPercRate;
+
+    /**
      * 符合条件的数据量
      */
     private Integer allCnt;

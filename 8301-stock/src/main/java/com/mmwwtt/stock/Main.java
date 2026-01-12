@@ -71,7 +71,7 @@ public class Main {
     public void getDataTest() {
         Map<String, String> map1 = new HashMap<>();
         map1.put(LICENCE, BI_YING_LICENCE);
-        map1.put(STOCK_CODE, "600721.SH");
+        map1.put(STOCK_CODE, "605162.SH");
         map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
         map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
         map1.put(START_DATA, "20251201");
@@ -81,6 +81,16 @@ public class Main {
         });
         log.info(stockDetailVOs.toString());
     }
+
+    @Test
+    @DisplayName("从0开始构建数据")
+    public void start() throws ExecutionException, InterruptedException {
+        dataDownLoad();
+        dataDetailDownLoad();
+        dataDetailCalc();
+    }
+
+
 
     @Test
     @DisplayName("调接口获取每日的股票数据")
@@ -145,7 +155,6 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        dataDetailCalc();
     }
 
 
