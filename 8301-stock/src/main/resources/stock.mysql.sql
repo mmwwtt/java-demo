@@ -124,3 +124,9 @@ order by  deal_date desc;
 
 select * from stock_detail_t
 order by  stock_detail_Id desc;
+
+
+select *
+from stock_detail_t
+where stock_code = '605162.SH'
+order by  stock_detail_Id desc;

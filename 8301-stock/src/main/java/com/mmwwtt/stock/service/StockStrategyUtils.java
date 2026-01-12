@@ -415,12 +415,15 @@ public class StockStrategyUtils {
             if (Objects.isNull(t0.getT1())) {
                 return false;
             }
+            if(t0.getPricePert().compareTo(new BigDecimal("0.05")) >0 || t0.getPricePert().compareTo(new BigDecimal("0.015") ) <0) {
+                return false;
+            }
             return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0;
         }));
     }
 
     public static StockStrategy getStrategy(String name) {
-        return STRATEGY_LIST.stream().filter(item -> item.getStrategyName().startsWith(name)).findFirst().orElse(null);
+        return STRATEGY_LIST.stream().filter(item -> Objects.equals(item.getStrategyName(), name)).findFirst().orElse(null);
     }
 
 }
