@@ -415,10 +415,26 @@ public class StockStrategyUtils {
             if (Objects.isNull(t0.getT1())) {
                 return false;
             }
-            if(t0.getPricePert().compareTo(new BigDecimal("0.05")) >0 || t0.getPricePert().compareTo(new BigDecimal("0.015") ) <0) {
+            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0;
+        }));
+
+
+        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量", (StockDetail t0) -> {
+            if (Objects.isNull(t0.getT1())) {
                 return false;
             }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0;
+            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
+                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0;
+        }));
+
+
+        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且涨幅＜8%", (StockDetail t0) -> {
+            if (Objects.isNull(t0.getT1())) {
+                return false;
+            }
+            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
+                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
+                    && t0.getPricePert().compareTo(new BigDecimal("0.07")) <0;
         }));
     }
 

@@ -95,6 +95,7 @@ public class Main {
     @Test
     @DisplayName("调接口获取每日的股票数据")
     public void dataDownLoad() {
+        log.info("下载股票数据");
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
         Map<String, String> map = new HashMap<>();
@@ -112,6 +113,7 @@ public class Main {
     @Test
     @DisplayName("调接口获取每日的股票详细数据-全量")
     public void dataDetailDownLoad() throws InterruptedException, ExecutionException {
+        log.info("下载股票详细数据");
         String nowDate = getNowData();
         List<Stock> stockList = stockStartService.getAllStock();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -155,12 +157,14 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        log.info("end");
     }
 
 
     @Test
     @DisplayName("调接口获取每日的股票详细数据-增量")
     public void dataDetailDownLoadAdd() throws InterruptedException, ExecutionException {
+        log.info("下载股票详细增量数据");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String nowDate = LocalDate.now().format(formatter);
         List<Stock> stockList = stockStartService.getAllStock();
@@ -204,13 +208,14 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        dataDetailCalc();
+        log.info("end");
     }
 
 
     @Test
     @DisplayName("调接口获取实时数据")
     public void dataDetailDownLoadOnTime() throws InterruptedException, ExecutionException {
+        log.info("获取实时数据");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String nowDate = LocalDate.now().format(formatter);
         List<Stock> stockList = stockStartService.getAllStock();
@@ -245,7 +250,7 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        dataDetailCalc();
+        log.info("end");
     }
 
 

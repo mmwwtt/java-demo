@@ -397,11 +397,12 @@ public class StockStartService {
         calcRes.setCreateDate(dataTime);
         calcRes.setAllCnt(allAfterList.size());
         calcRes.setType(type);
+        calcRes.setWinPercRate(winPercRate);
         stockCalcResDao.insert(calcRes);
 
-        String desc ="上升缺口";
+        String desc ="上升缺口 且缩量";
         if(strategyDesc.equals(desc)) {
-            allAfterList.forEach(item -> {
+            allAfterList.stream().filter(item->item.getNext().getIsDown()).forEach(item -> {
                 try {
                     StockGuiUitls.genDetailImage(item, desc);
                 } catch (IOException e) {

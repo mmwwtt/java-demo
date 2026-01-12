@@ -314,7 +314,7 @@ public class StockDetail {
         entityLen = endPrice.subtract(startPrice).abs();
         entityPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : entityLen.divide(allLen, 4, RoundingMode.HALF_UP);
         isUp = endPrice.compareTo(lastPrice) > 0;
-        isDown = endPrice.compareTo(startPrice) < 0;
+        isDown = endPrice.compareTo(lastPrice) < 0;
         isBalance = endPrice.compareTo(startPrice) == 0;
         pertDivisionQuantity = dealQuantity.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 20, RoundingMode.HALF_UP);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
