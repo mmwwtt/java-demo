@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.function.Function;
 
 @Data
 @AllArgsConstructor
@@ -42,4 +43,20 @@ public class StockStrategy {
      * 涨跌幅上限
      */
     private BigDecimal pricePertUpLimit;
+
+    /**
+     * 策略名称
+     */
+    private String strategyName;
+
+    /**
+     * 策略具体判断
+     */
+    public Function<StockDetail, Boolean> run;
+
+    public StockStrategy(String strategyName, Function<StockDetail, Boolean> run) {
+        this.strategyName = strategyName;
+        this.run = run;
+    }
+
 }

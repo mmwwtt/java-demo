@@ -361,7 +361,7 @@ public class Main {
                     if (CollectionUtils.isEmpty(stockDetails)) {
                         continue;
                     }
-                    if (StockStrategyUtils.strategy28(stockDetails.get(0))) {
+                    if (StockStrategyUtils.getStrategy("红三兵").run.apply(stockDetails.get(0))) {
                         resList.add(stock);
                     }
                 }

@@ -8,13 +8,15 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.dao.StockCalcResDao;
 import com.mmwwtt.stock.dao.StockDao;
 import com.mmwwtt.stock.dao.StockDetailDao;
-import com.mmwwtt.stock.entity.*;
+import com.mmwwtt.stock.entity.Stock;
+import com.mmwwtt.stock.entity.StockCalcRes;
+import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StockStrategy;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,7 +28,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.function.Function;
 
 @Service
 @Slf4j
@@ -312,20 +313,18 @@ public class StockStartService {
         log.info("开始计算");
         futures = new ArrayList<>();
         LocalDateTime dataTime = LocalDateTime.now();
-        List<Pair<String, Function<StockDetail, Boolean>>> strategyList = StockStrategyUtils.STRATEGY_LIST;
 
-        for (Pair<String, Function<StockDetail, Boolean>> strategy : strategyList) {
-            String desc = strategy.getLeft();
-            Function<StockDetail, Boolean> func = strategy.getRight();
+        for (StockStrategy strategy : StockStrategyUtils.STRATEGY_LIST) {
+
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 List<StockDetail> allAfterList = new ArrayList<>();
                 codeToDetailMap.forEach((stockCode, detailList) -> {
                     List<StockDetail> afterList = detailList.stream()
                             .filter(item -> Objects.nonNull(item.getNext()))
-                            .filter(func::apply).toList();
+                            .filter(item -> strategy.run.apply(item)).toList();
                     allAfterList.addAll(afterList);
                 });
-                saveCalcRes(allAfterList, desc, dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
+                saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
             }, pool);
             futures.add(future);
         }
