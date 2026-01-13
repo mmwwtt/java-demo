@@ -29,6 +29,8 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -243,6 +245,7 @@ public class Main {
                     if (CollectionUtils.isNotEmpty(list)) {
                         stockDetail.setStockDetailId(list.get(0).getStockDetailId());
                     }
+                    stockDetail.setPertDivisionQuantity(stockDetail.getPertDivisionQuantity().divide(new BigDecimal("0.8333"), 4, RoundingMode.HALF_UP));
                     stockDetailDao.insertOrUpdate(stockDetail);
                 }
             },pool);
