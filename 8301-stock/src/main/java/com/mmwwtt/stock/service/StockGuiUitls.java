@@ -23,6 +23,8 @@ public class StockGuiUitls {
 
     public static void genDetailImage(StockDetail t0, String path) throws IOException {
         List<StockDetail> list = new ArrayList<>();
+        list.add(t0.getNextTen());
+        list.add(t0.getNextFive());
         list.add(t0.getNext());
         list.add(t0);
         list.add(t0.getT1());
@@ -36,6 +38,9 @@ public class StockGuiUitls {
         BufferedImage img = draw(list);
         String imageName = String.format("%s_%s.png", t0.getStockCode(),t0.getDealDate().substring(0,10));
         String filePath = "D:\\1.moweitao\\test\\" + path + "\\";
+        filePath = filePath.replace("%", "");
+        filePath = filePath.replace("<", "");
+        filePath = filePath.replace(">", "");
         Files.createDirectories(Path.of(filePath));
         File file = new File(filePath + imageName);
         ImageIO.write(img, "PNG", file);
