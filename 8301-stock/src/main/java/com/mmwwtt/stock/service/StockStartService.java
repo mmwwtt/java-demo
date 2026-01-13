@@ -321,7 +321,7 @@ public class StockStartService {
                 codeToDetailMap.forEach((stockCode, detailList) -> {
                     List<StockDetail> afterList = detailList.stream()
                             .filter(item -> Objects.nonNull(item.getNext()))
-                            .filter(item -> strategy.run.apply(item)).toList();
+                            .filter(item -> strategy.getRunFunc().apply(item)).toList();
                     allAfterList.addAll(afterList);
                 });
                 saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());

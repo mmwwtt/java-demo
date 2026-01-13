@@ -107,7 +107,7 @@ public class Main {
                 && !stock.getName().contains("ST")).toList();
         stockDao.delete(new QueryWrapper<>());
         stockDao.insert(stockList);
-        log.info("end");
+        log.info("下载股票数据 end\n\n\n");
     }
 
     @Test
@@ -157,7 +157,7 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        log.info("end");
+        log.info("下载股票详细数据  end \n\n\n");
     }
 
 
@@ -264,6 +264,7 @@ public class Main {
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
+                    log.info(stock.getCode());
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
                     detailWapper.orderByDesc("deal_date");
@@ -277,7 +278,7 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        log.info("衍生数据计算--完毕");
+        log.info("衍生数据计算--完毕  \n\n\n");
     }
 
     @Test
@@ -366,6 +367,8 @@ public class Main {
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
 
+        //策略
+        Function<StockDetail, Boolean> runFunc = StockStrategyUtils.getStrategy("上升缺口 且缩量 且3%<涨幅＜7%").getRunFunc();
         log.info("开始计算");
         List<Stock> resList = new ArrayList<>();
         for (List<Stock> part : parts) {
@@ -375,7 +378,7 @@ public class Main {
                     if (CollectionUtils.isEmpty(stockDetails)) {
                         continue;
                     }
-                    if (StockStrategyUtils.getStrategy("上升缺口").run.apply(stockDetails.get(0))) {
+                    if (runFunc.apply(stockDetails.get(0))) {
                         resList.add(stock);
                     }
                 }

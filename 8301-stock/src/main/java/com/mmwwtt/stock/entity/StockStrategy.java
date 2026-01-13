@@ -52,11 +52,11 @@ public class StockStrategy {
     /**
      * 策略具体判断
      */
-    public Function<StockDetail, Boolean> run;
+    private Function<StockDetail, Boolean> runFunc;
 
-    public StockStrategy(String strategyName, Function<StockDetail, Boolean> run) {
+    public StockStrategy(String strategyName, Function<StockDetail, Boolean> runFunc) {
         this.strategyName = strategyName;
-        this.run = run;
+        this.runFunc = runFunc;
     }
 
 }
