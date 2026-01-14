@@ -62,8 +62,8 @@ public class GlobalThreadPool {
             synchronized (GlobalThreadPool.class) {
                 if (ioThreadPool == null) {
                     ioThreadPool = new ThreadPoolExecutor(
-                            100,
-                            100,
+                            CPU_CORE_SIZE * 5,
+                            CPU_CORE_SIZE * 6,
                             KEEP_ALIVE_TIME,
                             UNIT,
                             WORK_QUEUE,

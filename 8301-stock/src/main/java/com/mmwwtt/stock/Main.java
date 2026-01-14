@@ -93,6 +93,14 @@ public class Main {
         dataDetailCalc();
     }
 
+    @Test
+    @DisplayName("3点前的增量数据")
+    public void dounLoadAdd() throws ExecutionException, InterruptedException {
+        dataDetailDownLoadAdd();
+        dataDetailDownLoadOnTime();
+        dataDetailCalc();
+    }
+
 
     @Test
     @DisplayName("调接口获取每日数据")
@@ -221,7 +229,6 @@ public class Main {
     public void dataDetailDownLoadOnTime() throws InterruptedException, ExecutionException {
         log.info("获取实时数据");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        String nowDate = LocalDate.now().format(formatter);
         List<Stock> stockList = stockStartService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -270,16 +277,27 @@ public class Main {
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    log.info(stock.getCode());
                     List<StockDetail> stockDetails = codeToDetailMap.getOrDefault(stock.getCode(), new ArrayList<>());
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
-                    stockDetailDao.updateById(stockDetails);
                 }
             }, cpuThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        log.info("计算衍生数据--计算完成  开始保存");
+        futures = new ArrayList<>();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = codeToDetailMap.getOrDefault(stock.getCode(), new ArrayList<>());
+                    stockDetailDao.updateById(stockDetails);
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         log.info("衍生数据计算--完毕  \n\n\n");
     }
@@ -406,12 +424,7 @@ public class Main {
     }
 
     private <T> T getResponse(String url, Map<String, String> paramMap, ParameterizedTypeReference reference) {
-        int cnt = 0;
         while (true) {
-            cnt++;
-            if (cnt > 4) {
-                return null;
-            }
             try {
                 ResponseEntity<T> res = restTemplate.exchange(url, HttpMethod.GET, null, reference, paramMap);
                 return res.getBody();
@@ -419,6 +432,8 @@ public class Main {
                 //打印除限流外的错误
                 if (e.getMessage().startsWith("429")) {
                     log.info("{}", e.getMessage());
+                }else {
+                    return null;
                 }
                 try {
                     Thread.sleep(5000);

@@ -54,14 +54,11 @@ public class StockStartService {
      * 开始计算   通过上/下影线占比  和涨跌百分比区间 计算预测胜率
      */
     public void startCalc1() throws ExecutionException, InterruptedException {
-
-        List<Stock> stockList = getAllStock();
         Map<String, List<StockDetail>> codeToDetailMap = getCodeToDetailMap();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         final BigDecimal tenPert = new BigDecimal("0.1");
         log.info("开始计算");
         LocalDateTime dataTime = LocalDateTime.now();
-        final List<StockCalcRes> stockCalcResList = new ArrayList<>();
         for (BigDecimal upShadowLowLimit = BigDecimal.ZERO; upShadowLowLimit.compareTo(BigDecimal.ONE) < 0; upShadowLowLimit = upShadowLowLimit.add(tenPert)) {
             for (BigDecimal upShadowUpLimit = BigDecimal.ZERO; upShadowUpLimit.compareTo(BigDecimal.ONE) < 0; upShadowUpLimit = upShadowUpLimit.add(tenPert)) {
                 if (upShadowLowLimit.compareTo(upShadowUpLimit) >= 0) {
@@ -289,10 +286,9 @@ public class StockStartService {
         log.info("开始计算");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         LocalDateTime dataTime = LocalDateTime.now();
-
         for (StockStrategy strategy : StockStrategyUtils.STRATEGY_LIST) {
-
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                log.info(strategy.getStrategyName());
                 List<StockDetail> allAfterList = new ArrayList<>();
                 codeToDetailMap.forEach((stockCode, detailList) -> {
                     List<StockDetail> afterList = detailList.stream()
@@ -358,7 +354,6 @@ public class StockStartService {
                 t0.setT5(stockDetails.get(i + 5));
             }
         }
-        stockDetails.removeIf(item -> Objects.isNull(item.getSixtyDayDealQuantity()));
         return stockDetails;
     }
 
@@ -428,7 +423,6 @@ public class StockStartService {
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    //log.info("{}", stock.getCode());
                     List<StockDetail> stockDetails = getAllStockDetail(stock.getCode());
                     codeToDetailMap.put(stock.getCode(), stockDetails);
                 }
