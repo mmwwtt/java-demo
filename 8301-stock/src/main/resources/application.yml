@@ -7,6 +7,9 @@ spring:
     url: jdbc:mysql://localhost:3306/stock
     username: root
     password: dev123
+    hikari:
+      maximum-pool-size: 100   # 太小容易被打满
+      connection-timeout: 30000
 
 mybatis-plus:
   mapper-locations: classpath:dao/*.xml

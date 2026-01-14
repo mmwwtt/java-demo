@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class DelayQueueTest {
 
-    public static final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+    public static final ThreadPoolExecutor pool = GlobalThreadPool.getCpuThreadPool();
 
     @Test
     @DisplayName("延迟队列基本使用")

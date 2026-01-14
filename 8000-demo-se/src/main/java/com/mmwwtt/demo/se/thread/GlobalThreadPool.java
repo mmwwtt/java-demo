@@ -15,6 +15,9 @@ public class GlobalThreadPool {
     private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
     private final ExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(100);
 
+    //服务器的CPU核数
+    private static final int CPU_CORE_SIZE = Runtime.getRuntime().availableProcessors();
+
 
     // 定义线程池的核心线程数
     private static final int CORE_POOL_SIZE = 5;
@@ -28,28 +31,47 @@ public class GlobalThreadPool {
     private static final BlockingQueue<Runnable> WORK_QUEUE = new LinkedBlockingQueue<>();
 
     // 线程池实例，使用volatile保证可见性以及禁止指令重排序
-    private static volatile ThreadPoolExecutor threadPoolExecutor;
+    private static volatile ThreadPoolExecutor ioThreadPool;
+
+    // 线程池实例，使用volatile保证可见性以及禁止指令重排序
+    private static volatile ThreadPoolExecutor cpuThreadPool;
 
 
     // 获取线程池实例的静态方法，用双重校验的单例模式
-    public static ThreadPoolExecutor getInstance() {
-        if (threadPoolExecutor == null) {
+    public static ThreadPoolExecutor getCpuThreadPool() {
+        if (cpuThreadPool == null) {
             synchronized (GlobalThreadPool.class) {
-                if (threadPoolExecutor == null) {
-                    threadPoolExecutor = new ThreadPoolExecutor(
+                if (cpuThreadPool == null) {
+                    cpuThreadPool = new ThreadPoolExecutor(
                             CORE_POOL_SIZE,
                             MAXIMUM_POOL_SIZE,
                             KEEP_ALIVE_TIME,
                             UNIT,
                             WORK_QUEUE,
                             new ThreadPoolExecutor.AbortPolicy()
-                    ) {{
-                        // 设置允许核心线程超时空闲 后也被销毁
-                        allowCoreThreadTimeOut(true);
-                    }};
+                    );
                 }
             }
         }
-        return threadPoolExecutor;
+        return cpuThreadPool;
+    }
+
+    // 获取线程池实例的静态方法，用双重校验的单例模式
+    public static ThreadPoolExecutor getIoThreadPool() {
+        if (ioThreadPool == null) {
+            synchronized (GlobalThreadPool.class) {
+                if (ioThreadPool == null) {
+                    ioThreadPool = new ThreadPoolExecutor(
+                            CPU_CORE_SIZE * 2 + 1,
+                            MAXIMUM_POOL_SIZE,
+                            KEEP_ALIVE_TIME,
+                            UNIT,
+                            WORK_QUEUE,
+                            new ThreadPoolExecutor.AbortPolicy()
+                    );
+                }
+            }
+        }
+        return ioThreadPool;
     }
 }

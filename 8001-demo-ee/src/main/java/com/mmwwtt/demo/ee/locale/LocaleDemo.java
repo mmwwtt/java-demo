@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class LocaleDemo {
 
-    private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+    private final ThreadPoolExecutor pool = GlobalThreadPool.getCpuThreadPool();
 
     @Test
     @DisplayName("获取当前语言环境")

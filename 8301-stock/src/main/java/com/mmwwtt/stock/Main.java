@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.google.common.collect.Lists;
-import com.mmwwtt.stock.common.CustomThreadPool;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.StockConverter;
@@ -37,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,8 +60,9 @@ public class Main {
     @Autowired
     private StockDetailDao stockDetailDao;
 
-    private final CustomThreadPool pool = GlobalThreadPool.getCustomPool();
+    private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
+    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -94,9 +95,9 @@ public class Main {
 
 
     @Test
-    @DisplayName("调接口获取每日的股票数据")
+    @DisplayName("调接口获取每日数据")
     public void dataDownLoad() {
-        log.info("下载股票数据");
+        log.info("下载数据");
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
         Map<String, String> map = new HashMap<>();
@@ -109,7 +110,7 @@ public class Main {
                 && !stock.getName().contains("ST")).toList();
         stockDao.delete(new QueryWrapper<>());
         stockDao.insert(stockList);
-        log.info("下载股票数据 end\n\n\n");
+        log.info("下载数据 end\n\n\n");
     }
 
     @Test
@@ -154,7 +155,7 @@ public class Main {
                     }
                     stockDetailDao.insertOrUpdate(stockDetails);
                 }
-            }, pool);
+            }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -164,9 +165,9 @@ public class Main {
 
 
     @Test
-    @DisplayName("调接口获取每日的股票详细数据-增量")
+    @DisplayName("调接口获取每日的详细数据-增量")
     public void dataDetailDownLoadAdd() throws InterruptedException, ExecutionException {
-        log.info("下载股票详细增量数据");
+        log.info("下载详细增量数据");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
         String nowDate = LocalDate.now().format(formatter);
         List<Stock> stockList = stockStartService.getAllStock();
@@ -206,7 +207,7 @@ public class Main {
                     }
                     stockDetailDao.insertOrUpdate(stockDetails);
                 }
-            }, pool);
+            }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -246,10 +247,10 @@ public class Main {
                     if (CollectionUtils.isNotEmpty(list)) {
                         stockDetail.setStockDetailId(list.get(0).getStockDetailId());
                     }
-                    stockDetail.setPertDivisionQuantity(stockDetail.getPertDivisionQuantity().divide(new BigDecimal("0.8333"), 4, RoundingMode.HALF_UP));
+                    stockDetail.setDealQuantity(stockDetail.getDealQuantity().divide(new BigDecimal("0.8333"), 4, RoundingMode.HALF_UP));
                     stockDetailDao.insertOrUpdate(stockDetail);
                 }
-            }, pool);
+            }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -259,11 +260,12 @@ public class Main {
 
 
     @Test
-    @DisplayName("计算股票的衍生数据")
+    @DisplayName("计算衍生数据")
     public void dataDetailCalc() throws InterruptedException, ExecutionException {
         log.info("计算衍生数据--开始");
+        Map<String, List<StockDetail>> codeToDetailMap = stockStartService.getCodeToDetailMap();
         List<Stock> stockList = stockStartService.getAllStock();
-        List<List<Stock>> parts = Lists.partition(stockList, 10);
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
@@ -272,12 +274,12 @@ public class Main {
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
                     detailWapper.orderByDesc("deal_date");
-                    List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+                    List<StockDetail> stockDetails =codeToDetailMap.get(stock.getCode());
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);
                 }
-            }, pool);
+            }, cpuThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -286,7 +288,7 @@ public class Main {
     }
 
     @Test
-    @DisplayName("根据百分比区间预测明日会上涨的股票")
+    @DisplayName("根据百分比区间预测明日会上涨")
     public void getStock() {
         QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
         List<Stock> stockList = stockDao.selectList(queryWrapper);
@@ -355,24 +357,13 @@ public class Main {
     @DisplayName("上升缺口 成交量超过5日线")
     public void getStock1() throws InterruptedException, ExecutionException {
         List<Stock> stockList = stockStartService.getAllStock();
-        Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>();
-        log.info("开始查询股票数据");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        Map<String, List<StockDetail>> codeToDetailMap = stockStartService.getCodeToDetailMap();
         List<List<Stock>> parts = Lists.partition(stockList, 10);
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = stockStartService.getAllStockDetail(stock.getCode());
-                    codeToDetailMap.put(stock.getCode(), stockDetails);
-                }
-            }, pool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
 
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         //策略
-        Function<StockDetail, Boolean> runFunc = StockStrategyUtils.getStrategy("上升缺口 且缩量 且3%<涨幅＜7%").getRunFunc();
+        String strategyName = "上升缺口 且缩量";
+        Function<StockDetail, Boolean> runFunc = StockStrategyUtils.getStrategy(strategyName).getRunFunc();
         log.info("开始计算");
         List<Stock> resList = new ArrayList<>();
         for (List<Stock> part : parts) {
@@ -386,10 +377,10 @@ public class Main {
                         resList.add(stock);
                     }
                 }
-            }, pool);
+            }, cpuThreadPool);
             futures.add(future);
         }
-        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         log.info("计算结束");
         String filePath = "src/main/resources/file/test.txt";
@@ -428,14 +419,14 @@ public class Main {
                 ResponseEntity<T> res = restTemplate.exchange(url, HttpMethod.GET, null, reference, paramMap);
                 return res.getBody();
             } catch (Exception e) {
+                //打印除限流外的错误
+                if (e.getMessage().startsWith("429")) {
+                    log.info("{}", e.getMessage());
+                }
                 try {
                     Thread.sleep(5000);
                 } catch (Exception e1) {
                     break;
-                }
-                //打印除限流外的错误
-                if (e.getMessage().startsWith("429")) {
-                    log.info("{}", e);
                 }
             }
         }

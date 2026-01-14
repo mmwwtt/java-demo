@@ -7,7 +7,9 @@ spring:
     url: jdbc:mysql://localhost:3306/demo
     username: root
     password: dev123
-
+    hikari:  #和数据库的连接池  和线程池一样 复用
+      maximum-pool-size: 100   # 太小容易被打满
+      connection-timeout: 30000
 mybatis-plus:
   mapper-locations: classpath:dao/*.xml
   configuration:

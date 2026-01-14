@@ -42,7 +42,9 @@ public class StockStartService {
     @Resource
     private StockCalcResDao stockCalcResDao;
 
-    private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+    private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
+
+    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -53,22 +55,10 @@ public class StockStartService {
     public void startCalc1() throws ExecutionException, InterruptedException {
 
         List<Stock> stockList = getAllStock();
-        Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>();
-        log.info("开始查询股票数据");
+        Map<String, List<StockDetail>> codeToDetailMap = getCodeToDetailMap();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (Stock stock : stockList) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                List<StockDetail> stockDetails = getAllStockDetail(stock.getCode());
-                codeToDetailMap.put(stock.getCode(), stockDetails);
-            }, pool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-
         final BigDecimal tenPert = new BigDecimal("0.1");
         log.info("开始计算");
-        futures = new ArrayList<>();
         LocalDateTime dataTime = LocalDateTime.now();
         final List<StockCalcRes> stockCalcResList = new ArrayList<>();
         for (BigDecimal upShadowLowLimit = BigDecimal.ZERO; upShadowLowLimit.compareTo(BigDecimal.ONE) < 0; upShadowLowLimit = upShadowLowLimit.add(tenPert)) {
@@ -147,7 +137,7 @@ public class StockStartService {
                 }
             }
         }
-        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         List<StockCalcRes> needDelList = getDelListBySmallInterval();
         stockCalcResDao.deleteByIds(needDelList);
@@ -293,25 +283,10 @@ public class StockStartService {
      */
     public void startCalc2() throws ExecutionException, InterruptedException {
         List<Stock> stockList = getAllStock();
-        Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>();
-        log.info("开始查询股票数据");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        Map<String, List<StockDetail>> codeToDetailMap = getCodeToDetailMap();
         List<List<Stock>> parts = Lists.partition(stockList, 10);
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = getAllStockDetail(stock.getCode());
-                    codeToDetailMap.put(stock.getCode(), stockDetails);
-                }
-            }, pool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-
-
         log.info("开始计算");
-        futures = new ArrayList<>();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         LocalDateTime dataTime = LocalDateTime.now();
 
         for (StockStrategy strategy : StockStrategyUtils.STRATEGY_LIST) {
@@ -325,10 +300,10 @@ public class StockStartService {
                     allAfterList.addAll(afterList);
                 });
                 saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
-            }, pool);
+            }, cpuThreadPool);
             futures.add(future);
         }
-        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         log.info("结束计算");
     }
@@ -441,5 +416,27 @@ public class StockStartService {
                 }
             });
         }
+    }
+
+    public Map<String, List<StockDetail>> getCodeToDetailMap() throws ExecutionException, InterruptedException {
+        List<Stock> stockList = getAllStock();
+        Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>();
+        log.info("开始查询数据");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    log.info("{}", stock.getCode());
+                    List<StockDetail> stockDetails = getAllStockDetail(stock.getCode());
+                    codeToDetailMap.put(stock.getCode(), stockDetails);
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        log.info("开始查询数据-结束");
+        return codeToDetailMap;
     }
 }

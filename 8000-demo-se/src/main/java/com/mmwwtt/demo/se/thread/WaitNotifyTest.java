@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class WaitNotifyTest {
     private static final Object lock = new Object();
     private volatile boolean isTrue = false;
-    private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+    private final ThreadPoolExecutor pool = GlobalThreadPool.getCpuThreadPool();
 
     @Test
     public void demo() {

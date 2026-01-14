@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class Test1 {
 
     private static final ThreadLocal<List<Integer>> threadLocal = new ThreadLocal<>();
-    private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+    private final ThreadPoolExecutor pool = GlobalThreadPool.getCpuThreadPool();
     private static final List<Integer> list = new ArrayList<>();
 
     @Test

@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 public class SemaphoreTest {
 
-    private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+    private final ThreadPoolExecutor pool = GlobalThreadPool.getCpuThreadPool();
 
     @Test
     @DisplayName("Semaphore使用")

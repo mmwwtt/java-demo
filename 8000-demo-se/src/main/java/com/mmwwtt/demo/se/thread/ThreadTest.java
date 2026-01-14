@@ -10,7 +10,7 @@ import java.util.concurrent.*;
 @Slf4j
 public class ThreadTest {
 
-    private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+    private final ThreadPoolExecutor pool = GlobalThreadPool.getCpuThreadPool();
 
     @Test
     @DisplayName("线程安全的类")

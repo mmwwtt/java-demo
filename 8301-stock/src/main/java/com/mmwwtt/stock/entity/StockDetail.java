@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,12 +13,14 @@ import java.util.List;
 
 @Data
 @TableName("stock_detail_t")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class StockDetail {
 
 
     /**
      * 主键
      */
+    @EqualsAndHashCode.Include
     @TableId(type = IdType.AUTO)
     private Long stockDetailId;
 
