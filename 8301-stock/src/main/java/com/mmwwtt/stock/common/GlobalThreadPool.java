@@ -18,9 +18,9 @@ public class GlobalThreadPool {
 
 
     // 定义线程池的核心线程数
-    private static final int CORE_POOL_SIZE = 10;
+    private static final int CORE_POOL_SIZE = 50;
     // 定义线程池的最大线程数
-    private static final int MAXIMUM_POOL_SIZE = 40;
+    private static final int MAXIMUM_POOL_SIZE = 100;
     // 线程空闲存活时间
     private static final long KEEP_ALIVE_TIME = 6000;
     // 时间单位（秒）
@@ -49,5 +49,28 @@ public class GlobalThreadPool {
             }
         }
         return threadPoolExecutor;
+    }
+
+
+    // 线程池实例，使用volatile保证可见性以及禁止指令重排序
+    private static volatile CustomThreadPool customThreadPool;
+
+    // 获取线程池实例的静态方法，用双重校验的单例模式
+    public static CustomThreadPool getCustomPool() {
+        if (customThreadPool == null) {
+            synchronized (GlobalThreadPool.class) {
+                if (customThreadPool == null) {
+                    customThreadPool = new CustomThreadPool(
+                            CORE_POOL_SIZE,
+                            MAXIMUM_POOL_SIZE,
+                            KEEP_ALIVE_TIME,
+                            UNIT,
+                            WORK_QUEUE,
+                            new ThreadPoolExecutor.AbortPolicy()
+                    );
+                }
+            }
+        }
+        return customThreadPool;
     }
 }

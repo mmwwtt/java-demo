@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.google.common.collect.Lists;
+import com.mmwwtt.stock.common.CustomThreadPool;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.StockConverter;
@@ -36,7 +37,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,7 +60,7 @@ public class Main {
     @Autowired
     private StockDetailDao stockDetailDao;
 
-    private final ThreadPoolExecutor pool = GlobalThreadPool.getInstance();
+    private final CustomThreadPool pool = GlobalThreadPool.getCustomPool();
 
 
     private RestTemplate restTemplate = new RestTemplate();
@@ -93,7 +93,6 @@ public class Main {
     }
 
 
-
     @Test
     @DisplayName("调接口获取每日的股票数据")
     public void dataDownLoad() {
@@ -102,7 +101,8 @@ public class Main {
         restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
         Map<String, String> map = new HashMap<>();
         map.put(LICENCE, BI_YING_LICENCE);
-        List<StockVO> stockVOList = getResponse(STOCK_LIST_URL, map, new ParameterizedTypeReference<List<StockVO>>() {});
+        List<StockVO> stockVOList = getResponse(STOCK_LIST_URL, map, new ParameterizedTypeReference<List<StockVO>>() {
+        });
         List<Stock> stockList = StockConverter.INSTANCE.convertToStock(stockVOList);
         stockList = stockList.stream().filter(stock -> !stock.getCode().startsWith("30")
                 && !stock.getCode().startsWith("68")
@@ -154,7 +154,7 @@ public class Main {
                     }
                     stockDetailDao.insertOrUpdate(stockDetails);
                 }
-            },pool);
+            }, pool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -184,7 +184,8 @@ public class Main {
                     map1.put(END_DATA, nowDate);
                     map1.put(MAX_SIZE, "30");
                     log.info(stock.getCode());
-                    List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {});
+                    List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
+                    });
                     if (Objects.isNull(stockDetailVOs)) {
                         continue;
                     }
@@ -205,7 +206,7 @@ public class Main {
                     }
                     stockDetailDao.insertOrUpdate(stockDetails);
                 }
-            },pool);
+            }, pool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -248,7 +249,7 @@ public class Main {
                     stockDetail.setPertDivisionQuantity(stockDetail.getPertDivisionQuantity().divide(new BigDecimal("0.8333"), 4, RoundingMode.HALF_UP));
                     stockDetailDao.insertOrUpdate(stockDetail);
                 }
-            },pool);
+            }, pool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -276,7 +277,7 @@ public class Main {
                     StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);
                 }
-            });
+            }, pool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -286,7 +287,7 @@ public class Main {
 
     @Test
     @DisplayName("根据百分比区间预测明日会上涨的股票")
-    public void getStock() throws InterruptedException, ExecutionException {
+    public void getStock() {
         QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
         List<Stock> stockList = stockDao.selectList(queryWrapper);
         //百分比策略
@@ -433,7 +434,7 @@ public class Main {
                     break;
                 }
                 //打印除限流外的错误
-                if(e.getMessage().startsWith("429")) {
+                if (e.getMessage().startsWith("429")) {
                     log.info("{}", e);
                 }
             }
