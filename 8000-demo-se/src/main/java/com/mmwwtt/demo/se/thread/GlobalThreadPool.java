@@ -69,6 +69,8 @@ public class GlobalThreadPool {
                             WORK_QUEUE,
                             new ThreadPoolExecutor.AbortPolicy()
                     );
+                    //非核心线程在超过空闲时间后也销毁的设置
+                    ioThreadPool.allowCoreThreadTimeOut(true);
                 }
             }
         }

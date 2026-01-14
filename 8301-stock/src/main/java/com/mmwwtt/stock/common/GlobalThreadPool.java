@@ -24,7 +24,7 @@ public class GlobalThreadPool {
     // 定义线程池的最大线程数
     private static final int MAXIMUM_POOL_SIZE = 100;
     // 线程空闲存活时间
-    private static final long KEEP_ALIVE_TIME = 20;
+    private static final long KEEP_ALIVE_TIME = 5;
     // 时间单位（秒）
     private static final TimeUnit UNIT = TimeUnit.SECONDS;
     // 用于存放任务的阻塞队列
@@ -62,13 +62,14 @@ public class GlobalThreadPool {
             synchronized (GlobalThreadPool.class) {
                 if (ioThreadPool == null) {
                     ioThreadPool = new ThreadPoolExecutor(
-                            CPU_CORE_SIZE * 10,
-                            MAXIMUM_POOL_SIZE,
+                            100,
+                            100,
                             KEEP_ALIVE_TIME,
                             UNIT,
                             WORK_QUEUE,
                             new ThreadPoolExecutor.AbortPolicy()
                     );
+                    ioThreadPool.allowCoreThreadTimeOut(true);
                 }
             }
         }

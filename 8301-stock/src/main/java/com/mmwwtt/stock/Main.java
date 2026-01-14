@@ -271,10 +271,7 @@ public class Main {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
                     log.info(stock.getCode());
-                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                    detailWapper.eq("stock_code", stock.getCode());
-                    detailWapper.orderByDesc("deal_date");
-                    List<StockDetail> stockDetails =codeToDetailMap.get(stock.getCode());
+                    List<StockDetail> stockDetails = codeToDetailMap.getOrDefault(stock.getCode(), new ArrayList<>());
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);

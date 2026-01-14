@@ -59,7 +59,7 @@ CREATE TABLE stock_Detail_t
 
 create index stock_code on stock_detail_t (stock_code);
 
-create index stock_code_deal_date on stock_detail_t (stock_code, deal_date);
+create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc);
 
 
 

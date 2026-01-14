@@ -26,6 +26,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -420,14 +421,14 @@ public class StockStartService {
 
     public Map<String, List<StockDetail>> getCodeToDetailMap() throws ExecutionException, InterruptedException {
         List<Stock> stockList = getAllStock();
-        Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>();
+        Map<String, List<StockDetail>> codeToDetailMap = new ConcurrentHashMap<>();
         log.info("开始查询数据");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    log.info("{}", stock.getCode());
+                    //log.info("{}", stock.getCode());
                     List<StockDetail> stockDetails = getAllStockDetail(stock.getCode());
                     codeToDetailMap.put(stock.getCode(), stockDetails);
                 }
