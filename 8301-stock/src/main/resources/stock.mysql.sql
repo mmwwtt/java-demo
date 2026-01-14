@@ -73,6 +73,8 @@ CREATE TABLE stock_calculation_result_t
     all_cnt       INT(11) COMMENT '符合条件的数据量',
     perc_rate     DECIMAL(8, 4) COMMENT '百分比叠加后的结果',
     win_perc_rate DECIMAL(8, 4) COMMENT '预测对的百分比叠加后的结果',
+    five_perc_rate     DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
+    ten_perc_rate     DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
     create_date   DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '股票计算结果表';
 

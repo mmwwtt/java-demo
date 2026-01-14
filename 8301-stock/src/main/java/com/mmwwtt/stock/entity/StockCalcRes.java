@@ -48,6 +48,16 @@ public class StockCalcRes {
     private BigDecimal percRate;
 
     /**
+     * 预测后的5天平均涨幅
+     */
+    private BigDecimal fivePercRate;
+
+    /**
+     * 预测后的10天平均涨幅
+     */
+    private BigDecimal tenPercRate;
+
+    /**
      * 预测后的预测对的平均涨幅
      */
     private BigDecimal winPercRate;

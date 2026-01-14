@@ -567,14 +567,6 @@ public class StockStrategyUtils {
                     && t0.getPricePert().compareTo(new BigDecimal("0.07")) >0
                     && t0.getPricePert().compareTo(new BigDecimal("0.08")) <0;
         }));
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且7%<涨幅", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.07")) >0;
-        }));
 
         STRATEGY_LIST.add(new StockStrategy("上升缺口 且涨幅成交比扩大", (StockDetail t0) -> {
             if (Objects.isNull(t0.getT1())) {

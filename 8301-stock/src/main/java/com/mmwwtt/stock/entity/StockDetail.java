@@ -231,6 +231,30 @@ public class StockDetail {
     private StockDetail next;
 
     /**
+     * 日后第5个交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail nextFive;
+
+    /**
+     * 5天内的涨跌幅总和
+     */
+    @TableField(exist = false)
+    private BigDecimal fivePricePert;
+
+    /**
+     * 日后第10个交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail nextTen;
+
+    /**
+     * 10天涨跌幅总和
+     */
+    @TableField(exist = false)
+    private BigDecimal tenPricePert;
+
+    /**
      * 前1天交易日细节
      */
     @TableField(exist = false)
