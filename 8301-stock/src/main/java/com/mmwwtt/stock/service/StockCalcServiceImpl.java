@@ -32,7 +32,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 @Service
 @Slf4j
-public class StockStartService {
+public class StockCalcServiceImpl implements StockCalcService{
 
     @Resource
     private StockDao stockDao;
@@ -53,6 +53,7 @@ public class StockStartService {
     /**
      * 开始计算   通过上/下影线占比  和涨跌百分比区间 计算预测胜率
      */
+    @Override
     public void startCalc1() throws ExecutionException, InterruptedException {
         Map<String, List<StockDetail>> codeToDetailMap = getCodeToDetailMap();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -285,7 +286,11 @@ public class StockStartService {
                 log.info(strategy.getStrategyName());
                 List<StockDetail> allAfterList = new ArrayList<>();
                 codeToDetailMap.forEach((stockCode, detailList) -> {
-                    List<StockDetail> afterList = detailList.stream()
+                    if(detailList.size() < 60) {
+                        return;
+                    }
+                    List<StockDetail> afterList = detailList.subList(0, detailList.size() - 60).stream()
+                            .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097"))<0)
                             .filter(item -> Objects.nonNull(item.getNext()))
                             .filter(item -> strategy.getRunFunc().apply(item)).toList();
                     allAfterList.addAll(afterList);
@@ -299,6 +304,7 @@ public class StockStartService {
         log.info("结束计算");
     }
 
+    @Override
     public List<Stock> getAllStock() {
         QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
         List<Stock> stockList = stockDao.selectList(queryWrapper);
@@ -455,10 +461,12 @@ public class StockStartService {
         }
     }
 
+    @Override
     public Map<String, List<StockDetail>> getCodeToDetailMap() throws ExecutionException, InterruptedException {
         return getCodeToDetailMap(null);
     }
 
+    @Override
     public Map<String, List<StockDetail>> getCodeToDetailMap(Integer limit) throws ExecutionException, InterruptedException {
         List<Stock> stockList = getAllStock();
         Map<String, List<StockDetail>> codeToDetailMap = new ConcurrentHashMap<>();

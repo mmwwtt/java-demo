@@ -435,18 +435,7 @@ public class StockStrategyUtils {
                     && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity().multiply(new BigDecimal("1.2"))) <0;
         }));
 
-
-
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且涨幅＜7%", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.07")) <0;
-        }));
-
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且7%<涨幅", (StockDetail t0) -> {
+        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 涨幅>7%", (StockDetail t0) -> {
             if (Objects.isNull(t0.getT1())) {
                 return false;
             }
@@ -455,118 +444,29 @@ public class StockStrategyUtils {
                     && t0.getPricePert().compareTo(new BigDecimal("0.07")) >0;
         }));
 
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且8%<涨幅", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.08")) >0;
-        }));
-
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且9%<涨幅", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.09")) >0;
-        }));
-
-
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且3%<涨幅＜7%", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.03")) >0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.07")) <0;
-        }));
-
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且3%<涨幅", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.03")) >0;
-        }));
-
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且2%<涨幅", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.02")) >0;
-        }));
-
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且1%<涨幅<2", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.01")) >0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.02")) <0;
-        }));
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且2%<涨幅<3%", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.02")) >0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.03")) <0;
-        }));
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且3%<涨幅<4", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.03")) >0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.04")) <0;
-        }));
-
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且4%<涨幅<5%", (StockDetail t0) -> {
+        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且4%<涨幅＜7%", (StockDetail t0) -> {
             if (Objects.isNull(t0.getT1())) {
                 return false;
             }
             return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
                     && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
                     && t0.getPricePert().compareTo(new BigDecimal("0.04")) >0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.05")) <0;
-        }));
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且5%<涨幅<6", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.05")) >0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.06")) <0;
-        }));
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且6%<涨幅<7", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.06")) >0
                     && t0.getPricePert().compareTo(new BigDecimal("0.07")) <0;
         }));
 
-        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且7%<涨幅<8", (StockDetail t0) -> {
+
+
+
+        STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 且0%<涨幅<4%", (StockDetail t0) -> {
             if (Objects.isNull(t0.getT1())) {
                 return false;
             }
             return t0.getLowPrice().compareTo(t0.getT1().getHighPrice()) > 0
                     && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) <0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.07")) >0
-                    && t0.getPricePert().compareTo(new BigDecimal("0.08")) <0;
+                    && t0.getPricePert().compareTo(new BigDecimal("0.00")) >0
+                    && t0.getPricePert().compareTo(new BigDecimal("0.04")) <0;
         }));
+
 
         STRATEGY_LIST.add(new StockStrategy("上升缺口 且涨幅成交比扩大", (StockDetail t0) -> {
             if (Objects.isNull(t0.getT1())) {

@@ -481,4 +481,9 @@ public class StockDetail {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return stockDetailId.toString();
+    }
 }

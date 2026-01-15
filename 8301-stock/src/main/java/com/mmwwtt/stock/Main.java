@@ -14,7 +14,7 @@ import com.mmwwtt.stock.dao.StockDetailDao;
 import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
-import com.mmwwtt.stock.service.StockStartService;
+import com.mmwwtt.stock.service.StockCalcService;
 import com.mmwwtt.stock.service.StockStrategyUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +56,7 @@ public class Main {
     private StockDao stockDao;
 
     @Autowired
-    private StockStartService stockStartService;
+    private StockCalcService stockCalcService;
 
     @Autowired
     private StockDetailDao stockDetailDao;
@@ -143,7 +143,7 @@ public class Main {
     @DisplayName("调接口获取每日的股票详细数据-全量")
     public void dataDetailDownLoad() throws InterruptedException, ExecutionException {
         log.info("下载股票详细数据");
-        List<Stock> stockList = stockStartService.getAllStock();
+        List<Stock> stockList = stockCalcService.getAllStock();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         for (List<Stock> part : parts) {
@@ -193,7 +193,7 @@ public class Main {
     @DisplayName("调接口获取每日的详细数据-增量")
     public void dataDetailDownLoadAdd() throws InterruptedException, ExecutionException {
         log.info("下载详细增量数据");
-        List<Stock> stockList = stockStartService.getAllStock();
+        List<Stock> stockList = stockCalcService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
@@ -243,8 +243,8 @@ public class Main {
     @DisplayName("计算衍生数据-全量")
     public void dataDetailCalc() throws InterruptedException, ExecutionException {
         log.info("计算衍生数据--开始");
-        Map<String, List<StockDetail>> codeToDetailMap = stockStartService.getCodeToDetailMap();
-        List<Stock> stockList = stockStartService.getAllStock();
+        Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
+        List<Stock> stockList = stockCalcService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
@@ -279,8 +279,8 @@ public class Main {
     @DisplayName("计算衍生数据-增量")
     public void dataDetailCalc2() throws InterruptedException, ExecutionException {
         log.info("计算衍生数据--开始");
-        Map<String, List<StockDetail>> codeToDetailMap = stockStartService.getCodeToDetailMap(80);
-        List<Stock> stockList = stockStartService.getAllStock();
+        Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap(80);
+        List<Stock> stockList = stockCalcService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
@@ -370,41 +370,52 @@ public class Main {
                     String str = String.format("%s_%s\n", item.getCode(), item.getName());
                     fos.write(str.getBytes());
                 }
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
         }
     }
 
     @Test
     @DisplayName("上升缺口 成交量超过5日线")
     public void getStock1() throws InterruptedException, ExecutionException {
-        boolean isOnTime = true;
-        List<Stock> stockList = stockStartService.getAllStock();
-        Map<String, List<StockDetail>> codeToDetailMap = stockStartService.getCodeToDetailMap();
-        List<List<Stock>> parts = Lists.partition(stockList, 10);
+        boolean isOnTime = false;
+        Map<String, List<String>> strategyToStockMap = new HashMap<>();
+        List<Stock> stockList = stockCalcService.getAllStock();
+        Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         //策略
-        String strategyName = "上升缺口";
-        Function<StockDetail, Boolean> runFunc = StockStrategyUtils.getStrategy(strategyName).getRunFunc();
         log.info("开始计算");
-        List<Stock> resList = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = codeToDetailMap.get(stock.getCode());
-                    if(isOnTime) {
-                        stockDetails.forEach(item -> item.setDealQuantity(item.getDealQuantity().divide(new BigDecimal("0.75"), 5, RoundingMode.HALF_UP)));
+        List<String> strategyNameList = Arrays.asList(
+                "十字星",
+                "上升缺口",
+                "上升缺口 且缩量",
+                "上升缺口 且缩量 且4%<涨幅＜7%");
+        for (String strategyName : strategyNameList) {
+            Function<StockDetail, Boolean> runFunc = StockStrategyUtils.getStrategy(strategyName).getRunFunc();
+            for (List<Stock> part : parts) {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    for (Stock stock : part) {
+                        List<StockDetail> stockDetails = codeToDetailMap.get(stock.getCode());
+                        if (isOnTime) {
+                            stockDetails.forEach(item -> item.setDealQuantity(
+                                    item.getDealQuantity().divide(new BigDecimal("0.75"), 5, RoundingMode.HALF_UP)));
+                        }
+                        if (CollectionUtils.isEmpty(stockDetails)
+                                || stockDetails.get(0).getPricePert().compareTo(new BigDecimal("0.097")) > 0) {
+                            continue;
+                        }
+                        if (runFunc.apply(stockDetails.get(0))) {
+                            strategyToStockMap.computeIfAbsent(strategyName, k -> new ArrayList<>())
+                                    .add(stock.getName() + " " + stockDetails.get(0).getPricePert().doubleValue());
+                        }
                     }
-                    if (CollectionUtils.isEmpty(stockDetails)) {
-                        continue;
-                    }
-                    if (runFunc.apply(stockDetails.get(0))) {
-                        resList.add(stock);
-                    }
-                }
-            }, cpuThreadPool);
-            futures.add(future);
+                }, cpuThreadPool);
+                futures.add(future);
+            }
         }
+
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         log.info("计算结束");
@@ -417,9 +428,11 @@ public class Main {
 
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(String.format("\n\n%s\n", NOW_DATA).getBytes());
-            for (Stock item : resList) {
-                String str = String.format("%s_%s\n", item.getCode(), item.getName());
-                fos.write(str.getBytes());
+            for (Map.Entry<String, List<String>> entry : strategyToStockMap.entrySet()) {
+                fos.write(("\n\n" + entry.getKey() + "\n").getBytes());
+                for (String s : entry.getValue()) {
+                    fos.write((s + "\n").getBytes());
+                }
             }
         } catch (IOException ignored) {
         }

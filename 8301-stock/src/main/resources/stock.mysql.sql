@@ -137,5 +137,5 @@ order by stock_detail_Id desc;
 
 select *
 from stock_detail_t
-where stock_code = '000049.SZ'
+where stock_code = '603912.SH'
 order by stock_detail_Id desc;
