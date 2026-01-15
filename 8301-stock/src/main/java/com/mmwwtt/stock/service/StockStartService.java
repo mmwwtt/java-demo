@@ -47,7 +47,7 @@ public class StockStartService {
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
 
     /**
@@ -177,15 +177,13 @@ public class StockStartService {
     /**
      * 查询最新的计算结果信息
      *
-     * @return
      */
     public List<StockCalcRes> getNewCalcRes() {
         QueryWrapper<StockCalcRes> wrapper = new QueryWrapper<>();
         wrapper.apply("create_date = (SELECT MAX(create_date) FROM stock_calculation_result_t)")   // 子查询
                 .orderByDesc("win_rate")                   // 第一排序字段
                 .orderByDesc("all_cnt");                   // 第二排序字段
-        List<StockCalcRes> list = stockCalcResDao.selectList(wrapper);
-        return list;
+        return stockCalcResDao.selectList(wrapper);
     }
 
     @Getter
@@ -230,10 +228,8 @@ public class StockStartService {
     /**
      * MORE: 判断 成交量 持续放大则返回true
      *
-     * @param list
      * @param curIdx       当前日期
      * @param continueDays 持续天数
-     * @return
      */
     private boolean filterForMoreQuentity(List<StockDetail> list, int curIdx, int continueDays, ModeEnum enumm) {
         if (curIdx < 0 || list.size() <= curIdx + continueDays) {
@@ -258,10 +254,8 @@ public class StockStartService {
     /**
      * 判断 涨跌成交比(涨幅/成交量)  持续放大则返回true
      *
-     * @param list
      * @param curIdx       当前日期
      * @param continueDays 持续天数
-     * @return
      */
     private boolean filterForMorePertDivisionQuentity(List<StockDetail> list, int curIdx, int continueDays) {
         if (curIdx < 0 || list.size() <= curIdx + continueDays) {
