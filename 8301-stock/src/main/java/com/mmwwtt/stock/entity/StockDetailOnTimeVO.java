@@ -42,6 +42,11 @@ public class StockDetailOnTimeVO {
     private BigDecimal v;
 
     /**
+     * 成交量
+     */
+    private BigDecimal cje;
+
+    /**
      * 昨日收盘价
      */
     private BigDecimal yc;

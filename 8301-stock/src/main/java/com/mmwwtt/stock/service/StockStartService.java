@@ -317,25 +317,36 @@ public class StockStartService {
         return stockList;
     }
 
-    public List<StockDetail> getAllStockDetail(String stockCode) {
-        QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-        detailWapper.eq("stock_code", stockCode);
-        detailWapper.orderByDesc("deal_date");
-        List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+    public List<StockDetail> genAllStockDetail(List<StockDetail> stockDetails) {
         for (int i = 0; i < stockDetails.size(); i++) {
             StockDetail t0 = stockDetails.get(i);
             if (i - 1 >= 0) {
                 t0.setNext(stockDetails.get(i - 1));
             }
+            if (i - 2 >= 0) {
+                t0.setNext2(stockDetails.get(i - 2));
+                t0.setNext2PricePert((t0.getNext2().getEndPrice().subtract(t0.getEndPrice()))
+                        .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
+            }
+            if (i - 3 >= 0) {
+                t0.setNext3(stockDetails.get(i - 3));
+                t0.setNext3PricePert((t0.getNext3().getEndPrice().subtract(t0.getEndPrice()))
+                        .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
+            }
+            if (i - 4 >= 0) {
+                t0.setNext4(stockDetails.get(i - 4));
+                t0.setNext4PricePert((t0.getNext4().getEndPrice().subtract(t0.getEndPrice()))
+                        .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
+            }
             if (i - 5 >= 0) {
-                t0.setNextFive(stockDetails.get(i - 5));
-                t0.setFivePricePert((t0.getNextFive().getEndPrice().subtract(t0.getEndPrice()))
+                t0.setNext5(stockDetails.get(i - 5));
+                t0.setNext5PricePert((t0.getNext5().getEndPrice().subtract(t0.getEndPrice()))
                         .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
             }
 
             if (i - 10 >= 0) {
-                t0.setNextTen(stockDetails.get(i - 10));
-                t0.setTenPricePert((t0.getNextTen().getEndPrice().subtract(t0.getEndPrice()))
+                t0.setNext10(stockDetails.get(i - 10));
+                t0.setNext10PricePert((t0.getNext10().getEndPrice().subtract(t0.getEndPrice()))
                         .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
             }
             if (stockDetails.size() > i + 1) {
@@ -357,6 +368,18 @@ public class StockStartService {
         return stockDetails;
     }
 
+
+    public List<StockDetail> getStockDetail(String stockCode, Integer limit) {
+        QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
+        detailWapper.eq("stock_code", stockCode);
+        detailWapper.orderByDesc("deal_date");
+        if(Objects.nonNull(limit)) {
+            detailWapper.last("LIMIT " + limit);
+        }
+        List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+        return genAllStockDetail(stockDetails);
+    }
+
     public void saveCalcRes(List<StockDetail> allAfterList, String strategyDesc, LocalDateTime dataTime, String type) {
         if (CollectionUtils.isEmpty(allAfterList)) {
             return;
@@ -369,17 +392,38 @@ public class StockStartService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .divide(new BigDecimal(haveNextList.size()), 4, RoundingMode.HALF_UP);
 
+        List<StockDetail> haveNextTwoList = allAfterList.stream()
+                .filter(item -> Objects.nonNull(item.getNext2())).toList();
+        BigDecimal twoPercRate = haveNextTwoList.stream()
+                .map(StockDetail::getNext2PricePert)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(new BigDecimal(haveNextTwoList.size()), 4, RoundingMode.HALF_UP);
+
+        List<StockDetail> haveNextThreeList = allAfterList.stream()
+                .filter(item -> Objects.nonNull(item.getNext3())).toList();
+        BigDecimal threePercRate = haveNextThreeList.stream()
+                .map(StockDetail::getNext3PricePert)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(new BigDecimal(haveNextThreeList.size()), 4, RoundingMode.HALF_UP);
+
+        List<StockDetail> haveNextFourList = allAfterList.stream()
+                .filter(item -> Objects.nonNull(item.getNext4())).toList();
+        BigDecimal fourPercRate = haveNextFourList.stream()
+                .map(StockDetail::getNext4PricePert)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(new BigDecimal(haveNextFourList.size()), 4, RoundingMode.HALF_UP);
+
         List<StockDetail> haveNextFiveList = allAfterList.stream()
-                .filter(item -> Objects.nonNull(item.getNextFive())).toList();
+                .filter(item -> Objects.nonNull(item.getNext5())).toList();
         BigDecimal fivePercRate = haveNextFiveList.stream()
-                .map(StockDetail::getFivePricePert)
+                .map(StockDetail::getNext5PricePert)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .divide(new BigDecimal(haveNextFiveList.size()), 4, RoundingMode.HALF_UP);
 
         List<StockDetail> haveNextTenList = allAfterList.stream()
-                .filter(item -> Objects.nonNull(item.getNextTen())).toList();
+                .filter(item -> Objects.nonNull(item.getNext10())).toList();
         BigDecimal tenPercRate = haveNextTenList.stream()
-                .map(StockDetail::getTenPricePert)
+                .map(StockDetail::getNext10PricePert)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .divide(new BigDecimal(haveNextTenList.size()), 4, RoundingMode.HALF_UP);
 
@@ -393,6 +437,9 @@ public class StockStartService {
         calcRes.setStrategyDesc(strategyDesc);
         calcRes.setWinRate(winRate);
         calcRes.setPercRate(percRate);
+        calcRes.setTwoPercRate(twoPercRate);
+        calcRes.setThreePercRate(threePercRate);
+        calcRes.setFourPercRate(fourPercRate);
         calcRes.setFivePercRate(fivePercRate);
         calcRes.setTenPercRate(tenPercRate);
         calcRes.setCreateDate(dataTime);
@@ -415,6 +462,10 @@ public class StockStartService {
     }
 
     public Map<String, List<StockDetail>> getCodeToDetailMap() throws ExecutionException, InterruptedException {
+        return getCodeToDetailMap(null);
+    }
+
+    public Map<String, List<StockDetail>> getCodeToDetailMap(Integer limit) throws ExecutionException, InterruptedException {
         List<Stock> stockList = getAllStock();
         Map<String, List<StockDetail>> codeToDetailMap = new ConcurrentHashMap<>();
         log.info("开始查询数据");
@@ -423,7 +474,7 @@ public class StockStartService {
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    List<StockDetail> stockDetails = getAllStockDetail(stock.getCode());
+                    List<StockDetail> stockDetails = getStockDetail(stock.getCode(), limit);
                     codeToDetailMap.put(stock.getCode(), stockDetails);
                 }
             }, ioThreadPool);

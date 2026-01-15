@@ -47,6 +47,24 @@ public class StockCalcRes {
      */
     private BigDecimal percRate;
 
+
+    /**
+     * 预测后的2天平均涨幅
+     */
+    private BigDecimal twoPercRate;
+
+
+    /**
+     * 预测后的3天平均涨幅
+     */
+    private BigDecimal threePercRate;
+
+
+    /**
+     * 预测后的4天平均涨幅
+     */
+    private BigDecimal fourPercRate;
+
     /**
      * 预测后的5天平均涨幅
      */

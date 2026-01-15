@@ -234,28 +234,65 @@ public class StockDetail {
     private StockDetail next;
 
     /**
+     * 日后第2个交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail next2;
+
+    /**
+     * 2天内的涨跌幅总和
+     */
+    @TableField(exist = false)
+    private BigDecimal next2PricePert;
+
+    /**
+     * 日后第3个交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail next3;
+
+    /**
+     * 3天内的涨跌幅总和
+     */
+    @TableField(exist = false)
+    private BigDecimal next3PricePert;
+
+    /**
+     * 日后第4个交易日细节
+     */
+    @TableField(exist = false)
+    private StockDetail next4;
+
+    /**
+     * 4天内的涨跌幅总和
+     */
+    @TableField(exist = false)
+    private BigDecimal next4PricePert;
+
+
+    /**
      * 日后第5个交易日细节
      */
     @TableField(exist = false)
-    private StockDetail nextFive;
+    private StockDetail next5;
 
     /**
      * 5天内的涨跌幅总和
      */
     @TableField(exist = false)
-    private BigDecimal fivePricePert;
+    private BigDecimal next5PricePert;
 
     /**
      * 日后第10个交易日细节
      */
     @TableField(exist = false)
-    private StockDetail nextTen;
+    private StockDetail next10;
 
     /**
      * 10天涨跌幅总和
      */
     @TableField(exist = false)
-    private BigDecimal tenPricePert;
+    private BigDecimal next10PricePert;
 
     /**
      * 前1天交易日细节

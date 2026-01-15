@@ -72,6 +72,9 @@ CREATE TABLE stock_calculation_result_t
     all_cnt        INT(11) COMMENT '符合条件的数据量',
     perc_rate      DECIMAL(8, 4) COMMENT '百分比叠加后的结果',
     win_perc_rate  DECIMAL(8, 4) COMMENT '预测对的百分比叠加后的结果',
+    two_perc_rate DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
+    three_perc_rate  DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
+    four_perc_rate  DECIMAL(8, 4) COMMENT '4天后百分比叠加后的结果',
     five_perc_rate DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
     ten_perc_rate  DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
     create_date    DATETIME NOT NULL COMMENT '创建日期'
@@ -92,6 +95,7 @@ from stock_t;
 
 select *
 from stock_detail_t
+where stock_code = '605162.SH'
 order by stock_detail_Id desc;
 
 select *

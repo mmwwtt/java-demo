@@ -23,8 +23,8 @@ public class StockGuiUitls {
 
     public static void genDetailImage(StockDetail t0, String path) throws IOException {
         List<StockDetail> list = new ArrayList<>();
-        list.add(t0.getNextTen());
-        list.add(t0.getNextFive());
+        list.add(t0.getNext10());
+        list.add(t0.getNext5());
         list.add(t0.getNext());
         list.add(t0);
         list.add(t0.getT1());

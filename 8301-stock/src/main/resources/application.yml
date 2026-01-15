@@ -8,7 +8,7 @@ spring:
     username: root
     password: dev123
     hikari:
-      maximum-pool-size: 50   # 太小容易被打满
+      maximum-pool-size: 100   # 太小容易被打满
       connection-timeout: 30000
 
 mybatis-plus:

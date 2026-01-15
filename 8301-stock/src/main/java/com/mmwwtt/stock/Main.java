@@ -1,6 +1,7 @@
 package com.mmwwtt.stock;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.google.common.collect.Lists;
@@ -44,7 +45,7 @@ import static com.mmwwtt.stock.common.Constants.*;
 
 
 /**
- * 必盈url   https://www.biyingapi.com/
+ * 必盈url   <a href="https://www.biyingapi.com/">...</a>
  * 限流 每分钟200次接口调用
  */
 @Slf4j
@@ -64,25 +65,43 @@ public class Main {
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Resource
     private StockCalcResDao stockCalcResDao;
 
+    /**
+     * 今天的日期
+     */
+    private static final String NOW_DATA;
+
+    static {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        NOW_DATA = LocalDate.now().format(formatter);
+    }
+
+
     @Test
     @DisplayName("获得数据")
     public void getDataTest() {
+        String stockCode = "605162.SH";
         Map<String, String> map1 = new HashMap<>();
         map1.put(LICENCE, BI_YING_LICENCE);
-        map1.put(STOCK_CODE, "605162.SH");
+        map1.put(STOCK_CODE, stockCode);
         map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
         map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
         map1.put(START_DATA, "20251201");
-        map1.put(END_DATA, getNowData());
+        map1.put(END_DATA, NOW_DATA);
         map1.put(MAX_SIZE, "350");
         List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
         });
-        log.info(stockDetailVOs.toString());
+
+        Map<String, String> map2 = new HashMap<>();
+        map2.put(LICENCE, BI_YING_LICENCE);
+        map2.put(STOCK_CODE, stockCode.split("\\.")[0]);
+        StockDetailOnTimeVO stockDetailOnTimeVO = getResponse(ON_TIME_DATA_URL, map2, new ParameterizedTypeReference<StockDetailOnTimeVO>() {
+        });
+        log.info("{}", JSONObject.toJSONString(stockDetailVOs));
     }
 
     @Test
@@ -97,8 +116,7 @@ public class Main {
     @DisplayName("3点前的增量数据")
     public void dounLoadAdd() throws ExecutionException, InterruptedException {
         dataDetailDownLoadAdd();
-        dataDetailDownLoadOnTime();
-        dataDetailCalc();
+        dataDetailCalc2();
     }
 
 
@@ -125,7 +143,6 @@ public class Main {
     @DisplayName("调接口获取每日的股票详细数据-全量")
     public void dataDetailDownLoad() throws InterruptedException, ExecutionException {
         log.info("下载股票详细数据");
-        String nowDate = getNowData();
         List<Stock> stockList = stockStartService.getAllStock();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
@@ -138,7 +155,7 @@ public class Main {
                     map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
                     map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
                     map1.put(START_DATA, "20250101");
-                    map1.put(END_DATA, nowDate);
+                    map1.put(END_DATA, NOW_DATA);
                     map1.put(MAX_SIZE, "350");
                     log.info(stock.getCode());
                     List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
@@ -176,8 +193,6 @@ public class Main {
     @DisplayName("调接口获取每日的详细数据-增量")
     public void dataDetailDownLoadAdd() throws InterruptedException, ExecutionException {
         log.info("下载详细增量数据");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        String nowDate = LocalDate.now().format(formatter);
         List<Stock> stockList = stockStartService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -190,7 +205,7 @@ public class Main {
                     map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
                     map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
                     map1.put(START_DATA, "20251220");
-                    map1.put(END_DATA, nowDate);
+                    map1.put(END_DATA, NOW_DATA);
                     map1.put(MAX_SIZE, "30");
                     log.info(stock.getCode());
                     List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
@@ -220,57 +235,51 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        dataDetailCalc2();
         log.info("end");
     }
 
-
     @Test
-    @DisplayName("调接口获取实时数据")
-    public void dataDetailDownLoadOnTime() throws InterruptedException, ExecutionException {
-        log.info("获取实时数据");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+    @DisplayName("计算衍生数据-全量")
+    public void dataDetailCalc() throws InterruptedException, ExecutionException {
+        log.info("计算衍生数据--开始");
+        Map<String, List<StockDetail>> codeToDetailMap = stockStartService.getCodeToDetailMap();
         List<Stock> stockList = stockStartService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    Map<String, String> map1 = new HashMap<>();
-                    map1.put(LICENCE, BI_YING_LICENCE);
-                    map1.put(STOCK_CODE, stock.getCode().split("\\.")[0]);
-                    log.info(stock.getCode());
-                    StockDetailOnTimeVO stockDetailOnTimeVO = getResponse(ON_TIME_DATA_URL, map1, new ParameterizedTypeReference<StockDetailOnTimeVO>() {
-                    });
-                    if (Objects.isNull(stockDetailOnTimeVO)) {
-                        continue;
-                    }
-                    StockDetail stockDetail = StockConverter.INSTANCE.convertToStockDetail(stockDetailOnTimeVO);
-                    stockDetail.setStockCode(stock.getCode());
-
-                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                    detailWapper.eq("stock_code", stock.getCode());
-                    detailWapper.likeLeft("deal_date", stockDetail.getDealDate().substring(0, 10));
-                    List<StockDetail> list = stockDetailDao.selectList(detailWapper);
-                    if (CollectionUtils.isNotEmpty(list)) {
-                        stockDetail.setStockDetailId(list.get(0).getStockDetailId());
-                    }
-                    stockDetail.setDealQuantity(stockDetail.getDealQuantity().divide(new BigDecimal("0.8333"), 4, RoundingMode.HALF_UP));
-                    stockDetailDao.insertOrUpdate(stockDetail);
+                    List<StockDetail> stockDetails = codeToDetailMap.getOrDefault(stock.getCode(), new ArrayList<>());
+                    stockDetails.forEach(item -> item.calc());
+                    StockDetail.calc(stockDetails);
                 }
-            }, ioThreadPool);
+            }, cpuThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        log.info("end");
+        log.info("计算衍生数据--计算完成  开始保存");
+        futures = new ArrayList<>();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = codeToDetailMap.getOrDefault(stock.getCode(), new ArrayList<>());
+                    stockDetailDao.updateById(stockDetails);
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        log.info("衍生数据计算--完毕  \n\n\n");
     }
 
-
     @Test
-    @DisplayName("计算衍生数据")
-    public void dataDetailCalc() throws InterruptedException, ExecutionException {
+    @DisplayName("计算衍生数据-增量")
+    public void dataDetailCalc2() throws InterruptedException, ExecutionException {
         log.info("计算衍生数据--开始");
-        Map<String, List<StockDetail>> codeToDetailMap = stockStartService.getCodeToDetailMap();
+        Map<String, List<StockDetail>> codeToDetailMap = stockStartService.getCodeToDetailMap(80);
         List<Stock> stockList = stockStartService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -356,28 +365,26 @@ public class Main {
             }
 
             try (FileOutputStream fos = new FileOutputStream(file, true)) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-                String nowDate = LocalDate.now().format(formatter);
-                fos.write(String.format("\n\n%s    win_rate:%3f  - %3f\n", nowDate, 0.6 + i * 0.05, 0.65 + i * 0.05).getBytes());
+                fos.write(String.format("\n\n%s    win_rate:%3f  - %3f\n", NOW_DATA, 0.6 + i * 0.05, 0.65 + i * 0.05).getBytes());
                 for (Stock item : resList) {
                     String str = String.format("%s_%s\n", item.getCode(), item.getName());
                     fos.write(str.getBytes());
                 }
-            } catch (IOException e) {
-            }
+            } catch (IOException ignored) {}
         }
     }
 
     @Test
     @DisplayName("上升缺口 成交量超过5日线")
     public void getStock1() throws InterruptedException, ExecutionException {
+        boolean isOnTime = true;
         List<Stock> stockList = stockStartService.getAllStock();
         Map<String, List<StockDetail>> codeToDetailMap = stockStartService.getCodeToDetailMap();
         List<List<Stock>> parts = Lists.partition(stockList, 10);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         //策略
-        String strategyName = "上升缺口 且缩量";
+        String strategyName = "上升缺口";
         Function<StockDetail, Boolean> runFunc = StockStrategyUtils.getStrategy(strategyName).getRunFunc();
         log.info("开始计算");
         List<Stock> resList = new ArrayList<>();
@@ -385,6 +392,9 @@ public class Main {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
                     List<StockDetail> stockDetails = codeToDetailMap.get(stock.getCode());
+                    if(isOnTime) {
+                        stockDetails.forEach(item -> item.setDealQuantity(item.getDealQuantity().divide(new BigDecimal("0.75"), 5, RoundingMode.HALF_UP)));
+                    }
                     if (CollectionUtils.isEmpty(stockDetails)) {
                         continue;
                     }
@@ -406,21 +416,14 @@ public class Main {
         }
 
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-            String nowDate = LocalDate.now().format(formatter);
-            fos.write(String.format("\n\n%s\n", nowDate).getBytes());
+            fos.write(String.format("\n\n%s\n", NOW_DATA).getBytes());
             for (Stock item : resList) {
                 String str = String.format("%s_%s\n", item.getCode(), item.getName());
                 fos.write(str.getBytes());
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
 
-    }
-
-    private String getNowData() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-        return LocalDate.now().format(formatter);
     }
 
     private <T> T getResponse(String url, Map<String, String> paramMap, ParameterizedTypeReference reference) {
@@ -432,7 +435,7 @@ public class Main {
                 //打印除限流外的错误
                 if (e.getMessage().startsWith("429")) {
                     log.info("{}", e.getMessage());
-                }else {
+                } else {
                     return null;
                 }
                 try {

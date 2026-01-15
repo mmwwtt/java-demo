@@ -56,6 +56,7 @@ public interface StockConverter {
             @Mapping(target = "lowPrice", source = "stockDetailVO.l"),
             @Mapping(target = "endPrice", source = "stockDetailVO.p"),
             @Mapping(target = "dealQuantity", source = "stockDetailVO.v"),
+            @Mapping(target = "dealPrice", source = "stockDetailVO.cje"),
             @Mapping(target = "lastPrice", source = "stockDetailVO.yc")
     })
     StockDetail convertToStockDetail(StockDetailOnTimeVO stockDetailVO);
