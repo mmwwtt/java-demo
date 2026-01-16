@@ -65,19 +65,19 @@ create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc)
 DROP TABLE IF EXISTS stock_calculation_result_t;
 CREATE TABLE stock_calculation_result_t
 (
-    calc_res_id    INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    type           VARCHAR(64) COMMENT '策略类型',
-    strategy_desc  VARCHAR(256) COMMENT '策略描述',
-    win_rate       DECIMAL(8, 4) COMMENT '预测胜率',
-    all_cnt        INT(11) COMMENT '符合条件的数据量',
-    perc_rate      DECIMAL(8, 4) COMMENT '百分比叠加后的结果',
-    win_perc_rate  DECIMAL(8, 4) COMMENT '预测对的百分比叠加后的结果',
-    two_perc_rate DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
-    three_perc_rate  DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
+    calc_res_id     INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    type            VARCHAR(64) COMMENT '策略类型',
+    strategy_desc   VARCHAR(256) COMMENT '策略描述',
+    win_rate        DECIMAL(8, 4) COMMENT '预测胜率',
+    all_cnt         INT(11) COMMENT '符合条件的数据量',
+    perc_rate       DECIMAL(8, 4) COMMENT '百分比叠加后的结果',
+    win_perc_rate   DECIMAL(8, 4) COMMENT '预测对的百分比叠加后的结果',
+    two_perc_rate   DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
+    three_perc_rate DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
     four_perc_rate  DECIMAL(8, 4) COMMENT '4天后百分比叠加后的结果',
-    five_perc_rate DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
-    ten_perc_rate  DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
-    create_date    DATETIME NOT NULL COMMENT '创建日期'
+    five_perc_rate  DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
+    ten_perc_rate   DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
+    create_date     DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '股票计算结果表';
 
 
@@ -116,7 +116,7 @@ select *
 from stock_calculation_result_t
 where type = 1
   and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')
-order by win_rate desc, all_cnt desc;
+order by win_rate desc;
 
 
 select count(*)
@@ -134,8 +134,26 @@ select *
 from stock_detail_t
 order by stock_detail_Id desc;
 
-
+explain
 select *
 from stock_detail_t
 where stock_code = '603912.SH'
 order by stock_detail_Id desc;
+
+
+# 设置最大连接数为500
+SET GLOBAL max_connections = 500;
+#验证最大连接数
+SHOW VARIABLES LIKE 'max_connections';
+
+-- 1. 打开慢日志
+SET GLOBAL slow_query_log = 'ON';
+
+-- 2. 设置阈值，单位秒（支持小数，0.5 表示 500 ms）
+SET GLOBAL long_query_time = 1;
+
+-- 3. 指定日志文件路径（目录需让 mysql 用户可写）
+SET GLOBAL slow_query_log_file = 'D:\1.moweitao\slow_sql';
+
+-- 4. 可选：把“没走索引”的语句也记下来
+SET GLOBAL log_queries_not_using_indexes = 'ON';

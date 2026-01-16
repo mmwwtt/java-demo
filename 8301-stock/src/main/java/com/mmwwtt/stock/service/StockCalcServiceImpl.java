@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.stock.common.GlobalThreadPool;
+import com.mmwwtt.stock.convert.StockConverter;
 import com.mmwwtt.stock.dao.StockCalcResDao;
 import com.mmwwtt.stock.dao.StockDao;
 import com.mmwwtt.stock.dao.StockDetailDao;
@@ -350,19 +351,19 @@ public class StockCalcServiceImpl implements StockCalcService{
                         .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
             }
             if (stockDetails.size() > i + 1) {
-                t0.setT1(stockDetails.get(i + 1));
+                t0.setT1(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 1)));
             }
             if (stockDetails.size() > i + 2) {
-                t0.setT2(stockDetails.get(i + 2));
+                t0.setT2(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 2)));
             }
             if (stockDetails.size() > i + 3) {
-                t0.setT3(stockDetails.get(i + 3));
+                t0.setT3(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 3)));
             }
             if (stockDetails.size() > i + 4) {
-                t0.setT4(stockDetails.get(i + 4));
+                t0.setT4(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 4)));
             }
             if (stockDetails.size() > i + 5) {
-                t0.setT5(stockDetails.get(i + 5));
+                t0.setT5(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 5)));
             }
         }
         return stockDetails;

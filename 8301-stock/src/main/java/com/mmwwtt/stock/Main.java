@@ -30,8 +30,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -41,6 +39,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.mmwwtt.stock.common.CommonUtils.divide;
+import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 import static com.mmwwtt.stock.common.Constants.*;
 
 
@@ -116,7 +116,7 @@ public class Main {
     @DisplayName("3点前的增量数据")
     public void dounLoadAdd() throws ExecutionException, InterruptedException {
         dataDetailDownLoadAdd();
-        dataDetailCalc2();
+        dataDetailCalcAdd();
     }
 
 
@@ -235,7 +235,6 @@ public class Main {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        dataDetailCalc2();
         log.info("end");
     }
 
@@ -277,7 +276,7 @@ public class Main {
 
     @Test
     @DisplayName("计算衍生数据-增量")
-    public void dataDetailCalc2() throws InterruptedException, ExecutionException {
+    public void dataDetailCalcAdd() throws InterruptedException, ExecutionException {
         log.info("计算衍生数据--开始");
         Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap(80);
         List<Stock> stockList = stockCalcService.getAllStock();
@@ -378,7 +377,7 @@ public class Main {
     @Test
     @DisplayName("上升缺口 成交量超过5日线")
     public void getStock1() throws InterruptedException, ExecutionException {
-        boolean isOnTime = false;
+        boolean isOnTime = true;
         Map<String, List<String>> strategyToStockMap = new HashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
@@ -399,16 +398,15 @@ public class Main {
                     for (Stock stock : part) {
                         List<StockDetail> stockDetails = codeToDetailMap.get(stock.getCode());
                         if (isOnTime) {
-                            stockDetails.forEach(item -> item.setDealQuantity(
-                                    item.getDealQuantity().divide(new BigDecimal("0.75"), 5, RoundingMode.HALF_UP)));
+                            stockDetails.forEach(item -> item.setDealQuantity(divide(item.getDealQuantity(), "0.85")));
                         }
                         if (CollectionUtils.isEmpty(stockDetails)
-                                || stockDetails.get(0).getPricePert().compareTo(new BigDecimal("0.097")) > 0) {
+                                ||moreThan( stockDetails.get(0).getPricePert(), "0.097")) {
                             continue;
                         }
                         if (runFunc.apply(stockDetails.get(0))) {
                             strategyToStockMap.computeIfAbsent(strategyName, k -> new ArrayList<>())
-                                    .add(stock.getName() + " " + stockDetails.get(0).getPricePert().doubleValue());
+                                    .add(stock.getCode() + "_" + stock.getName() + "_" + stockDetails.get(0).getPricePert().doubleValue());
                         }
                     }
                 }, cpuThreadPool);

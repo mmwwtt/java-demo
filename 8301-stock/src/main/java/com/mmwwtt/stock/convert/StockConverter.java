@@ -37,7 +37,7 @@ public interface StockConverter {
 
     @AfterMapping
     default void convertBigDecimal(@MappingTarget StockDetail stockDetail) {
-        stockDetail.setPricePert(stockDetail.getEndPrice().subtract(stockDetail.getLastPrice()).divide(stockDetail.getLastPrice(),4, RoundingMode.HALF_UP));
+        stockDetail.setPricePert(stockDetail.getEndPrice().subtract(stockDetail.getLastPrice()).divide(stockDetail.getLastPrice(), 4, RoundingMode.HALF_UP));
         stockDetail.setStartPrice(stockDetail.getStartPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setHighPrice(stockDetail.getHighPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setLowPrice(stockDetail.getLowPrice().setScale(4, RoundingMode.HALF_UP));
@@ -61,4 +61,12 @@ public interface StockConverter {
     })
     StockDetail convertToStockDetail(StockDetailOnTimeVO stockDetailVO);
 
+    @Mappings({
+            @Mapping(target = "t1", ignore = true),
+            @Mapping(target = "t2", ignore = true),
+            @Mapping(target = "t3", ignore = true),
+            @Mapping(target = "t4", ignore = true),
+            @Mapping(target = "t5", ignore = true),
+    })
+    StockDetail convertToStockDetail(StockDetail stockDetail);
 }
