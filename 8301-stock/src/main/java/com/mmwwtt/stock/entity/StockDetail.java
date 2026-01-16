@@ -8,8 +8,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
+
+import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @Data
 @TableName("stock_detail_t")
@@ -376,19 +377,19 @@ public class StockDetail {
     private Boolean getIsDownQuantityForFive = false;
 
     public void calc() {
-        allLen = highPrice.subtract(lowPrice).abs();
-        upShadowLen = highPrice.subtract(startPrice.max(endPrice)).abs();
-        upShadowPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : upShadowLen.divide(allLen, 4, RoundingMode.HALF_UP);
-        lowShadowLen = startPrice.min(endPrice).subtract(lowPrice).abs();
-        lowShadowPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : lowShadowLen.divide(allLen, 4, RoundingMode.HALF_UP);
-        entityLen = endPrice.subtract(startPrice).abs();
-        entityPert = allLen.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : entityLen.divide(allLen, 4, RoundingMode.HALF_UP);
-        isUp = endPrice.compareTo(lastPrice) > 0;
-        isDown = endPrice.compareTo(lastPrice) < 0;
-        isBalance = endPrice.compareTo(startPrice) == 0;
-        pertDivisionQuantity = dealQuantity.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 20, RoundingMode.HALF_UP);
+        allLen = subtract(highPrice, lowPrice).abs();
+        upShadowLen = subtract(highPrice, max(startPrice, endPrice)).abs();
+        upShadowPert = bigDecimalEquals(allLen,"0")? BigDecimal.ZERO : divide(upShadowLen,allLen);
+        lowShadowLen = subtract(min(startPrice, endPrice), lowPrice).abs();
+        lowShadowPert = bigDecimalEquals(allLen,"0") ? BigDecimal.ZERO : divide(lowShadowLen, allLen);
+        entityLen = subtract(endPrice,startPrice).abs();
+        entityPert =bigDecimalEquals( allLen,"0") ? BigDecimal.ZERO : divide(entityLen,allLen);
+        isUp = moreThan(endPrice, lastPrice);
+        isDown = lessThan(endPrice, lastPrice);
+        isBalance = bigDecimalEquals(endPrice, startPrice);
+        pertDivisionQuantity = bigDecimalEquals(dealQuantity,"0") ? BigDecimal.ZERO : divide(pricePert,dealQuantity);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
-        isTenStar = allLen.compareTo(BigDecimal.ZERO) > 0 && entityPert.compareTo(new BigDecimal("0.05")) <= 0;
+        isTenStar = moreThan(allLen, "0") && lessThan(entityPert, "0.05");
     }
 
     public static void calc(List<StockDetail> list) {
@@ -396,93 +397,60 @@ public class StockDetail {
             StockDetail cur = list.get(i);
             if (list.size() > i + 5) {
                 List<StockDetail> fiveList = list.stream().skip(i).limit(5).toList();
-                BigDecimal fiveAverage = fiveList.stream()
-                        .map(StockDetail::getEndPrice)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);
+                BigDecimal fiveAverage = divide(sum(fiveList.stream().map(StockDetail::getEndPrice).toList()), 5);
                 cur.setFiveDayLine(fiveAverage);
 
-                BigDecimal fiveDayHigh = fiveList.stream().map(StockDetail::getHighPrice).max(BigDecimal::compareTo)
-                        .orElse(BigDecimal.ZERO);
+                BigDecimal fiveDayHigh = max(fiveList.stream().map(StockDetail::getHighPrice).toList());
                 cur.setFiveDayHigh(fiveDayHigh);
 
-                BigDecimal fiveDayLow = fiveList.stream().map(StockDetail::getLowPrice).min(BigDecimal::compareTo)
-                        .orElse(BigDecimal.ZERO);
+                BigDecimal fiveDayLow = min(fiveList.stream().map(StockDetail::getLowPrice).toList());
                 cur.setFiveDayLow(fiveDayLow);
 
-                BigDecimal fiveDayDealQuantity = fiveList.stream()
-                        .map(StockDetail::getDealQuantity)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(5), 4, RoundingMode.HALF_UP);
-                ;
+                BigDecimal fiveDayDealQuantity = divide(sum(fiveList.stream().map(StockDetail::getDealQuantity).toList()), 5);
                 cur.setFiveDayDealQuantity(fiveDayDealQuantity);
             }
             if (list.size() > i + 10) {
                 List<StockDetail> tenList = list.stream().skip(i).limit(10).toList();
-                BigDecimal tenAverage = tenList.stream()
-                        .map(StockDetail::getEndPrice)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(10), 4, RoundingMode.HALF_UP);
+                BigDecimal tenAverage = divide(sum(tenList.stream().map(StockDetail::getEndPrice).toList()), 10);
                 cur.setTenDayLine(tenAverage);
 
-                BigDecimal tenDayHigh = tenList.stream().map(StockDetail::getHighPrice).max(BigDecimal::compareTo)
-                        .orElse(BigDecimal.ZERO);
+                BigDecimal tenDayHigh = max(tenList.stream().map(StockDetail::getHighPrice).toList());
                 cur.setTenDayHigh(tenDayHigh);
 
-                BigDecimal tenDayLow = tenList.stream().map(StockDetail::getLowPrice).min(BigDecimal::compareTo)
-                        .orElse(BigDecimal.ZERO);
+                BigDecimal tenDayLow = min(tenList.stream().map(StockDetail::getLowPrice).toList());
                 cur.setTenDayLow(tenDayLow);
 
-                BigDecimal tenDayDealQuantity = tenList.stream()
-                        .map(StockDetail::getDealQuantity)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(10), 4, RoundingMode.HALF_UP);
+                BigDecimal tenDayDealQuantity = divide(sum(tenList.stream().map(StockDetail::getDealQuantity).toList()), 10);
                 cur.setTenDayDealQuantity(tenDayDealQuantity);
             }
 
             if (list.size() > i + 20) {
                 List<StockDetail> twentyList = list.stream().skip(i).limit(20).toList();
-                BigDecimal twentyAverage = twentyList.stream()
-                        .map(StockDetail::getEndPrice)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(20), 4, RoundingMode.HALF_UP);
+                BigDecimal twentyAverage = divide(sum(twentyList.stream().map(StockDetail::getEndPrice).toList()),20);
                 cur.setTwentyDayLine(twentyAverage);
 
-                BigDecimal twentyDayHigh = twentyList.stream().map(StockDetail::getHighPrice).max(BigDecimal::compareTo)
-                        .orElse(BigDecimal.ZERO);
+                BigDecimal twentyDayHigh = max(twentyList.stream().map(StockDetail::getHighPrice).toList());
                 cur.setTwentyDayHigh(twentyDayHigh);
 
-                BigDecimal twentyDayLow = twentyList.stream().map(StockDetail::getLowPrice).min(BigDecimal::compareTo)
-                        .orElse(BigDecimal.ZERO);
+                BigDecimal twentyDayLow = min(twentyList.stream().map(StockDetail::getLowPrice).toList());
                 cur.setTwentyDayLow(twentyDayLow);
 
-                BigDecimal twentyDayDealQuantity = twentyList.stream()
-                        .map(StockDetail::getDealQuantity)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(20), 4, RoundingMode.HALF_UP);
+                BigDecimal twentyDayDealQuantity = divide(sum(twentyList.stream().map(StockDetail::getDealQuantity).toList()),20);
                 cur.setTwentyDayDealQuantity(twentyDayDealQuantity);
             }
 
             if (list.size() > i + 60) {
                 List<StockDetail> sixtyList = list.stream().skip(i).limit(60).toList();
-                BigDecimal sixtyAverage = sixtyList.stream()
-                        .map(StockDetail::getEndPrice)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(60), 4, RoundingMode.HALF_UP);
+                BigDecimal sixtyAverage = divide(sum(sixtyList.stream().map(StockDetail::getEndPrice).toList()),60);
                 cur.setSixtyDayLine(sixtyAverage);
 
-                BigDecimal sixtyDayHigh = sixtyList.stream().map(StockDetail::getHighPrice).max(BigDecimal::compareTo)
-                        .orElse(BigDecimal.ZERO);
+                BigDecimal sixtyDayHigh = max(sixtyList.stream().map(StockDetail::getHighPrice).toList());
                 cur.setSixtyDayHigh(sixtyDayHigh);
 
-                BigDecimal sixtyDayLow = sixtyList.stream().map(StockDetail::getLowPrice).min(BigDecimal::compareTo)
-                        .orElse(BigDecimal.ZERO);
+                BigDecimal sixtyDayLow = min(sixtyList.stream().map(StockDetail::getLowPrice).toList());
                 cur.setSixtyDayLow(sixtyDayLow);
 
-                BigDecimal sixtyDayDealQuantity = sixtyList.stream()
-                        .map(StockDetail::getDealQuantity)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(60), 4, RoundingMode.HALF_UP);
+                BigDecimal sixtyDayDealQuantity = divide(sum(sixtyList.stream().map(StockDetail::getDealQuantity)),60);
                 cur.setSixtyDayDealQuantity(sixtyDayDealQuantity);
             }
         }

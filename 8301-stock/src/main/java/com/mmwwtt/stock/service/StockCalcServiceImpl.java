@@ -385,47 +385,39 @@ public class StockCalcServiceImpl implements StockCalcService {
 
         List<StockDetail> haveNextList = allAfterList.stream().filter(item -> Objects.nonNull(item.getNext())).toList();
         long correctCount = haveNextList.stream().filter(detail -> detail.getNext().getIsUp()).count();
-        BigDecimal percRate = divide(haveNextList.stream()
-                .map(item -> item.getNext().getPricePert())
-                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextList.size());
+        BigDecimal percRate = divide(sum(haveNextList.stream()
+                .map(item -> item.getNext().getPricePert()).toList()), haveNextList.size());
 
         List<StockDetail> haveNextTwoList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext2())).toList();
-        BigDecimal twoPercRate = divide(haveNextTwoList.stream()
-                .map(StockDetail::getNext2PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextTwoList.size());
+        BigDecimal twoPercRate = divide(sum(haveNextTwoList.stream()
+                .map(StockDetail::getNext2PricePert).toList()), haveNextTwoList.size());
 
         List<StockDetail> haveNextThreeList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext3())).toList();
-        BigDecimal threePercRate = divide(haveNextThreeList.stream()
-                .map(StockDetail::getNext3PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextThreeList.size());
+        BigDecimal threePercRate = divide(sum(haveNextThreeList.stream()
+                .map(StockDetail::getNext3PricePert).toList()), haveNextThreeList.size());
 
         List<StockDetail> haveNextFourList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext4())).toList();
-        BigDecimal fourPercRate = divide(haveNextFourList.stream()
-                .map(StockDetail::getNext4PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextFourList.size());
+        BigDecimal fourPercRate = divide(sum(haveNextFourList.stream()
+                .map(StockDetail::getNext4PricePert).toList()), haveNextFourList.size());
 
         List<StockDetail> haveNextFiveList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext5())).toList();
-        BigDecimal fivePercRate = divide(haveNextFiveList.stream()
-                .map(StockDetail::getNext5PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextFiveList.size());
+        BigDecimal fivePercRate = divide(sum(haveNextFiveList.stream()
+                .map(StockDetail::getNext5PricePert).toList()), haveNextFiveList.size());
 
         List<StockDetail> haveNextTenList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext10())).toList();
-        BigDecimal tenPercRate = divide(haveNextTenList.stream()
-                .map(StockDetail::getNext10PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextTenList.size());
-        BigDecimal tenMaxPercRate = divide(haveNextTenList.stream()
-                .map(StockDetail::getNext10MaxPricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextTenList.size());
+        BigDecimal tenPercRate = divide(sum(haveNextTenList.stream()
+                .map(StockDetail::getNext10PricePert).toList()), haveNextTenList.size());
+        BigDecimal tenMaxPercRate = divide(sum(haveNextTenList.stream()
+                .map(StockDetail::getNext10MaxPricePert).toList()), haveNextTenList.size());
 
-        BigDecimal winPercRate = divide(allAfterList.stream()
+        BigDecimal winPercRate = divide(sum(allAfterList.stream()
                 .filter(item -> item.getNext().getIsUp())
-                .map(item -> item.getNext().getPricePert())
-                .reduce(BigDecimal.ZERO, BigDecimal::add), correctCount);
+                .map(item -> item.getNext().getPricePert()).toList()), correctCount);
         BigDecimal winRate = divide(correctCount, allAfterList.size());
         StockCalcRes calcRes = new StockCalcRes();
         calcRes.setStrategyDesc(strategyDesc);

@@ -14,26 +14,27 @@ public class CommonUtils {
     }
 
     public static BigDecimal subtract(Object num1, Object num2) {
-        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp1 = toBigDecimal(num1);
         BigDecimal tmp2 = toBigDecimal(num2);
-        if(tmp1 == null|| tmp2 == null ) {
+        if (tmp1 == null || tmp2 == null) {
             return null;
         }
         return tmp1.subtract(tmp2);
     }
+
     public static BigDecimal add(Object num1, Object num2) {
-        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp1 = toBigDecimal(num1);
         BigDecimal tmp2 = toBigDecimal(num2);
-        if(tmp1 == null|| tmp2 == null ) {
+        if (tmp1 == null || tmp2 == null) {
             return null;
         }
         return tmp1.add(tmp2);
     }
 
     public static BigDecimal multiply(Object num1, Object num2) {
-        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp1 = toBigDecimal(num1);
         BigDecimal tmp2 = toBigDecimal(num2);
-        if(tmp1 == null|| tmp2 == null ) {
+        if (tmp1 == null || tmp2 == null) {
             return null;
         }
         return tmp1.multiply(tmp2);
@@ -41,28 +42,37 @@ public class CommonUtils {
 
 
     public static BigDecimal divide(Object num1, Object num2) {
-        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp1 = toBigDecimal(num1);
         BigDecimal tmp2 = toBigDecimal(num2);
-        if(tmp1 == null|| tmp2 == null ) {
+        if (tmp1 == null || tmp2 == null) {
             return null;
         }
         return tmp1.divide(tmp2, 5, RoundingMode.HALF_UP);
     }
 
     public static Boolean moreThan(Object num1, Object num2) {
-        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp1 = toBigDecimal(num1);
         BigDecimal tmp2 = toBigDecimal(num2);
-        if(tmp1 == null|| tmp2 == null ) {
+        if (tmp1 == null || tmp2 == null) {
             return false;
         }
         return tmp1.compareTo(tmp2) > 0;
     }
 
 
-    public static Boolean lessThan(Object num1, Object num2) {
-        BigDecimal tmp1= toBigDecimal(num1);
+    public static Boolean bigDecimalEquals(Object num1, Object num2) {
+        BigDecimal tmp1 = toBigDecimal(num1);
         BigDecimal tmp2 = toBigDecimal(num2);
-        if(tmp1 == null|| tmp2 == null ) {
+        if (tmp1 == null || tmp2 == null) {
+            return false;
+        }
+        return tmp1.compareTo(tmp2) == 0;
+    }
+
+    public static Boolean lessThan(Object num1, Object num2) {
+        BigDecimal tmp1 = toBigDecimal(num1);
+        BigDecimal tmp2 = toBigDecimal(num2);
+        if (tmp1 == null || tmp2 == null) {
             return false;
         }
         return tmp1.compareTo(tmp2) < 0;
@@ -90,6 +100,20 @@ public class CommonUtils {
         BigDecimal res = list.get(0);
         for (int i = 1; i < list.size(); i++) {
             res = res.min(list.get(0));
+        }
+        return res;
+    }
+
+
+    public static BigDecimal sum(Object... nums) {
+        List<BigDecimal> list = Arrays.stream(nums).map(CommonUtils::toBigDecimal).toList();
+        return sum(list);
+    }
+
+    public static BigDecimal sum(List<BigDecimal> list) {
+        BigDecimal res = BigDecimal.ZERO;
+        for (int i = 0; i < list.size(); i++) {
+            res = res.add(list.get(0));
         }
         return res;
     }
