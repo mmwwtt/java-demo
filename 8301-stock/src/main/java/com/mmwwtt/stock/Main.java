@@ -377,7 +377,7 @@ public class Main {
     @Test
     @DisplayName("上升缺口 成交量超过5日线")
     public void getStock1() throws InterruptedException, ExecutionException {
-        boolean isOnTime = true;
+        boolean isOnTime = false;
         Map<String, List<String>> strategyToStockMap = new HashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
