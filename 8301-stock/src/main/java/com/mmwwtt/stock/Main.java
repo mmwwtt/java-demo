@@ -121,7 +121,7 @@ public class Main {
 
 
     @Test
-    @DisplayName("调接口获取每日数据")
+    @DisplayName("调接口获取数据")
     public void dataDownLoad() {
         log.info("下载数据");
         RestTemplate restTemplate = new RestTemplate();
@@ -140,7 +140,7 @@ public class Main {
     }
 
     @Test
-    @DisplayName("调接口获取每日的股票详细数据-全量")
+    @DisplayName("调接口获取每日详细数据-全量")
     public void dataDetailDownLoad() throws InterruptedException, ExecutionException {
         log.info("下载股票详细数据");
         List<Stock> stockList = stockCalcService.getAllStock();

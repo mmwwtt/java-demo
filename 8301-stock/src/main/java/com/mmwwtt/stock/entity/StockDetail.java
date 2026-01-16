@@ -379,15 +379,15 @@ public class StockDetail {
     public void calc() {
         allLen = subtract(highPrice, lowPrice).abs();
         upShadowLen = subtract(highPrice, max(startPrice, endPrice)).abs();
-        upShadowPert = bigDecimalEquals(allLen,"0")? BigDecimal.ZERO : divide(upShadowLen,allLen);
+        upShadowPert = bigDecimalEquals(allLen, "0") ? BigDecimal.ZERO : divide(upShadowLen, allLen);
         lowShadowLen = subtract(min(startPrice, endPrice), lowPrice).abs();
-        lowShadowPert = bigDecimalEquals(allLen,"0") ? BigDecimal.ZERO : divide(lowShadowLen, allLen);
-        entityLen = subtract(endPrice,startPrice).abs();
-        entityPert =bigDecimalEquals( allLen,"0") ? BigDecimal.ZERO : divide(entityLen,allLen);
+        lowShadowPert = bigDecimalEquals(allLen, "0") ? BigDecimal.ZERO : divide(lowShadowLen, allLen);
+        entityLen = subtract(endPrice, startPrice).abs();
+        entityPert = bigDecimalEquals(allLen, "0") ? BigDecimal.ZERO : divide(entityLen, allLen);
         isUp = moreThan(endPrice, lastPrice);
         isDown = lessThan(endPrice, lastPrice);
         isBalance = bigDecimalEquals(endPrice, startPrice);
-        pertDivisionQuantity = bigDecimalEquals(dealQuantity,"0") ? BigDecimal.ZERO : divide(pricePert,dealQuantity);
+        pertDivisionQuantity = bigDecimalEquals(dealQuantity, "0") ? BigDecimal.ZERO : divide(pricePert, dealQuantity);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
         isTenStar = moreThan(allLen, "0") && lessThan(entityPert, "0.05");
     }
@@ -396,22 +396,22 @@ public class StockDetail {
         for (int i = 0; i < list.size(); i++) {
             StockDetail cur = list.get(i);
             if (i - 2 >= 0) {
-                cur.setNext2PricePert(divide(subtract(list.get(i-2).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setNext2PricePert(divide(subtract(list.get(i - 2).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
             }
             if (i - 3 >= 0) {
-                cur.setNext3PricePert(divide(subtract(list.get(i-3).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setNext3PricePert(divide(subtract(list.get(i - 3).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
             }
             if (i - 4 >= 0) {
-                cur.setNext4PricePert(divide(subtract(list.get(i-4).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setNext4PricePert(divide(subtract(list.get(i - 4).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
             }
             if (i - 5 >= 0) {
-                cur.setNext5PricePert(divide(subtract(list.get(i-5).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setNext5PricePert(divide(subtract(list.get(i - 5).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
                 List<BigDecimal> highPriceList = list.subList(i - 5, i).stream().map(StockDetail::getHighPrice).toList();
                 cur.setNext5MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
             }
 
             if (i - 10 >= 0) {
-                cur.setNext10PricePert(divide(subtract(list.get(i-10).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setNext10PricePert(divide(subtract(list.get(i - 10).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
                 List<BigDecimal> highPriceList = list.subList(i - 10, i).stream().map(StockDetail::getHighPrice).toList();
                 cur.setNext10MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
             }
@@ -448,7 +448,7 @@ public class StockDetail {
 
             if (list.size() > i + 20) {
                 List<StockDetail> twentyList = list.stream().skip(i).limit(20).toList();
-                BigDecimal twentyAverage = divide(sum(twentyList.stream().map(StockDetail::getEndPrice).toList()),20);
+                BigDecimal twentyAverage = divide(sum(twentyList.stream().map(StockDetail::getEndPrice).toList()), 20);
                 cur.setTwentyDayLine(twentyAverage);
 
                 BigDecimal twentyDayHigh = max(twentyList.stream().map(StockDetail::getHighPrice).toList());
@@ -457,13 +457,13 @@ public class StockDetail {
                 BigDecimal twentyDayLow = min(twentyList.stream().map(StockDetail::getLowPrice).toList());
                 cur.setTwentyDayLow(twentyDayLow);
 
-                BigDecimal twentyDayDealQuantity = divide(sum(twentyList.stream().map(StockDetail::getDealQuantity).toList()),20);
+                BigDecimal twentyDayDealQuantity = divide(sum(twentyList.stream().map(StockDetail::getDealQuantity).toList()), 20);
                 cur.setTwentyDayDealQuantity(twentyDayDealQuantity);
             }
 
             if (list.size() > i + 60) {
                 List<StockDetail> sixtyList = list.stream().skip(i).limit(60).toList();
-                BigDecimal sixtyAverage = divide(sum(sixtyList.stream().map(StockDetail::getEndPrice).toList()),60);
+                BigDecimal sixtyAverage = divide(sum(sixtyList.stream().map(StockDetail::getEndPrice).toList()), 60);
                 cur.setSixtyDayLine(sixtyAverage);
 
                 BigDecimal sixtyDayHigh = max(sixtyList.stream().map(StockDetail::getHighPrice).toList());
@@ -472,7 +472,7 @@ public class StockDetail {
                 BigDecimal sixtyDayLow = min(sixtyList.stream().map(StockDetail::getLowPrice).toList());
                 cur.setSixtyDayLow(sixtyDayLow);
 
-                BigDecimal sixtyDayDealQuantity = divide(sum(sixtyList.stream().map(StockDetail::getDealQuantity)),60);
+                BigDecimal sixtyDayDealQuantity = divide(sum(sixtyList.stream().map(StockDetail::getDealQuantity).toList()), 60);
                 cur.setSixtyDayDealQuantity(sixtyDayDealQuantity);
             }
         }

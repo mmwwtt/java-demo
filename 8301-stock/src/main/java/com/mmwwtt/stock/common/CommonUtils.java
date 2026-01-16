@@ -47,7 +47,10 @@ public class CommonUtils {
         if (tmp1 == null || tmp2 == null) {
             return null;
         }
-        return tmp1.divide(tmp2, 5, RoundingMode.HALF_UP);
+        if(tmp2.compareTo(BigDecimal.ZERO) ==0) {
+            return BigDecimal.ZERO;
+        }
+        return tmp1.divide(tmp2, 4, RoundingMode.HALF_UP);
     }
 
     public static Boolean moreThan(Object num1, Object num2) {
@@ -86,7 +89,7 @@ public class CommonUtils {
     public static BigDecimal max(List<BigDecimal> list) {
         BigDecimal res = list.get(0);
         for (int i = 1; i < list.size(); i++) {
-            res = res.max(list.get(0));
+            res = res.max(list.get(i));
         }
         return res;
     }
@@ -99,7 +102,7 @@ public class CommonUtils {
     public static BigDecimal min(List<BigDecimal> list) {
         BigDecimal res = list.get(0);
         for (int i = 1; i < list.size(); i++) {
-            res = res.min(list.get(0));
+            res = res.min(list.get(i));
         }
         return res;
     }
@@ -111,9 +114,9 @@ public class CommonUtils {
     }
 
     public static BigDecimal sum(List<BigDecimal> list) {
-        BigDecimal res = BigDecimal.ZERO;
-        for (int i = 0; i < list.size(); i++) {
-            res = res.add(list.get(0));
+        BigDecimal res = new BigDecimal("0");
+        for (BigDecimal bigDecimal : list) {
+            res = res.add(bigDecimal);
         }
         return res;
     }

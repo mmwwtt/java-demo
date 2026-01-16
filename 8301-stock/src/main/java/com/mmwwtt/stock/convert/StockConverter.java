@@ -8,7 +8,10 @@ import org.mapstruct.factory.Mappers;
 import java.math.RoundingMode;
 import java.util.List;
 
-@Mapper(mappingControl = DeepClone.class)
+import static com.mmwwtt.stock.common.CommonUtils.divide;
+import static com.mmwwtt.stock.common.CommonUtils.subtract;
+
+@Mapper(mappingControl = DeepClone.class, builder = @Builder(disableBuilder = true))
 public interface StockConverter {
     StockConverter INSTANCE = Mappers.getMapper(StockConverter.class);
 
@@ -37,7 +40,7 @@ public interface StockConverter {
 
     @AfterMapping
     default void convertBigDecimal(@MappingTarget StockDetail stockDetail) {
-        stockDetail.setPricePert(stockDetail.getEndPrice().subtract(stockDetail.getLastPrice()).divide(stockDetail.getLastPrice(), 4, RoundingMode.HALF_UP));
+        stockDetail.setPricePert(divide(subtract(stockDetail.getEndPrice(), stockDetail.getLastPrice()), stockDetail.getLastPrice()));
         stockDetail.setStartPrice(stockDetail.getStartPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setHighPrice(stockDetail.getHighPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setLowPrice(stockDetail.getLowPrice().setScale(4, RoundingMode.HALF_UP));
@@ -67,6 +70,12 @@ public interface StockConverter {
             @Mapping(target = "t3", ignore = true),
             @Mapping(target = "t4", ignore = true),
             @Mapping(target = "t5", ignore = true),
+            @Mapping(target = "next1", ignore = true),
+            @Mapping(target = "next2", ignore = true),
+            @Mapping(target = "next3", ignore = true),
+            @Mapping(target = "next4", ignore = true),
+            @Mapping(target = "next5", ignore = true),
+            @Mapping(target = "next10", ignore = true)
     })
     StockDetail convertToStockDetail(StockDetail stockDetail);
 }
