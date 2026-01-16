@@ -232,7 +232,7 @@ public class StockDetail {
      * 下个交易日细节
      */
     @TableField(exist = false)
-    private StockDetail next;
+    private StockDetail next1;
 
     /**
      * 日后第2个交易日细节
@@ -241,9 +241,8 @@ public class StockDetail {
     private StockDetail next2;
 
     /**
-     * 2天内的涨跌幅总和
+     * 当天到2天后的涨幅
      */
-    @TableField(exist = false)
     private BigDecimal next2PricePert;
 
     /**
@@ -253,9 +252,8 @@ public class StockDetail {
     private StockDetail next3;
 
     /**
-     * 3天内的涨跌幅总和
+     * 当天到3天后的涨幅
      */
-    @TableField(exist = false)
     private BigDecimal next3PricePert;
 
     /**
@@ -265,9 +263,8 @@ public class StockDetail {
     private StockDetail next4;
 
     /**
-     * 4天内的涨跌幅总和
+     * 当天到4天后的涨幅
      */
-    @TableField(exist = false)
     private BigDecimal next4PricePert;
 
 
@@ -278,10 +275,15 @@ public class StockDetail {
     private StockDetail next5;
 
     /**
-     * 5天内的涨跌幅总和
+     * 当天到5天后的涨幅
      */
-    @TableField(exist = false)
     private BigDecimal next5PricePert;
+
+    /**
+     * 当天到5天内最高的涨幅
+     */
+    private BigDecimal next5MaxPricePert;
+
 
     /**
      * 日后第10个交易日细节
@@ -290,15 +292,13 @@ public class StockDetail {
     private StockDetail next10;
 
     /**
-     * 10天涨跌幅总和
+     * 当天到10天后的涨幅
      */
-    @TableField(exist = false)
     private BigDecimal next10PricePert;
 
     /**
-     * 10天内最高价的涨幅
+     * 当天到10天内最高的涨幅
      */
-    @TableField(exist = false)
     private BigDecimal next10MaxPricePert;
 
     /**
@@ -395,6 +395,28 @@ public class StockDetail {
     public static void calc(List<StockDetail> list) {
         for (int i = 0; i < list.size(); i++) {
             StockDetail cur = list.get(i);
+            if (i - 2 >= 0) {
+                cur.setNext2PricePert(divide(subtract(list.get(i-2).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+            }
+            if (i - 3 >= 0) {
+                cur.setNext3PricePert(divide(subtract(list.get(i-3).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+            }
+            if (i - 4 >= 0) {
+                cur.setNext4PricePert(divide(subtract(list.get(i-4).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+            }
+            if (i - 5 >= 0) {
+                cur.setNext5PricePert(divide(subtract(list.get(i-5).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                List<BigDecimal> highPriceList = list.subList(i - 5, i).stream().map(StockDetail::getHighPrice).toList();
+                cur.setNext5MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
+            }
+
+            if (i - 10 >= 0) {
+                cur.setNext10PricePert(divide(subtract(list.get(i-10).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                List<BigDecimal> highPriceList = list.subList(i - 10, i).stream().map(StockDetail::getHighPrice).toList();
+                cur.setNext10MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
+            }
+
+
             if (list.size() > i + 5) {
                 List<StockDetail> fiveList = list.stream().skip(i).limit(5).toList();
                 BigDecimal fiveAverage = divide(sum(fiveList.stream().map(StockDetail::getEndPrice).toList()), 5);

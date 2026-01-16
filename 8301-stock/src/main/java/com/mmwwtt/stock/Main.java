@@ -359,8 +359,9 @@ public class Main {
             String filePath = "src/main/resources/file/test.txt";
 
             File file = new File(filePath);
+
             if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
+                boolean res = file.getParentFile().mkdirs();
             }
 
             try (FileOutputStream fos = new FileOutputStream(file, true)) {
@@ -387,7 +388,7 @@ public class Main {
         //策略
         log.info("开始计算");
         List<String> strategyNameList = Arrays.asList(
-                "十字星",
+                "大前天是 缩量十字星 次日放量阳",
                 "上升缺口",
                 "上升缺口 且缩量",
                 "上升缺口 且缩量 且4%<涨幅＜7%");

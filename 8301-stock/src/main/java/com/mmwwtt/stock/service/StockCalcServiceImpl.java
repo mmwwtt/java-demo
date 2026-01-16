@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,8 +30,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Consumer;
 
-import static com.mmwwtt.stock.common.CommonUtils.*;
+import static com.mmwwtt.stock.common.CommonUtils.divide;
+import static com.mmwwtt.stock.common.CommonUtils.sum;
 
 @Service
 @Slf4j
@@ -292,7 +295,7 @@ public class StockCalcServiceImpl implements StockCalcService {
                     }
                     List<StockDetail> afterList = detailList.subList(0, detailList.size() - 60).stream()
                             .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
-                            .filter(item -> Objects.nonNull(item.getNext()))
+                            .filter(item -> Objects.nonNull(item.getNext1()))
                             .filter(item -> strategy.getRunFunc().apply(item)).toList();
                     allAfterList.addAll(afterList);
                 });
@@ -321,46 +324,23 @@ public class StockCalcServiceImpl implements StockCalcService {
     public List<StockDetail> genAllStockDetail(List<StockDetail> stockDetails) {
         for (int i = 0; i < stockDetails.size(); i++) {
             StockDetail t0 = stockDetails.get(i);
-            if (i - 1 >= 0) {
-                t0.setNext(stockDetails.get(i - 1));
-            }
-            if (i - 2 >= 0) {
-                t0.setNext2(stockDetails.get(i - 2));
-                t0.setNext2PricePert(divide(subtract(t0.getNext2().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
-            }
-            if (i - 3 >= 0) {
-                t0.setNext3(stockDetails.get(i - 3));
-                t0.setNext3PricePert(divide(subtract(t0.getNext3().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
-            }
-            if (i - 4 >= 0) {
-                t0.setNext4(stockDetails.get(i - 4));
-                t0.setNext4PricePert(divide(subtract(t0.getNext4().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
-            }
-            if (i - 5 >= 0) {
-                t0.setNext5(stockDetails.get(i - 5));
-                t0.setNext5PricePert(divide(subtract(t0.getNext5().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
-            }
-
-            if (i - 10 >= 0) {
-                t0.setNext10(stockDetails.get(i - 10));
-                t0.setNext10PricePert(divide(subtract(t0.getNext10().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
-                List<BigDecimal> highPriceList = stockDetails.subList(i - 10, i).stream().map(StockDetail::getHighPrice).toList();
-                t0.setNext10MaxPricePert(divide(subtract(max(highPriceList), t0.getEndPrice()), t0.getEndPrice()));
-            }
-            if (stockDetails.size() > i + 1) {
-                t0.setT1(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 1)));
-            }
-            if (stockDetails.size() > i + 2) {
-                t0.setT2(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 2)));
-            }
-            if (stockDetails.size() > i + 3) {
-                t0.setT3(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 3)));
-            }
-            if (stockDetails.size() > i + 4) {
-                t0.setT4(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 4)));
-            }
-            if (stockDetails.size() > i + 5) {
-                t0.setT5(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 5)));
+            List<Pair<Integer, Consumer<StockDetail>>> pairList = new ArrayList<>();
+            pairList.add(Pair.of(i - 1, t0::setNext1));
+            pairList.add(Pair.of(i - 2, t0::setNext2));
+            pairList.add(Pair.of(i - 3, t0::setNext3));
+            pairList.add(Pair.of(i - 4, t0::setNext4));
+            pairList.add(Pair.of(i - 5, t0::setNext5));
+            pairList.add(Pair.of(i + 1, t0::setT1));
+            pairList.add(Pair.of(i + 2, t0::setT2));
+            pairList.add(Pair.of(i + 3, t0::setT3));
+            pairList.add(Pair.of(i + 4, t0::setT4));
+            pairList.add(Pair.of(i + 5, t0::setT5));
+            for (Pair<Integer, Consumer<StockDetail>> pair : pairList) {
+                Integer idx = pair.getLeft();
+                if (0 <= idx && idx < stockDetails.size()) {
+                    StockDetail tmp = StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(idx));
+                    pair.getRight().accept(tmp);
+                }
             }
         }
         return stockDetails;
@@ -383,10 +363,10 @@ public class StockCalcServiceImpl implements StockCalcService {
             return;
         }
 
-        List<StockDetail> haveNextList = allAfterList.stream().filter(item -> Objects.nonNull(item.getNext())).toList();
-        long correctCount = haveNextList.stream().filter(detail -> detail.getNext().getIsUp()).count();
+        List<StockDetail> haveNextList = allAfterList.stream().filter(item -> Objects.nonNull(item.getNext1())).toList();
+        long correctCount = haveNextList.stream().filter(detail -> detail.getNext1().getIsUp()).count();
         BigDecimal percRate = divide(sum(haveNextList.stream()
-                .map(item -> item.getNext().getPricePert()).toList()), haveNextList.size());
+                .map(item -> item.getNext1().getPricePert()).toList()), haveNextList.size());
 
         List<StockDetail> haveNextTwoList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext2())).toList();
@@ -407,6 +387,9 @@ public class StockCalcServiceImpl implements StockCalcService {
                 .filter(item -> Objects.nonNull(item.getNext5())).toList();
         BigDecimal fivePercRate = divide(sum(haveNextFiveList.stream()
                 .map(StockDetail::getNext5PricePert).toList()), haveNextFiveList.size());
+        BigDecimal fiveMaxPercRate = divide(sum(haveNextFiveList.stream()
+                .map(StockDetail::getNext5MaxPricePert).toList()), haveNextFiveList.size());
+
 
         List<StockDetail> haveNextTenList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext10())).toList();
@@ -416,8 +399,8 @@ public class StockCalcServiceImpl implements StockCalcService {
                 .map(StockDetail::getNext10MaxPricePert).toList()), haveNextTenList.size());
 
         BigDecimal winPercRate = divide(sum(allAfterList.stream()
-                .filter(item -> item.getNext().getIsUp())
-                .map(item -> item.getNext().getPricePert()).toList()), correctCount);
+                .filter(item -> item.getNext1().getIsUp())
+                .map(item -> item.getNext1().getPricePert()).toList()), correctCount);
         BigDecimal winRate = divide(correctCount, allAfterList.size());
         StockCalcRes calcRes = new StockCalcRes();
         calcRes.setStrategyDesc(strategyDesc);
@@ -433,12 +416,13 @@ public class StockCalcServiceImpl implements StockCalcService {
         calcRes.setType(type);
         calcRes.setWinPercRate(winPercRate);
         calcRes.setTenMaxPercRate(tenMaxPercRate);
+        calcRes.setFiveMaxPercRate(fiveMaxPercRate);
         stockCalcResDao.insert(calcRes);
 
         Set<String> set = new HashSet<>();
         set.add("上升缺口 且缩量 且9%<涨幅");
         if (set.contains(calcRes.getStrategyDesc())) {
-            allAfterList.stream().filter(item -> item.getNext().getIsDown()).forEach(item -> {
+            allAfterList.stream().filter(item -> item.getNext1().getIsDown()).forEach(item -> {
                 try {
                     StockGuiUitls.genDetailImage(item, calcRes.getStrategyDesc());
                 } catch (IOException e) {

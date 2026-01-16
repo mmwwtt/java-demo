@@ -279,21 +279,28 @@ public class StockStrategyUtils {
         }));
 
 
-        STRATEGY_LIST.add(new StockStrategy("缩量十字星 次日放量阳", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
+        STRATEGY_LIST.add(new StockStrategy("前一天是 缩量十字星 次日放量阳", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
-            // 1. 前一日缩量十字星
-            boolean shrink = lessThan(t1.getDealQuantity(), multiply(t1.getFiveDayDealQuantity(), "0.6")); // < 5日均量*0.6
+            // 缩量十字星 前一天是十字星 且缩量(小于5日线 60%)
+            boolean flag1 = lessThan(t1.getDealQuantity(), multiply(t1.getFiveDayDealQuantity(), "0.6")) &&t1.getIsTenStar();
 
-            // 2. 当日放量阳线
-            boolean volUp = moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "1.5"));
+            // 放量： 当日放量阳线 量是前一天1.5倍
+            boolean flag2 = moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "1.5"));
 
-            // 3. 收盘吞噬前日最高（确认反转）
-            boolean cover = moreThan(t0.getEndPrice(), t1.getHighPrice());
+            // 吞噬： 收盘价比前一天最高价
+            boolean flag3 = moreThan(t0.getEndPrice(), t1.getHighPrice());
 
-            return t1.getIsTenStar() && shrink && t0.getIsUp() && volUp && cover;
+            return flag1 && flag2 && flag3;
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("大前天是 缩量十字星 次日放量阳", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            StockDetail t2 = t0.getT2();
+            boolean flag1 = lessThan(t2.getDealQuantity(), multiply(t2.getFiveDayDealQuantity(), "0.6")) &&t2.getIsTenStar();
+            boolean flag2 = moreThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "1.5"));
+            boolean flag3 = moreThan(t1.getEndPrice(), t2.getHighPrice());
+
+            return flag1 && flag2 && flag3;
         }));
 
 

@@ -54,7 +54,14 @@ CREATE TABLE stock_Detail_t
     is_up                    boolean COMMENT '是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)',
     is_down                  boolean COMMENT '是否为阴线',
     is_balance               boolean COMMENT '开盘价是否等于收盘价',
-    is_ten_star              boolean COMMENT '是否为十字星'
+    is_ten_star              boolean COMMENT '是否为十字星',
+    next2_price_pert         decimal(10, 4) COMMENT '当天到2天后的涨幅',
+    next3_price_pert         decimal(10, 4) COMMENT '当天到3天后的涨幅',
+    next4_price_pert         decimal(10, 4) COMMENT '当天到4天后的涨幅',
+    next5_price_pert         decimal(10, 4) COMMENT '当天到5天后的涨幅',
+    next10_price_pert        decimal(10, 4) COMMENT '当天到10天后的涨幅',
+    next5_max_price_pert     decimal(10, 4) COMMENT '当天到5天内最高的涨幅',
+    next10_max_price_pert    decimal(10, 4) COMMENT '当天到10天内最高的涨幅'
 ) COMMENT '股票详情表';
 
 
@@ -65,20 +72,21 @@ create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc)
 DROP TABLE IF EXISTS stock_calculation_result_t;
 CREATE TABLE stock_calculation_result_t
 (
-    calc_res_id     INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    type            VARCHAR(64) COMMENT '策略类型',
-    strategy_desc   VARCHAR(256) COMMENT '策略描述',
-    win_rate        DECIMAL(8, 4) COMMENT '预测胜率',
-    all_cnt         INT(11) COMMENT '符合条件的数据量',
-    perc_rate       DECIMAL(8, 4) COMMENT '百分比叠加后的结果',
-    win_perc_rate   DECIMAL(8, 4) COMMENT '预测对的百分比叠加后的结果',
-    two_perc_rate   DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
-    three_perc_rate DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
-    four_perc_rate  DECIMAL(8, 4) COMMENT '4天后百分比叠加后的结果',
-    five_perc_rate  DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
-    ten_perc_rate   DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
-    ten_max_perc_rate   DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
-    create_date     DATETIME NOT NULL COMMENT '创建日期'
+    calc_res_id        INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    type               VARCHAR(64) COMMENT '策略类型',
+    strategy_desc      VARCHAR(256) COMMENT '策略描述',
+    win_rate           DECIMAL(8, 4) COMMENT '预测胜率',
+    all_cnt            INT(11) COMMENT '符合条件的数据量',
+    perc_rate          DECIMAL(8, 4) COMMENT '百分比叠加后的结果',
+    win_perc_rate      DECIMAL(8, 4) COMMENT '预测对的百分比叠加后的结果',
+    two_perc_rate      DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
+    three_perc_rate    DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
+    four_perc_rate     DECIMAL(8, 4) COMMENT '4天后百分比叠加后的结果',
+    five_perc_rate     DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
+    five_max_perc_rate DECIMAL(8, 4) COMMENT '5天内最高价 百分比叠加后的结果',
+    ten_perc_rate      DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
+    ten_max_perc_rate  DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
+    create_date        DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '股票计算结果表';
 
 
