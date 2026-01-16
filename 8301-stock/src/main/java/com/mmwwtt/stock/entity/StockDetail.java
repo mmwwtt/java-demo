@@ -295,6 +295,12 @@ public class StockDetail {
     private BigDecimal next10PricePert;
 
     /**
+     * 10天内最高价的涨幅
+     */
+    @TableField(exist = false)
+    private BigDecimal next10MaxPricePert;
+
+    /**
      * 前1天交易日细节
      */
     @TableField(exist = false)

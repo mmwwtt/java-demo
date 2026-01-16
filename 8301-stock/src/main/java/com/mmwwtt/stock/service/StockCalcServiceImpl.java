@@ -23,7 +23,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -31,9 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.mmwwtt.stock.common.CommonUtils.*;
+
 @Service
 @Slf4j
-public class StockCalcServiceImpl implements StockCalcService{
+public class StockCalcServiceImpl implements StockCalcService {
 
     @Resource
     private StockDao stockDao;
@@ -178,7 +179,6 @@ public class StockCalcServiceImpl implements StockCalcService{
 
     /**
      * 查询最新的计算结果信息
-     *
      */
     public List<StockCalcRes> getNewCalcRes() {
         QueryWrapper<StockCalcRes> wrapper = new QueryWrapper<>();
@@ -287,11 +287,11 @@ public class StockCalcServiceImpl implements StockCalcService{
                 log.info(strategy.getStrategyName());
                 List<StockDetail> allAfterList = new ArrayList<>();
                 codeToDetailMap.forEach((stockCode, detailList) -> {
-                    if(detailList.size() < 60) {
+                    if (detailList.size() < 60) {
                         return;
                     }
                     List<StockDetail> afterList = detailList.subList(0, detailList.size() - 60).stream()
-                            .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097"))<0)
+                            .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
                             .filter(item -> Objects.nonNull(item.getNext()))
                             .filter(item -> strategy.getRunFunc().apply(item)).toList();
                     allAfterList.addAll(afterList);
@@ -326,29 +326,26 @@ public class StockCalcServiceImpl implements StockCalcService{
             }
             if (i - 2 >= 0) {
                 t0.setNext2(stockDetails.get(i - 2));
-                t0.setNext2PricePert((t0.getNext2().getEndPrice().subtract(t0.getEndPrice()))
-                        .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
+                t0.setNext2PricePert(divide(subtract(t0.getNext2().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
             }
             if (i - 3 >= 0) {
                 t0.setNext3(stockDetails.get(i - 3));
-                t0.setNext3PricePert((t0.getNext3().getEndPrice().subtract(t0.getEndPrice()))
-                        .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
+                t0.setNext3PricePert(divide(subtract(t0.getNext3().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
             }
             if (i - 4 >= 0) {
                 t0.setNext4(stockDetails.get(i - 4));
-                t0.setNext4PricePert((t0.getNext4().getEndPrice().subtract(t0.getEndPrice()))
-                        .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
+                t0.setNext4PricePert(divide(subtract(t0.getNext4().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
             }
             if (i - 5 >= 0) {
                 t0.setNext5(stockDetails.get(i - 5));
-                t0.setNext5PricePert((t0.getNext5().getEndPrice().subtract(t0.getEndPrice()))
-                        .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
+                t0.setNext5PricePert(divide(subtract(t0.getNext5().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
             }
 
             if (i - 10 >= 0) {
                 t0.setNext10(stockDetails.get(i - 10));
-                t0.setNext10PricePert((t0.getNext10().getEndPrice().subtract(t0.getEndPrice()))
-                        .divide(t0.getEndPrice(), 4, RoundingMode.HALF_UP));
+                t0.setNext10PricePert(divide(subtract(t0.getNext10().getEndPrice(), t0.getEndPrice()), t0.getEndPrice()));
+                List<BigDecimal> highPriceList = stockDetails.subList(i - 10, i).stream().map(StockDetail::getHighPrice).toList();
+                t0.setNext10MaxPricePert(divide(subtract(max(highPriceList), t0.getEndPrice()), t0.getEndPrice()));
             }
             if (stockDetails.size() > i + 1) {
                 t0.setT1(StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(i + 1)));
@@ -374,7 +371,7 @@ public class StockCalcServiceImpl implements StockCalcService{
         QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
         detailWapper.eq("stock_code", stockCode);
         detailWapper.orderByDesc("deal_date");
-        if(Objects.nonNull(limit)) {
+        if (Objects.nonNull(limit)) {
             detailWapper.last("LIMIT " + limit);
         }
         List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
@@ -388,52 +385,48 @@ public class StockCalcServiceImpl implements StockCalcService{
 
         List<StockDetail> haveNextList = allAfterList.stream().filter(item -> Objects.nonNull(item.getNext())).toList();
         long correctCount = haveNextList.stream().filter(detail -> detail.getNext().getIsUp()).count();
-        BigDecimal percRate = haveNextList.stream()
+        BigDecimal percRate = divide(haveNextList.stream()
                 .map(item -> item.getNext().getPricePert())
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(new BigDecimal(haveNextList.size()), 4, RoundingMode.HALF_UP);
+                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextList.size());
 
         List<StockDetail> haveNextTwoList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext2())).toList();
-        BigDecimal twoPercRate = haveNextTwoList.stream()
+        BigDecimal twoPercRate = divide(haveNextTwoList.stream()
                 .map(StockDetail::getNext2PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(new BigDecimal(haveNextTwoList.size()), 4, RoundingMode.HALF_UP);
+                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextTwoList.size());
 
         List<StockDetail> haveNextThreeList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext3())).toList();
-        BigDecimal threePercRate = haveNextThreeList.stream()
+        BigDecimal threePercRate = divide(haveNextThreeList.stream()
                 .map(StockDetail::getNext3PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(new BigDecimal(haveNextThreeList.size()), 4, RoundingMode.HALF_UP);
+                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextThreeList.size());
 
         List<StockDetail> haveNextFourList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext4())).toList();
-        BigDecimal fourPercRate = haveNextFourList.stream()
+        BigDecimal fourPercRate = divide(haveNextFourList.stream()
                 .map(StockDetail::getNext4PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(new BigDecimal(haveNextFourList.size()), 4, RoundingMode.HALF_UP);
+                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextFourList.size());
 
         List<StockDetail> haveNextFiveList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext5())).toList();
-        BigDecimal fivePercRate = haveNextFiveList.stream()
+        BigDecimal fivePercRate = divide(haveNextFiveList.stream()
                 .map(StockDetail::getNext5PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(new BigDecimal(haveNextFiveList.size()), 4, RoundingMode.HALF_UP);
+                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextFiveList.size());
 
         List<StockDetail> haveNextTenList = allAfterList.stream()
                 .filter(item -> Objects.nonNull(item.getNext10())).toList();
-        BigDecimal tenPercRate = haveNextTenList.stream()
+        BigDecimal tenPercRate = divide(haveNextTenList.stream()
                 .map(StockDetail::getNext10PricePert)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(new BigDecimal(haveNextTenList.size()), 4, RoundingMode.HALF_UP);
+                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextTenList.size());
+        BigDecimal tenMaxPercRate = divide(haveNextTenList.stream()
+                .map(StockDetail::getNext10MaxPricePert)
+                .reduce(BigDecimal.ZERO, BigDecimal::add), haveNextTenList.size());
 
-        BigDecimal winPercRate = allAfterList.stream()
+        BigDecimal winPercRate = divide(allAfterList.stream()
                 .filter(item -> item.getNext().getIsUp())
                 .map(item -> item.getNext().getPricePert())
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(new BigDecimal(correctCount), 4, RoundingMode.HALF_UP);
-        BigDecimal winRate = new BigDecimal(correctCount).divide(new BigDecimal(allAfterList.size()), 4, RoundingMode.HALF_UP);
+                .reduce(BigDecimal.ZERO, BigDecimal::add), correctCount);
+        BigDecimal winRate = divide(correctCount, allAfterList.size());
         StockCalcRes calcRes = new StockCalcRes();
         calcRes.setStrategyDesc(strategyDesc);
         calcRes.setWinRate(winRate);
@@ -447,6 +440,7 @@ public class StockCalcServiceImpl implements StockCalcService{
         calcRes.setAllCnt(allAfterList.size());
         calcRes.setType(type);
         calcRes.setWinPercRate(winPercRate);
+        calcRes.setTenMaxPercRate(tenMaxPercRate);
         stockCalcResDao.insert(calcRes);
 
         Set<String> set = new HashSet<>();

@@ -77,6 +77,7 @@ CREATE TABLE stock_calculation_result_t
     four_perc_rate  DECIMAL(8, 4) COMMENT '4天后百分比叠加后的结果',
     five_perc_rate  DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
     ten_perc_rate   DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
+    ten_max_perc_rate   DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
     create_date     DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '股票计算结果表';
 

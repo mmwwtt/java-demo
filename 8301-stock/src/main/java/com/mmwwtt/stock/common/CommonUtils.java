@@ -2,6 +2,8 @@ package com.mmwwtt.stock.common;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.mmwwtt.stock.common.Constants.TOLERANCE;
 
@@ -11,59 +13,102 @@ public class CommonUtils {
         return Math.abs(num1 - num2) < TOLERANCE;
     }
 
-    public static BigDecimal multiply(BigDecimal num1, BigDecimal num2) {
-        return num1.multiply(num2);
+    public static BigDecimal subtract(Object num1, Object num2) {
+        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp2 = toBigDecimal(num2);
+        if(tmp1 == null|| tmp2 == null ) {
+            return null;
+        }
+        return tmp1.subtract(tmp2);
+    }
+    public static BigDecimal add(Object num1, Object num2) {
+        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp2 = toBigDecimal(num2);
+        if(tmp1 == null|| tmp2 == null ) {
+            return null;
+        }
+        return tmp1.add(tmp2);
     }
 
-    public static BigDecimal multiply(BigDecimal num1, String num2) {
-        return multiply(num1, new BigDecimal(num2));
+    public static BigDecimal multiply(Object num1, Object num2) {
+        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp2 = toBigDecimal(num2);
+        if(tmp1 == null|| tmp2 == null ) {
+            return null;
+        }
+        return tmp1.multiply(tmp2);
     }
 
 
-    public static BigDecimal divide(BigDecimal num1, BigDecimal num2) {
-        return num1.divide(num2, 5, RoundingMode.HALF_UP);
+    public static BigDecimal divide(Object num1, Object num2) {
+        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp2 = toBigDecimal(num2);
+        if(tmp1 == null|| tmp2 == null ) {
+            return null;
+        }
+        return tmp1.divide(tmp2, 5, RoundingMode.HALF_UP);
     }
 
-    public static BigDecimal divide(BigDecimal num1, String num2) {
-        return divide(num1, new BigDecimal(num2));
-    }
-
-    public static Boolean moreThan(BigDecimal num1, BigDecimal num2) {
-        if (num1 == null || num2 == null) {
+    public static Boolean moreThan(Object num1, Object num2) {
+        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp2 = toBigDecimal(num2);
+        if(tmp1 == null|| tmp2 == null ) {
             return false;
         }
-        return num1.compareTo(num2) > 0;
-    }
-
-    public static Boolean moreThan(BigDecimal num1, String num2) {
-        return moreThan(num1, new BigDecimal(num2));
+        return tmp1.compareTo(tmp2) > 0;
     }
 
 
-    public static Boolean lessThan(BigDecimal num1, BigDecimal num2) {
-        if (num1 == null || num2 == null) {
+    public static Boolean lessThan(Object num1, Object num2) {
+        BigDecimal tmp1= toBigDecimal(num1);
+        BigDecimal tmp2 = toBigDecimal(num2);
+        if(tmp1 == null|| tmp2 == null ) {
             return false;
         }
-        return num1.compareTo(num2) < 0;
+        return tmp1.compareTo(tmp2) < 0;
     }
 
-    public static Boolean lessThan(BigDecimal num1, String num2) {
-        return lessThan(num1, new BigDecimal(num2));
+    public static BigDecimal max(Object... nums) {
+        List<BigDecimal> list = Arrays.stream(nums).map(CommonUtils::toBigDecimal).toList();
+        return max(list);
     }
 
-    public static BigDecimal max(BigDecimal... nums) {
-        BigDecimal res = nums[0];
-        for (int i = 1; i < nums.length; i++) {
-            res = res.max(nums[i]);
+    public static BigDecimal max(List<BigDecimal> list) {
+        BigDecimal res = list.get(0);
+        for (int i = 1; i < list.size(); i++) {
+            res = res.max(list.get(0));
         }
         return res;
     }
 
     public static BigDecimal min(BigDecimal... nums) {
-        BigDecimal res = nums[0];
-        for (int i = 1; i < nums.length; i++) {
-            res = res.min(nums[i]);
+        List<BigDecimal> list = Arrays.stream(nums).map(CommonUtils::toBigDecimal).toList();
+        return min(list);
+    }
+
+    public static BigDecimal min(List<BigDecimal> list) {
+        BigDecimal res = list.get(0);
+        for (int i = 1; i < list.size(); i++) {
+            res = res.min(list.get(0));
         }
         return res;
+    }
+
+
+    private static BigDecimal toBigDecimal(Object obj) {
+        if (obj instanceof Long) {
+            return new BigDecimal((Long) obj);
+        } else if (obj instanceof Integer) {
+            return new BigDecimal((Integer) obj);
+        } else if (obj instanceof BigDecimal) {
+            return (BigDecimal) obj;
+        } else if (obj instanceof Double) {
+            return BigDecimal.valueOf((Double) obj);
+        } else if (obj instanceof Float) {
+            return BigDecimal.valueOf((Float) obj);
+        } else if (obj instanceof String) {
+            return new BigDecimal((String) obj);
+        }
+        return null;
     }
 }

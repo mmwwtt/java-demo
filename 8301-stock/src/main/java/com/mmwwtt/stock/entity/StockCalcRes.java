@@ -76,6 +76,11 @@ public class StockCalcRes {
     private BigDecimal tenPercRate;
 
     /**
+     * 预测的10天内最高价 的平均涨幅
+     */
+    private BigDecimal tenMaxPercRate;
+
+    /**
      * 预测后的预测对的平均涨幅
      */
     private BigDecimal winPercRate;
