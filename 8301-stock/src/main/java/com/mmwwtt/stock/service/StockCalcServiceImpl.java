@@ -277,10 +277,9 @@ public class StockCalcServiceImpl implements StockCalcService {
     /**
      * 开始计算
      */
+    @Override
     public void startCalc2() throws ExecutionException, InterruptedException {
-        List<Stock> stockList = getAllStock();
         Map<String, List<StockDetail>> codeToDetailMap = getCodeToDetailMap();
-        List<List<Stock>> parts = Lists.partition(stockList, 10);
         log.info("开始计算");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         LocalDateTime dataTime = LocalDateTime.now();
@@ -299,12 +298,86 @@ public class StockCalcServiceImpl implements StockCalcService {
                     allAfterList.addAll(afterList);
                 });
                 saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
-            }, singleThreadPool);
+
+                Set<String> set = new HashSet<>();
+                set.add("上升缺口 且缩量   1");
+                if (set.contains(strategy.getStrategyName())) {
+                    allAfterList.stream().filter(item -> item.getNext1().getIsDown()).forEach(item -> {
+                        try {
+                            StockGuiUitls.genDetailImage(item, strategy.getStrategyName());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                }
+            }, cpuThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         log.info("结束计算");
+    }
+
+
+    @Override
+    public void startCalc3() throws ExecutionException, InterruptedException {
+        Map<String, List<StockDetail>> codeToDetailMap = getCodeToDetailMap();
+        LocalDateTime dataTime = LocalDateTime.now();
+        String strategyName = "底部阳包阴 放量";
+        for (StockStrategy strategy : StockStrategyUtils.STRATEGY_LIST) {
+            if (!Objects.equals(strategy.getStrategyName(), strategyName)) {
+                continue;
+            }
+            List<StockDetail> allAfterList = new ArrayList<>();
+            codeToDetailMap.forEach((stockCode, detailList) -> {
+                if (detailList.size() < 60) {
+                    return;
+                }
+                List<StockDetail> afterList = detailList.subList(0, detailList.size() - 60).stream()
+                        .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
+                        .filter(item -> Objects.nonNull(item.getNext1()))
+                        .filter(item -> strategy.getRunFunc().apply(item)).toList();
+                allAfterList.addAll(afterList);
+            });
+            saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
+
+            allAfterList.stream().filter(item -> item.getNext1().getIsDown()).limit(1000).forEach(item -> {
+                try {
+                    StockGuiUitls.genDetailImage(item, strategy.getStrategyName());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+        }
+    }
+
+    @Override
+    public void startCalc4() throws ExecutionException, InterruptedException {
+        Map<String, List<StockDetail>> codeToDetailMap = getCodeToDetailMap();
+        LocalDateTime dataTime = LocalDateTime.now();
+
+        StockStrategy strategy = new StockStrategy("test", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            return t1.getIsDown() && t0.getIsUp()
+                    && lessThan(t0.getStartPrice(), t1.getEndPrice())
+                    && moreThan(t0.getEndPrice(), t1.getStartPrice())
+                    && moreThan(t0.getDealQuantity(),multiply( t0.getFiveDayDealQuantity(), "1.5"))
+                    && moreThan(t0.getLowShadowPert(), "0.4");
+        });
+        List<StockDetail> allAfterList = new ArrayList<>();
+        codeToDetailMap.forEach((stockCode, detailList) -> {
+            if (detailList.size() < 60) {
+                return;
+            }
+            List<StockDetail> afterList = detailList.subList(0, detailList.size() - 60).stream()
+                    .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
+                    .filter(item -> Objects.nonNull(item.getNext1()))
+                    .filter(item -> strategy.getRunFunc().apply(item)).toList();
+            allAfterList.addAll(afterList);
+        });
+        saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
+
     }
 
     @Override
@@ -442,18 +515,6 @@ public class StockCalcServiceImpl implements StockCalcService {
         calcRes.setType(type);
 
         stockCalcResDao.insert(calcRes);
-
-        Set<String> set = new HashSet<>();
-        set.add("上升缺口 且缩量");
-        if (set.contains(calcRes.getStrategyDesc())) {
-            allAfterList.stream().filter(item -> item.getNext1().getIsDown()).forEach(item -> {
-                try {
-                    StockGuiUitls.genDetailImage(item, calcRes.getStrategyDesc());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
     }
 
     @Override

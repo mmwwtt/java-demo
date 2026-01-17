@@ -19,12 +19,23 @@ public interface StockCalcService {
     /**
      * 根据策略计算
      */
-     void startCalc2()  throws ExecutionException, InterruptedException ;
+    void startCalc2() throws ExecutionException, InterruptedException;
+
+    /**
+     * 根据单个策略 生成蜡烛图
+     */
+    void startCalc3() throws ExecutionException, InterruptedException;
+
+
+    /**
+     * 用于计算单个策略
+     */
+    void startCalc4() throws ExecutionException, InterruptedException;
 
     /**
      * 获得所有股票列表
      */
-     List<Stock> getAllStock();
+    List<Stock> getAllStock();
 
     /**
      * 获取指定代码的股票列表

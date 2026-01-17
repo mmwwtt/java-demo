@@ -25,6 +25,9 @@ public class StockGuiUitls {
         List<StockDetail> list = new ArrayList<>();
         list.add(t0.getNext10());
         list.add(t0.getNext5());
+        list.add(t0.getNext4());
+        list.add(t0.getNext3());
+        list.add(t0.getNext2());
         list.add(t0.getNext1());
         list.add(t0);
         list.add(t0.getT1());
