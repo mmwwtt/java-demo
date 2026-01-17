@@ -99,6 +99,7 @@ from stock_detail_t;
 select count(*)
 from stock_calculation_result_t;
 
+explain
 select *
 from stock_t;
 

@@ -59,8 +59,8 @@ public class StockStrategyUtils {
 
 
         STRATEGY_LIST.add(new StockStrategy("涨幅成交比扩大 缩量 二连红", (StockDetail t0) -> {
-            return t0.getPertDivisionQuantity().compareTo(t0.getT1().getPertDivisionQuantity()) > 0
-                    && t0.getDealQuantity().compareTo(t0.getT1().getDealQuantity()) < 0
+            return moreThan(t0.getPertDivisionQuantity(),t0.getT1().getPertDivisionQuantity())
+                    && lessThan(t0.getDealQuantity(),t0.getT1().getDealQuantity())
                     && t0.getIsUp()
                     && t0.getT1().getIsUp();
         }));

@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -308,14 +309,19 @@ public class StockCalcServiceImpl implements StockCalcService {
 
     @Override
     public List<Stock> getAllStock() {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start("tt");
         QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
         List<Stock> stockList = stockDao.selectList(queryWrapper);
+
         //30开头是创业板  68开头是科创版  不参与
         stockList = stockList.stream()
                 .filter(stock -> !stock.getCode().startsWith("30")
                         && !stock.getCode().startsWith("68")
                         && !stock.getName().contains("ST"))
                 .toList();
+        stopWatch.stop();
+        log.info(stopWatch.prettyPrint());
         return stockList;
     }
 
@@ -345,7 +351,7 @@ public class StockCalcServiceImpl implements StockCalcService {
         return stockDetails;
     }
 
-
+    @Override
     public List<StockDetail> getStockDetail(String stockCode, Integer limit) {
         QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
         detailWapper.eq("stock_code", stockCode);

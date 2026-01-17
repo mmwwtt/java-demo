@@ -7,11 +7,14 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
-import com.mmwwtt.stock.convert.StockConverter;
+import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.dao.StockCalcResDao;
 import com.mmwwtt.stock.dao.StockDao;
 import com.mmwwtt.stock.dao.StockDetailDao;
-import com.mmwwtt.stock.entity.*;
+import com.mmwwtt.stock.entity.Stock;
+import com.mmwwtt.stock.entity.StockCalcRes;
+import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StockStrategy;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
 import com.mmwwtt.stock.service.StockCalcService;
@@ -36,9 +39,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -61,12 +62,15 @@ public class Main {
     @Autowired
     private StockCalcService stockCalcService;
 
+
+
     @Autowired
     private StockDetailDao stockDetailDao;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
+    private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -77,6 +81,8 @@ public class Main {
      * 今天的日期
      */
     private static final String NOW_DATA;
+
+    private final VoConvert voConvert = VoConvert.INSTANCE;
 
     static {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -133,7 +139,7 @@ public class Main {
         map.put(LICENCE, BI_YING_LICENCE);
         List<StockVO> stockVOList = getResponse(STOCK_LIST_URL, map, new ParameterizedTypeReference<List<StockVO>>() {
         });
-        List<Stock> stockList = StockConverter.INSTANCE.convertToStock(stockVOList);
+        List<Stock> stockList = voConvert.convertToStock(stockVOList);
         stockList = stockList.stream().filter(stock -> !stock.getCode().startsWith("30")
                 && !stock.getCode().startsWith("68")
                 && !stock.getName().contains("ST")).toList();
@@ -170,7 +176,7 @@ public class Main {
                             .peek(item -> item.setStockCode(stock.getCode()))
                             .filter(item -> item.getSf() == 0)
                             .collect(Collectors.toList());
-                    List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
+                    List<StockDetail> stockDetails = voConvert.convertToStockDetail(stockDetailVOs);
 
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
@@ -220,7 +226,7 @@ public class Main {
                             .filter(item -> item.getSf() == 0)
                             .peek(item -> item.setStockCode(stock.getCode()))
                             .collect(Collectors.toList());
-                    List<StockDetail> stockDetails = StockConverter.INSTANCE.convertToStockDetail(stockDetailVOs);
+                    List<StockDetail> stockDetails = voConvert.convertToStockDetail(stockDetailVOs);
 
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
@@ -241,38 +247,27 @@ public class Main {
         log.info("end");
     }
 
+
     @Test
     @DisplayName("计算衍生数据-全量")
     public void dataDetailCalc() throws InterruptedException, ExecutionException {
         log.info("计算衍生数据--开始");
-        Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
         List<Stock> stockList = stockCalcService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    List<StockDetail> stockDetails = codeToDetailMap.getOrDefault(stock.getCode(), new ArrayList<>());
+                    log.info(stock.getCode());
+                    List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), null);
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
-                }
-            }, cpuThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("计算衍生数据--计算完成  开始保存");
-        futures = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = codeToDetailMap.getOrDefault(stock.getCode(), new ArrayList<>());
                     stockDetailDao.updateById(stockDetails);
                 }
             }, ioThreadPool);
             futures.add(future);
         }
-        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         log.info("衍生数据计算--完毕  \n\n\n");
     }
@@ -281,34 +276,22 @@ public class Main {
     @DisplayName("计算衍生数据-增量")
     public void dataDetailCalcAdd() throws InterruptedException, ExecutionException {
         log.info("计算衍生数据--开始");
-        Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap(80);
         List<Stock> stockList = stockCalcService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    List<StockDetail> stockDetails = codeToDetailMap.getOrDefault(stock.getCode(), new ArrayList<>());
+                    log.info(stock.getCode());
+                    List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), 80);
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
-                }
-            }, cpuThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("计算衍生数据--计算完成  开始保存");
-        futures = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = codeToDetailMap.getOrDefault(stock.getCode(), new ArrayList<>());
                     stockDetailDao.updateById(stockDetails);
                 }
             }, ioThreadPool);
             futures.add(future);
         }
-        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         log.info("衍生数据计算--完毕  \n\n\n");
     }
@@ -405,7 +388,7 @@ public class Main {
                             stockDetails.forEach(item -> item.setDealQuantity(divide(item.getDealQuantity(), "0.85")));
                         }
                         if (CollectionUtils.isEmpty(stockDetails)
-                                ||moreThan( stockDetails.get(0).getPricePert(), "0.097")) {
+                                || moreThan(stockDetails.get(0).getPricePert(), "0.097")) {
                             continue;
                         }
                         if (runFunc.apply(stockDetails.get(0))) {

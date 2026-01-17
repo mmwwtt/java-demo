@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -387,7 +388,7 @@ public class StockDetail {
         isUp = moreThan(endPrice, lastPrice);
         isDown = lessThan(endPrice, lastPrice);
         isBalance = bigDecimalEquals(endPrice, startPrice);
-        pertDivisionQuantity = bigDecimalEquals(dealQuantity, "0") ? BigDecimal.ZERO : divide(pricePert, dealQuantity);
+        pertDivisionQuantity = bigDecimalEquals(dealQuantity, "0") ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 15, RoundingMode.UP);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
         isTenStar = moreThan(allLen, "0") && lessThan(entityPert, "0.05");
     }
@@ -418,62 +419,70 @@ public class StockDetail {
 
 
             if (list.size() > i + 5) {
-                List<StockDetail> fiveList = list.stream().skip(i).limit(5).toList();
-                BigDecimal fiveAverage = divide(sum(fiveList.stream().map(StockDetail::getEndPrice).toList()), 5);
-                cur.setFiveDayLine(fiveAverage);
-
-                BigDecimal fiveDayHigh = max(fiveList.stream().map(StockDetail::getHighPrice).toList());
-                cur.setFiveDayHigh(fiveDayHigh);
-
-                BigDecimal fiveDayLow = min(fiveList.stream().map(StockDetail::getLowPrice).toList());
-                cur.setFiveDayLow(fiveDayLow);
-
-                BigDecimal fiveDayDealQuantity = divide(sum(fiveList.stream().map(StockDetail::getDealQuantity).toList()), 5);
-                cur.setFiveDayDealQuantity(fiveDayDealQuantity);
+                BigDecimal sumEndPrice = BigDecimal.ZERO;
+                BigDecimal sumDealQuantity = BigDecimal.ZERO;
+                BigDecimal dayHigh = list.get(i).getHighPrice();
+                BigDecimal dayLow = list.get(i).getLowPrice();
+                for (int j = i; j < i + 5; j++) {
+                    sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
+                    sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
+                    dayHigh = max(dayHigh, list.get(j).getHighPrice());
+                    dayLow = min(dayLow, list.get(j).getLowPrice());
+                }
+                cur.setFiveDayLine(divide(sumEndPrice, 5));
+                cur.setFiveDayDealQuantity(divide(sumDealQuantity, 5));
+                cur.setFiveDayHigh(dayHigh);
+                cur.setFiveDayLow(dayLow);
             }
             if (list.size() > i + 10) {
-                List<StockDetail> tenList = list.stream().skip(i).limit(10).toList();
-                BigDecimal tenAverage = divide(sum(tenList.stream().map(StockDetail::getEndPrice).toList()), 10);
-                cur.setTenDayLine(tenAverage);
-
-                BigDecimal tenDayHigh = max(tenList.stream().map(StockDetail::getHighPrice).toList());
-                cur.setTenDayHigh(tenDayHigh);
-
-                BigDecimal tenDayLow = min(tenList.stream().map(StockDetail::getLowPrice).toList());
-                cur.setTenDayLow(tenDayLow);
-
-                BigDecimal tenDayDealQuantity = divide(sum(tenList.stream().map(StockDetail::getDealQuantity).toList()), 10);
-                cur.setTenDayDealQuantity(tenDayDealQuantity);
+                BigDecimal sumEndPrice = BigDecimal.ZERO;
+                BigDecimal sumDealQuantity = BigDecimal.ZERO;
+                BigDecimal dayHigh = list.get(i).getHighPrice();
+                BigDecimal dayLow = list.get(i).getLowPrice();
+                for (int j = i; j < i + 10; j++) {
+                    sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
+                    sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
+                    dayHigh = max(dayHigh, list.get(j).getHighPrice());
+                    dayLow = min(dayLow, list.get(j).getLowPrice());
+                }
+                cur.setTenDayLine(divide(sumEndPrice, 10));
+                cur.setTenDayDealQuantity(divide(sumDealQuantity, 10));
+                cur.setTenDayHigh(dayHigh);
+                cur.setTenDayLow(dayLow);
             }
 
             if (list.size() > i + 20) {
-                List<StockDetail> twentyList = list.stream().skip(i).limit(20).toList();
-                BigDecimal twentyAverage = divide(sum(twentyList.stream().map(StockDetail::getEndPrice).toList()), 20);
-                cur.setTwentyDayLine(twentyAverage);
-
-                BigDecimal twentyDayHigh = max(twentyList.stream().map(StockDetail::getHighPrice).toList());
-                cur.setTwentyDayHigh(twentyDayHigh);
-
-                BigDecimal twentyDayLow = min(twentyList.stream().map(StockDetail::getLowPrice).toList());
-                cur.setTwentyDayLow(twentyDayLow);
-
-                BigDecimal twentyDayDealQuantity = divide(sum(twentyList.stream().map(StockDetail::getDealQuantity).toList()), 20);
-                cur.setTwentyDayDealQuantity(twentyDayDealQuantity);
+                BigDecimal sumEndPrice = BigDecimal.ZERO;
+                BigDecimal sumDealQuantity = BigDecimal.ZERO;
+                BigDecimal dayHigh = list.get(i).getHighPrice();
+                BigDecimal dayLow = list.get(i).getLowPrice();
+                for (int j = i; j < i + 20; j++) {
+                    sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
+                    sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
+                    dayHigh = max(dayHigh, list.get(j).getHighPrice());
+                    dayLow = min(dayLow, list.get(j).getLowPrice());
+                }
+                cur.setTwentyDayLine(divide(sumEndPrice, 20));
+                cur.setTwentyDayDealQuantity(divide(sumDealQuantity, 20));
+                cur.setTwentyDayHigh(dayHigh);
+                cur.setTwentyDayLow(dayLow);
             }
 
             if (list.size() > i + 60) {
-                List<StockDetail> sixtyList = list.stream().skip(i).limit(60).toList();
-                BigDecimal sixtyAverage = divide(sum(sixtyList.stream().map(StockDetail::getEndPrice).toList()), 60);
-                cur.setSixtyDayLine(sixtyAverage);
-
-                BigDecimal sixtyDayHigh = max(sixtyList.stream().map(StockDetail::getHighPrice).toList());
-                cur.setSixtyDayHigh(sixtyDayHigh);
-
-                BigDecimal sixtyDayLow = min(sixtyList.stream().map(StockDetail::getLowPrice).toList());
-                cur.setSixtyDayLow(sixtyDayLow);
-
-                BigDecimal sixtyDayDealQuantity = divide(sum(sixtyList.stream().map(StockDetail::getDealQuantity).toList()), 60);
-                cur.setSixtyDayDealQuantity(sixtyDayDealQuantity);
+                BigDecimal sumEndPrice = BigDecimal.ZERO;
+                BigDecimal sumDealQuantity = BigDecimal.ZERO;
+                BigDecimal dayHigh = list.get(i).getHighPrice();
+                BigDecimal dayLow = list.get(i).getLowPrice();
+                for (int j = i; j < i + 60; j++) {
+                    sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
+                    sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
+                    dayHigh = max(dayHigh, list.get(j).getHighPrice());
+                    dayLow = min(dayLow, list.get(j).getLowPrice());
+                }
+                cur.setSixtyDayLine(divide(sumEndPrice, 60));
+                cur.setSixtyDayDealQuantity(divide(sumDealQuantity, 60));
+                cur.setSixtyDayHigh(dayHigh);
+                cur.setSixtyDayLow(dayLow);
             }
         }
     }
