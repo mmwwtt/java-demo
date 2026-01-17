@@ -1,6 +1,9 @@
 package com.mmwwtt.stock.convert;
 
 import com.mmwwtt.stock.entity.*;
+import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
+import com.mmwwtt.stock.vo.StockDetailVO;
+import com.mmwwtt.stock.vo.StockVO;
 import org.mapstruct.*;
 import org.mapstruct.control.DeepClone;
 import org.mapstruct.factory.Mappers;

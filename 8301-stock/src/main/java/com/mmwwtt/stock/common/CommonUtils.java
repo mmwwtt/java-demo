@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.mmwwtt.stock.common.Constants.TOLERANCE;
 
@@ -23,8 +24,8 @@ public class CommonUtils {
     }
 
     public static BigDecimal add(Object num1, Object num2) {
-        BigDecimal tmp1 = toBigDecimal(num1);
-        BigDecimal tmp2 = toBigDecimal(num2);
+        BigDecimal tmp1 = Objects.isNull(num1) ? BigDecimal.ZERO : toBigDecimal(num1);
+        BigDecimal tmp2 = Objects.isNull(num2) ? BigDecimal.ZERO : toBigDecimal(num2);
         if (tmp1 == null || tmp2 == null) {
             return null;
         }
@@ -47,7 +48,7 @@ public class CommonUtils {
         if (tmp1 == null || tmp2 == null) {
             return null;
         }
-        if(tmp2.compareTo(BigDecimal.ZERO) ==0) {
+        if (tmp2.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
         return tmp1.divide(tmp2, 4, RoundingMode.HALF_UP);

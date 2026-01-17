@@ -1,4 +1,4 @@
-package com.mmwwtt.stock.entity;
+package com.mmwwtt.stock.vo;
 
 import lombok.Data;
 

@@ -298,7 +298,7 @@ public class StockCalcServiceImpl implements StockCalcService {
                     allAfterList.addAll(afterList);
                 });
                 saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
-            }, cpuThreadPool);
+            }, singleThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -407,14 +407,14 @@ public class StockCalcServiceImpl implements StockCalcService {
 
             if (Objects.nonNull(stockDetail.getNext5())) {
                 fivePriceRateSum = add(fivePriceRateSum, stockDetail.getNext5().getPricePert());
-                fiveMaxPriceRateSum = add(fiveMaxPriceRateSum, stockDetail.getNext5().getPricePert());
+                fiveMaxPriceRateSum = add(fiveMaxPriceRateSum, stockDetail.getNext5().getNext5MaxPricePert());
                 fiveCnt++;
             }
 
 
             if (Objects.nonNull(stockDetail.getNext10())) {
                 tenPriceRateSum = add(tenPriceRateSum, stockDetail.getNext10().getPricePert());
-                tenMaxPriceRateSum = add(tenMaxPriceRateSum, stockDetail.getNext10().getPricePert());
+                tenMaxPriceRateSum = add(tenMaxPriceRateSum, stockDetail.getNext10().getNext10MaxPricePert());
                 tenCnt++;
             }
         }
@@ -438,7 +438,7 @@ public class StockCalcServiceImpl implements StockCalcService {
         stockCalcResDao.insert(calcRes);
 
         Set<String> set = new HashSet<>();
-        set.add("上升缺口 且缩量 且9%<涨幅");
+        set.add("上升缺口 且缩量");
         if (set.contains(calcRes.getStrategyDesc())) {
             allAfterList.stream().filter(item -> item.getNext1().getIsDown()).forEach(item -> {
                 try {

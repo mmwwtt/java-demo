@@ -107,7 +107,7 @@ public class StockGuiUitls {
 
             /* 日期 */
             g2.setColor(Color.BLACK);
-            g2.drawString(d.getDealDate().substring(0,10), (int) (x - 20), IMG_H - 10);
+            g2.drawString(d.getDealDate().substring(5,10), (int) (x - 20), IMG_H - 10);
         }
 
         g2.dispose();
