@@ -152,7 +152,8 @@ public class StockStrategyUtils {
                     && moreThan(t1.getEndPrice(), t2.getEndPrice()) && moreThan(t1.getStartPrice(), t2.getStartPrice())
                     && moreThan(t0.getEndPrice(), t1.getEndPrice()) && moreThan(t0.getStartPrice(), t1.getStartPrice())
                     && moreThan(t1.getDealQuantity(), t2.getDealQuantity())
-                    && moreThan(t0.getDealQuantity(), t1.getDealQuantity());
+                    && moreThan(t0.getDealQuantity(), t1.getDealQuantity())
+                    && lessThan(t0.getUpShadowPert(),"0.2");
         }));
 
 

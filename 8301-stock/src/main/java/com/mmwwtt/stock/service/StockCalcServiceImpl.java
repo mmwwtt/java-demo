@@ -321,7 +321,7 @@ public class StockCalcServiceImpl implements StockCalcService {
     public void startCalc3() throws ExecutionException, InterruptedException {
         Map<String, List<StockDetail>> codeToDetailMap = getCodeToDetailMap();
         LocalDateTime dataTime = LocalDateTime.now();
-        String strategyName = "底部阳包阴 放量";
+        String strategyName = "红三兵";
         for (StockStrategy strategy : StockStrategyUtils.STRATEGY_LIST) {
             if (!Objects.equals(strategy.getStrategyName(), strategyName)) {
                 continue;
@@ -359,10 +359,11 @@ public class StockCalcServiceImpl implements StockCalcService {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             return t0.getIsUp() && t1.getIsUp() && t2.getIsUp()
+                    && moreThan(t2.getPricePert(), "0.02")
                     && moreThan(t1.getEndPrice(), t2.getEndPrice()) && moreThan(t1.getStartPrice(), t2.getStartPrice())
                     && moreThan(t0.getEndPrice(), t1.getEndPrice()) && moreThan(t0.getStartPrice(), t1.getStartPrice())
-                    && moreThan(t1.getDealQuantity(), t2.getDealQuantity())
-                    && moreThan(t0.getDealQuantity(), t1.getDealQuantity());
+                    && moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(),"1.2"))
+                    && lessThan(t0.getEndPrice(), t0.getTwentyDayLine());
         });
         List<StockDetail> allAfterList = new ArrayList<>();
         codeToDetailMap.forEach((stockCode, detailList) -> {

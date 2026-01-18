@@ -204,14 +204,24 @@ public class StockDetail {
     private BigDecimal pertDivisionQuantity;
 
     /**
-     * 是否为阳线(收盘价高于开盘价，  可能是-9  -> -1  也是阳线)
+     * 是否上涨
      */
     private Boolean isUp;
 
     /**
-     * 是否为阴线
+     * 是否下跌
      */
     private Boolean isDown;
+
+    /**
+     * 是否为阳线
+     */
+    private Boolean isRed;
+
+    /**
+     * 是否为阴线
+     */
+    private Boolean isGreen;
 
     /**
      * 开盘价是否等于收盘价
@@ -387,6 +397,8 @@ public class StockDetail {
         entityPert = bigDecimalEquals(allLen, "0") ? BigDecimal.ZERO : divide(entityLen, allLen);
         isUp = moreThan(endPrice, lastPrice);
         isDown = lessThan(endPrice, lastPrice);
+        isRed = moreThan(endPrice, startPrice);
+        isGreen = lessThan(endPrice, startPrice);
         isBalance = bigDecimalEquals(endPrice, startPrice);
         pertDivisionQuantity = bigDecimalEquals(dealQuantity, "0") ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 15, RoundingMode.UP);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
