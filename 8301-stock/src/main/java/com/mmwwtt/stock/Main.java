@@ -63,7 +63,6 @@ public class Main {
     private StockCalcService stockCalcService;
 
 
-
     @Autowired
     private StockDetailDao stockDetailDao;
 
@@ -374,10 +373,17 @@ public class Main {
         //策略
         log.info("开始计算");
         List<String> strategyNameList = Arrays.asList(
-                "大前天是 缩量十字星 次日放量阳",
-                "上升缺口",
-                "上升缺口 且缩量",
-                "上升缺口 且缩量 且4%<涨幅＜7%");
+                "日内V反 振幅8",
+                "日内V反 振幅7",
+                "日内V反 振幅6",
+                "上升缺口 且缩量 1% < 空缺",
+                "底部阳包阴(看涨吞没) 放量1.5",
+                "底部阳包阴 放量 0.5<下影线",
+                "上升缺口 且缩量百分之20 1.5<涨幅",
+                "上升缺口 且缩量 0.05% < 缺口",
+                "上升缺口 且缩量百分之20",
+                "底部阳包阴 放量 0.4<下影线",
+                "上升缺口 且缩量");
         for (String strategyName : strategyNameList) {
             Function<StockDetail, Boolean> runFunc = StockStrategyUtils.getStrategy(strategyName).getRunFunc();
             for (List<Stock> part : parts) {

@@ -45,16 +45,27 @@ public class StockStrategyUtils {
                     && t0.getIsUp();
         }));
 
+        STRATEGY_LIST.add(new StockStrategy("放量红", (StockDetail t0) -> {
+            return moreThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
+                    && t0.getIsRed();
+        }));
+
+
+        STRATEGY_LIST.add(new StockStrategy("放量绿", (StockDetail t0) -> {
+            return moreThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
+                    && t0.getIsGreen();
+        }));
+
 
         STRATEGY_LIST.add(new StockStrategy("缩量红", (StockDetail t0) -> {
             return lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && t0.getIsUp();
+                    && t0.getIsRed();
         }));
 
 
         STRATEGY_LIST.add(new StockStrategy("缩量绿", (StockDetail t0) -> {
             return lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && t0.getIsDown();
+                    && t0.getIsGreen();
         }));
 
 
@@ -82,7 +93,9 @@ public class StockStrategyUtils {
 
 
         STRATEGY_LIST.add(new StockStrategy("涨幅成交比扩大", (StockDetail t0) -> {
-            return moreThan(t0.getPertDivisionQuantity(), t0.getT1().getPertDivisionQuantity());
+            StockDetail t1 = t0.getT1();
+            return moreThan(t0.getPertDivisionQuantity(), t1.getPertDivisionQuantity())
+                    &&t0.getIsDown() &&t1.getIsDown();
         }));
 
 
