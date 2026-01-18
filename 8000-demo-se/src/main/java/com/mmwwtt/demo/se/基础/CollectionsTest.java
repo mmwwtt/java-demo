@@ -354,7 +354,7 @@ public class CollectionsTest {
             }
         });
 
-        //computeIfAbsent: key存在时 将新的(k,v)插入，返回v
+        //computeIfPresent: key存在时 将新的(k,v)插入，返回v
         //putIfAbsent : key不存在时再插入
         map2.putIfAbsent("hello", new ArrayList<>());
         map2.computeIfPresent("hello", (k, v) -> { v.add(1); return v; });

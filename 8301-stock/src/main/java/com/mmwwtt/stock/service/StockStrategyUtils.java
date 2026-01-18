@@ -146,9 +146,13 @@ public class StockStrategyUtils {
 
 
         STRATEGY_LIST.add(new StockStrategy("红三兵", (StockDetail t0) -> {
-            return t0.getIsUp() && t0.getT1().getIsUp() && t0.getT2().getIsUp()
-                    && moreThan(t0.getT1().getEntityLen(), t0.getT2().getEntityLen())
-                    && moreThan(t0.getEntityLen(), t0.getT1().getEntityLen());
+            StockDetail t1 = t0.getT1();
+            StockDetail t2 = t0.getT2();
+            return t0.getIsUp() && t1.getIsUp() && t2.getIsUp()
+                    && moreThan(t1.getEndPrice(), t2.getEndPrice()) && moreThan(t1.getStartPrice(), t2.getStartPrice())
+                    && moreThan(t0.getEndPrice(), t1.getEndPrice()) && moreThan(t0.getStartPrice(), t1.getStartPrice())
+                    && moreThan(t1.getDealQuantity(), t2.getDealQuantity())
+                    && moreThan(t0.getDealQuantity(), t1.getDealQuantity());
         }));
 
 
@@ -207,7 +211,7 @@ public class StockStrategyUtils {
 
 
         //前一天绿， 当天是红，将前一天完全包裹  放量1.5倍  下影线占4层以上
-        STRATEGY_LIST.add(new StockStrategy("底部阳包阴 放量1.5", (StockDetail t0) -> {
+        STRATEGY_LIST.add(new StockStrategy("底部阳包阴(看涨吞没) 放量1.5", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             return t1.getIsDown() && t0.getIsUp()
                     && lessThan(t0.getStartPrice(), t1.getEndPrice())
@@ -217,13 +221,31 @@ public class StockStrategyUtils {
         }));
 
 
-        STRATEGY_LIST.add(new StockStrategy("底部阳包阴 放量", (StockDetail t0) -> {
+        STRATEGY_LIST.add(new StockStrategy("底部阳包阴 放量 0.5<下影线", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            return t1.getIsDown() && t0.getIsUp()
+                    && lessThan(t0.getStartPrice(), t1.getEndPrice())
+                    && moreThan(t0.getEndPrice(), t1.getStartPrice())
+                    && moreThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity())
+                    && moreThan(t0.getLowShadowPert(), "0.5");
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("底部阳包阴 放量 0.4<下影线", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             return t1.getIsDown() && t0.getIsUp()
                     && lessThan(t0.getStartPrice(), t1.getEndPrice())
                     && moreThan(t0.getEndPrice(), t1.getStartPrice())
                     && moreThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity())
                     && moreThan(t0.getLowShadowPert(), "0.4");
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("底部阳包阴 放量  0.3<下影线", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            return t1.getIsDown() && t0.getIsUp()
+                    && lessThan(t0.getStartPrice(), t1.getEndPrice())
+                    && moreThan(t0.getEndPrice(), t1.getStartPrice())
+                    && moreThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity())
+                    && moreThan(t0.getLowShadowPert(), "0.3");
         }));
 
         STRATEGY_LIST.add(new StockStrategy("底部阳包阴 缩量", (StockDetail t0) -> {
@@ -252,25 +274,17 @@ public class StockStrategyUtils {
             return longShadow && solidBull && highWave && volUp;
         }));
 
-
-        STRATEGY_LIST.add(new StockStrategy("早晨之星简化版", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())
-                    || Objects.isNull(t0.getT2())) {
-                return false;
-            }
+        // 大阴：实体≥2% 且为阴线
+        // 十字星
+        // 大阳：实体≥2% 且收盘>第1根开盘（完全反包）
+        STRATEGY_LIST.add(new StockStrategy("早晨之星(启明星)", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
-            // 1. 大阴：实体≥2% 且为阴线
-            boolean bigBear = moreThan(t2.getEntityPert(), "0.02") && t2.getIsDown();
-
-            // 3. 大阳：实体≥2% 且收盘>第1根开盘（完全反包）
-            boolean bigBull = moreThan(t0.getEntityPert(), "0.02") && t0.getIsUp()
-                    && moreThan(t0.getEndPrice(), t2.getStartPrice());
-
-            // 4. 第3日放量 > 20日均量
-            boolean volUp = moreThan(t0.getDealQuantity(), t0.getTwentyDayLine());
-
-            return bigBear && t1.getIsTenStar() && bigBull && volUp;
+            return moreThan(t2.getEntityPert(), "0.2") && t2.getIsDown()
+                    && moreThan(t0.getEntityPert(), "0.2") && t0.getIsUp()
+                    && moreThan(t0.getEndPrice(), t2.getStartPrice())
+                    && t1.getIsTenStar()
+                    && moreThan(t0.getDealQuantity(), t0.getTwentyDayLine());
         }));
 
 
