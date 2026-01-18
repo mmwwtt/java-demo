@@ -79,6 +79,8 @@ public class StockStrategyUtils {
         }));
 
 
+
+
         STRATEGY_LIST.add(new StockStrategy("涨幅成交比扩大", (StockDetail t0) -> {
             return moreThan(t0.getPertDivisionQuantity(), t0.getT1().getPertDivisionQuantity());
         }));
@@ -148,12 +150,14 @@ public class StockStrategyUtils {
         STRATEGY_LIST.add(new StockStrategy("红三兵", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
-            return t0.getIsUp() && t1.getIsUp() && t2.getIsUp()
+            return t0.getIsRed() && t1.getIsRed() && t2.getIsRed()
+                    && moreThan(t0.getPricePert(), "0.005") && moreThan(t1.getPricePert(), "0.005") && moreThan(t2.getPricePert(), "0.005")
                     && moreThan(t1.getEndPrice(), t2.getEndPrice()) && moreThan(t1.getStartPrice(), t2.getStartPrice())
                     && moreThan(t0.getEndPrice(), t1.getEndPrice()) && moreThan(t0.getStartPrice(), t1.getStartPrice())
                     && moreThan(t1.getDealQuantity(), t2.getDealQuantity())
                     && moreThan(t0.getDealQuantity(), t1.getDealQuantity())
-                    && lessThan(t0.getUpShadowPert(),"0.2");
+                    && lessThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "2"))
+                    && lessThan(t0.getUpShadowPert(), "0.4");
         }));
 
 
@@ -240,15 +244,6 @@ public class StockStrategyUtils {
                     && moreThan(t0.getLowShadowPert(), "0.4");
         }));
 
-        STRATEGY_LIST.add(new StockStrategy("底部阳包阴 放量  0.3<下影线", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            return t1.getIsDown() && t0.getIsUp()
-                    && lessThan(t0.getStartPrice(), t1.getEndPrice())
-                    && moreThan(t0.getEndPrice(), t1.getStartPrice())
-                    && moreThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity())
-                    && moreThan(t0.getLowShadowPert(), "0.3");
-        }));
-
         STRATEGY_LIST.add(new StockStrategy("底部阳包阴 缩量", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             return t1.getIsDown() && t0.getIsUp()
@@ -258,22 +253,31 @@ public class StockStrategyUtils {
                     && moreThan(t0.getLowShadowPert(), "0.4");
         }));
 
-        STRATEGY_LIST.add(new StockStrategy("日内V反", (StockDetail t0) -> {
-            boolean longShadow = moreThan(t0.getLowShadowPert(), "0.65");
-
-            // 2. 阳实体且≥1%
-            boolean solidBull = t0.getIsUp() &&
-                    moreThan(t0.getEntityPert(), "0.01");
-
-            // 3. 振幅 ≥ 4%
-            BigDecimal amplitude = divide(t0.getHighPrice().subtract(t0.getLowPrice()), t0.getLowPrice());
-            boolean highWave = moreThan(amplitude, "0.04");
-
-            // 4. 放量
-            boolean volUp = moreThan(t0.getDealQuantity(), t0.getTenDayLine());
-
-            return longShadow && solidBull && highWave && volUp;
+        //实体>1%
+        //振幅>4%
+        //放量
+        //下影线 占6成
+        STRATEGY_LIST.add(new StockStrategy("日内V反 振幅6", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(divide(subtract(t0.getHighPrice(), t0.getLowPrice()), t0.getLowPrice()), "0.06")
+                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
         }));
+
+        STRATEGY_LIST.add(new StockStrategy("日内V反 振幅7", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(divide(subtract(t0.getHighPrice(), t0.getLowPrice()), t0.getLowPrice()), "0.07")
+                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("日内V反 振幅8", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(divide(subtract(t0.getHighPrice(), t0.getLowPrice()), t0.getLowPrice()), "0.08")
+                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
+        }));
+
 
         // 大阴：实体≥2% 且为阴线
         // 十字星

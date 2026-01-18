@@ -321,7 +321,7 @@ public class StockCalcServiceImpl implements StockCalcService {
     public void startCalc3() throws ExecutionException, InterruptedException {
         Map<String, List<StockDetail>> codeToDetailMap = getCodeToDetailMap();
         LocalDateTime dataTime = LocalDateTime.now();
-        String strategyName = "红三兵";
+        String strategyName = "日内V反";
         for (StockStrategy strategy : StockStrategyUtils.STRATEGY_LIST) {
             if (!Objects.equals(strategy.getStrategyName(), strategyName)) {
                 continue;
@@ -356,14 +356,10 @@ public class StockCalcServiceImpl implements StockCalcService {
         LocalDateTime dataTime = LocalDateTime.now();
 
         StockStrategy strategy = new StockStrategy("test", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            return t0.getIsUp() && t1.getIsUp() && t2.getIsUp()
-                    && moreThan(t2.getPricePert(), "0.02")
-                    && moreThan(t1.getEndPrice(), t2.getEndPrice()) && moreThan(t1.getStartPrice(), t2.getStartPrice())
-                    && moreThan(t0.getEndPrice(), t1.getEndPrice()) && moreThan(t0.getStartPrice(), t1.getStartPrice())
-                    && moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(),"1.2"))
-                    && lessThan(t0.getEndPrice(), t0.getTwentyDayLine());
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed() && moreThan(t0.getEntityPert(), "0.01")
+                    && moreThan(divide(subtract(t0.getHighPrice(), t0.getLowPrice()), t0.getLowPrice()), "0.06")
+                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
         });
         List<StockDetail> allAfterList = new ArrayList<>();
         codeToDetailMap.forEach((stockCode, detailList) -> {
@@ -459,6 +455,9 @@ public class StockCalcServiceImpl implements StockCalcService {
         int tenCnt = 0;
 
         for (StockDetail stockDetail : allAfterList) {
+            if(Objects.isNull(stockDetail)) {
+                continue;
+            }
             if (Objects.nonNull(stockDetail.getNext1())) {
                 onePriceRateSum = add(onePriceRateSum, stockDetail.getNext1().getPricePert());
                 oneCnt++;
