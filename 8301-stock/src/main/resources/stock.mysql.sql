@@ -160,17 +160,5 @@ order by stock_detail_Id desc;
 
 # 设置最大连接数为500
 SET GLOBAL max_connections = 500;
-#验证最大连接数
-SHOW VARIABLES LIKE 'max_connections';
-
--- 1. 打开慢日志
-SET GLOBAL slow_query_log = 'ON';
-
--- 2. 设置阈值，单位秒（支持小数，0.5 表示 500 ms）
-SET GLOBAL long_query_time = 1;
-
--- 3. 指定日志文件路径（目录需让 mysql 用户可写）
-SET GLOBAL slow_query_log_file = 'D:\1.moweitao\slow_sql';
-
--- 4. 可选：把“没走索引”的语句也记下来
-SET GLOBAL log_queries_not_using_indexes = 'ON';
+set global innodb_flush_log_at_trx_commit = 0;
+set global sync_binlog = 100000;

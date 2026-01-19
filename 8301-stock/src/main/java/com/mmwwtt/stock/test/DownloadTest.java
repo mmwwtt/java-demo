@@ -1,9 +1,7 @@
-package com.mmwwtt.stock;
+package com.mmwwtt.stock.test;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
@@ -12,13 +10,10 @@ import com.mmwwtt.stock.dao.StockCalcResDao;
 import com.mmwwtt.stock.dao.StockDao;
 import com.mmwwtt.stock.dao.StockDetailDao;
 import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockCalcRes;
 import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StockStrategy;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
 import com.mmwwtt.stock.service.StockCalcService;
-import com.mmwwtt.stock.service.StockStrategyUtils;
 import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
 import com.mmwwtt.stock.vo.StockDetailVO;
 import com.mmwwtt.stock.vo.StockVO;
@@ -33,9 +28,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -43,18 +35,16 @@ import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.mmwwtt.stock.common.CommonUtils.divide;
-import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 import static com.mmwwtt.stock.common.Constants.*;
-
+import static com.mmwwtt.stock.common.Constants.HISTORY_DATA_URL;
 
 /**
  * 必盈url   <a href="https://www.biyingapi.com/">...</a>
  * 限流 每分钟200次接口调用
  */
-@Slf4j
 @SpringBootTest
-public class Main {
+@Slf4j
+public class DownloadTest {
 
     @Autowired
     private StockDao stockDao;
@@ -89,6 +79,22 @@ public class Main {
     }
 
 
+
+    @Test
+    @DisplayName("从0开始构建数据")
+    public void start() throws ExecutionException, InterruptedException {
+        dataDownLoad();
+        dataDetailDownLoad();
+        dataDetailCalc();
+    }
+
+    @Test
+    @DisplayName("3点前的增量数据")
+    public void dounLoadAdd() throws ExecutionException, InterruptedException {
+        dataDetailDownLoadAdd();
+        dataDetailCalcAdd();
+    }
+
     @Test
     @DisplayName("获得数据")
     public void getDataTest() {
@@ -110,21 +116,6 @@ public class Main {
         StockDetailOnTimeVO stockDetailOnTimeVO = getResponse(ON_TIME_DATA_URL, map2, new ParameterizedTypeReference<StockDetailOnTimeVO>() {
         });
         log.info("{}", JSONObject.toJSONString(stockDetailVOs));
-    }
-
-    @Test
-    @DisplayName("从0开始构建数据")
-    public void start() throws ExecutionException, InterruptedException {
-        dataDownLoad();
-        dataDetailDownLoad();
-        dataDetailCalc();
-    }
-
-    @Test
-    @DisplayName("3点前的增量数据")
-    public void dounLoadAdd() throws ExecutionException, InterruptedException {
-        dataDetailDownLoadAdd();
-        dataDetailCalcAdd();
     }
 
 
@@ -212,7 +203,7 @@ public class Main {
                     map1.put(STOCK_CODE, stock.getCode());
                     map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
                     map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
-                    map1.put(START_DATA, "20251220");
+                    map1.put(START_DATA, "20260101");
                     map1.put(END_DATA, NOW_DATA);
                     map1.put(MAX_SIZE, "30");
                     log.info(stock.getCode());
@@ -295,142 +286,7 @@ public class Main {
         log.info("衍生数据计算--完毕  \n\n\n");
     }
 
-    @Test
-    @DisplayName("根据百分比区间预测明日会上涨")
-    public void getStock() {
-        QueryWrapper<Stock> queryWrapper = new QueryWrapper<>();
-        List<Stock> stockList = stockDao.selectList(queryWrapper);
-        //百分比策略
-        for (int i = 0; i < 4; i++) {
-            List<Stock> resList = new ArrayList<>();
-            QueryWrapper<StockCalcRes> calcWapper = new QueryWrapper<>();
-            calcWapper.apply(" create_date = (select max(create_date) from stock_calculation_result_t where type = '0')")
-                    .eq("type", StockCalcRes.TypeEnum.INTERVAL.getCode())
-                    .ge("all_cnt", 450)
-                    .ge("win_rate", 0.6 + i * 0.05)
-                    .le("win_rate", 0.65 + i * 0.05);
-            List<StockCalcRes> stockCalcResList = stockCalcResDao.selectList(calcWapper);
-            stockCalcResList.forEach(item -> item.setStockStrategy(
-                    JSON.toJavaObject(JSON.parseObject(item.getStrategyDesc()), StockStrategy.class)));
-
-
-            for (Stock stock : stockList) {
-                //30开头是创业板  68开头是科创版
-                if (stock.getCode().startsWith("30") || stock.getCode().startsWith("68")) {
-                    return;
-                }
-                QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                detailWapper.eq("stock_code", stock.getCode())
-                        .last("limit 1")
-                        .orderByDesc("deal_date");
-                List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
-                StockDetail stockDetail = stockDetails.stream().findFirst().orElse(null);
-                if (Objects.nonNull(stockDetail)) {
-                    boolean isOk = stockCalcResList.stream().anyMatch(calc -> {
-                        StockStrategy strategy = calc.getStockStrategy();
-                        return strategy.getLowShadowLowLimit().compareTo(stockDetail.getLowShadowPert()) <= 0
-                                && strategy.getLowShadowUpLimit().compareTo(stockDetail.getLowShadowPert()) >= 0
-                                && strategy.getUpShadowLowLimit().compareTo(stockDetail.getUpShadowPert()) <= 0
-                                && strategy.getUpShadowUpLimit().compareTo(stockDetail.getUpShadowPert()) >= 0
-                                && strategy.getPricePertLowLimit().compareTo(stockDetail.getPricePert()) <= 0
-                                && strategy.getPricePertUpLimit().compareTo(stockDetail.getPricePert()) >= 0;
-                    });
-                    if (isOk) {
-                        resList.add(stock);
-                    }
-                }
-
-            }
-            String filePath = "src/main/resources/file/test.txt";
-
-            File file = new File(filePath);
-
-            if (!file.getParentFile().exists()) {
-                boolean res = file.getParentFile().mkdirs();
-            }
-
-            try (FileOutputStream fos = new FileOutputStream(file, true)) {
-                fos.write(String.format("\n\n%s    win_rate:%3f  - %3f\n", NOW_DATA, 0.6 + i * 0.05, 0.65 + i * 0.05).getBytes());
-                for (Stock item : resList) {
-                    String str = String.format("%s_%s\n", item.getCode(), item.getName());
-                    fos.write(str.getBytes());
-                }
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
-    @Test
-    @DisplayName("上升缺口 成交量超过5日线")
-    public void getStock1() throws InterruptedException, ExecutionException {
-        boolean isOnTime = false;
-        Map<String, List<String>> strategyToStockMap = new HashMap<>();
-        List<Stock> stockList = stockCalcService.getAllStock();
-        Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
-        List<List<Stock>> parts = Lists.partition(stockList, 50);
-
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        //策略
-        log.info("开始计算");
-        List<String> strategyNameList = Arrays.asList(
-                "日内V反 振幅8",
-                "日内V反 振幅7",
-                "日内V反 振幅6",
-                "上升缺口 且缩量 1% < 空缺",
-                "底部阳包阴(看涨吞没) 放量1.5",
-                "底部阳包阴 放量 0.5<下影线",
-                "上升缺口 且缩量百分之20 1.5<涨幅",
-                "上升缺口 且缩量 0.05% < 缺口",
-                "上升缺口 且缩量百分之20",
-                "底部阳包阴 放量 0.4<下影线",
-                "上升缺口 且缩量");
-        for (String strategyName : strategyNameList) {
-            Function<StockDetail, Boolean> runFunc = StockStrategyUtils.getStrategy(strategyName).getRunFunc();
-            for (List<Stock> part : parts) {
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                    for (Stock stock : part) {
-                        List<StockDetail> stockDetails = codeToDetailMap.get(stock.getCode());
-                        if (isOnTime) {
-                            stockDetails.forEach(item -> item.setDealQuantity(divide(item.getDealQuantity(), "0.85")));
-                        }
-                        if (CollectionUtils.isEmpty(stockDetails)
-                                || moreThan(stockDetails.get(0).getPricePert(), "0.097")) {
-                            continue;
-                        }
-                        if (runFunc.apply(stockDetails.get(0))) {
-                            strategyToStockMap.computeIfAbsent(strategyName, k -> new ArrayList<>())
-                                    .add(stock.getCode() + "_" + stock.getName() + "_" + stockDetails.get(0).getPricePert().doubleValue());
-                        }
-                    }
-                }, cpuThreadPool);
-                futures.add(future);
-            }
-        }
-
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("计算结束");
-        String filePath = "src/main/resources/file/test.txt";
-
-        File file = new File(filePath);
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
-        }
-
-        try (FileOutputStream fos = new FileOutputStream(file, true)) {
-            fos.write(String.format("\n\n%s\n", NOW_DATA).getBytes());
-            for (Map.Entry<String, List<String>> entry : strategyToStockMap.entrySet()) {
-                fos.write(("\n\n" + entry.getKey() + "\n").getBytes());
-                for (String s : entry.getValue()) {
-                    fos.write((s + "\n").getBytes());
-                }
-            }
-        } catch (IOException ignored) {
-        }
-
-    }
-
-    private <T> T getResponse(String url, Map<String, String> paramMap, ParameterizedTypeReference reference) {
+    private <T> T getResponse(String url, Map<String, String> paramMap, ParameterizedTypeReference<T> reference) {
         while (true) {
             try {
                 ResponseEntity<T> res = restTemplate.exchange(url, HttpMethod.GET, null, reference, paramMap);
@@ -451,5 +307,4 @@ public class Main {
         }
         return null;
     }
-
 }
