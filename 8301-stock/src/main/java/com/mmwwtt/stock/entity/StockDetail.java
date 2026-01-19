@@ -6,10 +6,14 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 
@@ -379,13 +383,27 @@ public class StockDetail {
      * 较五日均量  明显放量
      */
     @TableField(exist = false)
-    private Boolean getIsBigUpQuantityForFive = false;
+    private Boolean isBigUpQuantityForFive = false;
 
     /**
      * 较五日均量  缩量
      */
     @TableField(exist = false)
-    private Boolean getIsDownQuantityForFive = false;
+    private Boolean isDownQuantityForFive = false;
+
+
+    /**
+     * 威廉指标
+     * %R = (Hn − C) / (Hn − Ln) × −100
+     * Hn：最近 n 日最高价
+     * Ln：最近 n 日最低价
+     * C：当日收盘
+     * <p>
+     * 0  ~ −20：超买区（股价靠近区间顶部）
+     * −20~−80：常态区
+     * −80~−100：超卖区（股价靠近区间底部）
+     */
+    private BigDecimal wr;
 
     public void calc() {
         allLen = subtract(highPrice, lowPrice).abs();
@@ -430,79 +448,41 @@ public class StockDetail {
             }
 
 
-            if (list.size() > i + 5) {
+            List<Pair<Integer, List<Consumer<BigDecimal>>>> dayLinePairs = new ArrayList<>();
+            dayLinePairs.add(Pair.of(5, Arrays.asList(cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveDayHigh, cur::setFiveDayLow)));
+            dayLinePairs.add(Pair.of(10, Arrays.asList(cur::setTenDayLine, cur::setTenDayDealQuantity, cur::setTenDayHigh, cur::setTenDayLow)));
+            dayLinePairs.add(Pair.of(20, Arrays.asList(cur::setTwentyDayLine, cur::setTwentyDayDealQuantity, cur::setTwentyDayHigh, cur::setTwentyDayLow)));
+            dayLinePairs.add(Pair.of(60, Arrays.asList(cur::setSixtyDayLine, cur::setSixtyDayDealQuantity, cur::setSixtyDayHigh, cur::setSixtyDayLow)));
+            for (Pair<Integer, List<Consumer<BigDecimal>>> pair : dayLinePairs) {
+                Integer dayNum = pair.getLeft();
+                List<Consumer<BigDecimal>> setList = pair.getRight();
+                if (list.size() <= i + dayNum) {
+                    continue;
+                }
                 BigDecimal sumEndPrice = BigDecimal.ZERO;
                 BigDecimal sumDealQuantity = BigDecimal.ZERO;
-                BigDecimal dayHigh = list.get(i + 1).getHighPrice();
-                BigDecimal dayLow = list.get(i + 1).getLowPrice();
-                for (int j = i; j < i + 5; j++) {
+                BigDecimal dayHigh = list.get(i).getHighPrice();
+                BigDecimal dayLow = list.get(i).getLowPrice();
+                for (int j = i + 1; j < i + dayNum; j++) {
                     sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
                     sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
-                    if (j != i) {
-                        dayHigh = max(dayHigh, list.get(j).getHighPrice());
-                        dayLow = min(dayLow, list.get(j).getLowPrice());
-                    }
+                    dayHigh = max(dayHigh, list.get(j).getHighPrice());
+                    dayLow = min(dayLow, list.get(j).getLowPrice());
                 }
-                cur.setFiveDayLine(divide(sumEndPrice, 5));
-                cur.setFiveDayDealQuantity(divide(sumDealQuantity, 5));
-                cur.setFiveDayHigh(dayHigh);
-                cur.setFiveDayLow(dayLow);
-            }
-            if (list.size() > i + 10) {
-                BigDecimal sumEndPrice = BigDecimal.ZERO;
-                BigDecimal sumDealQuantity = BigDecimal.ZERO;
-                BigDecimal dayHigh = list.get(i + 1).getHighPrice();
-                BigDecimal dayLow = list.get(i + 1).getLowPrice();
-                for (int j = i; j < i + 10; j++) {
-                    sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
-                    sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
-                    if (j != i) {
-                        dayHigh = max(dayHigh, list.get(j).getHighPrice());
-                        dayLow = min(dayLow, list.get(j).getLowPrice());
-                    }
-                }
-                cur.setTenDayLine(divide(sumEndPrice, 10));
-                cur.setTenDayDealQuantity(divide(sumDealQuantity, 10));
-                cur.setTenDayHigh(dayHigh);
-                cur.setTenDayLow(dayLow);
+                setList.get(0).accept(divide(sumEndPrice, 5));
+                setList.get(1).accept(divide(sumDealQuantity, 5));
+                setList.get(2).accept(dayHigh);
+                setList.get(3).accept(dayLow);
             }
 
-            if (list.size() > i + 20) {
-                BigDecimal sumEndPrice = BigDecimal.ZERO;
-                BigDecimal sumDealQuantity = BigDecimal.ZERO;
-                BigDecimal dayHigh = list.get(i + 1).getHighPrice();
-                BigDecimal dayLow = list.get(i + 1).getLowPrice();
-                for (int j = i; j < i + 20; j++) {
-                    sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
-                    sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
-                    if (j != i) {
-                        dayHigh = max(dayHigh, list.get(j).getHighPrice());
-                        dayLow = min(dayLow, list.get(j).getLowPrice());
-                    }
+            if (list.size() > i + 14) {
+                BigDecimal dayHigh = list.get(i ).getHighPrice();
+                BigDecimal dayLow = list.get(i).getLowPrice();
+                for (int j = i + 1; j < i + 14; j++) {
+                    dayHigh = max(dayHigh, list.get(j).getHighPrice());
+                    dayLow = min(dayLow, list.get(j).getLowPrice());
                 }
-                cur.setTwentyDayLine(divide(sumEndPrice, 20));
-                cur.setTwentyDayDealQuantity(divide(sumDealQuantity, 20));
-                cur.setTwentyDayHigh(dayHigh);
-                cur.setTwentyDayLow(dayLow);
-            }
-
-            if (list.size() > i + 60) {
-                BigDecimal sumEndPrice = BigDecimal.ZERO;
-                BigDecimal sumDealQuantity = BigDecimal.ZERO;
-                BigDecimal dayHigh = list.get(i + 1).getHighPrice();
-                BigDecimal dayLow = list.get(i + 1).getLowPrice();
-                for (int j = i; j < i + 60; j++) {
-                    sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
-                    sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
-                    if (j != i) {
-                        dayHigh = max(dayHigh, list.get(j).getHighPrice());
-                        dayLow = min(dayLow, list.get(j).getLowPrice());
-                    }
-                }
-                cur.setSixtyDayLine(divide(sumEndPrice, 60));
-                cur.setSixtyDayDealQuantity(divide(sumDealQuantity, 60));
-                cur.setSixtyDayHigh(dayHigh);
-                cur.setSixtyDayLow(dayLow);
+                cur.setWr(multiply(divide(subtract(dayHigh, cur.endPrice), subtract(dayHigh, dayLow)), "-100"));
             }
         }
     }

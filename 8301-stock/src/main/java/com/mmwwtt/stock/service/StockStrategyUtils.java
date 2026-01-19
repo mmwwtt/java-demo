@@ -432,6 +432,36 @@ public class StockStrategyUtils {
                     && lessThan(t0.getT1().getTenDayLine(), t0.getT1().getTwentyDayLine());
             return flag1 && flag2;
         }));
+
+        STRATEGY_LIST.add(new StockStrategy("缩量上涨 2天", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            StockDetail t2 = t0.getT2();
+            StockDetail t3 = t0.getT3();
+            return moreThan(t0.getPricePert(), "0.005")
+                    && moreThan(t1.getPricePert(), "0.005")
+                    && lessThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "0.8"))
+                    && lessThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "0.8"));
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("缩量上涨 3天", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            StockDetail t2 = t0.getT2();
+            StockDetail t3 = t0.getT3();
+            return moreThan(t0.getPricePert(), "0.005")
+                    && moreThan(t1.getPricePert(), "0.005")
+                    && moreThan(t2.getPricePert(), "0.005")
+                    && lessThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "0.8"))
+                    && lessThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "0.8"))
+                    && lessThan(t2.getDealQuantity(), multiply(t3.getDealQuantity(), "0.8"));
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("WR 低于 -80， 且在上升", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            StockDetail t2 = t0.getT2();
+            return lessThan(t0.getWr(), t1.getWr())
+                    && lessThan(t1.getWr(), t2.getWr())
+                    && lessThan(t0.getWr(), "-80");
+        }));
     }
 
     public static StockStrategy getStrategy(String name) {

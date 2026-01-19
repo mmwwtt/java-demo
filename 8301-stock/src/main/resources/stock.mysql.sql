@@ -63,7 +63,8 @@ CREATE TABLE stock_Detail_t
     next5_price_pert         decimal(10, 4) COMMENT '当天到5天后的涨幅',
     next10_price_pert        decimal(10, 4) COMMENT '当天到10天后的涨幅',
     next5_max_price_pert     decimal(10, 4) COMMENT '当天到5天内最高的涨幅',
-    next10_max_price_pert    decimal(10, 4) COMMENT '当天到10天内最高的涨幅'
+    next10_max_price_pert    decimal(10, 4) COMMENT '当天到10天内最高的涨幅',
+    wr                       decimal(10, 4) COMMENT '威廉指标'
 ) COMMENT '股票详情表';
 
 
@@ -149,12 +150,6 @@ order by deal_date desc;
 
 select *
 from stock_detail_t
-order by stock_detail_Id desc;
-
-explain
-select *
-from stock_detail_t
-where stock_code = '603912.SH'
 order by stock_detail_Id desc;
 
 

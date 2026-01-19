@@ -293,9 +293,8 @@ public class DownloadTest {
                 return res.getBody();
             } catch (Exception e) {
                 //打印除限流外的错误
-                if (e.getMessage().startsWith("429")) {
+                if (!e.getMessage().startsWith("429")) {
                     log.info("{}", e.getMessage());
-                } else {
                     return null;
                 }
                 try {
