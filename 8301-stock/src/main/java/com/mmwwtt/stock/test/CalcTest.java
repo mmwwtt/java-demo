@@ -64,12 +64,17 @@ public class CalcTest {
      * 今天的日期
      */
     private static final String NOW_DATA;
+    private static final String NOW_DATA1;
+
 
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
     static {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         NOW_DATA = LocalDate.now().format(formatter);
+
+        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        NOW_DATA1 = LocalDate.now().format(formatter1);
     }
 
 
@@ -77,7 +82,7 @@ public class CalcTest {
     @DisplayName("根据策略预测")
     public void getStockByStoregy() throws InterruptedException, ExecutionException {
         boolean isOnTime = false;
-        Map<String, List<String>> strategyToStockMap = new HashMap<>();
+        Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
@@ -101,7 +106,8 @@ public class CalcTest {
                             stockDetails.forEach(item -> item.setDealQuantity(divide(item.getDealQuantity(), "0.85")));
                         }
                         if (CollectionUtils.isEmpty(stockDetails)
-                                || moreThan(stockDetails.get(0).getPricePert(), "0.097")) {
+                                || moreThan(stockDetails.get(0).getPricePert(), "0.097")
+                                || !Objects.equals(stockDetails.get(0).getDealDate(), NOW_DATA1)) {
                             continue;
                         }
                         if (runFunc.apply(stockDetails.get(0))) {

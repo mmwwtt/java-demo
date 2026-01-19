@@ -13,8 +13,8 @@ CREATE TABLE stock_t
 ) COMMENT '股票表';
 
 
-DROP TABLE IF EXISTS stock_Detail_t;
-CREATE TABLE stock_Detail_t
+DROP TABLE IF EXISTS stock_detail_t;
+CREATE TABLE stock_detail_t
 (
     stock_detail_Id          INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     stock_code               VARCHAR(64)    NOT NULL COMMENT '股票代码',
@@ -66,8 +66,6 @@ CREATE TABLE stock_Detail_t
     next10_max_price_pert    decimal(10, 4) COMMENT '当天到10天内最高的涨幅',
     wr                       decimal(10, 4) COMMENT '威廉指标'
 ) COMMENT '股票详情表';
-
-
 create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc);
 
 

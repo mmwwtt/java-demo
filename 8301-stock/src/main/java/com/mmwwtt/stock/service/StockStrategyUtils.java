@@ -46,26 +46,34 @@ public class StockStrategyUtils {
         }));
 
         STRATEGY_LIST.add(new StockStrategy("放量红", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
             return moreThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && t0.getIsRed();
+                    && t0.getIsRed()
+                    &&t1.getIsGreen();
         }));
 
 
         STRATEGY_LIST.add(new StockStrategy("放量绿", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
             return moreThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && t0.getIsGreen();
+                    && t0.getIsGreen()
+                    && t1.getIsRed();
         }));
 
 
         STRATEGY_LIST.add(new StockStrategy("缩量红", (StockDetail t0) -> {
-            return lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && t0.getIsRed();
+            StockDetail t1 = t0.getT1();
+            return lessThan(t0.getDealQuantity(), t1.getDealQuantity())
+                    && t0.getIsRed()
+                    && t1.getIsGreen();
         }));
 
 
         STRATEGY_LIST.add(new StockStrategy("缩量绿", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
             return lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && t0.getIsGreen();
+                    && t0.getIsGreen()
+                    && t1.getIsRed();
         }));
 
 
