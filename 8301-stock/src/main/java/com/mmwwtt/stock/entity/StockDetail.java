@@ -405,6 +405,30 @@ public class StockDetail {
      */
     private BigDecimal wr;
 
+
+
+    /**
+     * MACD相关指标
+     * EMA = 今日收盘价 × 2/(N+1) + 昨日EMA × (N-1)/(N+1)
+     */
+    private BigDecimal ema12;
+    private BigDecimal ema26;
+
+    /**
+     * DIF = 12日EMA - 26日EMA
+     */
+    private BigDecimal dif;
+
+    /**
+     * 今日DEA = 今日DIF × 2/10 + 昨日DEA × 8/10
+     */
+    private BigDecimal dea;
+
+    /**
+     * MACD柱 = (DIF - DEA) × 2
+     */
+    private BigDecimal macd;
+
     public void calc() {
         allLen = subtract(highPrice, lowPrice).abs();
         upShadowLen = subtract(highPrice, max(startPrice, endPrice)).abs();
@@ -424,8 +448,31 @@ public class StockDetail {
     }
 
     public static void calc(List<StockDetail> list) {
+        for (int i = list.size() - 1; i >= 0; i++) {
+            StockDetail cur = list.get(i);
+            BigDecimal ema12 = i == list.size() - 1
+                    ? divide(multiply(cur.endPrice, "2"), 13)
+                    : sum(divide(multiply(cur.endPrice, "2"), 13), multiply(list.get(i + 1).getEma12(), "0.84615"));
+            cur.setEma12(ema12);
+
+            BigDecimal ema26 = i == list.size() - 1
+                    ? divide(multiply(cur.endPrice, "2"), 27)
+                    : sum(divide(multiply(cur.endPrice, "2"), 27), multiply(list.get(i + 1).getEma26(), "0.9259"));
+            cur.setEma26(ema26);
+
+            cur.setDif(subtract(ema12, ema26));
+
+            BigDecimal dea = i == list.size() - 1
+                    ? multiply(cur.getDif(), 0.2)
+                    : sum(multiply(cur.getDif(), 0.2), multiply(list.get(i + 1).getDea(), "0.8"));
+            cur.setDea(dea);
+
+            cur.setMacd(multiply(subtract(cur.getDif(), cur.getDea()), 2));
+        }
+
         for (int i = 0; i < list.size(); i++) {
             StockDetail cur = list.get(i);
+
             if (i - 2 >= 0) {
                 cur.setNext2PricePert(divide(subtract(list.get(i - 2).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
             }
@@ -476,7 +523,7 @@ public class StockDetail {
             }
 
             if (list.size() > i + 14) {
-                BigDecimal dayHigh = list.get(i ).getHighPrice();
+                BigDecimal dayHigh = list.get(i).getHighPrice();
                 BigDecimal dayLow = list.get(i).getLowPrice();
                 for (int j = i + 1; j < i + 14; j++) {
                     dayHigh = max(dayHigh, list.get(j).getHighPrice());

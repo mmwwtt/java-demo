@@ -228,9 +228,9 @@ public class CalcTest {
         StockStrategy strategy = new StockStrategy("test", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
-            return lessThan(t0.getWr(), t1.getWr())
-                    && lessThan(t1.getWr(), t2.getWr())
-                    && lessThan(t0.getWr(), "-95");
+            return t0.getIsRed() && t1.getIsGreen() && t2.getIsGreen()
+                    && moreThan(t0.getDealQuantity(), t1.getDealQuantity())
+                    && moreThan(t1.getDealQuantity(), t2.getDealQuantity());
         });
         List<StockDetail> allAfterList = new ArrayList<>();
         codeToDetailMap.forEach((stockCode, detailList) -> {
