@@ -254,7 +254,7 @@ public class DownloadTest {
                     StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);
                 }
-            }, ioThreadPool);
+            }, cpuThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));

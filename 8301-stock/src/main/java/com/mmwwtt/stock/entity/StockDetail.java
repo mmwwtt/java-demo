@@ -430,12 +430,12 @@ public class StockDetail {
     private BigDecimal macd;
 
     public void calc() {
-        allLen = subtract(highPrice, lowPrice).abs();
-        upShadowLen = subtract(highPrice, max(startPrice, endPrice)).abs();
+        entityLen = divide(subtract(endPrice, startPrice).abs(), lastPrice);
+        upShadowLen = divide(subtract(highPrice, max(startPrice, endPrice)).abs(), lastPrice);
+        lowShadowLen = divide(subtract(min(startPrice, endPrice), lowPrice).abs(), lastPrice);
+        allLen = divide(subtract(highPrice, lowPrice).abs(), lastPrice);
         upShadowPert = bigDecimalEquals(allLen, "0") ? BigDecimal.ZERO : divide(upShadowLen, allLen);
-        lowShadowLen = subtract(min(startPrice, endPrice), lowPrice).abs();
         lowShadowPert = bigDecimalEquals(allLen, "0") ? BigDecimal.ZERO : divide(lowShadowLen, allLen);
-        entityLen = subtract(endPrice, startPrice).abs();
         entityPert = bigDecimalEquals(allLen, "0") ? BigDecimal.ZERO : divide(entityLen, allLen);
         isUp = moreThan(endPrice, lastPrice);
         isDown = lessThan(endPrice, lastPrice);
@@ -448,7 +448,7 @@ public class StockDetail {
     }
 
     public static void calc(List<StockDetail> list) {
-        for (int i = list.size() - 1; i >= 0; i++) {
+        for (int i = list.size() - 1; i >= 0; i--) {
             StockDetail cur = list.get(i);
             BigDecimal ema12 = i == list.size() - 1
                     ? divide(multiply(cur.endPrice, "2"), 13)
@@ -516,8 +516,8 @@ public class StockDetail {
                     dayHigh = max(dayHigh, list.get(j).getHighPrice());
                     dayLow = min(dayLow, list.get(j).getLowPrice());
                 }
-                setList.get(0).accept(divide(sumEndPrice, 5));
-                setList.get(1).accept(divide(sumDealQuantity, 5));
+                setList.get(0).accept(divide(sumEndPrice, dayNum));
+                setList.get(1).accept(divide(sumDealQuantity, dayNum));
                 setList.get(2).accept(dayHigh);
                 setList.get(3).accept(dayLow);
             }

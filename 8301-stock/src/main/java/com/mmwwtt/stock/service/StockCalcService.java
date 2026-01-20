@@ -21,6 +21,8 @@ public interface StockCalcService {
      */
     List<Stock> getAllStock();
 
+    List<List<Stock>> getStockPart();
+
     /**
      * 获取指定代码的股票列表
      */

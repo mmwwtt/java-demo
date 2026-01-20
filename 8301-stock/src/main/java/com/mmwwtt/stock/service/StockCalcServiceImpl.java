@@ -289,6 +289,11 @@ public class StockCalcServiceImpl implements StockCalcService {
         return stockList;
     }
 
+    @Override
+    public List<List<Stock>> getStockPart() {
+        return  Lists.partition(getAllStock(), 50);
+    }
+
     public List<StockDetail> genAllStockDetail(List<StockDetail> stockDetails) {
         for (int i = 0; i < stockDetails.size(); i++) {
             StockDetail t0 = stockDetails.get(i);

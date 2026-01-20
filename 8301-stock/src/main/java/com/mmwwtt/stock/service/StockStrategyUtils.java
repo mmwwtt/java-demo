@@ -470,6 +470,22 @@ public class StockStrategyUtils {
                     && lessThan(t1.getWr(), t2.getWr())
                     && lessThan(t0.getWr(), "-80");
         }));
+
+        STRATEGY_LIST.add(new StockStrategy("7%<下影线 且红", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowLen(), "0.07")&& t0.getIsRed();
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("6%<下影线 且红", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowLen(), "0.06")&& t0.getIsRed();
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("5%<下影线 且红", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowLen(), "0.05")&& t0.getIsRed();
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("4%<下影线 且红", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowLen(), "0.04")&& t0.getIsRed();
+        }));
     }
 
     public static StockStrategy getStrategy(String name) {

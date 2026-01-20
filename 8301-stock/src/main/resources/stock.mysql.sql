@@ -64,7 +64,12 @@ CREATE TABLE stock_detail_t
     next10_price_pert        decimal(10, 4) COMMENT '当天到10天后的涨幅',
     next5_max_price_pert     decimal(10, 4) COMMENT '当天到5天内最高的涨幅',
     next10_max_price_pert    decimal(10, 4) COMMENT '当天到10天内最高的涨幅',
-    wr                       decimal(10, 4) COMMENT '威廉指标'
+    wr                       decimal(10, 4) COMMENT '威廉指标',
+    ema12                    decimal(10, 4) COMMENT 'MACD相关指标',
+    ema26                    decimal(10, 4) COMMENT 'MACD相关指标',
+    dif                      decimal(10, 4) COMMENT 'MACD相关指标',
+    dea                      decimal(10, 4) COMMENT 'MACD相关指标',
+    macd                     decimal(10, 4) COMMENT 'MACD相关指标'
 ) COMMENT '股票详情表';
 create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc);
 
@@ -100,19 +105,6 @@ from stock_detail_t;
 select count(*)
 from stock_calculation_result_t;
 
-explain
-select *
-from stock_t;
-
-select *
-from stock_detail_t
-where stock_code = '605162.SH'
-order by stock_detail_Id desc;
-
-select *
-from stock_calculation_result_t;
-
-
 
 select *
 from stock_calculation_result_t
@@ -129,15 +121,11 @@ where type = 1
   and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')
 order by win_rate desc;
 
+
 select *
 from stock_calculation_result_t
 where type = 1
 order by calc_res_id desc;
-
-
-select count(*)
-from stock_calculation_result_t
-where create_date = (select max(create_date) from stock_calculation_result_t);
 
 
 select *
@@ -146,12 +134,14 @@ where stock_code = '000001.SZ'
 order by deal_date desc;
 
 
-select *
-from stock_detail_t
-order by stock_detail_Id desc;
-
-
 # 设置最大连接数为500
-SET GLOBAL max_connections = 500;
+SET GLOBAL max_connections = 120;
 set global innodb_flush_log_at_trx_commit = 0;
 set global sync_binlog = 100000;
+SET GLOBAL innodb_buffer_pool_size = 8*1024*1024*1024;  -- 4 GB
+SET GLOBAL innodb_log_buffer_size = 64 * 1024 * 1024;   -- 16 MB
+SET GLOBAL thread_cache_size = 10;
+
+
+SHOW GLOBAL STATUS LIKE 'Innodb_log_waits';
+SHOW VARIABLES LIKE 'thread_cache_size';

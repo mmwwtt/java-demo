@@ -149,10 +149,9 @@ public class CalcTest {
     public void startCalc2() throws ExecutionException, InterruptedException {
         Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
         LocalDateTime dataTime = LocalDateTime.now();
-        List<Stock> stockList = stockCalcService.getAllStock();
+        List<List<Stock>> parts = stockCalcService.getStockPart();
         log.info("开始计算");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<List<Stock>> parts = Lists.partition(stockList, 50);
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
@@ -187,26 +186,36 @@ public class CalcTest {
     @Test
     @DisplayName("根据策略绘制蜡烛图")
     public void startCalc3() throws ExecutionException, InterruptedException {
-        Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
         LocalDateTime dataTime = LocalDateTime.now();
-        StockStrategy strategy = new StockStrategy("test_", (StockDetail t0) -> {
+        StockStrategy strategy = new StockStrategy("test_"+ new Date().getTime(), (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
-            return moreThan(divide(subtract(t0.getHighPrice(), t0.getLowPrice()), t0.getLowPrice()), "0.06")
-                    && t0.getIsRed();
+            StockDetail t3 = t0.getT3();
+            return moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "1.2"))
+                    && moreThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "1.2"))
+                    && moreThan(t2.getTenDayDealQuantity(), multiply(t3.getDealQuantity(), "1.2"));
         });
-
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StockDetail> allAfterList = new ArrayList<>();
-        codeToDetailMap.forEach((stockCode, detailList) -> {
-            if (detailList.size() < 60) {
-                return;
-            }
-            List<StockDetail> afterList = detailList.subList(0, detailList.size() - 60).stream()
-                    .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
-                    .filter(item -> Objects.nonNull(item.getNext1()))
-                    .filter(item -> strategy.getRunFunc().apply(item)).toList();
-            allAfterList.addAll(afterList);
-        });
+        List<List<Stock>> parts = stockCalcService.getStockPart();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), null);
+                    if (stockDetails.size() < 60) {
+                        return;
+                    }
+                    List<StockDetail> afterList = stockDetails.stream().limit( stockDetails.size() - 60)
+                            .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
+                            .filter(item -> Objects.nonNull(item.getNext1()))
+                            .filter(item -> strategy.getRunFunc().apply(item)).toList();
+                    allAfterList.addAll(afterList);
+                }
+            },ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
         stockCalcService.saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
 
         allAfterList.stream().filter(item -> item.getNext1().getIsDown()).limit(1000).forEach(item -> {
@@ -222,27 +231,34 @@ public class CalcTest {
     @Test
     @DisplayName("测试策略")
     public void startCalc4() throws ExecutionException, InterruptedException {
-        Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
         LocalDateTime dataTime = LocalDateTime.now();
-
-        StockStrategy strategy = new StockStrategy("test", (StockDetail t0) -> {
+        StockStrategy strategy = new StockStrategy("test_", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
-            return t0.getIsRed() && t1.getIsGreen() && t2.getIsGreen()
-                    && moreThan(t0.getDealQuantity(), t1.getDealQuantity())
-                    && moreThan(t1.getDealQuantity(), t2.getDealQuantity());
+            StockDetail t3 = t0.getT3();
+            return moreThan(t0.getLowShadowLen(), "0.06") && t0.getIsRed();
         });
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StockDetail> allAfterList = new ArrayList<>();
-        codeToDetailMap.forEach((stockCode, detailList) -> {
-            if (detailList.size() < 60) {
-                return;
-            }
-            List<StockDetail> afterList = detailList.subList(0, detailList.size() - 60).stream()
-                    .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
-                    .filter(item -> Objects.nonNull(item.getNext1()))
-                    .filter(item -> strategy.getRunFunc().apply(item)).toList();
-            allAfterList.addAll(afterList);
-        });
+        List<List<Stock>> parts = stockCalcService.getStockPart();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), null);
+                    if (stockDetails.size() < 60) {
+                        return;
+                    }
+                    List<StockDetail> afterList = stockDetails.stream().limit( stockDetails.size() - 60)
+                            .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
+                            .filter(item -> Objects.nonNull(item.getNext1()))
+                            .filter(item -> strategy.getRunFunc().apply(item)).toList();
+                    allAfterList.addAll(afterList);
+                }
+            },ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
         stockCalcService.saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
     }
 
