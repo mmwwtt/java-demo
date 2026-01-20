@@ -443,4 +443,26 @@ public class StockCalcServiceImpl implements StockCalcService {
         log.info("开始查询数据-结束");
         return codeToDetailMap;
     }
+
+    @Override
+    public Map<String, StockDetail> getCodeToTodayDetailMap() throws ExecutionException, InterruptedException {
+        List<Stock> stockList = getAllStock();
+        Map<String, StockDetail> codeToDetailMap = new ConcurrentHashMap<>();
+        log.info("开始查询数据");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = getStockDetail(stock.getCode(), 10);
+                    codeToDetailMap.put(stock.getCode(), stockDetails.get(0));
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        log.info("开始查询数据-结束");
+        return codeToDetailMap;
+    }
 }

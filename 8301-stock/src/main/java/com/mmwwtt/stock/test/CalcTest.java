@@ -2,7 +2,6 @@ package com.mmwwtt.stock.test;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
@@ -80,11 +79,12 @@ public class CalcTest {
 
     @Test
     @DisplayName("根据策略预测")
-    public void getStockByStoregy() throws InterruptedException, ExecutionException {
+    public void getStockByStrategy() throws InterruptedException, ExecutionException {
         boolean isOnTime = false;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
-        Map<String, List<StockDetail>> codeToDetailMap = stockCalcService.getCodeToDetailMap();
+        Map<String, StockDetail> codeToDetailMap = stockCalcService.getCodeToTodayDetailMap();
+
         List<List<Stock>> parts = Lists.partition(stockList, 50);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -101,18 +101,18 @@ public class CalcTest {
             for (List<Stock> part : parts) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (Stock stock : part) {
-                        List<StockDetail> stockDetails = codeToDetailMap.get(stock.getCode());
+                        StockDetail stockDetail = codeToDetailMap.get(stock.getCode());
                         if (isOnTime) {
-                            stockDetails.forEach(item -> item.setDealQuantity(divide(item.getDealQuantity(), "0.85")));
+                            stockDetail.setDealQuantity(divide(stockDetail.getDealQuantity(), "0.85"));
                         }
-                        if (CollectionUtils.isEmpty(stockDetails)
-                                || moreThan(stockDetails.get(0).getPricePert(), "0.097")
-                                || !Objects.equals(stockDetails.get(0).getDealDate(), NOW_DATA1)) {
+                        if (Objects.isNull(stockDetail)
+                                || moreThan(stockDetail.getPricePert(), "0.097")
+                                || !Objects.equals(stockDetail.getDealDate(), NOW_DATA1)) {
                             continue;
                         }
-                        if (runFunc.apply(stockDetails.get(0))) {
+                        if (runFunc.apply(stockDetail)) {
                             strategyToStockMap.computeIfAbsent(strategyName, k -> new ArrayList<>())
-                                    .add(stock.getCode() + "_" + stock.getName() + "_" + stockDetails.get(0).getPricePert().doubleValue());
+                                    .add(stock.getCode() + "_" + stock.getName() + "_" +stockDetail.getPricePert().doubleValue());
                         }
                     }
                 }, cpuThreadPool);

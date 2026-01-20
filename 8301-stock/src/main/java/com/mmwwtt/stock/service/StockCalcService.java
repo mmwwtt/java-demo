@@ -39,6 +39,12 @@ public interface StockCalcService {
     Map<String, List<StockDetail>> getCodeToDetailMap(Integer limit) throws ExecutionException, InterruptedException;
 
     /**
+     * 获得股票 当天交易数据
+     */
+    Map<String, StockDetail> getCodeToTodayDetailMap() throws ExecutionException, InterruptedException;
+
+
+    /**
      * 保存策略
      */
      void saveCalcRes(List<StockDetail> allAfterList, String strategyDesc, LocalDateTime dataTime, String type);
