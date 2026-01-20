@@ -191,9 +191,8 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "1.2"))
-                    && moreThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "1.2"))
-                    && moreThan(t2.getTenDayDealQuantity(), multiply(t3.getDealQuantity(), "1.2"));
+            return moreThan(t0.getFiveDayLine(), t0.getTwentyDayLine())
+                    && lessThan(t0.getT1().getFiveDayLine(), t0.getT1().getTwentyDayLine());
         });
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StockDetail> allAfterList = new ArrayList<>();
@@ -236,7 +235,10 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return moreThan(t0.getLowShadowLen(), "0.06") && t0.getIsRed();
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(t0.getAllLen(), "0.08")
+                    && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
         });
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StockDetail> allAfterList = new ArrayList<>();

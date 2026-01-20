@@ -281,22 +281,33 @@ public class StockStrategyUtils {
         STRATEGY_LIST.add(new StockStrategy("日内V反 振幅6", (StockDetail t0) -> {
             return moreThan(t0.getLowShadowPert(), "0.6")
                     && t0.getIsRed()
-                    && moreThan(divide(subtract(t0.getHighPrice(), t0.getLowPrice()), t0.getLowPrice()), "0.06")
-                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
+                    && moreThan(t0.getAllLen(), "0.06");
         }));
 
         STRATEGY_LIST.add(new StockStrategy("日内V反 振幅7", (StockDetail t0) -> {
             return moreThan(t0.getLowShadowPert(), "0.6")
                     && t0.getIsRed()
-                    && moreThan(divide(subtract(t0.getHighPrice(), t0.getLowPrice()), t0.getLowPrice()), "0.07")
-                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
+                    && moreThan(t0.getAllLen(), "0.07");
         }));
 
         STRATEGY_LIST.add(new StockStrategy("日内V反 振幅8", (StockDetail t0) -> {
             return moreThan(t0.getLowShadowPert(), "0.6")
                     && t0.getIsRed()
-                    && moreThan(divide(subtract(t0.getHighPrice(), t0.getLowPrice()), t0.getLowPrice()), "0.08")
+                    && moreThan(t0.getAllLen(), "0.08");
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("日内V反 振幅8 收盘价低于10日线", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(t0.getAllLen(), "0.08")
                     && lessThan(t0.getEndPrice(), t0.getTenDayLine());
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("日内V反 振幅8 收盘价低于10日线*0.9", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(t0.getAllLen(), "0.08")
+                    && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
         }));
 
 
@@ -485,6 +496,23 @@ public class StockStrategyUtils {
 
         STRATEGY_LIST.add(new StockStrategy("4%<下影线 且红", (StockDetail t0) -> {
             return moreThan(t0.getLowShadowLen(), "0.04")&& t0.getIsRed();
+        }));
+
+
+        STRATEGY_LIST.add(new StockStrategy("7%<下影线", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowLen(), "0.07");
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("6%<下影线", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowLen(), "0.06");
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("5%<下影线", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowLen(), "0.05");
+        }));
+
+        STRATEGY_LIST.add(new StockStrategy("4%<下影线", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowLen(), "0.04");
         }));
     }
 

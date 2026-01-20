@@ -115,7 +115,7 @@ public class StockDetail {
     private BigDecimal entityPert;
 
     /**
-     * 总长
+     * 总长(振幅)
      */
     private BigDecimal allLen;
 
@@ -429,6 +429,8 @@ public class StockDetail {
      */
     private BigDecimal macd;
 
+    //违五日线   前四天的综合/五
+
     public void calc() {
         entityLen = divide(subtract(endPrice, startPrice).abs(), lastPrice);
         upShadowLen = divide(subtract(highPrice, max(startPrice, endPrice)).abs(), lastPrice);
@@ -510,7 +512,7 @@ public class StockDetail {
                 BigDecimal sumDealQuantity = BigDecimal.ZERO;
                 BigDecimal dayHigh = list.get(i).getHighPrice();
                 BigDecimal dayLow = list.get(i).getLowPrice();
-                for (int j = i + 1; j < i + dayNum; j++) {
+                for (int j = i ; j < i + dayNum; j++) {
                     sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
                     sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
                     dayHigh = max(dayHigh, list.get(j).getHighPrice());

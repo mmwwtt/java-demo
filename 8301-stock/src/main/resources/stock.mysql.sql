@@ -130,7 +130,7 @@ order by calc_res_id desc;
 
 select *
 from stock_detail_t
-where stock_code = '000001.SZ'
+where stock_code = '000514.SZ'
 order by deal_date desc;
 
 
@@ -141,7 +141,3 @@ set global sync_binlog = 100000;
 SET GLOBAL innodb_buffer_pool_size = 8*1024*1024*1024;  -- 4 GB
 SET GLOBAL innodb_log_buffer_size = 128 * 1024 * 1024;   -- 16 MB
 SET GLOBAL thread_cache_size = 50;
-
-
-SHOW GLOBAL STATUS LIKE 'Innodb_log_waits';
-SHOW VARIABLES LIKE 'thread_cache_size';
