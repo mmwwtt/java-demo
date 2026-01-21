@@ -39,13 +39,11 @@ public class 底部阳包阴Strategy {
                     && moreThan(t0.getLowShadowPert(), "0.4");
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("底部阳包阴 缩量", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("底部阳包阴", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             return t1.getIsDown() && t0.getIsUp()
                     && lessThan(t0.getStartPrice(), t1.getEndPrice())
-                    && moreThan(t0.getEndPrice(), t1.getStartPrice())
-                    && lessThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity())
-                    && moreThan(t0.getLowShadowPert(), "0.4");
+                    && moreThan(t0.getEndPrice(), t1.getStartPrice());
         }));
     }
 }

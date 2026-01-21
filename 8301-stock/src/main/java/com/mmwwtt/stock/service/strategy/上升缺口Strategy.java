@@ -6,7 +6,6 @@ import com.mmwwtt.stock.service.StockCalcService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 
@@ -17,10 +16,6 @@ public class 上升缺口Strategy {
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice());
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 连续2", (StockDetail t0) -> {
-            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
-                    && moreThan(t0.getT1().getLowPrice(), t0.getT2().getHighPrice());
-        }));
 
         StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且放量", (StockDetail t0) -> {
             BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
@@ -35,355 +30,61 @@ public class 上升缺口Strategy {
                     && moreThan(space, "0.0");
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量10%", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 量(1-1.1)", (StockDetail t0) -> {
             BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
                     && isInRange(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "1"), multiply(t0.getT1().getDealQuantity(), "1.1"))
                     && moreThan(space, "0.0");
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量10%", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 量(0.9-1)", (StockDetail t0) -> {
             BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
                     && isInRange(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.9"), multiply(t0.getT1().getDealQuantity(), "1"))
                     && moreThan(space, "0.0");
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量20%", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 量(0.8-0.9)", (StockDetail t0) -> {
             BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
                     && isInRange(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"), multiply(t0.getT1().getDealQuantity(), "0.9"))
                     && moreThan(space, "0.0");
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量20%", (StockDetail t0) -> {
+
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 量(0.8以下)", (StockDetail t0) -> {
             BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
                     && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"))
                     && moreThan(space, "0.0");
         }));
 
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 1%<缺口", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 量(0.8以下)  0<缺口<0.005", (StockDetail t0) -> {
             BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
-            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
-                    && moreThan(space, "0.01");
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量百分之20 1.5<涨幅", (StockDetail t0) -> {
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
                     && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"))
-                    && moreThan(t0.getPricePert(), "0.015");
+                    && isInRange(space,"0","0.005");
         }));
 
-
-        //空缺再大，符合的数据剧减 没必要
-        //缩量越多 也没变好， 只是符合的数据减少
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 1% < 空缺", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 量(0.8以下)  0.005<缺口<0.01", (StockDetail t0) -> {
             BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
-                    && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && moreThan(space, "0.01");
+                    && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"))
+                    && isInRange(space,"0.005","0.01");
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量百分之20", (StockDetail t0) -> {
-            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
-                    && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"));
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量 0.05% < 缺口", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 量(0.8以下)  0.01<缺口<0.02", (StockDetail t0) -> {
             BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
-                    && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && moreThan(space, "0.005");
+                    && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"))
+                    && isInRange(space,"0.01","0.02");
         }));
 
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 成交量超过5日线", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 量(0.8以下)  0.02<缺口", (StockDetail t0) -> {
+            BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
-                    && moreThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity());
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 成交量超过5日线 三日不回补", (StockDetail t0) -> {
-            return moreThan(t0.getT3().getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getT2().getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getT1().getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity());
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 成交量超过5日线 三日不回补 5日线>20日线", (StockDetail t0) -> {
-            return moreThan(t0.getT3().getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getT2().getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getT1().getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity())
-                    && moreThan(t0.getFiveDayDealQuantity(), t0.getTwentyDayDealQuantity());
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 成交量超过5日线 三日不回补 5日线>20日线 涨幅成交比扩大 二连红", (StockDetail t0) -> {
-            return moreThan(t0.getT3().getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getT2().getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getT1().getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getLowPrice(), t0.getT4().getHighPrice())
-                    && moreThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity())
-                    && moreThan(t0.getFiveDayDealQuantity(), t0.getTwentyDayDealQuantity())
-                    && moreThan(t0.getPertDivisionQuantity(), t0.getT1().getPertDivisionQuantity())
-                    && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && t0.getIsUp() && t0.getT1().getIsUp();
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("十字星", StockDetail::getIsTenStar));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("二连红", (StockDetail t0) -> {
-            if (Objects.isNull(t0.getT1())) {
-                return false;
-            }
-            return t0.getIsUp() && t0.getT1().getIsUp();
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("连续2天放量，且当天是红", (StockDetail t0) -> {
-            return moreThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && moreThan(t0.getT1().getDealQuantity(), t0.getT2().getDealQuantity())
-                    && t0.getIsUp();
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("涨幅成交比扩大 缩量 二连红", (StockDetail t0) -> {
-            return moreThan(t0.getPertDivisionQuantity(), t0.getT1().getPertDivisionQuantity())
-                    && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && t0.getIsUp()
-                    && t0.getT1().getIsUp();
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("涨幅成交比扩大 缩量红", (StockDetail t0) -> {
-            return moreThan(t0.getPertDivisionQuantity(), t0.getT1().getPertDivisionQuantity())
-                    && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && t0.getIsUp();
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("涨幅成交比扩大 缩量", (StockDetail t0) -> {
-            return moreThan(t0.getPertDivisionQuantity(), t0.getT1().getPertDivisionQuantity())
-                    && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity());
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("涨幅成交比扩大", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            return moreThan(t0.getPertDivisionQuantity(), t1.getPertDivisionQuantity())
-                    && t0.getIsDown() && t1.getIsDown();
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("双针探底_简化版", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            // 1. 连续两根长下影：下影占比 > 60%
-            boolean longShadow1 = moreThan(t1.getLowShadowPert(), "0.6");
-            boolean longShadow2 = moreThan(t2.getLowShadowPert(), "0.6");
-
-            // 2. 两根下影K线实体小（防止大阴棒）
-            boolean smallBody1 = lessThan(t1.getEntityPert(), "0.02");
-            boolean smallBody2 = lessThan(t2.getEntityPert(), "0.02");
-
-            // 4. 第3日收盘 > 前两日最高（确认反转）
-            BigDecimal maxHigh12 = t1.getHighPrice().max(t2.getHighPrice());
-            boolean breakHigh = moreThan(t0.getEndPrice(), maxHigh12);
-
-            // 5. 放量确认（今日量 > 10日均量）
-            boolean volUp = moreThan(t0.getDealQuantity(), t0.getTenDayLine());
-
-            return longShadow1 && longShadow2 && smallBody1 && smallBody2
-                    && t0.getIsUp() && breakHigh && volUp;
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("红三兵", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            return t0.getIsRed() && t1.getIsRed() && t2.getIsRed()
-                    && moreThan(t0.getPricePert(), "0.005") && moreThan(t1.getPricePert(), "0.005") && moreThan(t2.getPricePert(), "0.005")
-                    && moreThan(t1.getEndPrice(), t2.getEndPrice()) && moreThan(t1.getStartPrice(), t2.getStartPrice())
-                    && moreThan(t0.getEndPrice(), t1.getEndPrice()) && moreThan(t0.getStartPrice(), t1.getStartPrice())
-                    && moreThan(t1.getDealQuantity(), t2.getDealQuantity())
-                    && moreThan(t0.getDealQuantity(), t1.getDealQuantity())
-                    && lessThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "2"))
-                    && lessThan(t0.getUpShadowPert(), "0.4");
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("红三兵加强版", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            // 2. 实体逐级放大
-            boolean entityGrow = moreThan(t1.getEntityLen(), t2.getEntityLen())
-                    && moreThan(t0.getEntityLen(), t1.getEntityLen());
-
-            // 3. 成交量逐级放大
-            boolean volGrow = moreThan(t0.getDealQuantity(), t1.getDealQuantity())
-                    && moreThan(t1.getDealQuantity(), t2.getDealQuantity());
-
-            // 4. 最新收盘站上 5 日线
-            boolean above5 = moreThan(t0.getEndPrice(), t0.getFiveDayLine());
-
-            // 5. 第三根（最新）实体占比 ≥ 1%
-            boolean bigEnough = moreThan(t0.getPricePert(), "0.01");
-
-            return t0.getIsUp() && t0.getT1().getIsUp() && t0.getT2().getIsUp()
-                    && moreThan(t0.getT1().getEntityLen(), t0.getT2().getEntityLen())
-                    && moreThan(t0.getEntityLen(), t0.getT1().getEntityLen())
-                    && entityGrow && volGrow && above5 && bigEnough;
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("放量突破20日最高", (StockDetail t0) -> {
-            // 1. 收盘突破 20 日最高
-            boolean priceBreak = moreThan(t0.getEndPrice(), t0.getTwentyDayHigh());
-            // 2. 放量 > 20 日均量 × 1.8
-            boolean volBreak = moreThan(t0.getDealQuantity(), multiply(t0.getTwentyDayDealQuantity(), "1.8"));
-            return priceBreak && volBreak;
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("平底突破", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            StockDetail t3 = t0.getT3();
-
-            // 1. 连续3日最低价差 ≤ 1%
-            BigDecimal maxLow = max(t1.getLowPrice(), t2.getLowPrice(), t3.getLowPrice());
-            BigDecimal minLow = min(t1.getLowPrice(), t2.getLowPrice(), t3.getLowPrice());
-            boolean flat = lessThan(divide(maxLow.subtract(minLow), minLow), "0.01");
-
-            // 2. 今日收盘 > 3 日最高收盘价（突破）
-            BigDecimal maxClose3 = max(t1.getEndPrice(), t2.getEndPrice(), t3.getEndPrice());
-            boolean breakClose = moreThan(t0.getEndPrice(), maxClose3);
-
-            // 3. 今日放量 > 10 日均量（确认）
-            boolean volUp = moreThan(t0.getDealQuantity(), t0.getTenDayLine());
-
-            return flat && breakClose && volUp;
-        }));
-
-        // 大阴：实体≥2% 且为阴线
-        // 十字星
-        // 大阳：实体≥2% 且收盘>第1根开盘（完全反包）
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("早晨之星(启明星)", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            return moreThan(t2.getEntityPert(), "0.2") && t2.getIsDown()
-                    && moreThan(t0.getEntityPert(), "0.2") && t0.getIsUp()
-                    && moreThan(t0.getEndPrice(), t2.getStartPrice())
-                    && t1.getIsTenStar()
-                    && moreThan(t0.getDealQuantity(), t0.getTwentyDayLine());
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("缩量3连阴后首阳", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            StockDetail t3 = t0.getT3();
-            // 1. 三连阴
-            boolean threeBear = t1.getIsDown() && t2.getIsDown() && t3.getIsDown();
-
-            // 2. 成交量逐日递减
-            boolean volFade = lessThan(t1.getDealQuantity(), t2.getDealQuantity())
-                    && lessThan(t2.getDealQuantity(), t3.getDealQuantity());
-
-            // 4. 第4日放量 > 第3日量
-            boolean volUp = moreThan(t0.getDealQuantity(), t1.getDealQuantity());
-
-            return threeBear && volFade && t0.getIsUp() && volUp;
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("前一天是 缩量十字星 次日放量阳", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            // 缩量十字星 前一天是十字星 且缩量(小于5日线 60%)
-            boolean flag1 = lessThan(t1.getDealQuantity(), multiply(t1.getFiveDayDealQuantity(), "0.6")) && t1.getIsTenStar();
-
-            // 放量： 当日放量阳线 量是前一天1.5倍
-            boolean flag2 = moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "1.5"));
-
-            // 吞噬： 收盘价比前一天最高价
-            boolean flag3 = moreThan(t0.getEndPrice(), t1.getHighPrice());
-
-            return flag1 && flag2 && flag3;
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("缩量回踩10日线后放量", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            StockDetail t3 = t0.getT3();
-            /* 1. 连续 2-3 日缩量（量逐日递减） */
-            boolean shrink = lessThan(t1.getDealQuantity(), t2.getDealQuantity())
-                    && lessThan(t2.getDealQuantity(), t3.getDealQuantity());
-
-            /* 2. 回踩 10 日线：曾触碰但未跌破（最低 ≤ 10 日线 ≤ 最高） */
-            boolean touch10 = lessThan(t1.getLowPrice(), t1.getTenDayLine())
-                    && moreThan(t1.getEndPrice(), t1.getTenDayLine());
-
-            /* 3. 今日放量阳线 */
-            boolean upToday = t0.getIsUp()
-                    && moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "1.5"));
-
-            return shrink && touch10 && upToday;
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("5日线 突破 10日线", (StockDetail t0) -> {
-            return moreThan(t0.getFiveDayLine(), t0.getTenDayLine())
-                    && lessThan(t0.getT1().getFiveDayLine(), t0.getT1().getTenDayLine());
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("5日线 突破 20日线", (StockDetail t0) -> {
-            return moreThan(t0.getFiveDayLine(), t0.getTwentyDayLine())
-                    && lessThan(t0.getT1().getFiveDayLine(), t0.getT1().getTwentyDayLine());
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("金叉", (StockDetail t0) -> {
-            // 金叉日大于五日均量1.2倍
-            boolean flag1 = moreThan(t0.getDealQuantity(), t0.getFiveDayDealQuantity());
-
-            //5日线破10日线
-            boolean flag2 = moreThan(t0.getTenDayLine(), t0.getTwentyDayLine())
-                    && lessThan(t0.getT1().getTenDayLine(), t0.getT1().getTwentyDayLine());
-            return flag1 && flag2;
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("缩量上涨 2天", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            StockDetail t3 = t0.getT3();
-            return moreThan(t0.getPricePert(), "0.005")
-                    && moreThan(t1.getPricePert(), "0.005")
-                    && lessThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "0.8"))
-                    && lessThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "0.8"));
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("缩量上涨 3天", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            StockDetail t3 = t0.getT3();
-            return moreThan(t0.getPricePert(), "0.005")
-                    && moreThan(t1.getPricePert(), "0.005")
-                    && moreThan(t2.getPricePert(), "0.005")
-                    && lessThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "0.8"))
-                    && lessThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "0.8"))
-                    && lessThan(t2.getDealQuantity(), multiply(t3.getDealQuantity(), "0.8"));
-        }));
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("WR 低于 -80， 且在上升", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            return lessThan(t0.getWr(), t1.getWr())
-                    && lessThan(t1.getWr(), t2.getWr())
-                    && lessThan(t0.getWr(), "-80");
+                    && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"))
+                    && moreThan(space,"0.02");
         }));
     }
 }
