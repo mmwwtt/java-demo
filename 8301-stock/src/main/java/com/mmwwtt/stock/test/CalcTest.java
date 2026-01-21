@@ -25,9 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,22 +59,8 @@ public class CalcTest {
     @Resource
     private StockCalcResDao stockCalcResDao;
 
-    /**
-     * 今天的日期
-     */
-    private static final String NOW_DATA;
-    private static final String NOW_DATA1;
-
-
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
-    static {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        NOW_DATA = LocalDate.now().format(formatter);
-
-        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        NOW_DATA1 = LocalDate.now().format(formatter1);
-    }
 
 
     @Test
@@ -109,7 +93,7 @@ public class CalcTest {
                         if (isOnTime) {
                             stockDetail.setDealQuantity(divide(stockDetail.getDealQuantity(), "0.75"));
                         }
-                        if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), NOW_DATA1)) {
+                        if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), getDateStr())) {
                             continue;
                         }
                         if (runFunc.apply(stockDetail)) {
@@ -133,7 +117,7 @@ public class CalcTest {
         }
 
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
-            fos.write(String.format("\n\n%s\n", NOW_DATA).getBytes());
+            fos.write(String.format("\n\n%s\n", getDateStr()).getBytes());
             for (Map.Entry<String, List<String>> entry : strategyToStockMap.entrySet()) {
                 fos.write(("\n\n" + entry.getKey() + "   " + strategyMap.get(entry.getKey()) + "\n").getBytes());
                 for (String s : entry.getValue()) {
@@ -265,7 +249,7 @@ public class CalcTest {
             }
 
             try (FileOutputStream fos = new FileOutputStream(file, true)) {
-                fos.write(String.format("\n\n%s    win_rate:%3f  - %3f\n", NOW_DATA, 0.6 + i * 0.05, 0.65 + i * 0.05).getBytes());
+                fos.write(String.format("\n\n%s    win_rate:%3f  - %3f\n", getDateStr(), 0.6 + i * 0.05, 0.65 + i * 0.05).getBytes());
                 for (Stock item : resList) {
                     String str = String.format("%s_%s\n", item.getCode(), item.getName());
                     fos.write(str.getBytes());

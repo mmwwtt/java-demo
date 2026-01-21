@@ -85,14 +85,12 @@ public class DownloadTest {
     public void start() throws ExecutionException, InterruptedException {
         dataDownLoad();
         dataDetailDownLoad();
-        dataDetailCalc();
     }
 
     @Test
     @DisplayName("3点前的增量数据")
     public void dounLoadAdd() throws ExecutionException, InterruptedException {
         dataDetailDownLoadAdd();
-        dataDetailCalcAdd();
     }
 
     @Test
@@ -156,7 +154,7 @@ public class DownloadTest {
                     map1.put(START_DATA, "20250101");
                     map1.put(END_DATA, NOW_DATA);
                     map1.put(MAX_SIZE, "350");
-                    log.info(stock.getCode());
+                    log.info("获取详情数据-{}", stock.getCode());
                     List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
                     });
                     if (Objects.isNull(stockDetailVOs)) {
@@ -177,6 +175,9 @@ public class DownloadTest {
                             stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
                         }
                     }
+                    stockDetails.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
+                    stockDetails.forEach(item -> item.calc());
+                    StockDetail.calc(stockDetails);
                     stockDetailDao.insertOrUpdate(stockDetails);
                 }
             }, ioThreadPool);
@@ -191,7 +192,7 @@ public class DownloadTest {
     @Test
     @DisplayName("调接口获取每日的详细数据-增量")
     public void dataDetailDownLoadAdd() throws InterruptedException, ExecutionException {
-        log.info("下载详细增量数据");
+        log.info("获取详细增量数据");
         List<Stock> stockList = stockCalcService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -206,7 +207,7 @@ public class DownloadTest {
                     map1.put(START_DATA, "20260101");
                     map1.put(END_DATA, NOW_DATA);
                     map1.put(MAX_SIZE, "30");
-                    log.info(stock.getCode());
+                    log.info("获取详情数据-{}", stock.getCode());
                     List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
                     });
                     if (Objects.isNull(stockDetailVOs)) {
@@ -227,6 +228,9 @@ public class DownloadTest {
                             stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
                         }
                     }
+                    stockDetails.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
+                    stockDetails.forEach(item -> item.calc());
+                    StockDetail.calc(stockDetails);
                     stockDetailDao.insertOrUpdate(stockDetails);
                 }
             }, ioThreadPool);
@@ -248,12 +252,11 @@ public class DownloadTest {
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    log.info(stock.getCode());
+                    log.info("计算衍生数据-{}", stock.getCode());
                     List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), null);
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);
-                    log.info(stock.getCode() + "   end");
                 }
             }, ioThreadPool);
             futures.add(future);
@@ -273,7 +276,7 @@ public class DownloadTest {
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    log.info(stock.getCode());
+                    log.info("计算衍生数据-{}", stock.getCode());
                     List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), 80);
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);

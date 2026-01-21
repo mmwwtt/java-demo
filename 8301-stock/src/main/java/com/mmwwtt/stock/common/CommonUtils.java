@@ -2,6 +2,7 @@ package com.mmwwtt.stock.common;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -154,7 +155,13 @@ public class CommonUtils {
     }
 
     public static String getTimeStr() {
-        return  java.time.LocalDateTime.now()
+        return  LocalDateTime.now()
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+    };
+
+
+    public static String getDateStr() {
+        return  LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
     };
 }
