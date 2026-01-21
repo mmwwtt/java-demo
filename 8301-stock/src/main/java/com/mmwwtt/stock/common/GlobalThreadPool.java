@@ -50,6 +50,7 @@ public class GlobalThreadPool {
                             WORK_QUEUE,
                             new ThreadPoolExecutor.AbortPolicy()
                     );
+                    ioThreadPool.allowCoreThreadTimeOut(true);
                 }
             }
         }

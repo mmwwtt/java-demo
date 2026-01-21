@@ -253,6 +253,7 @@ public class DownloadTest {
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);
+                    log.info(stock.getCode() + "   end");
                 }
             }, ioThreadPool);
             futures.add(future);

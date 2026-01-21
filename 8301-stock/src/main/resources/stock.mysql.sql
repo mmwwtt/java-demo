@@ -136,8 +136,12 @@ order by deal_date desc;
 
 # 设置最大连接数为500
 SET GLOBAL max_connections = 120;
-set global innodb_flush_log_at_trx_commit = 1;
+set global innodb_flush_log_at_trx_commit = 0;
 set global sync_binlog = 100000;
 SET GLOBAL innodb_buffer_pool_size = 8*1024*1024*1024;  -- 4 GB
 SET GLOBAL innodb_log_buffer_size = 128 * 1024 * 1024;   -- 16 MB
 SET GLOBAL thread_cache_size = 50;
+
+
+
+SHOW TABLE STATUS LIKE 'your_table'
