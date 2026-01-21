@@ -291,7 +291,7 @@ public class StockCalcServiceImpl implements StockCalcService {
 
     @Override
     public List<List<Stock>> getStockPart() {
-        return  Lists.partition(getAllStock(), 50);
+        return Lists.partition(getAllStock(), 50);
     }
 
     public List<StockDetail> genAllStockDetail(List<StockDetail> stockDetails) {
@@ -356,7 +356,7 @@ public class StockCalcServiceImpl implements StockCalcService {
         int tenCnt = 0;
 
         for (StockDetail stockDetail : allAfterList) {
-            if(Objects.isNull(stockDetail)) {
+            if (Objects.isNull(stockDetail)) {
                 continue;
             }
             if (Objects.nonNull(stockDetail.getNext1())) {
@@ -465,4 +465,34 @@ public class StockCalcServiceImpl implements StockCalcService {
         log.info("开始查询数据-结束");
         return codeToDetailMap;
     }
+
+
+    @Override
+    public List<StockDetail> calcByStrategy(StockStrategy strategy, LocalDateTime dataTime) throws ExecutionException, InterruptedException {
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<StockDetail> resList = new ArrayList<>();
+        List<List<Stock>> parts = getStockPart();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = getStockDetail(stock.getCode(), null);
+                    if (stockDetails.size() < 60) {
+                        return;
+                    }
+                    List<StockDetail> afterList = stockDetails.stream().limit(stockDetails.size() - 60)
+                            .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
+                            .filter(item -> Objects.nonNull(item.getNext1()))
+                            .filter(item -> strategy.getRunFunc().apply(item)).toList();
+                    resList.addAll(afterList);
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        saveCalcRes(resList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
+        return resList;
+    }
+
+
 }

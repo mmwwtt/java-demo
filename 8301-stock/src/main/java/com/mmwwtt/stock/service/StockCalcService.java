@@ -52,10 +52,18 @@ public interface StockCalcService {
      */
      void saveCalcRes(List<StockDetail> allAfterList, String strategyDesc, LocalDateTime dataTime, String type);
 
+    /**
+     * 根据单个策略计算
+     */
+     List<StockDetail> calcByStrategy(StockStrategy strategy, LocalDateTime dataTime) throws ExecutionException, InterruptedException;
 
     List<StockStrategy> STRATEGY_LIST = new ArrayList<>();
 
     static StockStrategy getStrategy(String name) {
         return STRATEGY_LIST.stream().filter(item -> Objects.equals(item.getStrategyName(), name)).findFirst().orElse(null);
+    }
+
+    static List<StockStrategy> getStrategyList(String name) {
+        return STRATEGY_LIST.stream().filter(item -> Objects.equals(item.getStrategyName(), name)).toList();
     }
 }

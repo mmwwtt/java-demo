@@ -25,11 +25,13 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -145,7 +147,7 @@ public class CalcTest {
 
 
     @Test
-    @DisplayName("根据策略计算胜率")
+    @DisplayName("根据所有策略计算胜率")
     public void startCalc2() throws ExecutionException, InterruptedException {
         Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
         LocalDateTime dataTime = LocalDateTime.now();
@@ -186,37 +188,17 @@ public class CalcTest {
     @Test
     @DisplayName("根据策略绘制蜡烛图")
     public void startCalc3() throws ExecutionException, InterruptedException {
-        LocalDateTime dataTime = LocalDateTime.now();
-        StockStrategy strategy = new StockStrategy("test_"+ new Date().getTime(), (StockDetail t0) -> {
+        StockStrategy strategy = new StockStrategy("test_", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return moreThan(t0.getLowShadowLen(), "0.08")&& t0.getIsRed();
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(t0.getAllLen(), "0.08")
+                    && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
         });
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<StockDetail> allAfterList = new ArrayList<>();
-        List<List<Stock>> parts = stockCalcService.getStockPart();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), null);
-                    if (stockDetails.size() < 60) {
-                        return;
-                    }
-                    List<StockDetail> afterList = stockDetails.stream().limit( stockDetails.size() - 60)
-                            .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
-                            .filter(item -> Objects.nonNull(item.getNext1()))
-                            .filter(item -> strategy.getRunFunc().apply(item)).toList();
-                    allAfterList.addAll(afterList);
-                }
-            },ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        stockCalcService.saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
-
-        allAfterList.stream().filter(item -> item.getNext1().getIsDown()).limit(1000).forEach(item -> {
+        List<StockDetail>  resList = stockCalcService.calcByStrategy(strategy, LocalDateTime.now());
+        resList.stream().filter(item -> item.getNext1().getIsDown()).limit(1000).forEach(item -> {
             try {
                 StockGuiUitls.genDetailImage(item, strategy.getStrategyName());
             } catch (IOException e) {
@@ -227,9 +209,8 @@ public class CalcTest {
 
 
     @Test
-    @DisplayName("测试策略")
+    @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
-        LocalDateTime dataTime = LocalDateTime.now();
         StockStrategy strategy = new StockStrategy("test_", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
@@ -239,28 +220,25 @@ public class CalcTest {
                     && moreThan(t0.getAllLen(), "0.08")
                     && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
         });
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<StockDetail> allAfterList = new ArrayList<>();
-        List<List<Stock>> parts = stockCalcService.getStockPart();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), null);
-                    if (stockDetails.size() < 60) {
-                        return;
-                    }
-                    List<StockDetail> afterList = stockDetails.stream().limit( stockDetails.size() - 60)
-                            .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
-                            .filter(item -> Objects.nonNull(item.getNext1()))
-                            .filter(item -> strategy.getRunFunc().apply(item)).toList();
-                    allAfterList.addAll(afterList);
-                }
-            },ioThreadPool);
-            futures.add(future);
+        stockCalcService.calcByStrategy(strategy, LocalDateTime.now());
+    }
+
+    @Test
+    @DisplayName("测试单个策略")
+    public void startCalc5() throws ExecutionException, InterruptedException {
+        StockStrategy strategy = StockCalcService.getStrategy("");
+        stockCalcService.calcByStrategy(strategy, LocalDateTime.now());
+    }
+
+
+    @Test
+    @DisplayName("测试单个策略-大类")
+    public void startCalc6() throws ExecutionException, InterruptedException {
+        LocalDateTime now = LocalDateTime.now();
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("");
+        for (StockStrategy strategy : strategyList) {
+            stockCalcService.calcByStrategy(strategy,now);
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        stockCalcService.saveCalcRes(allAfterList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
     }
 
 
