@@ -35,6 +35,35 @@ public class 上升缺口Strategy {
                     && moreThan(space, "0.0");
         }));
 
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量10%", (StockDetail t0) -> {
+            BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
+                    && isInRange(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "1"), multiply(t0.getT1().getDealQuantity(), "1.1"))
+                    && moreThan(space, "0.0");
+        }));
+
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量10%", (StockDetail t0) -> {
+            BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
+                    && isInRange(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.9"), multiply(t0.getT1().getDealQuantity(), "1"))
+                    && moreThan(space, "0.0");
+        }));
+
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量20%", (StockDetail t0) -> {
+            BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
+                    && isInRange(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"), multiply(t0.getT1().getDealQuantity(), "0.9"))
+                    && moreThan(space, "0.0");
+        }));
+
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 且缩量20%", (StockDetail t0) -> {
+            BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
+                    && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"))
+                    && moreThan(space, "0.0");
+        }));
+
+
         StockCalcService.STRATEGY_LIST.add(new StockStrategy("上升缺口 1%<缺口", (StockDetail t0) -> {
             BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
             return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())

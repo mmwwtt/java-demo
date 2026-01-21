@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -168,10 +169,10 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return moreThan(t0.getLowShadowPert(), "0.6")
-                    && t0.getIsRed()
-                    && moreThan(t0.getAllLen(), "0.08")
-                    && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
+            BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
+                    && lessThan(t0.getDealQuantity(), multiply( t0.getT1().getDealQuantity(), "1.1"))
+                    && moreThan(space, "0.0");
         });
         stockCalcService.calcByStrategy(List.of(strategy));
     }
@@ -189,7 +190,7 @@ public class CalcTest {
     @DisplayName("测试单个策略-大类")
     public void startCalc6() throws ExecutionException, InterruptedException {
         LocalDateTime now = LocalDateTime.now();
-        List<StockStrategy> strategyList = StockCalcService.getStrategyList("");
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("上升缺口");
         stockCalcService.calcByStrategy(strategyList);
     }
 
