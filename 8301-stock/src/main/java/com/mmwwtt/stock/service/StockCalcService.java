@@ -2,10 +2,13 @@ package com.mmwwtt.stock.service;
 
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StockStrategy;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public interface StockCalcService {
@@ -48,4 +51,11 @@ public interface StockCalcService {
      * 保存策略
      */
      void saveCalcRes(List<StockDetail> allAfterList, String strategyDesc, LocalDateTime dataTime, String type);
+
+
+    List<StockStrategy> STRATEGY_LIST = new ArrayList<>();
+
+    static StockStrategy getStrategy(String name) {
+        return STRATEGY_LIST.stream().filter(item -> Objects.equals(item.getStrategyName(), name)).findFirst().orElse(null);
+    }
 }

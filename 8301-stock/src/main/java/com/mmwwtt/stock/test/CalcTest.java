@@ -14,7 +14,6 @@ import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
 import com.mmwwtt.stock.service.StockCalcService;
 import com.mmwwtt.stock.service.StockGuiUitls;
-import com.mmwwtt.stock.service.StockStrategyUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 
@@ -80,7 +80,7 @@ public class CalcTest {
     @Test
     @DisplayName("根据策略预测")
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
-        boolean isOnTime = false;
+        boolean isOnTime = true;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, StockDetail> codeToDetailMap = stockCalcService.getCodeToTodayDetailMap();
@@ -95,19 +95,19 @@ public class CalcTest {
                 " and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')" +
                 " and win_rate > 0.6" +
                 " order by win_rate desc;");
-        List<String> strategyNameList = stockCalcResDao.selectList(detailWapper).stream().map(StockCalcRes::getStrategyDesc).toList();
-        for (String strategyName : strategyNameList) {
-            Function<StockDetail, Boolean> runFunc = StockStrategyUtils.getStrategy(strategyName).getRunFunc();
+        Map<String, String> strategyMap =
+                stockCalcResDao.selectList(detailWapper).stream()
+                        .collect(Collectors.toMap(StockCalcRes::getStrategyDesc, item -> item.getWinRate().toString(), (key1, key2) -> key2));
+        for (String strategyName : strategyMap.keySet()) {
+            Function<StockDetail, Boolean> runFunc = StockCalcService.getStrategy(strategyName).getRunFunc();
             for (List<Stock> part : parts) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (Stock stock : part) {
                         StockDetail stockDetail = codeToDetailMap.get(stock.getCode());
                         if (isOnTime) {
-                            stockDetail.setDealQuantity(divide(stockDetail.getDealQuantity(), "0.85"));
+                            stockDetail.setDealQuantity(divide(stockDetail.getDealQuantity(), "0.75"));
                         }
-                        if (Objects.isNull(stockDetail)
-                                || moreThan(stockDetail.getPricePert(), "0.097")
-                                || !Objects.equals(stockDetail.getDealDate(), NOW_DATA1)) {
+                        if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), NOW_DATA1)) {
                             continue;
                         }
                         if (runFunc.apply(stockDetail)) {
@@ -133,7 +133,7 @@ public class CalcTest {
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(String.format("\n\n%s\n", NOW_DATA).getBytes());
             for (Map.Entry<String, List<String>> entry : strategyToStockMap.entrySet()) {
-                fos.write(("\n\n" + entry.getKey() + "\n").getBytes());
+                fos.write(("\n\n" + entry.getKey() +"   " + strategyMap.get(entry.getKey()) +"\n").getBytes());
                 for (String s : entry.getValue()) {
                     fos.write((s + "\n").getBytes());
                 }
@@ -159,7 +159,7 @@ public class CalcTest {
                     if (stockDetails.size() < 60) {
                         return;
                     }
-                    for (StockStrategy strategy : StockStrategyUtils.STRATEGY_LIST) {
+                    for (StockStrategy strategy : StockCalcService.STRATEGY_LIST) {
                         for (int i = 0; i < stockDetails.size() - 60; i++) {
                             StockDetail stockDetail = stockDetails.get(i);
                             if (moreThan(stockDetail.getPricePert(), "0.097")
@@ -191,8 +191,7 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return moreThan(t0.getFiveDayLine(), t0.getTwentyDayLine())
-                    && lessThan(t0.getT1().getFiveDayLine(), t0.getT1().getTwentyDayLine());
+            return moreThan(t0.getLowShadowLen(), "0.08")&& t0.getIsRed();
         });
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StockDetail> allAfterList = new ArrayList<>();
