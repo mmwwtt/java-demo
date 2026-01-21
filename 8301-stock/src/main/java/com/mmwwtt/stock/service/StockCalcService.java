@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public interface StockCalcService {
@@ -50,20 +49,20 @@ public interface StockCalcService {
     /**
      * 保存策略
      */
-     void saveCalcRes(List<StockDetail> allAfterList, String strategyDesc, LocalDateTime dataTime, String type);
+    void saveCalcRes(List<StockDetail> allAfterList, String strategyDesc, LocalDateTime dataTime, String type);
 
     /**
-     * 根据单个策略计算
+     * 根据策略计算
      */
-     List<StockDetail> calcByStrategy(StockStrategy strategy, LocalDateTime dataTime) throws ExecutionException, InterruptedException;
+    Map<String, List<StockDetail>>  calcByStrategy(List<StockStrategy> strategyList) throws ExecutionException, InterruptedException;
 
     List<StockStrategy> STRATEGY_LIST = new ArrayList<>();
 
     static StockStrategy getStrategy(String name) {
-        return STRATEGY_LIST.stream().filter(item -> Objects.equals(item.getStrategyName(), name)).findFirst().orElse(null);
+        return STRATEGY_LIST.stream().filter(item -> item.getStrategyName().startsWith(name)).findFirst().orElse(null);
     }
 
     static List<StockStrategy> getStrategyList(String name) {
-        return STRATEGY_LIST.stream().filter(item -> Objects.equals(item.getStrategyName(), name)).toList();
+        return STRATEGY_LIST.stream().filter(item -> item.getStrategyName().startsWith(name)).toList();
     }
 }

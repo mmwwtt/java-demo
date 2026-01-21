@@ -82,7 +82,7 @@ public class CalcTest {
     @Test
     @DisplayName("根据策略预测")
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
-        boolean isOnTime = true;
+        boolean isOnTime = false;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, StockDetail> codeToDetailMap = stockCalcService.getCodeToTodayDetailMap();
@@ -114,7 +114,7 @@ public class CalcTest {
                         }
                         if (runFunc.apply(stockDetail)) {
                             strategyToStockMap.computeIfAbsent(strategyName, k -> new ArrayList<>())
-                                    .add(stock.getCode() + "_" + stock.getName() + "_" +stockDetail.getPricePert().doubleValue());
+                                    .add(stock.getCode() + "_" + stock.getName() + "_" + stockDetail.getPricePert().doubleValue());
                         }
                     }
                 }, cpuThreadPool);
@@ -135,7 +135,7 @@ public class CalcTest {
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(String.format("\n\n%s\n", NOW_DATA).getBytes());
             for (Map.Entry<String, List<String>> entry : strategyToStockMap.entrySet()) {
-                fos.write(("\n\n" + entry.getKey() +"   " + strategyMap.get(entry.getKey()) +"\n").getBytes());
+                fos.write(("\n\n" + entry.getKey() + "   " + strategyMap.get(entry.getKey()) + "\n").getBytes());
                 for (String s : entry.getValue()) {
                     fos.write((s + "\n").getBytes());
                 }
@@ -149,46 +149,13 @@ public class CalcTest {
     @Test
     @DisplayName("根据所有策略计算胜率")
     public void startCalc2() throws ExecutionException, InterruptedException {
-        Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
-        LocalDateTime dataTime = LocalDateTime.now();
-        List<List<Stock>> parts = stockCalcService.getStockPart();
-        log.info("开始计算");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), null);
-                    if (stockDetails.size() < 60) {
-                        return;
-                    }
-                    for (StockStrategy strategy : StockCalcService.STRATEGY_LIST) {
-                        for (int i = 0; i < stockDetails.size() - 60; i++) {
-                            StockDetail stockDetail = stockDetails.get(i);
-                            if (moreThan(stockDetail.getPricePert(), "0.097")
-                                    || Objects.isNull(stockDetail.getNext1())
-                                    || !strategy.getRunFunc().apply(stockDetail)) {
-                                continue;
-                            }
-                            strategyToCalcMap.computeIfAbsent(strategy.getStrategyName(), v -> new ArrayList<>()).add(stockDetail);
-                        }
-                    }
-                }
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-
-        strategyToCalcMap.forEach((strategyName, list) -> {
-            stockCalcService.saveCalcRes(list, strategyName, dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
-        });
-        log.info("结束计算");
+        stockCalcService.calcByStrategy(StockCalcService.STRATEGY_LIST);
     }
 
     @Test
     @DisplayName("根据策略绘制蜡烛图")
     public void startCalc3() throws ExecutionException, InterruptedException {
-        StockStrategy strategy = new StockStrategy("test_", (StockDetail t0) -> {
+        StockStrategy strategy = new StockStrategy("test_"+getTimeStr(), (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
@@ -197,13 +164,15 @@ public class CalcTest {
                     && moreThan(t0.getAllLen(), "0.08")
                     && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
         });
-        List<StockDetail>  resList = stockCalcService.calcByStrategy(strategy, LocalDateTime.now());
-        resList.stream().filter(item -> item.getNext1().getIsDown()).limit(1000).forEach(item -> {
-            try {
-                StockGuiUitls.genDetailImage(item, strategy.getStrategyName());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        Map<String, List<StockDetail>> resMap = stockCalcService.calcByStrategy(List.of(strategy));
+        resMap.forEach((strategyName, resList) -> {
+            resList.stream().filter(item -> item.getNext1().getIsDown()).limit(1000).forEach(item -> {
+                try {
+                    StockGuiUitls.genDetailImage(item, strategyName);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         });
     }
 
@@ -220,14 +189,15 @@ public class CalcTest {
                     && moreThan(t0.getAllLen(), "0.08")
                     && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
         });
-        stockCalcService.calcByStrategy(strategy, LocalDateTime.now());
+        stockCalcService.calcByStrategy(List.of(strategy));
     }
+
 
     @Test
     @DisplayName("测试单个策略")
     public void startCalc5() throws ExecutionException, InterruptedException {
         StockStrategy strategy = StockCalcService.getStrategy("");
-        stockCalcService.calcByStrategy(strategy, LocalDateTime.now());
+        stockCalcService.calcByStrategy(List.of(strategy));
     }
 
 
@@ -236,9 +206,7 @@ public class CalcTest {
     public void startCalc6() throws ExecutionException, InterruptedException {
         LocalDateTime now = LocalDateTime.now();
         List<StockStrategy> strategyList = StockCalcService.getStrategyList("");
-        for (StockStrategy strategy : strategyList) {
-            stockCalcService.calcByStrategy(strategy,now);
-        }
+        stockCalcService.calcByStrategy(strategyList);
     }
 
 

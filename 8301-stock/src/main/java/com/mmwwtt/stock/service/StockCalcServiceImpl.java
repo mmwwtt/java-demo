@@ -31,8 +31,7 @@ import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
-import static com.mmwwtt.stock.common.CommonUtils.add;
-import static com.mmwwtt.stock.common.CommonUtils.divide;
+import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @Service
 @Slf4j
@@ -468,10 +467,12 @@ public class StockCalcServiceImpl implements StockCalcService {
 
 
     @Override
-    public List<StockDetail> calcByStrategy(StockStrategy strategy, LocalDateTime dataTime) throws ExecutionException, InterruptedException {
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<StockDetail> resList = new ArrayList<>();
+    public Map<String, List<StockDetail>> calcByStrategy(List<StockStrategy> strategyList) throws ExecutionException, InterruptedException {
+        Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
+        LocalDateTime dataTime = LocalDateTime.now();
         List<List<Stock>> parts = getStockPart();
+        log.info("开始计算");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
@@ -479,19 +480,29 @@ public class StockCalcServiceImpl implements StockCalcService {
                     if (stockDetails.size() < 60) {
                         return;
                     }
-                    List<StockDetail> afterList = stockDetails.stream().limit(stockDetails.size() - 60)
-                            .filter(item -> item.getPricePert().compareTo(new BigDecimal("0.097")) < 0)
-                            .filter(item -> Objects.nonNull(item.getNext1()))
-                            .filter(item -> strategy.getRunFunc().apply(item)).toList();
-                    resList.addAll(afterList);
+                    for (StockStrategy strategy : strategyList) {
+                        for (int i = 0; i < stockDetails.size() - 60; i++) {
+                            StockDetail stockDetail = stockDetails.get(i);
+                            if (moreThan(stockDetail.getPricePert(), "0.097")
+                                    || Objects.isNull(stockDetail.getNext1())
+                                    || !strategy.getRunFunc().apply(stockDetail)) {
+                                continue;
+                            }
+                            strategyToCalcMap.computeIfAbsent(strategy.getStrategyName(), v -> new ArrayList<>()).add(stockDetail);
+                        }
+                    }
                 }
             }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        saveCalcRes(resList, strategy.getStrategyName(), dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
-        return resList;
+
+        strategyToCalcMap.forEach((strategyName, list) -> {
+            saveCalcRes(list, strategyName, dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
+        });
+        log.info("结束计算");
+        return strategyToCalcMap;
     }
 
 

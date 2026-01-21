@@ -152,4 +152,9 @@ public class CommonUtils {
         }
         return null;
     }
+
+    public static String getTimeStr() {
+        return  java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+    };
 }
