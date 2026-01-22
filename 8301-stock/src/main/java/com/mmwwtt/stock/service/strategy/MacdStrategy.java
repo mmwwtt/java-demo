@@ -85,7 +85,15 @@ public class MacdStrategy {
                             StockDetail t2 = t0.getT2();
                             StockDetail t3 = t0.getT3();
                             return isInRange(t0.getMacd(), "2", "3")
-                                    && lessThan(t0.getDealQuantity(),multiply( t1.getDealQuantity(), "0.8"));
+                                    && lessThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "0.8"));
+                        }),
+
+                        new StockStrategy("macd 2-3  比前一天macd大", (StockDetail t0) -> {
+                            StockDetail t1 = t0.getT1();
+                            StockDetail t2 = t0.getT2();
+                            StockDetail t3 = t0.getT3();
+                            return isInRange(t0.getMacd(), "2", "3")
+                                    && moreThan(t0.getMacd(), t1.getMacd());
                         })
 
                 )

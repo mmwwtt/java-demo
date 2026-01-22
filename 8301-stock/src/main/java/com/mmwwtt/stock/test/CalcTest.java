@@ -74,11 +74,12 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return isInRange(t0.getMacd(), "2", "3");
+            return isInRange(t0.getMacd(), "2", "3")
+                    && lessThan(t0.getDealQuantity(),multiply( t1.getDealQuantity(), "0.8"));
         });
         Map<String, List<StockDetail>> resMap = stockCalcService.calcByStrategy(List.of(strategy));
         resMap.forEach((strategyName, resList) -> {
-            resList.stream().filter(item -> item.getNext1().getIsDown()).limit(1000).forEach(item -> {
+            resList.stream().filter(item -> item.getNext1().getIsDown()).limit(200).forEach(item -> {
                 try {
                     StockGuiUitls.genDetailImage(item, strategyName);
                 } catch (IOException e) {
@@ -86,6 +87,7 @@ public class CalcTest {
                 }
             });
         });
+        log.info("绘制完成");
     }
 
 

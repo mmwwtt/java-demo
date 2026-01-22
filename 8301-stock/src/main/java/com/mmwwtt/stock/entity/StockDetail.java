@@ -430,6 +430,11 @@ public class StockDetail {
      */
     private BigDecimal macd;
 
+    /**
+     * 在20日中的位置  (收盘价- 20日最低) / (20日最高- 20日最低)   大于80%是高位   小于20%是低位
+     */
+    private BigDecimal position;
+
     //违五日线   前四天的综合/五
 
     public void calc() {
@@ -453,6 +458,8 @@ public class StockDetail {
     public static void calc(List<StockDetail> list) {
         for (int i = list.size() - 1; i >= 0; i--) {
             StockDetail cur = list.get(i);
+
+            //macd相关
             BigDecimal ema12 = i == list.size() - 1
                     ? multiply(cur.endPrice, 2.0 / (12 + 1))
                     : sum(multiply(cur.endPrice, 2.0 / (12 + 1)), multiply(list.get(i + 1).getEma12(), 11.0 / (12 + 1)));
@@ -471,6 +478,7 @@ public class StockDetail {
             cur.setDea(dea);
 
             cur.setMacd(multiply(subtract(cur.getDif(), cur.getDea()), 2));
+
         }
 
         for (int i = 0; i < list.size(); i++) {
@@ -534,7 +542,10 @@ public class StockDetail {
                 }
                 cur.setWr(multiply(divide(subtract(dayHigh, cur.endPrice), subtract(dayHigh, dayLow)), "-100"));
             }
+
+            cur.position = divide(subtract(cur.twentyDayHigh, cur.twentyDayLine), subtract(cur.endPrice, cur.twentyDayLow));
         }
+
     }
 
     @Override

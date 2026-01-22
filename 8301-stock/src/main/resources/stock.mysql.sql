@@ -69,7 +69,8 @@ CREATE TABLE stock_detail_t
     ema26                    decimal(10, 4) COMMENT 'MACD相关指标',
     dif                      decimal(10, 4) COMMENT 'MACD相关指标',
     dea                      decimal(10, 4) COMMENT 'MACD相关指标',
-    macd                     decimal(10, 4) COMMENT 'MACD相关指标'
+    macd                     decimal(10, 4) COMMENT 'MACD相关指标',
+    position                 decimal(10, 4) COMMENT '在20日中的位置  (收盘价- 20日最低) / (20日最高- 20日最低)   大于80%是高位   小于20%是低位'
 ) COMMENT '股票详情表';
 create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc);
 
