@@ -543,7 +543,7 @@ public class StockDetail {
                 cur.setWr(multiply(divide(subtract(dayHigh, cur.endPrice), subtract(dayHigh, dayLow)), "-100"));
             }
 
-            cur.position = divide(subtract(cur.twentyDayHigh, cur.twentyDayLine), subtract(cur.endPrice, cur.twentyDayLow));
+            cur.position = divide(subtract(cur.twentyDayHigh, cur.twentyDayLow), subtract(cur.endPrice, cur.twentyDayLow));
         }
 
     }
