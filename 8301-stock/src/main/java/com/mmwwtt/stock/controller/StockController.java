@@ -6,14 +6,11 @@ import com.mmwwtt.stock.service.StockCalcService;
 import com.mmwwtt.stock.service.StockGuiUitls;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -22,7 +19,6 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @RestController
 @RequestMapping("/stock")
-@SpringBootTest
 public class StockController {
 
     @Resource
@@ -34,14 +30,13 @@ public class StockController {
         return true;
     }
 
-    @Test
+
     @DisplayName("根据所有策略计算胜率")
     @GetMapping("/calc2")
     public void startCalc2() throws ExecutionException, InterruptedException {
         stockCalcService.calcByStrategy(StockCalcService.STRATEGY_LIST);
     }
 
-    @Test
     @DisplayName("根据策略绘制蜡烛图")
     @GetMapping("/calc3")
     public void startCalc3() throws ExecutionException, InterruptedException {
@@ -67,7 +62,6 @@ public class StockController {
     }
 
 
-    @Test
     @DisplayName("测试单个策略-自定义")
     @GetMapping("/calc4")
     public void startCalc4() throws ExecutionException, InterruptedException {
@@ -75,26 +69,27 @@ public class StockController {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
-            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
-                    && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"))
-                    && moreThan(space, "0.01");
+            int cnt = 0;
+            if(t0.getIsRed()) cnt++;
+            if(t1.getIsRed()) cnt++;
+            if(t2.getIsRed()) cnt++;
+            if(t3.getIsRed()) cnt++;
+            return moreThan(sumAbs(t0.getPricePert(), t1.getPricePert(), t2.getPricePert(), t3.getPricePert()), "0.12")
+                    && cnt >=3;
         });
         stockCalcService.calcByStrategy(List.of(strategy));
     }
 
 
-    @Test
     @DisplayName("测试单个策略")
     @GetMapping("/calc5")
     public void startCalc5() throws ExecutionException, InterruptedException {
-        StockStrategy strategy = StockCalcService.getStrategy("");
+        StockStrategy strategy = StockCalcService.getStrategy("阴线，但最低价 比前一天开盘价高");
         stockCalcService.calcByStrategy(List.of(strategy));
     }
 
 
-    @Test
-    @DisplayName("测试单个策略-大类")
+    @DisplayName("测试策略-大类")
     @GetMapping("/calc6")
     public void startCalc6() throws ExecutionException, InterruptedException {
         List<StockStrategy> strategyList = StockCalcService.getStrategyList("日内V反");

@@ -14,22 +14,41 @@ public class 日内V反Strategy {
         //振幅>4%
         //放量
         //下影线 占6成
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅6", (StockDetail t0) -> {
+
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅5-6", (StockDetail t0) -> {
             return moreThan(t0.getLowShadowPert(), "0.6")
                     && t0.getIsRed()
-                    && moreThan(t0.getAllLen(), "0.06");
+                    && isInRange(t0.getAllLen(), "0.05","0.06");
+        }));
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅6-7", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && isInRange(t0.getAllLen(), "0.06", "0.07");
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅7", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅7-8", (StockDetail t0) -> {
             return moreThan(t0.getLowShadowPert(), "0.6")
                     && t0.getIsRed()
-                    && moreThan(t0.getAllLen(), "0.07");
+                    && isInRange(t0.getAllLen(), "0.07", "0.08");
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅8", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅8-9", (StockDetail t0) -> {
             return moreThan(t0.getLowShadowPert(), "0.6")
                     && t0.getIsRed()
-                    && moreThan(t0.getAllLen(), "0.08");
+                    && isInRange(t0.getAllLen(), "0.08", "0.09");
+        }));
+
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅9以上", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(t0.getAllLen(), "0.09");
+        }));
+
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅5-6 收盘价低于10日线", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && isInRange(t0.getAllLen(), "0.05","0.06")
+                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
         }));
 
         StockCalcService.STRATEGY_LIST.add(new StockStrategy("日内V反 振幅8 收盘价低于10日线", (StockDetail t0) -> {

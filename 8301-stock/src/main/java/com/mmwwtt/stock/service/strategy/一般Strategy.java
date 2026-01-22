@@ -312,6 +312,15 @@ public class 一般Strategy {
                     && lessThan(t1.getWr(), t2.getWr())
                     && lessThan(t0.getWr(), "-80");
         }));
+
+
+        StockStrategy strategy = new StockStrategy("阴线，但最低价 比前一天开盘价高", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            StockDetail t2 = t0.getT2();
+            StockDetail t3 = t0.getT3();
+            return t0.getIsGreen()
+                    && moreThan(t0.getLowPrice(), t1.getStartPrice());
+        });
     }
 
 

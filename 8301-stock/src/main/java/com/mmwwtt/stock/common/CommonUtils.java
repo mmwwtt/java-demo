@@ -128,6 +128,11 @@ public class CommonUtils {
         return sum(list);
     }
 
+    public static BigDecimal sumAbs(Object... nums) {
+        List<BigDecimal> list = Arrays.stream(nums).map(item -> toBigDecimal(item).abs()).toList();
+        return sum(list);
+    }
+
     public static BigDecimal sum(List<BigDecimal> list) {
         BigDecimal res = new BigDecimal("0");
         for (BigDecimal bigDecimal : list) {

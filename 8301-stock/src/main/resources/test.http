@@ -1,0 +1,21 @@
+# 测试策略-大类##
+GET http://localhost:8301/stock/calc6
+
+<> 2026-01-22T091502.404.json
+###
+
+# 测试单个策略 ##
+GET http://localhost:8301/stock/calc5
+###
+
+# 测试单个策略-自定义 ##
+GET http://localhost:8301/stock/calc4
+###
+
+# 根据策略绘制蜡烛图 ##
+GET http://localhost:8301/stock/calc3
+###
+
+# 根据所有策略计算胜率 ##
+GET http://localhost:8301/stock/calc2
+###

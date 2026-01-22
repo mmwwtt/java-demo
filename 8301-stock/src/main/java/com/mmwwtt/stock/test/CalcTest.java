@@ -13,6 +13,7 @@ import com.mmwwtt.stock.entity.StockCalcRes;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
 import com.mmwwtt.stock.service.StockCalcService;
+import com.mmwwtt.stock.service.StockGuiUitls;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,10 +62,73 @@ public class CalcTest {
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
 
+    @Test
+    @DisplayName("根据所有策略计算胜率")
+    public void startCalc2() throws ExecutionException, InterruptedException {
+        stockCalcService.calcByStrategy(StockCalcService.STRATEGY_LIST);
+    }
+
+    @Test
+    @DisplayName("根据策略绘制蜡烛图")
+    public void startCalc3() throws ExecutionException, InterruptedException {
+        StockStrategy strategy = new StockStrategy("test_"+getTimeStr(), (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            StockDetail t2 = t0.getT2();
+            StockDetail t3 = t0.getT3();
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(t0.getAllLen(), "0.08")
+                    && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
+        });
+        Map<String, List<StockDetail>> resMap = stockCalcService.calcByStrategy(List.of(strategy));
+        resMap.forEach((strategyName, resList) -> {
+            resList.stream().filter(item -> item.getNext1().getIsDown()).limit(1000).forEach(item -> {
+                try {
+                    StockGuiUitls.genDetailImage(item, strategyName);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        });
+    }
+
+
+    @Test
+    @DisplayName("测试单个策略-自定义")
+    public void startCalc4() throws ExecutionException, InterruptedException {
+        StockStrategy strategy = new StockStrategy("test_", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            StockDetail t2 = t0.getT2();
+            StockDetail t3 = t0.getT3();
+            BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
+                    && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"))
+                    && moreThan(space, "0.01");
+        });
+        stockCalcService.calcByStrategy(List.of(strategy));
+    }
+
+
+    @Test
+    @DisplayName("测试单个策略")
+    public void startCalc5() throws ExecutionException, InterruptedException {
+        StockStrategy strategy = StockCalcService.getStrategy("");
+        stockCalcService.calcByStrategy(List.of(strategy));
+    }
+
+
+    @Test
+    @DisplayName("测试策略-大类")
+    public void startCalc6() throws ExecutionException, InterruptedException {
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("日内V反");
+        stockCalcService.calcByStrategy(strategyList);
+    }
+
 
     @Test
     @DisplayName("根据策略预测")
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
+        String curDate = "20260122";
         boolean isOnTime = false;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
@@ -91,7 +156,7 @@ public class CalcTest {
                         if (isOnTime) {
                             stockDetail.setDealQuantity(divide(stockDetail.getDealQuantity(), "0.5"));
                         }
-                        if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), "20260121")) {
+                        if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), curDate)) {
                             continue;
                         }
                         if (runFunc.apply(stockDetail)) {

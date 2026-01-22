@@ -79,18 +79,11 @@ public class DownloadTest {
     }
 
 
-
     @Test
     @DisplayName("从0开始构建数据")
     public void start() throws ExecutionException, InterruptedException {
         dataDownLoad();
         dataDetailDownLoad();
-    }
-
-    @Test
-    @DisplayName("3点前的增量数据")
-    public void dounLoadAdd() throws ExecutionException, InterruptedException {
-        dataDetailDownLoadAdd();
     }
 
     @Test
@@ -199,39 +192,33 @@ public class DownloadTest {
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    Map<String, String> map1 = new HashMap<>();
-                    map1.put(LICENCE, BI_YING_LICENCE);
-                    map1.put(STOCK_CODE, stock.getCode());
-                    map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
-                    map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
-                    map1.put(START_DATA, "20260101");
-                    map1.put(END_DATA, NOW_DATA);
-                    map1.put(MAX_SIZE, "30");
                     log.info("获取详情数据-{}", stock.getCode());
-                    List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
+                    Map<String, String> map2 = new HashMap<>();
+                    map2.put(LICENCE, BI_YING_LICENCE);
+                    map2.put(STOCK_CODE, stock.getCode().split("\\.")[0]);
+                    StockDetailOnTimeVO stockDetailOnTimeVO = getResponse(ON_TIME_DATA_URL, map2, new ParameterizedTypeReference<StockDetailOnTimeVO>() {
                     });
-                    if (Objects.isNull(stockDetailVOs)) {
+                    if (Objects.isNull(stockDetailOnTimeVO)) {
                         continue;
                     }
-                    stockDetailVOs = stockDetailVOs.stream()
-                            .filter(item -> item.getSf() == 0)
-                            .peek(item -> item.setStockCode(stock.getCode()))
-                            .collect(Collectors.toList());
-                    List<StockDetail> stockDetails = voConvert.convertToStockDetail(stockDetailVOs);
+                    stockDetailOnTimeVO.setStockCode(stock.getCode());
+                    StockDetail stockDetail = voConvert.convertToStockDetail(stockDetailOnTimeVO);
 
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
-                    Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
-                            .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
-                    for (StockDetail stockDetail : stockDetails) {
-                        if (dateToMap.containsKey(stockDetail.getDealDate())) {
-                            stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
-                        }
-                    }
-                    stockDetails.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
-                    stockDetails.forEach(item -> item.calc());
-                    StockDetail.calc(stockDetails);
-                    stockDetailDao.insertOrUpdate(stockDetails);
+                    List<StockDetail> stockDetailList = stockCalcService.getStockDetail(stock.getCode(), null);
+                    Long id = stockDetailList.stream()
+                            .filter(item -> Objects.equals(item.getDealDate(), stockDetail.getDealDate()))
+                            .map(StockDetail::getStockDetailId).findFirst().orElse(null);
+                    stockDetail.setStockDetailId(id);
+
+                    stockDetailDao.insertOrUpdate(stockDetail);
+
+                    stockDetailList = stockCalcService.getStockDetail(stock.getCode(), null);
+                    stockDetailList.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
+                    stockDetailList.forEach(item -> item.calc());
+                    StockDetail.calc(stockDetailList);
+                    stockDetailDao.insertOrUpdate(stockDetailList);
                 }
             }, ioThreadPool);
             futures.add(future);

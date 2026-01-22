@@ -406,7 +406,6 @@ public class StockDetail {
     private BigDecimal wr;
 
 
-
     /**
      * MACD相关指标
      * EMA = 今日收盘价 × 2/(N+1) + 昨日EMA × (N-1)/(N+1)
@@ -426,6 +425,8 @@ public class StockDetail {
 
     /**
      * MACD柱 = (DIF - DEA) × 2
+     * 大于0表示  EMA26 在  EMA12 之上  做多胜率更高(趋势在上涨)
+     * 小于0表示  EMA26 在  EMA12 之下  接飞刀概率大(趋势在下跌)
      */
     private BigDecimal macd;
 
@@ -453,20 +454,20 @@ public class StockDetail {
         for (int i = list.size() - 1; i >= 0; i--) {
             StockDetail cur = list.get(i);
             BigDecimal ema12 = i == list.size() - 1
-                    ? divide(multiply(cur.endPrice, "2"), 13)
-                    : sum(divide(multiply(cur.endPrice, "2"), 13), multiply(list.get(i + 1).getEma12(), "0.84615"));
+                    ? multiply(cur.endPrice, 2.0 / (12 + 1))
+                    : sum(multiply(cur.endPrice, 2.0 / (12 + 1)), multiply(list.get(i + 1).getEma12(), 11.0 / (12 + 1)));
             cur.setEma12(ema12);
 
             BigDecimal ema26 = i == list.size() - 1
-                    ? divide(multiply(cur.endPrice, "2"), 27)
-                    : sum(divide(multiply(cur.endPrice, "2"), 27), multiply(list.get(i + 1).getEma26(), "0.9259"));
+                    ? multiply(cur.endPrice, 2.0 / (26 + 1))
+                    : sum(multiply(cur.endPrice, 2.0 / (26 + 1)), multiply(list.get(i + 1).getEma26(), 25.0 / (26 + 1)));
             cur.setEma26(ema26);
 
             cur.setDif(subtract(ema12, ema26));
 
             BigDecimal dea = i == list.size() - 1
-                    ? multiply(cur.getDif(), 0.2)
-                    : sum(multiply(cur.getDif(), 0.2), multiply(list.get(i + 1).getDea(), "0.8"));
+                    ? multiply(cur.getDif(), 2 / (9 + 1))
+                    : sum(multiply(cur.getDif(), 2 / (9 + 1)), multiply(list.get(i + 1).getDea(), (8 / (9 + 1))));
             cur.setDea(dea);
 
             cur.setMacd(multiply(subtract(cur.getDif(), cur.getDea()), 2));
@@ -512,7 +513,7 @@ public class StockDetail {
                 BigDecimal sumDealQuantity = BigDecimal.ZERO;
                 BigDecimal dayHigh = list.get(i).getHighPrice();
                 BigDecimal dayLow = list.get(i).getLowPrice();
-                for (int j = i ; j < i + dayNum; j++) {
+                for (int j = i; j < i + dayNum; j++) {
                     sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
                     sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
                     dayHigh = max(dayHigh, list.get(j).getHighPrice());
