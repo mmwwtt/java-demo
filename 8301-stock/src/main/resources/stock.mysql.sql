@@ -46,6 +46,10 @@ CREATE TABLE stock_detail_t
     twenty_day_high          decimal(10, 4) COMMENT '20日最高',
     twenty_day_low           decimal(10, 4) COMMENT '20日最低',
     twenty_day_deal_quantity decimal(20, 4) COMMENT '20日均量',
+    forty_day_line          decimal(10, 4) COMMENT '20日线',
+    forty_day_high          decimal(10, 4) COMMENT '20日最高',
+    forty_day_low           decimal(10, 4) COMMENT '20日最低',
+    forty_day_deal_quantity decimal(20, 4) COMMENT '20日均量',
     sixty_day_line           decimal(10, 4) COMMENT '60日线',
     sixty_day_high           decimal(10, 4) COMMENT '60日最高',
     sixty_day_low            decimal(10, 4) COMMENT '60日最低',
@@ -70,7 +74,10 @@ CREATE TABLE stock_detail_t
     dif                      decimal(10, 4) COMMENT 'MACD相关指标',
     dea                      decimal(10, 4) COMMENT 'MACD相关指标',
     macd                     decimal(10, 4) COMMENT 'MACD相关指标',
-    position                 decimal(10, 4) COMMENT '在20日中的位置  (收盘价- 20日最低) / (20日最高- 20日最低)   大于80%是高位   小于20%是低位'
+    position20               decimal(10, 4) COMMENT '在20日中的位置  (收盘价- 20日最低) / (20日最高- 20日最低)   大于80%是高位   小于20%是低位',
+    position40               decimal(10, 4) comment '40天内位置',
+    position60               decimal(10, 4) comment '60天内位置'
+
 ) COMMENT '股票详情表';
 create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc);
 

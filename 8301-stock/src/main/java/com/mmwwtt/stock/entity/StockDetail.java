@@ -183,6 +183,26 @@ public class StockDetail {
     private BigDecimal twentyDayDealQuantity;
 
     /**
+     * 40日线
+     */
+    private BigDecimal fortyDayLine;
+
+    /**
+     * 40日最高
+     */
+    private BigDecimal fortyDayHigh;
+
+    /**
+     * 40日最低
+     */
+    private BigDecimal fortyDayLow;
+
+    /**
+     * 40日均量
+     */
+    private BigDecimal fortyDayDealQuantity;
+
+    /**
      * 60日线
      */
     private BigDecimal sixtyDayLine;
@@ -433,7 +453,17 @@ public class StockDetail {
     /**
      * 在20日中的位置  (收盘价- 20日最低) / (20日最高- 20日最低)   大于80%是高位   小于20%是低位
      */
-    private BigDecimal position;
+    private BigDecimal position20;
+
+    /**
+     * 40日中的位置
+     */
+    private BigDecimal position40;
+
+    /**
+     * 60日中的位置
+     */
+    private BigDecimal position60;
 
     //违五日线   前四天的综合/五
 
@@ -452,7 +482,7 @@ public class StockDetail {
         isBalance = bigDecimalEquals(endPrice, startPrice);
         pertDivisionQuantity = bigDecimalEquals(dealQuantity, "0") ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 15, RoundingMode.UP);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
-        isTenStar = moreThan(allLen, "0") && lessThan(entityPert, "0.1");
+        isTenStar = moreThan(allLen, "0") && lessThan(entityPert, "0.05");
     }
 
     public static void calc(List<StockDetail> list) {
@@ -510,6 +540,7 @@ public class StockDetail {
             dayLinePairs.add(Pair.of(5, Arrays.asList(cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveDayHigh, cur::setFiveDayLow)));
             dayLinePairs.add(Pair.of(10, Arrays.asList(cur::setTenDayLine, cur::setTenDayDealQuantity, cur::setTenDayHigh, cur::setTenDayLow)));
             dayLinePairs.add(Pair.of(20, Arrays.asList(cur::setTwentyDayLine, cur::setTwentyDayDealQuantity, cur::setTwentyDayHigh, cur::setTwentyDayLow)));
+            dayLinePairs.add(Pair.of(40, Arrays.asList(cur::setFortyDayLine, cur::setFortyDayDealQuantity, cur::setFortyDayHigh, cur::setFortyDayLow)));
             dayLinePairs.add(Pair.of(60, Arrays.asList(cur::setSixtyDayLine, cur::setSixtyDayDealQuantity, cur::setSixtyDayHigh, cur::setSixtyDayLow)));
             for (Pair<Integer, List<Consumer<BigDecimal>>> pair : dayLinePairs) {
                 Integer dayNum = pair.getLeft();
@@ -543,7 +574,9 @@ public class StockDetail {
                 cur.setWr(multiply(divide(subtract(dayHigh, cur.endPrice), subtract(dayHigh, dayLow)), "-100"));
             }
 
-            cur.position = divide(subtract(cur.twentyDayHigh, cur.twentyDayLow), subtract(cur.endPrice, cur.twentyDayLow));
+            cur.position20 = divide(subtract(cur.endPrice, cur.twentyDayLow),subtract(cur.twentyDayHigh, cur.twentyDayLow));
+            cur.position40 = divide(subtract(cur.endPrice, cur.fortyDayLow),subtract(cur.fortyDayHigh, cur.fortyDayLow));
+            cur.position60 = divide(subtract(cur.endPrice, cur.sixtyDayLow),subtract(cur.sixtyDayHigh, cur.sixtyDayLow));
         }
 
     }

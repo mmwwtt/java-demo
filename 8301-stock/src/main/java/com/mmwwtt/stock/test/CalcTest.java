@@ -74,8 +74,7 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return isInRange(t0.getMacd(), "2", "3")
-                    && lessThan(t0.getDealQuantity(),multiply( t1.getDealQuantity(), "0.8"));
+            return t0.getIsTenStar() &&  lessThan(t0.getPosition20(), "0.1");
         });
         Map<String, List<StockDetail>> resMap = stockCalcService.calcByStrategy(List.of(strategy));
         resMap.forEach((strategyName, resList) -> {
@@ -99,7 +98,7 @@ public class CalcTest {
                     StockDetail t1 = t0.getT1();
                     StockDetail t2 = t0.getT2();
                     StockDetail t3 = t0.getT3();
-                    return moreThan(t0.getMacd(), "2");
+                    return  lessThan(t0.getPosition20(), "0.2") && moreThan(t0.getLowShadowLen(), "0.04");
                 })
 
 
