@@ -61,7 +61,6 @@ public interface VoConvert {
     })
     StockDetail convertToStockDetail(StockDetailOnTimeVO stockDetailVO);
 
-
     @AfterMapping
     default void convertBigDecimal(@MappingTarget StockDetail stockDetail) {
         stockDetail.setPricePert(divide(subtract(stockDetail.getEndPrice(), stockDetail.getLastPrice()), stockDetail.getLastPrice()));
@@ -70,7 +69,7 @@ public interface VoConvert {
         stockDetail.setHighPrice(stockDetail.getHighPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setLowPrice(stockDetail.getLowPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setEndPrice(stockDetail.getEndPrice().setScale(4, RoundingMode.HALF_UP));
-        stockDetail.setDealPrice(stockDetail.getDealQuantity().setScale(4, RoundingMode.HALF_UP));
+        stockDetail.setDealQuantity(stockDetail.getDealQuantity().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setDealPrice(stockDetail.getDealPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setLastPrice(stockDetail.getLastPrice().setScale(4, RoundingMode.HALF_UP));
     }

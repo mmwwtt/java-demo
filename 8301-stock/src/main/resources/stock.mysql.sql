@@ -130,7 +130,7 @@ order by calc_res_id desc;
 
 select *
 from stock_detail_t
-where stock_code = '000001.SZ'
+where stock_code = '603107.SH'
 order by deal_date desc;
 
 

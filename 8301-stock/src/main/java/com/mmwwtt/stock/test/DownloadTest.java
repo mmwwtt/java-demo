@@ -3,6 +3,7 @@ package com.mmwwtt.stock.test;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.mmwwtt.stock.common.CommonUtils;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.VoConvert;
@@ -202,6 +203,7 @@ public class DownloadTest {
                         continue;
                     }
                     stockDetailOnTimeVO.setStockCode(stock.getCode());
+                    stockDetailOnTimeVO.setV(CommonUtils.multiply(stockDetailOnTimeVO.getV(), 10000));
                     StockDetail stockDetail = voConvert.convertToStockDetail(stockDetailOnTimeVO);
 
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();

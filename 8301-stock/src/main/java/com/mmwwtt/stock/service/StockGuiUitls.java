@@ -39,7 +39,7 @@ public class StockGuiUitls {
         Collections.reverse(list);
         /* 2. 绘图并保存 */
         BufferedImage img = draw(list);
-        String imageName = String.format("%s_%s.png", t0.getStockCode(),t0.getDealDate().substring(0,10));
+        String imageName = String.format("%s_%s.png", t0.getStockCode(),t0.getDealDate());
         String filePath = "D:\\1.moweitao\\test\\" + path + "\\";
         filePath = filePath.replace("%", "");
         filePath = filePath.replace("<", "");
@@ -110,7 +110,12 @@ public class StockGuiUitls {
 
             /* 日期 */
             g2.setColor(Color.BLACK);
-            g2.drawString(d.getDealDate().substring(5,10), (int) (x - 20), IMG_H - 10);
+            try {
+                g2.drawString(d.getDealDate().substring(4,8), (int) (x - 20), IMG_H - 10);
+            } catch (RuntimeException e) {
+                throw new RuntimeException(e);
+            }
+            g2.drawString(d.getDealDate().substring(4,8), (int) (x - 20), IMG_H - 10);
         }
 
         g2.dispose();

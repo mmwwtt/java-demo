@@ -25,7 +25,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,14 +70,11 @@ public class CalcTest {
     @Test
     @DisplayName("根据策略绘制蜡烛图")
     public void startCalc3() throws ExecutionException, InterruptedException {
-        StockStrategy strategy = new StockStrategy("test_"+getTimeStr(), (StockDetail t0) -> {
+        StockStrategy strategy = new StockStrategy("test_" + getTimeStr(), (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return moreThan(t0.getLowShadowPert(), "0.6")
-                    && t0.getIsRed()
-                    && moreThan(t0.getAllLen(), "0.08")
-                    && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
+            return isInRange(t0.getMacd(), "2", "3");
         });
         Map<String, List<StockDetail>> resMap = stockCalcService.calcByStrategy(List.of(strategy));
         resMap.forEach((strategyName, resList) -> {
@@ -96,16 +92,16 @@ public class CalcTest {
     @Test
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
-        StockStrategy strategy = new StockStrategy("test_", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            StockDetail t3 = t0.getT3();
-            BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
-            return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
-                    && lessThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "0.8"))
-                    && moreThan(space, "0.01");
-        });
-        stockCalcService.calcByStrategy(List.of(strategy));
+        stockCalcService.calcByStrategy(List.of(
+                new StockStrategy("test_1", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    StockDetail t2 = t0.getT2();
+                    StockDetail t3 = t0.getT3();
+                    return moreThan(t0.getMacd(), "2");
+                })
+
+
+        ));
     }
 
 
@@ -120,7 +116,7 @@ public class CalcTest {
     @Test
     @DisplayName("测试策略-大类")
     public void startCalc6() throws ExecutionException, InterruptedException {
-        List<StockStrategy> strategyList = StockCalcService.getStrategyList("日内V反");
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("macd");
         stockCalcService.calcByStrategy(strategyList);
     }
 
@@ -129,7 +125,7 @@ public class CalcTest {
     @DisplayName("根据策略预测")
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
         String curDate = "20260122";
-        boolean isOnTime = false;
+        boolean isOnTime = true;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, StockDetail> codeToDetailMap = stockCalcService.getCodeToTodayDetailMap();
@@ -154,7 +150,7 @@ public class CalcTest {
                     for (Stock stock : part) {
                         StockDetail stockDetail = codeToDetailMap.get(stock.getCode());
                         if (isOnTime) {
-                            stockDetail.setDealQuantity(divide(stockDetail.getDealQuantity(), "0.5"));
+                            stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), "1"));
                         }
                         if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), curDate)) {
                             continue;

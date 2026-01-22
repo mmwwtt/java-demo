@@ -425,8 +425,8 @@ public class StockDetail {
 
     /**
      * MACD柱 = (DIF - DEA) × 2
-     * 大于0表示  EMA26 在  EMA12 之上  做多胜率更高(趋势在上涨)
-     * 小于0表示  EMA26 在  EMA12 之下  接飞刀概率大(趋势在下跌)
+     * 大于0表示  EMA26 在  EMA12 之上  做多胜率更高(趋势在上涨)   (26天中的高位)
+     * 小于0表示  EMA26 在  EMA12 之下  接飞刀概率大(趋势在下跌)    (26天中的低位)
      */
     private BigDecimal macd;
 
@@ -447,7 +447,7 @@ public class StockDetail {
         isBalance = bigDecimalEquals(endPrice, startPrice);
         pertDivisionQuantity = bigDecimalEquals(dealQuantity, "0") ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 15, RoundingMode.UP);
         // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
-        isTenStar = moreThan(allLen, "0") && lessThan(entityPert, "0.05");
+        isTenStar = moreThan(allLen, "0") && lessThan(entityPert, "0.1");
     }
 
     public static void calc(List<StockDetail> list) {
