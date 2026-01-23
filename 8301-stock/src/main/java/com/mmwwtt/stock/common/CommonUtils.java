@@ -64,6 +64,18 @@ public class CommonUtils {
         return tmp1.compareTo(tmp2) > 0;
     }
 
+    public static Boolean moreThan(Object... nums) {
+        Object obj = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            if (!moreThan(obj, nums[i])) {
+                return false;
+            }
+            obj = nums[i];
+        }
+        return true;
+    }
+
+
     /**
      * num  是否在 范围中
      */
@@ -160,13 +172,13 @@ public class CommonUtils {
     }
 
     public static String getTimeStr() {
-        return  LocalDateTime.now()
+        return LocalDateTime.now()
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
     }
 
 
     public static String getDateStr() {
-        return  LocalDateTime.now()
+        return LocalDateTime.now()
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
     }
 }

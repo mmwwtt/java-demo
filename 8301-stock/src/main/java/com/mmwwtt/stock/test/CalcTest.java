@@ -98,17 +98,11 @@ public class CalcTest {
                     StockDetail t1 = t0.getT1();
                     StockDetail t2 = t0.getT2();
 
-                    // 缩量十字星 前一天是十字星 且缩量(小于5日线 60%)
-                    boolean flag1 = lessThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "0.8")) && t1.getIsTenStar();
-
-                    // 放量： 当日放量阳线 量是前一天1.5倍
-                    boolean flag2 = moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "1.2"));
-
-                    // 吞噬： 收盘价比前一天最高价
-                    boolean flag3 = moreThan(t0.getEndPrice(), t1.getHighPrice());
-
-                    return flag1 && flag2 && flag3
-                            && lessThan(t0.getMacd(), "0");
+                    return t0.getIsRed() && t1.getIsRed()
+                            && moreThan(t0.getPricePert(),  "0.03")
+                            && moreThan(t0.getPricePert(), t1.getPricePert())
+                            && moreThan(t0.getPertDivisionQuantity(), t1.getPertDivisionQuantity())
+                            && lessThan(t0.getPosition40(), "0.3");
                 })
         ));
     }
