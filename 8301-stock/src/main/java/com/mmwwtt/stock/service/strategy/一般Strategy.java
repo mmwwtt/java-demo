@@ -185,7 +185,7 @@ public class 一般Strategy {
             // 1. 连续3日最低价差 ≤ 1%
             BigDecimal maxLow = max(t1.getLowPrice(), t2.getLowPrice(), t3.getLowPrice());
             BigDecimal minLow = min(t1.getLowPrice(), t2.getLowPrice(), t3.getLowPrice());
-            boolean flat = lessThan(divide(maxLow.subtract(minLow), minLow), "0.01");
+            boolean flat = lessThan(divide(subtract(maxLow,minLow), minLow), "0.01");
 
             // 2. 今日收盘 > 3 日最高收盘价（突破）
             BigDecimal maxClose3 = max(t1.getEndPrice(), t2.getEndPrice(), t3.getEndPrice());
@@ -283,14 +283,15 @@ public class 一般Strategy {
             return flag1 && flag2;
         }));
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("缩量上涨 2天", (StockDetail t0) -> {
+        StockCalcService.STRATEGY_LIST.add(new StockStrategy("缩量上涨 2天 且macd<-1", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return moreThan(t0.getPricePert(), "0.005")
-                    && moreThan(t1.getPricePert(), "0.005")
+            return moreThan(t0.getPricePert(), "0.01")
+                    && moreThan(t1.getPricePert(), "0.01")
                     && lessThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "0.8"))
-                    && lessThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "0.8"));
+                    && lessThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "0.8"))
+                    && lessThan(t0.getMacd(), "-1");
         }));
 
         StockCalcService.STRATEGY_LIST.add(new StockStrategy("缩量上涨 3天", (StockDetail t0) -> {

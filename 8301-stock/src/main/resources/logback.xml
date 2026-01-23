@@ -1,5 +1,5 @@
 <configuration>
-    <property name="LOG_PATH" value="../logs/springmvc" />
+    <property name="LOG_PATH" value="../logs/stock" />
     <property name="log.pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - [%method,%line] - %msg%n" />
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">

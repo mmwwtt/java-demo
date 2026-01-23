@@ -74,7 +74,7 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return t0.getIsTenStar() &&  lessThan(t0.getPosition20(), "0.1");
+            return t0.getIsTenStar() && lessThan(t0.getPosition20(), "0.1");
         });
         Map<String, List<StockDetail>> resMap = stockCalcService.calcByStrategy(List.of(strategy));
         resMap.forEach((strategyName, resList) -> {
@@ -94,28 +94,22 @@ public class CalcTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         stockCalcService.calcByStrategy(List.of(
-                new StockStrategy("test_1", (StockDetail t0) -> {
+                new StockStrategy("test", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
                     StockDetail t2 = t0.getT2();
-                    StockDetail t3 = t0.getT3();
-                    return  lessThan(t0.getPosition20(), "0.2") && moreThan(t0.getLowShadowLen(), "0.04");
-                }),
 
-        new StockStrategy("test_2", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            StockDetail t3 = t0.getT3();
-            return  lessThan(t0.getPosition40(), "0.2") && moreThan(t0.getLowShadowLen(), "0.04");
-        })
-            ,
-                new StockStrategy("test_3", (StockDetail t0) -> {
-                    StockDetail t1 = t0.getT1();
-                    StockDetail t2 = t0.getT2();
-                    StockDetail t3 = t0.getT3();
-                    return  lessThan(t0.getPosition60(), "0.2") && moreThan(t0.getLowShadowLen(), "0.04");
+                    // 缩量十字星 前一天是十字星 且缩量(小于5日线 60%)
+                    boolean flag1 = lessThan(t1.getDealQuantity(), multiply(t2.getDealQuantity(), "0.8")) && t1.getIsTenStar();
+
+                    // 放量： 当日放量阳线 量是前一天1.5倍
+                    boolean flag2 = moreThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "1.2"));
+
+                    // 吞噬： 收盘价比前一天最高价
+                    boolean flag3 = moreThan(t0.getEndPrice(), t1.getHighPrice());
+
+                    return flag1 && flag2 && flag3
+                            && lessThan(t0.getMacd(), "0");
                 })
-
-
         ));
     }
 
@@ -131,7 +125,7 @@ public class CalcTest {
     @Test
     @DisplayName("测试策略-大类")
     public void startCalc6() throws ExecutionException, InterruptedException {
-        List<StockStrategy> strategyList = StockCalcService.getStrategyList("下影线");
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("macd");
         stockCalcService.calcByStrategy(strategyList);
     }
 
@@ -139,8 +133,8 @@ public class CalcTest {
     @Test
     @DisplayName("根据策略预测")
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
-        String curDate = "20260122";
-        boolean isOnTime = true;
+        String curDate = "20260123";
+        boolean isOnTime = false;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, StockDetail> codeToDetailMap = stockCalcService.getCodeToTodayDetailMap();
@@ -165,7 +159,7 @@ public class CalcTest {
                     for (Stock stock : part) {
                         StockDetail stockDetail = codeToDetailMap.get(stock.getCode());
                         if (isOnTime) {
-                            stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), "1"));
+                            stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), "1.5"));
                         }
                         if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), curDate)) {
                             continue;

@@ -481,8 +481,7 @@ public class StockDetail {
         isGreen = lessThan(endPrice, startPrice);
         isBalance = bigDecimalEquals(endPrice, startPrice);
         pertDivisionQuantity = bigDecimalEquals(dealQuantity, "0") ? BigDecimal.ZERO : pricePert.divide(dealQuantity, 15, RoundingMode.UP);
-        // 判断是否为十字星（实体长度占总振幅的比例 ≤ 5%）
-        isTenStar = moreThan(allLen, "0") && lessThan(entityPert, "0.05");
+        isTenStar = moreThan(allLen, "0") && lessThan(entityLen, "0.005");
     }
 
     public static void calc(List<StockDetail> list) {

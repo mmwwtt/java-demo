@@ -162,11 +162,11 @@ public class CommonUtils {
     public static String getTimeStr() {
         return  LocalDateTime.now()
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-    };
+    }
 
 
     public static String getDateStr() {
         return  LocalDateTime.now()
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-    };
+    }
 }
