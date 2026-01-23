@@ -99,6 +99,20 @@ public class CalcTest {
                     StockDetail t2 = t0.getT2();
                     StockDetail t3 = t0.getT3();
                     return  lessThan(t0.getPosition20(), "0.2") && moreThan(t0.getLowShadowLen(), "0.04");
+                }),
+
+        new StockStrategy("test_2", (StockDetail t0) -> {
+            StockDetail t1 = t0.getT1();
+            StockDetail t2 = t0.getT2();
+            StockDetail t3 = t0.getT3();
+            return  lessThan(t0.getPosition40(), "0.2") && moreThan(t0.getLowShadowLen(), "0.04");
+        })
+            ,
+                new StockStrategy("test_3", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    StockDetail t2 = t0.getT2();
+                    StockDetail t3 = t0.getT3();
+                    return  lessThan(t0.getPosition60(), "0.2") && moreThan(t0.getLowShadowLen(), "0.04");
                 })
 
 
@@ -117,7 +131,7 @@ public class CalcTest {
     @Test
     @DisplayName("测试策略-大类")
     public void startCalc6() throws ExecutionException, InterruptedException {
-        List<StockStrategy> strategyList = StockCalcService.getStrategyList("macd");
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("下影线");
         stockCalcService.calcByStrategy(strategyList);
     }
 
