@@ -153,7 +153,7 @@ public class CalcTest {
         QueryWrapper<StockCalcRes> detailWapper = new QueryWrapper<>();
         detailWapper.last("where type = 1" +
                 " and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')" +
-                " and win_rate > 0.7" +
+                " and win_rate > 0.6" +
                 " order by win_rate desc;");
         Map<String, String> strategyMap =
                 stockCalcResDao.selectList(detailWapper).stream()
@@ -191,7 +191,7 @@ public class CalcTest {
         }
 
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
-            fos.write(String.format("\n\n%s\n", getDateStr()).getBytes());
+            fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
             for (Map.Entry<String, List<String>> entry : strategyToStockMap.entrySet()) {
                 fos.write(("\n\n" + entry.getKey() + "   " + strategyMap.get(entry.getKey()) + "\n").getBytes());
                 for (String s : entry.getValue()) {
