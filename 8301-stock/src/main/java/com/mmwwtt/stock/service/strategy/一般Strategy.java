@@ -170,7 +170,7 @@ public class 一般Strategy {
 
         StockCalcService.STRATEGY_LIST.add(new StockStrategy("放量突破20日最高", (StockDetail t0) -> {
             // 1. 收盘突破 20 日最高
-            boolean priceBreak = moreThan(t0.getEndPrice(), t0.getTwentyDayHigh());
+            boolean priceBreak = moreThan(t0.getEndPrice(), t0.getTwentyHigh());
             // 2. 放量 > 20 日均量 × 1.8
             boolean volBreak = moreThan(t0.getDealQuantity(), multiply(t0.getTwentyDayDealQuantity(), "1.8"));
             return priceBreak && volBreak;

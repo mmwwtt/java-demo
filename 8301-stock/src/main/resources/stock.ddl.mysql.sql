@@ -35,24 +35,33 @@ CREATE TABLE stock_detail_t
     entity_pert              decimal(10, 4) COMMENT '实体占总长的百分比',
     all_len                  decimal(10, 4) COMMENT '总长',
     five_day_line            decimal(10, 4) COMMENT '5日线',
-    five_day_high            decimal(10, 4) COMMENT '5日最高',
-    five_day_low             decimal(10, 4) COMMENT '5日最低',
+    five_high                decimal(10, 4) COMMENT '5日最高',
+    five_low                 decimal(10, 4) COMMENT '5日最低',
     five_day_deal_quantity   decimal(20, 4) COMMENT '5日均量',
     ten_day_line             decimal(10, 4) COMMENT '10日线',
-    ten_day_high             decimal(10, 4) COMMENT '10日最高',
-    ten_day_low              decimal(10, 4) COMMENT '10日最低',
+    ten_high                 decimal(10, 4) COMMENT '10日最高',
+    ten_low                  decimal(10, 4) COMMENT '10日最低',
     ten_day_deal_quantity    decimal(20, 4) COMMENT '10日均量',
     twenty_day_line          decimal(10, 4) COMMENT '20日线',
-    twenty_day_high          decimal(10, 4) COMMENT '20日最高',
-    twenty_day_low           decimal(10, 4) COMMENT '20日最低',
+    twenty_high              decimal(10, 4) COMMENT '20日最高',
+    twenty_low               decimal(10, 4) COMMENT '20日最低',
+    twenty_high_date         varchar(64) COMMENT '20日最高日期',
+    twenty_low_date          varchar(64) COMMENT '20日最低日期',
+    twenty_is_up             boolean COMMENT '是否处于20日中的上涨',
     twenty_day_deal_quantity decimal(20, 4) COMMENT '20日均量',
-    forty_day_line          decimal(10, 4) COMMENT '20日线',
-    forty_day_high          decimal(10, 4) COMMENT '20日最高',
-    forty_day_low           decimal(10, 4) COMMENT '20日最低',
-    forty_day_deal_quantity decimal(20, 4) COMMENT '20日均量',
+    forty_day_line           decimal(10, 4) COMMENT '40日线',
+    forty_high               decimal(10, 4) COMMENT '40日最高',
+    forty_low                decimal(10, 4) COMMENT '40日最低',
+    forty_high_date          varchar(64) COMMENT '40日最高日期',
+    forty_low_date           varchar(64) COMMENT '40日最低日期',
+    forty_is_up              boolean COMMENT '是否处于40日中的上涨',
+    forty_day_deal_quantity  decimal(20, 4) COMMENT '40日均量',
     sixty_day_line           decimal(10, 4) COMMENT '60日线',
-    sixty_day_high           decimal(10, 4) COMMENT '60日最高',
-    sixty_day_low            decimal(10, 4) COMMENT '60日最低',
+    sixty_high               decimal(10, 4) COMMENT '60日最高',
+    sixty_low                decimal(10, 4) COMMENT '60日最低',
+    sixty_high_date          varchar(64) COMMENT '60日最高日期',
+    sixty_low_date           varchar(64) COMMENT '60日最低日期',
+    sixty_is_up              boolean COMMENT '是否处于60日中的上涨',
     sixty_day_deal_quantity  decimal(20, 4) COMMENT '60日均量',
     pert_division_quantity   decimal(20, 15) COMMENT '涨跌成交比',
     is_up                    boolean COMMENT '是否上涨',
@@ -103,56 +112,3 @@ CREATE TABLE stock_calculation_result_t
     create_date        DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '股票计算结果表';
 
-
-select count(*)
-from stock_t;
-
-select count(*)
-from stock_detail_t;
-
-select count(*)
-from stock_calculation_result_t;
-
-
-select *
-from stock_calculation_result_t
-where create_date = (select max(create_date) from stock_calculation_result_t where type = '0')
-  and type = 0
-  and all_cnt > 300
-  and win_rate > 0.6
-order by win_rate desc, all_cnt desc;
-
-
-select *
-from stock_calculation_result_t
-where type = 1
-  and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')
-order by win_rate desc;
-
-
-select *
-from stock_calculation_result_t
-where type = 1
-order by calc_res_id desc;
-
-
-select *
-from stock_detail_t
-where stock_code = '603107.SH'
-order by deal_date desc;
-
-
-# 设置最大连接数为500
-SET GLOBAL max_connections = 300;
-set global innodb_flush_log_at_trx_commit = 0;
-set global sync_binlog = 100000;
-SET GLOBAL innodb_buffer_pool_size = 8 * 1024 * 1024 * 1024; -- 4 GB
-SET GLOBAL innodb_log_buffer_size = 128 * 1024 * 1024; -- 16 MB
-SET GLOBAL thread_cache_size = 50;
-
-#已连接的线程
-SHOW STATUS LIKE 'Threads_connected';
-#最大线程
-SHOW VARIABLES LIKE 'max_connections';
-#正在执行sql的线程
-SHOW STATUS LIKE 'Threads_running';

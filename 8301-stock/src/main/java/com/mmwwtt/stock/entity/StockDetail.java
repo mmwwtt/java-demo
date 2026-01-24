@@ -127,12 +127,12 @@ public class StockDetail {
     /**
      * 5日最高
      */
-    private BigDecimal fiveDayHigh;
+    private BigDecimal fiveHigh;
 
     /**
      * 5日最低
      */
-    private BigDecimal fiveDayLow;
+    private BigDecimal fiveLow;
 
     /**
      * 5日均量
@@ -151,12 +151,12 @@ public class StockDetail {
     /**
      * 10日最高
      */
-    private BigDecimal tenDayHigh;
+    private BigDecimal tenHigh;
 
     /**
      * 10日最低
      */
-    private BigDecimal tenDayLow;
+    private BigDecimal tenLow;
     /**
      * 10日均量
      */
@@ -170,12 +170,27 @@ public class StockDetail {
     /**
      * 20日最高
      */
-    private BigDecimal twentyDayHigh;
+    private BigDecimal twentyHigh;
 
     /**
      * 20日最低
      */
-    private BigDecimal twentyDayLow;
+    private BigDecimal twentyLow;
+
+    /**
+     * 20日内最高的日期
+     */
+    private String twentyHighDate;
+
+    /**
+     * 20日内最低的日期
+     */
+    private String twentyLowDate;
+
+    /**
+     * 20日内当前日是否处于上涨
+     */
+    private Boolean twentyIsUp;
 
     /**
      * 20日均量
@@ -190,12 +205,27 @@ public class StockDetail {
     /**
      * 40日最高
      */
-    private BigDecimal fortyDayHigh;
+    private BigDecimal fortyHigh;
 
     /**
      * 40日最低
      */
-    private BigDecimal fortyDayLow;
+    private BigDecimal fortyLow;
+
+    /**
+     * 40日内最高的日期
+     */
+    private String fortyHighDate;
+
+    /**
+     * 40日内最低的日期
+     */
+    private String fortyLowDate;
+
+    /**
+     * 40日内当前日是否处于上涨
+     */
+    private Boolean fortyIsUp;
 
     /**
      * 40日均量
@@ -210,12 +240,29 @@ public class StockDetail {
     /**
      * 60日最高
      */
-    private BigDecimal sixtyDayHigh;
+    private BigDecimal sixtyHigh;
 
     /**
      * 60日最低
      */
-    private BigDecimal sixtyDayLow;
+    private BigDecimal sixtyLow;
+
+
+    /**
+     * 60日内最高的日期
+     */
+    private String sixtyHighDate;
+
+    /**
+     * 60日内最低的日期
+     */
+    private String sixtyLowDate;
+
+
+    /**
+     * 60日内当前日是否处于上涨， 离最低近就是上涨， 离最高近就是下跌， 最高最低不能是当天
+     */
+    private Boolean sixtyIsUp;
 
     /**
      * 60日均量
@@ -536,11 +583,11 @@ public class StockDetail {
 
 
             List<Pair<Integer, List<Consumer<BigDecimal>>>> dayLinePairs = new ArrayList<>();
-            dayLinePairs.add(Pair.of(5, Arrays.asList(cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveDayHigh, cur::setFiveDayLow)));
-            dayLinePairs.add(Pair.of(10, Arrays.asList(cur::setTenDayLine, cur::setTenDayDealQuantity, cur::setTenDayHigh, cur::setTenDayLow)));
-            dayLinePairs.add(Pair.of(20, Arrays.asList(cur::setTwentyDayLine, cur::setTwentyDayDealQuantity, cur::setTwentyDayHigh, cur::setTwentyDayLow)));
-            dayLinePairs.add(Pair.of(40, Arrays.asList(cur::setFortyDayLine, cur::setFortyDayDealQuantity, cur::setFortyDayHigh, cur::setFortyDayLow)));
-            dayLinePairs.add(Pair.of(60, Arrays.asList(cur::setSixtyDayLine, cur::setSixtyDayDealQuantity, cur::setSixtyDayHigh, cur::setSixtyDayLow)));
+            dayLinePairs.add(Pair.of(5, Arrays.asList(cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveHigh, cur::setFiveLow)));
+            dayLinePairs.add(Pair.of(10, Arrays.asList(cur::setTenDayLine, cur::setTenDayDealQuantity, cur::setTenHigh, cur::setTenLow)));
+            dayLinePairs.add(Pair.of(20, Arrays.asList(cur::setTwentyDayLine, cur::setTwentyDayDealQuantity, cur::setTwentyHigh, cur::setTwentyLow)));
+            dayLinePairs.add(Pair.of(40, Arrays.asList(cur::setFortyDayLine, cur::setFortyDayDealQuantity, cur::setFortyHigh, cur::setFortyLow)));
+            dayLinePairs.add(Pair.of(60, Arrays.asList(cur::setSixtyDayLine, cur::setSixtyDayDealQuantity, cur::setSixtyHigh, cur::setSixtyLow)));
             for (Pair<Integer, List<Consumer<BigDecimal>>> pair : dayLinePairs) {
                 Integer dayNum = pair.getLeft();
                 List<Consumer<BigDecimal>> setList = pair.getRight();
@@ -573,9 +620,9 @@ public class StockDetail {
                 cur.setWr(multiply(divide(subtract(dayHigh, cur.endPrice), subtract(dayHigh, dayLow)), "-100"));
             }
 
-            cur.position20 = divide(subtract(cur.endPrice, cur.twentyDayLow),subtract(cur.twentyDayHigh, cur.twentyDayLow));
-            cur.position40 = divide(subtract(cur.endPrice, cur.fortyDayLow),subtract(cur.fortyDayHigh, cur.fortyDayLow));
-            cur.position60 = divide(subtract(cur.endPrice, cur.sixtyDayLow),subtract(cur.sixtyDayHigh, cur.sixtyDayLow));
+            cur.position20 = divide(subtract(cur.endPrice, cur.twentyLow), subtract(cur.twentyHigh, cur.twentyLow));
+            cur.position40 = divide(subtract(cur.endPrice, cur.fortyLow), subtract(cur.fortyHigh, cur.fortyLow));
+            cur.position60 = divide(subtract(cur.endPrice, cur.sixtyLow), subtract(cur.sixtyHigh, cur.sixtyLow));
         }
 
     }
