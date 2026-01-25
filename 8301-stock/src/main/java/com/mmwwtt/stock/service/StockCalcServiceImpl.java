@@ -454,6 +454,9 @@ public class StockCalcServiceImpl implements StockCalcService {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
                     List<StockDetail> stockDetails = getStockDetail(stock.getCode(), 10);
+                    if(CollectionUtils.isEmpty(stockDetails)) {
+                        continue;
+                    }
                     codeToDetailMap.put(stock.getCode(), stockDetails.get(0));
                 }
             }, ioThreadPool);

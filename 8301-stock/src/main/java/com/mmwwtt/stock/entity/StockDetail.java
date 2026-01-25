@@ -620,18 +620,18 @@ public class StockDetail {
                 setList.get(3).accept(dayLow);
 
                 //highDate靠前(新)表示 下跌中，   lowDate靠前表示上升
-                boolean isUp = highDate.compareTo(lowDate) <0 ;
-                if(dayNum == 20) {
+                boolean isUp = highDate.compareTo(lowDate) < 0;
+                if (dayNum == 20) {
                     cur.setTwentyHighDate(highDate);
                     cur.setTwentyLowDate(lowDate);
                     cur.setTwentyIsUp(isUp);
                 }
-                if(dayNum == 40) {
+                if (dayNum == 40) {
                     cur.setFortyHighDate(highDate);
                     cur.setFortyLowDate(lowDate);
                     cur.setFortyIsUp(isUp);
                 }
-                if(dayNum == 60) {
+                if (dayNum == 60) {
                     cur.setSixtyHighDate(highDate);
                     cur.setSixtyLowDate(lowDate);
                     cur.setSixtyIsUp(isUp);

@@ -203,11 +203,9 @@ public class 一般Strategy {
         StockCalcService.STRATEGY_LIST.add(new StockStrategy("早晨之星(启明星)", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
-            return moreThan(t2.getEntityPert(), "0.2") && t2.getIsDown()
-                    && moreThan(t0.getEntityPert(), "0.2") && t0.getIsUp()
-                    && moreThan(t0.getEndPrice(), t2.getStartPrice())
-                    && t1.getIsTenStar()
-                    && moreThan(t0.getDealQuantity(), t0.getTwentyDayLine());
+            return moreThan(t2.getEntityPert(), "0.3") && t2.getIsDown()
+                    && t0.getIsUp()
+                    && t1.getIsTenStar();
         }));
 
 

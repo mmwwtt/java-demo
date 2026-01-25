@@ -94,15 +94,12 @@ public class CalcTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         stockCalcService.calcByStrategy(List.of(
-                new StockStrategy("test", (StockDetail t0) -> {
+                new StockStrategy("test1", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
                     StockDetail t2 = t0.getT2();
-
-                    return t0.getIsRed() && t1.getIsRed()
-                            && moreThan(t0.getPricePert(),  "0.03")
-                            && moreThan(t0.getPricePert(), t1.getPricePert())
-                            && moreThan(t0.getPertDivisionQuantity(), t1.getPertDivisionQuantity())
-                            && lessThan(t0.getPosition40(), "0.3");
+                    return moreThan(t2.getEntityLen(), "0.03") && t2.getIsDown()
+                            && moreThan(t0.getEntityLen(), "0.03") && t0.getIsUp()
+                            && t1.getIsTenStar();
                 })
         ));
     }
@@ -119,7 +116,7 @@ public class CalcTest {
     @Test
     @DisplayName("测试策略-大类")
     public void startCalc6() throws ExecutionException, InterruptedException {
-        List<StockStrategy> strategyList = StockCalcService.getStrategyList("macd");
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("下影线");
         stockCalcService.calcByStrategy(strategyList);
     }
 
@@ -152,6 +149,9 @@ public class CalcTest {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (Stock stock : part) {
                         StockDetail stockDetail = codeToDetailMap.get(stock.getCode());
+                        if (Objects.isNull(stockDetail)) {
+                            continue;
+                        }
                         if (isOnTime) {
                             stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), "1.5"));
                         }
