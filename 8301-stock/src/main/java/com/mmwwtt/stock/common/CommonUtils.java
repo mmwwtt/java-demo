@@ -15,6 +15,10 @@ public class CommonUtils {
         return Math.abs(num1 - num2) < TOLERANCE;
     }
 
+    public static Boolean isEquals(BigDecimal num1, BigDecimal num2) {
+        return num1.compareTo(num2) ==0;
+    }
+
     public static BigDecimal subtract(Object num1, Object num2) {
         BigDecimal tmp1 = toBigDecimal(num1);
         BigDecimal tmp2 = toBigDecimal(num2);

@@ -589,6 +589,8 @@ public class StockDetail {
             dayLinePairs.add(Pair.of(40, Arrays.asList(cur::setFortyDayLine, cur::setFortyDayDealQuantity, cur::setFortyHigh, cur::setFortyLow)));
             dayLinePairs.add(Pair.of(60, Arrays.asList(cur::setSixtyDayLine, cur::setSixtyDayDealQuantity, cur::setSixtyHigh, cur::setSixtyLow)));
             for (Pair<Integer, List<Consumer<BigDecimal>>> pair : dayLinePairs) {
+                String highDate = "";
+                String lowDate = "";
                 Integer dayNum = pair.getLeft();
                 List<Consumer<BigDecimal>> setList = pair.getRight();
                 if (list.size() <= i + dayNum) {
@@ -599,15 +601,41 @@ public class StockDetail {
                 BigDecimal dayHigh = list.get(i).getHighPrice();
                 BigDecimal dayLow = list.get(i).getLowPrice();
                 for (int j = i; j < i + dayNum; j++) {
-                    sumEndPrice = sum(sumEndPrice, list.get(j).getEndPrice());
-                    sumDealQuantity = sum(sumDealQuantity, list.get(j).getDealQuantity());
-                    dayHigh = max(dayHigh, list.get(j).getHighPrice());
-                    dayLow = min(dayLow, list.get(j).getLowPrice());
+                    StockDetail cur1 = list.get(j);
+                    sumEndPrice = sum(sumEndPrice, cur1.getEndPrice());
+                    sumDealQuantity = sum(sumDealQuantity, cur1.getDealQuantity());
+                    dayHigh = max(dayHigh, cur1.getHighPrice());
+                    dayLow = min(dayLow, cur1.getLowPrice());
+
+                    if (isEquals(dayHigh, cur1.getHighPrice())) {
+                        highDate = cur1.getDealDate();
+                    }
+                    if (isEquals(dayLow, cur1.getLowPrice())) {
+                        lowDate = cur1.getDealDate();
+                    }
                 }
                 setList.get(0).accept(divide(sumEndPrice, dayNum));
                 setList.get(1).accept(divide(sumDealQuantity, dayNum));
                 setList.get(2).accept(dayHigh);
                 setList.get(3).accept(dayLow);
+
+                //highDate靠前(新)表示 下跌中，   lowDate靠前表示上升
+                boolean isUp = highDate.compareTo(lowDate) <0 ;
+                if(dayNum == 20) {
+                    cur.setTwentyHighDate(highDate);
+                    cur.setTwentyLowDate(lowDate);
+                    cur.setTwentyIsUp(isUp);
+                }
+                if(dayNum == 40) {
+                    cur.setFortyHighDate(highDate);
+                    cur.setFortyLowDate(lowDate);
+                    cur.setFortyIsUp(isUp);
+                }
+                if(dayNum == 60) {
+                    cur.setSixtyHighDate(highDate);
+                    cur.setSixtyLowDate(lowDate);
+                    cur.setSixtyIsUp(isUp);
+                }
             }
 
             if (list.size() > i + 14) {
