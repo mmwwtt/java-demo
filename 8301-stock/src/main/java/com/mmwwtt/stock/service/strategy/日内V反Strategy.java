@@ -64,5 +64,13 @@ public class 日内V反Strategy {
                     && moreThan(t0.getAllLen(), "0.08")
                     && lessThan(t0.getEndPrice(), multiply(t0.getTenDayLine(), "0.9"));
         }));
+
+        StockCalcService.STRATEGY_LIST.add(  new StockStrategy("日内V反 8%<总长 且低于10日线", (StockDetail t0) -> {
+            return moreThan(t0.getLowShadowPert(), "0.6")
+                    && t0.getIsRed()
+                    && moreThan(t0.getAllLen(), "0.08")
+                    &&lessThan(t0.getPosition40(), 0.4)
+                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
+        }));
     }
 }

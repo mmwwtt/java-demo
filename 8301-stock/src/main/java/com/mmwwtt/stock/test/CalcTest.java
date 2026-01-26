@@ -95,7 +95,7 @@ public class CalcTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         stockCalcService.calcByStrategy(List.of(
-                new StockStrategy("test_", (StockDetail t0) -> {
+                new StockStrategy("底部阳包阴 8%<总长 且低于10日线", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
                     StockDetail t2 = t0.getT2();
                     StockDetail t3 = t0.getT3();
