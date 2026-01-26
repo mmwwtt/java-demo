@@ -90,7 +90,7 @@ public class CommonUtils {
         if (tmp == null || left == null || right == null) {
             return false;
         }
-        return left.compareTo(tmp) < 0 && tmp.compareTo(right) < 0;
+        return left.compareTo(tmp) <= 0 && tmp.compareTo(right) <= 0;
     }
 
 

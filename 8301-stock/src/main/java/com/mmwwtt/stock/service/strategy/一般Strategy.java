@@ -130,43 +130,6 @@ public class 一般Strategy {
         }));
 
 
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("红三兵", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            return t0.getIsRed() && t1.getIsRed() && t2.getIsRed()
-                    && moreThan(t0.getPricePert(), "0.005") && moreThan(t1.getPricePert(), "0.005") && moreThan(t2.getPricePert(), "0.005")
-                    && moreThan(t1.getEndPrice(), t2.getEndPrice()) && moreThan(t1.getStartPrice(), t2.getStartPrice())
-                    && moreThan(t0.getEndPrice(), t1.getEndPrice()) && moreThan(t0.getStartPrice(), t1.getStartPrice())
-                    && moreThan(t1.getDealQuantity(), t2.getDealQuantity())
-                    && moreThan(t0.getDealQuantity(), t1.getDealQuantity())
-                    && lessThan(t0.getDealQuantity(), multiply(t1.getDealQuantity(), "2"))
-                    && lessThan(t0.getUpShadowPert(), "0.4");
-        }));
-
-
-        StockCalcService.STRATEGY_LIST.add(new StockStrategy("红三兵加强版", (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            // 2. 实体逐级放大
-            boolean entityGrow = moreThan(t1.getEntityLen(), t2.getEntityLen())
-                    && moreThan(t0.getEntityLen(), t1.getEntityLen());
-
-            // 3. 成交量逐级放大
-            boolean volGrow = moreThan(t0.getDealQuantity(), t1.getDealQuantity())
-                    && moreThan(t1.getDealQuantity(), t2.getDealQuantity());
-
-            // 4. 最新收盘站上 5 日线
-            boolean above5 = moreThan(t0.getEndPrice(), t0.getFiveDayLine());
-
-            // 5. 第三根（最新）实体占比 ≥ 1%
-            boolean bigEnough = moreThan(t0.getPricePert(), "0.01");
-
-            return t0.getIsUp() && t0.getT1().getIsUp() && t0.getT2().getIsUp()
-                    && moreThan(t0.getT1().getEntityLen(), t0.getT2().getEntityLen())
-                    && moreThan(t0.getEntityLen(), t0.getT1().getEntityLen())
-                    && entityGrow && volGrow && above5 && bigEnough;
-        }));
-
 
         StockCalcService.STRATEGY_LIST.add(new StockStrategy("放量突破20日最高", (StockDetail t0) -> {
             // 1. 收盘突破 20 日最高

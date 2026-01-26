@@ -14,6 +14,20 @@ public class 阳线Strategy {
     static {
         StockCalcService.STRATEGY_LIST.addAll(
                 Arrays.asList(
+
+                        new StockStrategy("阳线 小阳线", (StockDetail t0) -> {
+                            return isInRange(t0.getPricePert(), "0.00", "0.03");
+                        }),
+                        new StockStrategy("阳线 中阳线", (StockDetail t0) -> {
+                            return isInRange(t0.getPricePert(), "0.03", "0.06");
+                        }),
+
+
+                        new StockStrategy(" 阳线 大阳线", (StockDetail t0) -> {
+                            return isInRange(t0.getPricePert(), "0.06", "0.10");
+                        }),
+
+
                         new StockStrategy("阳线 小阳线(光头光脚)", (StockDetail t0) -> {
                             return isInRange(t0.getPricePert(), "0.00", "0.03")
                                     && isEquals(t0.getHighPrice(), t0.getEndPrice())

@@ -23,6 +23,11 @@ public class 底部阳包阴Strategy {
 
         StockCalcService.STRATEGY_LIST.add(new StockStrategy("底部阳包阴 放量 0.5<下影线", (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
+            try {
+                t1.getIsDown();
+            } catch (RuntimeException e) {
+                throw new RuntimeException(e);
+            }
             return t1.getIsDown() && t0.getIsUp()
                     && lessThan(t0.getStartPrice(), t1.getEndPrice())
                     && moreThan(t0.getEndPrice(), t1.getStartPrice())

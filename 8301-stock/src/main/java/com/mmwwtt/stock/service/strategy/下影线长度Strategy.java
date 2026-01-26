@@ -20,8 +20,12 @@ public class 下影线长度Strategy {
         StockCalcService.STRATEGY_LIST.addAll(
                 Arrays.asList(
 
-                        new StockStrategy("下影线 5%<下影线", (StockDetail t0) -> {
-                            return moreThan(t0.getLowShadowLen(), 0.05);
+                        new StockStrategy("下影线 5%<下影线<6%", (StockDetail t0) -> {
+                            return  isInRange(t0.getLowShadowLen(), 0.05, 0.06);
+                        }),
+
+                        new StockStrategy("下影线 6%<下影线<10%", (StockDetail t0) -> {
+                            return  isInRange(t0.getLowShadowLen(), 0.06, 0.10);
                         }),
 
                         new StockStrategy("下影线 前一天是绿， 5%<下影线<6%", (StockDetail t0) -> {
@@ -29,7 +33,7 @@ public class 下影线长度Strategy {
                             return t1.getIsGreen()
                                     && isInRange(t0.getLowShadowLen(), 0.05, 0.06);
                         }),
-                        new StockStrategy("下影线 前一天是绿， 6%<下影线<6%", (StockDetail t0) -> {
+                        new StockStrategy("下影线 前一天是绿， 6%<下影线<7%", (StockDetail t0) -> {
                             StockDetail t1 = t0.getT1();
                             return t1.getIsGreen()
                                     && isInRange(t0.getLowShadowLen(), 0.06, 0.07);
