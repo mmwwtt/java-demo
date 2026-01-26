@@ -71,11 +71,9 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return moreThan(t0.getLowShadowPert(), "0.6")
-                    && t0.getIsRed()
-                    && moreThan(t0.getAllLen(), "0.08")
-                    &&lessThan(t0.getPosition40(), 0.4)
-                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
+            return isInRange(t0.getPosition40(), 0.2, 0.3)
+                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
+                    && t0.getIsRed();
         });
         Map<String, List<StockDetail>> resMap = stockCalcService.calcByStrategy(List.of(strategy));
         resMap.forEach((strategyName, resList) -> {
@@ -95,27 +93,14 @@ public class CalcTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         stockCalcService.calcByStrategy(List.of(
-                new StockStrategy("底部阳包阴 8%<总长 且低于10日线", (StockDetail t0) -> {
-                    StockDetail t1 = t0.getT1();
-                    StockDetail t2 = t0.getT2();
-                    StockDetail t3 = t0.getT3();
-                    return moreThan(t0.getLowShadowPert(), "0.6")
-                            && t0.getIsRed()
-                            && moreThan(t0.getAllLen(), "0.08")
-                            &&lessThan(t0.getPosition40(), 0.4)
-                            && lessThan(t0.getEndPrice(), t0.getTenDayLine());
-                }),
 
-        new StockStrategy("test_1" , (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            StockDetail t3 = t0.getT3();
-            return moreThan(t0.getLowShadowPert(), "0.6")
-                    && t0.getIsRed()
-                    && moreThan(t0.getAllLen(), "0.08")
-                    &&lessThan(t0.getPosition40(), 0.3)
-                    && lessThan(t0.getEndPrice(), t0.getTenDayLine());
-        })
+                new StockStrategy("test_1", (StockDetail t0) -> {
+                    return moreThan(t0.getFiveDayDealQuantity(), t0.getTenDayDealQuantity());
+                }),
+                new StockStrategy("test_2", (StockDetail t0) -> {
+                    return moreThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "1.1"))
+                            && lessThan(t0.getPosition60(),"0.5");
+                })
         ));
     }
 
@@ -131,7 +116,7 @@ public class CalcTest {
     @Test
     @DisplayName("测试策略-大类")
     public void startCalc6() throws ExecutionException, InterruptedException {
-        List<StockStrategy> strategyList = StockCalcService.getStrategyList("三羊开泰");
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("下影线");
         stockCalcService.calcByStrategy(strategyList);
     }
 
@@ -140,7 +125,7 @@ public class CalcTest {
     @DisplayName("根据策略预测")
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
         String curDate = "20260126";
-        boolean isOnTime = true;
+        boolean isOnTime = false;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, StockDetail> codeToDetailMap = stockCalcService.getCodeToTodayDetailMap();
@@ -153,7 +138,7 @@ public class CalcTest {
         QueryWrapper<StockCalcRes> detailWapper = new QueryWrapper<>();
         detailWapper.last("where type = 1" +
                 " and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')" +
-                " and win_rate > 0.6" +
+                " and win_rate > 0.7" +
                 " order by win_rate desc;");
         Map<String, String> strategyMap =
                 stockCalcResDao.selectList(detailWapper).stream()

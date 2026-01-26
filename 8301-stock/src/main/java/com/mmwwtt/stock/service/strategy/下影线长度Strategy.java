@@ -66,76 +66,181 @@ public class 下影线长度Strategy {
                         }),
 
 
-                        new StockStrategy("下影线 20区间的 0-10%， 下影线0.02-0.03", (StockDetail t0) -> {
+                        new StockStrategy("下影线 20区间的 0-10%， 下影线0.02-0.03 且红", (StockDetail t0) -> {
                             return isInRange(t0.getPosition20(), 0.0, 0.1)
-                                    && isInRange(t0.getLowShadowLen(), 0.02, 0.03);
+                                    && isInRange(t0.getLowShadowLen(), 0.02, 0.03)
+                                    && t0.getIsRed();
                         }),
 
-                        new StockStrategy("下影线 20区间的 0-10%， 下影线0.03-0.04", (StockDetail t0) -> {
+                        new StockStrategy("下影线 20区间的 0-10%， 下影线0.03-0.04 且红", (StockDetail t0) -> {
                             return isInRange(t0.getPosition20(), 0.0, 0.1)
-                                    && isInRange(t0.getLowShadowLen(), 0.03, 0.04);
+                                    && isInRange(t0.getLowShadowLen(), 0.03, 0.04)
+                                    && t0.getIsRed();
                         }),
 
-                        new StockStrategy("下影线 20区间的 10-20%， 下影线0.04-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 20区间的 10-20%， 下影线0.04-0.10 且红", (StockDetail t0) -> {
                             return isInRange(t0.getPosition20(), 0.1, 0.2)
-                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
+                                    && t0.getIsRed();
                         }),
 
-                        new StockStrategy("下影线 20区间的 20-30%， 下影线0.05-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 20区间的 20-30%， 下影线0.05-0.10 且红", (StockDetail t0) -> {
                             return isInRange(t0.getPosition20(), 0.2, 0.3)
-                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsRed();
                         }),
 
-                        new StockStrategy("下影线 20区间的 30-40%， 下影线0.05-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 20区间的 30-40%， 下影线0.05-0.10 且红", (StockDetail t0) -> {
                             return isInRange(t0.getPosition20(), 0.3, 0.4)
-                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsRed();
                         }),
 
-                        new StockStrategy("下影线 20区间的 30-40%， 下影线0.05-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 20区间的 40-50%， 下影线0.05-0.10 且红", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition20(), 0.4, 0.5)
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsRed();
+                        }),
+
+
+
+
+                        new StockStrategy("下影线 40区间的 0-10%， 下影线0.02-0.03 且红", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition40(), 0.0, 0.1)
+                                    && isInRange(t0.getLowShadowLen(), 0.02, 0.03)
+                                    && t0.getIsRed();
+                        }),
+
+                        new StockStrategy("下影线 40区间的 0-10%， 下影线0.03-0.04 且红", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition40(), 0.0, 0.1)
+                                    && isInRange(t0.getLowShadowLen(), 0.03, 0.04)
+                                    && t0.getIsRed();
+                        }),
+
+                        new StockStrategy("下影线 40区间的 10-20%， 下影线0.04-0.10 且红", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition40(), 0.1, 0.2)
+                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
+                                    && t0.getIsRed();
+                        }),
+
+                        new StockStrategy("下影线 40区间的 20-30%， 下影线0.05-0.10 且红", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition40(), 0.2, 0.3)
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsRed();
+                        }),
+
+                        new StockStrategy("下影线 40区间的 30-40%， 下影线0.05-0.10 且红", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition40(), 0.3, 0.4)
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsRed();
+                        }),
+
+
+                        new StockStrategy("下影线 60区间的 10-20%， 下影线0.04-0.10 且红", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition40(), 0.1, 0.2)
+                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
+                                    && t0.getIsRed();
+                        }),
+
+                        new StockStrategy("下影线 60区间的 20-30%， 下影线0.04-0.10 且红", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition40(), 0.2, 0.3)
+                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
+                                    && t0.getIsRed();
+                        }),
+
+                        new StockStrategy("下影线 60区间的 30-40%， 下影线0.05-0.10 且红", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition40(), 0.3, 0.4)
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsRed();
+                        }),
+
+
+
+
+                        new StockStrategy("下影线 20区间的 0-10%， 下影线0.02-0.03  且绿", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition20(), 0.0, 0.1)
+                                    && isInRange(t0.getLowShadowLen(), 0.02, 0.03)
+                                    && t0.getIsGreen();
+                        }),
+
+                        new StockStrategy("下影线 20区间的 0-10%， 下影线0.03-0.04  且绿", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition20(), 0.0, 0.1)
+                                    && isInRange(t0.getLowShadowLen(), 0.03, 0.04)
+                                    && t0.getIsGreen();
+                        }),
+
+                        new StockStrategy("下影线 20区间的 10-20%， 下影线0.04-0.10  且绿", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition20(), 0.1, 0.2)
+                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
+                                    && t0.getIsGreen();
+                        }),
+
+                        new StockStrategy("下影线 20区间的 20-30%， 下影线0.05-0.10  且绿", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition20(), 0.2, 0.3)
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsGreen();
+                        }),
+
+                        new StockStrategy("下影线 20区间的 30-40%， 下影线0.05-0.10  且绿", (StockDetail t0) -> {
                             return isInRange(t0.getPosition20(), 0.3, 0.4)
-                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsGreen();
+                        }),
+
+                        new StockStrategy("下影线 20区间的 40-50%， 下影线0.05-0.10  且绿", (StockDetail t0) -> {
+                            return isInRange(t0.getPosition20(), 0.4, 0.5)
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsGreen();
                         }),
 
 
-                        new StockStrategy("下影线 40区间的 0-10%， 下影线0.02-0.03", (StockDetail t0) -> {
+                        new StockStrategy("下影线 40区间的 0-10%， 下影线0.02-0.03  且绿", (StockDetail t0) -> {
                             return isInRange(t0.getPosition40(), 0.0, 0.1)
-                                    && isInRange(t0.getLowShadowLen(), 0.02, 0.03);
+                                    && isInRange(t0.getLowShadowLen(), 0.02, 0.03)
+                                    && t0.getIsGreen();
                         }),
 
-                        new StockStrategy("下影线 40区间的 0-10%， 下影线0.03-0.04", (StockDetail t0) -> {
+                        new StockStrategy("下影线 40区间的 0-10%， 下影线0.03-0.04 且绿", (StockDetail t0) -> {
                             return isInRange(t0.getPosition40(), 0.0, 0.1)
-                                    && isInRange(t0.getLowShadowLen(), 0.03, 0.04);
+                                    && isInRange(t0.getLowShadowLen(), 0.03, 0.04)
+                                    && t0.getIsGreen();
                         }),
 
-                        new StockStrategy("下影线 40区间的 10-20%， 下影线0.04-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 40区间的 10-20%， 下影线0.04-0.10 且绿", (StockDetail t0) -> {
                             return isInRange(t0.getPosition40(), 0.1, 0.2)
-                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
+                                    && t0.getIsGreen();
                         }),
 
-                        new StockStrategy("下影线 40区间的 20-30%， 下影线0.05-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 40区间的 20-30%， 下影线0.05-0.10 且绿", (StockDetail t0) -> {
                             return isInRange(t0.getPosition40(), 0.2, 0.3)
-                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsGreen();
                         }),
 
-                        new StockStrategy("下影线 40区间的 30-40%， 下影线0.05-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 40区间的 30-40%， 下影线0.05-0.10 且绿", (StockDetail t0) -> {
                             return isInRange(t0.getPosition40(), 0.3, 0.4)
-                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsGreen();
                         }),
 
 
-                        new StockStrategy("下影线 60区间的 10-20%， 下影线0.04-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 60区间的 10-20%， 下影线0.04-0.10 且绿", (StockDetail t0) -> {
                             return isInRange(t0.getPosition40(), 0.1, 0.2)
-                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
+                                    && t0.getIsGreen();
                         }),
 
-                        new StockStrategy("下影线 60区间的 20-30%， 下影线0.04-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 60区间的 20-30%， 下影线0.04-0.10 且绿", (StockDetail t0) -> {
                             return isInRange(t0.getPosition40(), 0.2, 0.3)
-                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
+                                    && t0.getIsGreen();
                         }),
 
-                        new StockStrategy("下影线 60区间的 30-40%， 下影线0.05-0.10", (StockDetail t0) -> {
+                        new StockStrategy("下影线 60区间的 30-40%， 下影线0.05-0.10 且绿", (StockDetail t0) -> {
                             return isInRange(t0.getPosition40(), 0.3, 0.4)
-                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10);
+                                    && isInRange(t0.getLowShadowLen(), 0.05, 0.10)
+                                    && t0.getIsGreen();
                         })
                 ));
 
