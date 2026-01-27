@@ -93,13 +93,11 @@ public class CalcTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         stockCalcService.calcByStrategy(List.of(
-
-                new StockStrategy("test_1", (StockDetail t0) -> {
-                    return moreThan(t0.getFiveDayDealQuantity(), t0.getTenDayDealQuantity());
-                }),
-                new StockStrategy("test_2", (StockDetail t0) -> {
-                    return moreThan(t0.getDealQuantity(), multiply(t0.getT1().getDealQuantity(), "1.1"))
-                            && lessThan(t0.getPosition60(),"0.5");
+                new StockStrategy("test1", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return t0.getIsUp()
+                            && moreThan(t0.getAllLen(), "0.08")
+                            && lessThan(t0.getUpShadowPert(), "0.3");
                 })
         ));
     }
@@ -116,7 +114,7 @@ public class CalcTest {
     @Test
     @DisplayName("测试策略-大类")
     public void startCalc6() throws ExecutionException, InterruptedException {
-        List<StockStrategy> strategyList = StockCalcService.getStrategyList("下影线");
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("日内V反");
         stockCalcService.calcByStrategy(strategyList);
     }
 

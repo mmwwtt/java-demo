@@ -107,7 +107,7 @@ public class DownloadTest {
         map2.put(STOCK_CODE, stockCode.split("\\.")[0]);
         StockDetailOnTimeVO stockDetailOnTimeVO = getResponse(ON_TIME_DATA_URL, map2, new ParameterizedTypeReference<StockDetailOnTimeVO>() {
         });
-        log.info("{}", JSONObject.toJSONString(stockDetailVOs));
+        log.info("获取单个代码的数据结束：{}", JSONObject.toJSONString(stockDetailVOs));
     }
 
 
@@ -287,7 +287,7 @@ public class DownloadTest {
             } catch (Exception e) {
                 //打印除限流外的错误
                 if (!e.getMessage().startsWith("429")) {
-                    log.info("{}", e.getMessage());
+                    log.info("调接口时发生错误{}", e.getMessage());
                     return null;
                 }
                 try {
