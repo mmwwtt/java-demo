@@ -74,9 +74,12 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return isInRange(t0.getPosition20(), 0.1, 0.2)
-                    && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
-                    && t0.getIsRed();
+            return isInRange(t0.getLowPrice(), subtract(t1.getLowPrice(), "0.02"), add(t1.getLowPrice(), "0.02"))
+                    && isInRange(t0.getLowPrice(), subtract(t2.getLowPrice(), "0.02"), add(t2.getLowPrice(), "0.02"))
+                    && lessThan(t0.getPosition20(), "0.2")
+                    && moreThan(t0.getPricePert().abs(), "0.01")
+                    && moreThan(t1.getPricePert().abs(), "0.01")
+                    && moreThan(t2.getPricePert().abs(), "0.01");
         });
         Map<String, List<StockDetail>> resMap = stockCalcService.calcByStrategy(List.of(strategy));
         resMap.forEach((strategyName, resList) -> {
@@ -97,9 +100,13 @@ public class CalcTest {
     public void startCalc4() throws ExecutionException, InterruptedException {
         stockCalcService.calcByStrategy(List.of(
 
-                new StockStrategy("下影线和实体 10%<下影线 20日向上 ", (StockDetail t0) -> {
-                    return moreThan(add(t0.getLowShadowLen(), t0.getEntityLen()), 0.8)
-                            && t0.getTwentyIsUp();
+                new StockStrategy("test ", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    StockDetail t2 = t0.getT2();
+                    StockDetail t3 = t0.getT3();
+                    return isInRange(t0.getLowPrice(), subtract(t1.getLowPrice(), "0.02"), add(t1.getLowPrice(), "0.02"))
+                            && isInRange(t0.getLowPrice(), subtract(t2.getLowPrice(), "0.02"), add(t2.getLowPrice(), "0.02"))
+                            && lessThan(t0.getPosition20(), "0.2");
                 })
         ));
     }
@@ -127,7 +134,7 @@ public class CalcTest {
         stockCalcService.calcByStrategy(StockCalcService.STRATEGY_LIST);
 
         String curDate = "20260127";
-        boolean isOnTime = true;
+        boolean isOnTime = false;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, StockDetail> codeToDetailMap = stockCalcService.getCodeToTodayDetailMap();

@@ -282,6 +282,16 @@ public class 一般Strategy {
                     StockDetail t3 = t0.getT3();
                     return t0.getIsGreen()
                             && moreThan(t0.getLowPrice(), t1.getStartPrice());
+                }),
+                new StockStrategy("第二天阳线包第一根阳线", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    StockDetail t2 = t0.getT2();
+                    StockDetail t3 = t0.getT3();
+                    return t0.getIsUp() && t0.getIsRed()&& t0.getT1().getIsUp()&& t0.getT1().getIsRed()
+                            &&lessThan(t0.getStartPrice(), t0.getT1().getStartPrice())
+                            && moreThan(t0.getEndPrice(), t0.getT1().getEndPrice())
+                            && isInRange(t0.getStartPrice(),multiply(t0.getLowPrice(), "0.95"), multiply(t0.getLowPrice(), "1.05"))
+                            && t0.getTwentyIsUp();
                 })
         ));
     }
