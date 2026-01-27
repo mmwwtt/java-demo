@@ -98,7 +98,7 @@ public class CalcTest {
         stockCalcService.calcByStrategy(List.of(
 
                 new StockStrategy("下影线和实体 10%<下影线 20日向上 ", (StockDetail t0) -> {
-                    return moreThan(add(t0.getLowShadowLen(), t0.getEntityLen()), 0.1)
+                    return moreThan(add(t0.getLowShadowLen(), t0.getEntityLen()), 0.8)
                             && t0.getTwentyIsUp();
                 })
         ));
