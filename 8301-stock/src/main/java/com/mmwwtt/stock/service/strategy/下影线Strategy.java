@@ -14,9 +14,23 @@ import static com.mmwwtt.stock.common.CommonUtils.moreThan;
  * 长下影线往往表示下跌见底后 有希望反弹
  */
 @Service
-public class 下影线长度Strategy {
+public class 下影线Strategy {
     static {
         StockCalcService.STRATEGY_LIST.addAll(Arrays.asList(
+
+                new StockStrategy("下影线 4%<下影线<5% 40日向上", (StockDetail t0) -> {
+                    return isInRange(t0.getLowShadowLen(), 0.04, 0.05)
+                            && t0.getFortyIsUp();
+                }),
+
+                new StockStrategy("下影线 5%<下影线 40日向上", (StockDetail t0) -> {
+                    return moreThan(t0.getLowShadowLen(), 0.05)
+                            && t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 5%<下影线 40日向下", (StockDetail t0) -> {
+                    return moreThan(t0.getLowShadowLen(), 0.05)
+                            && !t0.getFortyIsUp();
+                }),
 
                 new StockStrategy("下影线 5%<下影线<6%", (StockDetail t0) -> {
                     return isInRange(t0.getLowShadowLen(), 0.05, 0.06);
@@ -26,42 +40,171 @@ public class 下影线长度Strategy {
                     return isInRange(t0.getLowShadowLen(), 0.06, 0.10);
                 }),
 
-                new StockStrategy("下影线 前一天是绿， 5%<下影线<6%", (StockDetail t0) -> {
+                new StockStrategy("下影线 前一天是绿， 5%<下影线<6% 40日向上", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
                     return t1.getIsGreen()
-                            && isInRange(t0.getLowShadowLen(), 0.05, 0.06);
+                            && isInRange(t0.getLowShadowLen(), 0.05, 0.06)
+                            && t0.getFortyIsUp();
                 }),
-                new StockStrategy("下影线 前一天是绿， 6%<下影线<7%", (StockDetail t0) -> {
+                new StockStrategy("下影线 前一天是绿， 6%<下影线<7% 40日向上", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
                     return t1.getIsGreen()
-                            && isInRange(t0.getLowShadowLen(), 0.06, 0.07);
+                            && isInRange(t0.getLowShadowLen(), 0.06, 0.07)
+                            && t0.getFortyIsUp();
                 }),
-                new StockStrategy("下影线 前一天是绿， 7%<下影线<10%", (StockDetail t0) -> {
+                new StockStrategy("下影线 前一天是绿， 7%<下影线<10% 40日向上", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
                     return t1.getIsGreen()
-                            && isInRange(t0.getLowShadowLen(), 0.07, 0.10);
+                            && isInRange(t0.getLowShadowLen(), 0.07, 0.10)
+                            && t0.getFortyIsUp();
                 }),
 
 
-                new StockStrategy("下影线 8%<下影线 且红", (StockDetail t0) -> {
-                    return moreThan(t0.getLowShadowLen(), "0.08") && t0.getIsRed();
+                new StockStrategy("下影线 前一天是绿， 5%<下影线<6% 40日向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return t1.getIsGreen()
+                            && isInRange(t0.getLowShadowLen(), 0.05, 0.06)
+                            && !t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 前一天是绿， 6%<下影线<7% 40日向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return t1.getIsGreen()
+                            && isInRange(t0.getLowShadowLen(), 0.06, 0.07)
+                            && !t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 前一天是绿， 7%<下影线<10% 40日向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return t1.getIsGreen()
+                            && isInRange(t0.getLowShadowLen(), 0.07, 0.10)
+                            && !t0.getFortyIsUp();
                 }),
 
-                new StockStrategy("下影线 7%<下影线<8% 且红", (StockDetail t0) -> {
-                    return isInRange(t0.getLowShadowLen(), "0.07", "0.08") && t0.getIsRed();
+
+
+
+
+
+                new StockStrategy("下影线 8%<下影线且红 40日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return moreThan(t0.getLowShadowLen(), "0.08")  && t0.getIsRed()
+                            && t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 8%<下影线 且红 40日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return moreThan(t0.getLowShadowLen(), "0.08")  && t0.getIsRed()
+                            && !t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 8%<下影线 且红 20日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return moreThan(t0.getLowShadowLen(), "0.08")  && t0.getIsRed()
+                            && t0.getTwentyIsUp();
+                }),
+                new StockStrategy("下影线 8%<下影线 且红 20日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return moreThan(t0.getLowShadowLen(), "0.08")  && t0.getIsRed()
+                            && !t0.getTwentyIsUp();
                 }),
 
-                new StockStrategy("下影线 6%<下影线<7% 且红", (StockDetail t0) -> {
-                    return isInRange(t0.getLowShadowLen(), "0.06", "0.07") && t0.getIsRed();
+
+                new StockStrategy("下影线 7%<下影线<8% 且红 40日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.07", "0.08") && t0.getIsRed()
+                            && t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 7%<下影线<8% 且红 40日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.07", "0.08") && t0.getIsRed()
+                            && !t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 7%<下影线<8% 且红 20日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.07", "0.08") && t0.getIsRed()
+                            && t0.getTwentyIsUp();
+                }),
+                new StockStrategy("下影线 7%<下影线<8% 且红 20日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.07", "0.08") && t0.getIsRed()
+                            && !t0.getTwentyIsUp();
                 }),
 
-                new StockStrategy("下影线 5%<下影线<6% 且红", (StockDetail t0) -> {
-                    return isInRange(t0.getLowShadowLen(), "0.05", "0.06") && t0.getIsRed();
+
+                new StockStrategy("下影线 6%<下影线<7% 且红 40日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return  isInRange(t0.getLowShadowLen(), "0.06", "0.07") && t0.getIsRed()
+                            && t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 6%<下影线<7% 且红 40日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return  isInRange(t0.getLowShadowLen(), "0.06", "0.07") && t0.getIsRed()
+                            && !t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 6%<下影线<7% 且红 20日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return  isInRange(t0.getLowShadowLen(), "0.06", "0.07") && t0.getIsRed()
+                            && t0.getTwentyIsUp();
+                }),
+                new StockStrategy("下影线 6%<下影线<7% 且红 20日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return  isInRange(t0.getLowShadowLen(), "0.06", "0.07") && t0.getIsRed()
+                            && !t0.getTwentyIsUp();
                 }),
 
-                new StockStrategy("下影线 4%<下影线<5% 且红", (StockDetail t0) -> {
-                    return isInRange(t0.getLowShadowLen(), "0.04", "0.05") && t0.getIsRed();
+
+
+
+                new StockStrategy("下影线 5%<下影线<6% 且红 40日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.05", "0.06")  && t0.getIsRed()
+                            && t0.getFortyIsUp();
                 }),
+                new StockStrategy("下影线 5%<下影线<6% 且红 40日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.05", "0.06")  && t0.getIsRed()
+                            && !t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 5%<下影线<6% 且红 20日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.05", "0.06")  && t0.getIsRed()
+                            && t0.getTwentyIsUp();
+                }),
+                new StockStrategy("下影线 5%<下影线<6% 且红 20日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.05", "0.06")  && t0.getIsRed()
+                            && !t0.getTwentyIsUp();
+                }),
+
+
+
+
+
+                new StockStrategy("下影线 4%<下影线<5% 且红 40日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.04", "0.05")  && t0.getIsRed()
+                            && t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 4%<下影线<5% 且红 40日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.04", "0.05")  && t0.getIsRed()
+                            && !t0.getFortyIsUp();
+                }),
+                new StockStrategy("下影线 4%<下影线<5% 且红 20日内向上", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.04", "0.05")  && t0.getIsRed()
+                            && t0.getTwentyIsUp();
+                }),
+                new StockStrategy("下影线 4%<下影线<5% 且红 20日内向下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1();
+                    return isInRange(t0.getLowShadowLen(), "0.04", "0.05")  && t0.getIsRed()
+                            && !t0.getTwentyIsUp();
+                }),
+
+
+
+
+
+
+
+
 
 
                 new StockStrategy("下影线 20区间的 0-10%， 下影线0.02-0.03 且红", (StockDetail t0) -> {

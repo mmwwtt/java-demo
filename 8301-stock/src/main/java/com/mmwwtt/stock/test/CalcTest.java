@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
@@ -71,7 +72,7 @@ public class CalcTest {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
-            return isInRange(t0.getPosition40(), 0.2, 0.3)
+            return isInRange(t0.getPosition20(), 0.1, 0.2)
                     && isInRange(t0.getLowShadowLen(), 0.04, 0.10)
                     && t0.getIsRed();
         });
@@ -93,11 +94,11 @@ public class CalcTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         stockCalcService.calcByStrategy(List.of(
-                new StockStrategy("test1", (StockDetail t0) -> {
-                    StockDetail t1 = t0.getT1();
-                    return t0.getIsUp()
-                            && moreThan(t0.getAllLen(), "0.08")
-                            && lessThan(t0.getUpShadowPert(), "0.3");
+                new StockStrategy("上升缺口 40日向上", (StockDetail t0) -> {
+                    BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+                    return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
+                            && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
+                            && moreThan(space, "0.0");
                 })
         ));
     }
@@ -114,7 +115,7 @@ public class CalcTest {
     @Test
     @DisplayName("测试策略-大类")
     public void startCalc6() throws ExecutionException, InterruptedException {
-        List<StockStrategy> strategyList = StockCalcService.getStrategyList("日内V反");
+        List<StockStrategy> strategyList = StockCalcService.getStrategyList("上升缺口");
         stockCalcService.calcByStrategy(strategyList);
     }
 
@@ -122,8 +123,10 @@ public class CalcTest {
     @Test
     @DisplayName("根据策略预测")
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
-        String curDate = "20260126";
-        boolean isOnTime = false;
+        stockCalcService.calcByStrategy(StockCalcService.STRATEGY_LIST);
+
+        String curDate = "20260127";
+        boolean isOnTime = true;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
         Map<String, StockDetail> codeToDetailMap = stockCalcService.getCodeToTodayDetailMap();
