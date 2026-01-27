@@ -25,8 +25,10 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -94,11 +96,10 @@ public class CalcTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         stockCalcService.calcByStrategy(List.of(
-                new StockStrategy("上升缺口 40日向上", (StockDetail t0) -> {
-                    BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
-                    return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice())
-                            && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                            && moreThan(space, "0.0");
+
+                new StockStrategy("下影线和实体 10%<下影线 20日向上 ", (StockDetail t0) -> {
+                    return moreThan(add(t0.getLowShadowLen(), t0.getEntityLen()), 0.1)
+                            && t0.getTwentyIsUp();
                 })
         ));
     }
