@@ -133,7 +133,7 @@ public class CalcTest {
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
         stockCalcService.calcByStrategy(StockCalcService.STRATEGY_LIST);
 
-        String curDate = "20260127";
+        String curDate = "20260130";
         boolean isOnTime = false;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockCalcService.getAllStock();
@@ -147,7 +147,7 @@ public class CalcTest {
         QueryWrapper<StockCalcRes> detailWapper = new QueryWrapper<>();
         detailWapper.last("where type = 1" +
                 " and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')" +
-                " and win_rate > 0.7" +
+                " and win_rate > 0.6" +
                 " order by win_rate desc;");
         Map<String, String> strategyMap =
                 stockCalcResDao.selectList(detailWapper).stream()

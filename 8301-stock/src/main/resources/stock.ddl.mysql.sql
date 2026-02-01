@@ -7,8 +7,8 @@ DROP TABLE IF EXISTS stock_t;
 CREATE TABLE stock_t
 (
     stock_Id INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    name     VARCHAR(64) NOT NULL COMMENT '股票名称',
-    code     VARCHAR(64) NOT NULL COMMENT '股票编码'
+    name     VARCHAR(16) NOT NULL COMMENT '股票名称',
+    code     VARCHAR(16) NOT NULL COMMENT '股票编码'
 
 ) COMMENT '股票表';
 
@@ -17,8 +17,8 @@ DROP TABLE IF EXISTS stock_detail_t;
 CREATE TABLE stock_detail_t
 (
     stock_detail_Id          INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    stock_code               VARCHAR(64)    NOT NULL COMMENT '股票代码',
-    deal_date                VARCHAR(64)    NOT NULL COMMENT '交易日期',
+    stock_code               VARCHAR(16)    NOT NULL COMMENT '股票代码',
+    deal_date                VARCHAR(16)    NOT NULL COMMENT '交易日期',
     start_price              decimal(10, 4) NOT NULL COMMENT '开盘价',
     high_price               decimal(10, 4) NOT NULL COMMENT '最高价',
     low_price                decimal(10, 4) NOT NULL COMMENT '最低价',
@@ -111,4 +111,16 @@ CREATE TABLE stock_calculation_result_t
     ten_max_perc_rate  DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
     create_date        DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '股票计算结果表';
+
+
+DROP TABLE IF EXISTS stock_strategy_result_t;
+CREATE TABLE stock_strategy_result_t
+(
+    strategy_result_id INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_code      VARCHAR(8) COMMENT '策略编码',
+    stock_code         VARCHAR(16) COMMENT '股票代码',
+    win_date_list      JSON COMMENT '预测对的日期列表',
+    fail_date_list     JSON COMMENT "预测错的日期列表",
+    create_date        DATETIME NOT NULL COMMENT '创建日期'
+) COMMENT '单条策略预测表';
 
