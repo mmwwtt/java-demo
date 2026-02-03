@@ -275,6 +275,7 @@ public class CalcTest {
     @Test
     @DisplayName("生成符合单条枚举策略的数据")
     public void buildData() throws ExecutionException, InterruptedException {
+        strategyResultDao.delete(new QueryWrapper<>());
         StrategyEnum[] values = StrategyEnum.values();
         List<List<Stock>> parts = stockCalcService.getStockPart();
         for (List<Stock> part : parts) {
