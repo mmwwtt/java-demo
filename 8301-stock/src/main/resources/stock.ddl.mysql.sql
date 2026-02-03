@@ -117,10 +117,10 @@ DROP TABLE IF EXISTS stock_strategy_result_t;
 CREATE TABLE stock_strategy_result_t
 (
     strategy_result_id INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    strategy_code      VARCHAR(8) COMMENT '策略编码',
+    strategy_code      VARCHAR(100) COMMENT '策略编码',
     stock_code         VARCHAR(16) COMMENT '股票代码',
-    win_date_list      JSON COMMENT '预测对的日期列表',
-    fail_date_list     JSON COMMENT "预测错的日期列表",
+    win_date_list      VARCHAR(3000) COMMENT '预测对的日期列表',
+    fail_date_list     VARCHAR(3000) COMMENT "预测错的日期列表",
     create_date        DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '单条策略预测表';
 

@@ -8,14 +8,14 @@ import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.dao.StockCalcResDao;
 import com.mmwwtt.stock.dao.StockDao;
 import com.mmwwtt.stock.dao.StockDetailDao;
-import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockCalcRes;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StockStrategy;
+import com.mmwwtt.stock.dao.StrategyResultDao;
+import com.mmwwtt.stock.entity.*;
+import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.service.StockCalcService;
 import com.mmwwtt.stock.service.StockGuiUitls;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,9 @@ public class CalcTest {
 
     @Autowired
     private StockDetailDao stockDetailDao;
+
+    @Autowired
+    private StrategyResultDao strategyResultDao;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
@@ -264,6 +268,45 @@ public class CalcTest {
                     fos.write(str.getBytes());
                 }
             } catch (IOException ignored) {
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("生成符合单条枚举策略的数据")
+    public void buildData() throws ExecutionException, InterruptedException {
+        StrategyEnum[] values = StrategyEnum.values();
+        List<List<Stock>> parts = stockCalcService.getStockPart();
+        for (List<Stock> part : parts) {
+            for (Stock stock : part) {
+                List<StockDetail> stockDetail = stockCalcService.getStockDetail(stock.getCode(), null);
+                List<CompletableFuture<Void>> futures = new ArrayList<>();
+                for (StrategyEnum strategy : values) {
+                    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                        List<String> winDateList = new ArrayList<>();
+                        List<String> failDateList = new ArrayList<>();
+                        for (StockDetail detail : stockDetail) {
+                            if(Objects.isNull(detail.getNext1()) || Objects.isNull(detail.getSixtyDayLine())) {
+                                continue;
+                            }
+                            if (strategy.getRunFunc().apply(detail)) {
+                                if (detail.getNext1().getIsRed()) {
+                                    winDateList.add(detail.getDealDate());
+                                } else {
+                                    failDateList.add(detail.getDealDate());
+                                }
+                            }
+                        }
+                        if (!CollectionUtils.isEmpty(winDateList) || !CollectionUtils.isEmpty(failDateList)) {
+                            StrategyResult strategyResult = new StrategyResult(strategy.name(), stock.getCode(), winDateList, failDateList, LocalDateTime.now());
+                            strategyResultDao.insert(strategyResult);
+                        }
+                    }, cpuThreadPool);
+                    futures.add(future);
+                }
+
+                CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                allTask.get();
             }
         }
     }

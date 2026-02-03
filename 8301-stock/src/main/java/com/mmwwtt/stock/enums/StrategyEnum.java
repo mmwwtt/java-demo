@@ -5,6 +5,7 @@ import com.mmwwtt.stock.entity.StockDetail;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -14,7 +15,13 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 public enum StrategyEnum implements BaseEnum {
 
     比前一天缩量("0", (StockDetail t0) -> lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity()), ""),
+    比前一天放量("0", (StockDetail t0) -> moreThan(t0.getDealQuantity(), t0.getT1().getDealQuantity()), ""),
+    涨幅成交比扩大("0", (StockDetail t0) -> lessThan(t0.getPertDivisionQuantity(), t0.getT1().getPertDivisionQuantity()), ""),
 
+    二连红("0", (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed(), ""),
+    三连红("0", (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed(), ""),
+
+    是十字星("1", StockDetail::getIsTenStar, ""),
     当天上涨("1", StockDetail::getIsUp, ""),
     当天下跌("2", StockDetail::getIsDown, ""),
     当天是红("3", StockDetail::getIsRed, "收盘高于开盘"),
@@ -135,6 +142,31 @@ public enum StrategyEnum implements BaseEnum {
             && lessThan(t0.getLowPrice(), t0.getFortyDayLine()), ""),
     穿过60日线("", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getSixtyDayLine())
             && lessThan(t0.getLowPrice(), t0.getSixtyDayLine()), ""),
+
+    上升缺口_00_01("", (StockDetail t0) -> {
+        BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+        return isInRange(space, "0.00", "0.01");
+    }, ""),
+
+    上升缺口_01_02("", (StockDetail t0) -> {
+        BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+        return isInRange(space, "0.01", "0.02");
+    }, ""),
+
+    上升缺口_02_03("", (StockDetail t0) -> {
+        BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+        return isInRange(space, "0.02", "0.03");
+    }, ""),
+
+    上升缺口_03_04("", (StockDetail t0) -> {
+        BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+        return isInRange(space, "0.03", "0.04");
+    }, ""),
+
+    上升缺口_04_05("", (StockDetail t0) -> {
+        BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
+        return isInRange(space, "0.04", "0.05");
+    }, ""),
     ;
     private final String code;
     private final Function<StockDetail, Boolean> runFunc;

@@ -12,6 +12,9 @@ from stock_detail_t;
 select count(*)
 from stock_calculation_result_t;
 
+select count(*)
+from stock_strategy_result_t;
+
 
 select *
 from stock_calculation_result_t
