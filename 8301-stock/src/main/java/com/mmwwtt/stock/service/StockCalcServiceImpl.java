@@ -9,10 +9,8 @@ import com.mmwwtt.stock.convert.StockConverter;
 import com.mmwwtt.stock.dao.StockCalcResDao;
 import com.mmwwtt.stock.dao.StockDao;
 import com.mmwwtt.stock.dao.StockDetailDao;
-import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockCalcRes;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StockStrategy;
+import com.mmwwtt.stock.dao.StrategyResultDao;
+import com.mmwwtt.stock.entity.*;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,6 +43,9 @@ public class StockCalcServiceImpl implements StockCalcService {
 
     @Resource
     private StockCalcResDao stockCalcResDao;
+
+    @Resource
+    private StrategyResultDao strategyResultDao;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
@@ -508,5 +509,13 @@ public class StockCalcServiceImpl implements StockCalcService {
         return strategyToCalcMap;
     }
 
+
+    @Override
+    public List<StrategyResult> getStrategyResultByName(String strategyName){
+        QueryWrapper<StrategyResult> wapper = new QueryWrapper<>();
+        wapper
+                .eq("strategy_code", strategyName);
+        return strategyResultDao.selectList(wapper);
+    }
 
 }

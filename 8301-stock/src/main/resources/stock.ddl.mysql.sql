@@ -124,3 +124,24 @@ CREATE TABLE stock_strategy_result_t
     create_date        DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '单条策略预测表';
 
+
+
+
+DROP TABLE IF EXISTS stock_strategy_win_t;
+CREATE TABLE stock_strategy_win_t
+(
+    strategy_win_id INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_code      VARCHAR(100) COMMENT '策略编码',
+    cnt DECIMAL(8, 4) COMMENT '总数',
+    win_rate            DECIMAL(8, 4) COMMENT '胜率',
+    two_perc_rate      DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
+    three_perc_rate    DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
+    four_perc_rate     DECIMAL(8, 4) COMMENT '4天后百分比叠加后的结果',
+    five_perc_rate     DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
+    five_max_perc_rate DECIMAL(8, 4) COMMENT '5天内最高价 百分比叠加后的结果',
+    ten_perc_rate      DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
+    ten_max_perc_rate  DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
+    create_date        DATETIME NOT NULL COMMENT '创建日期'
+) COMMENT '策略胜率表';
+
+

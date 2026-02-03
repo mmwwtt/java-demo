@@ -49,11 +49,21 @@ public class StrategyResult {
      */
     private LocalDateTime createDate;
 
-    public StrategyResult(String strategyCode, String stockCode, List<String> winDateList,List<String> failDateList,LocalDateTime createDate) {
+    public StrategyResult(String strategyCode, String stockCode, List<String> winDateList,
+                          List<String> failDateList,LocalDateTime createDate) {
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
         this.winDateList = String.join(" ", winDateList);
         this.failDateList = String.join(" ", failDateList);
+        this.createDate = createDate;
+    }
+
+    public StrategyResult(String strategyCode, String stockCode, String winDateStr,
+                          String failDateStr,LocalDateTime createDate) {
+        this.strategyCode = strategyCode;
+        this.stockCode = stockCode;
+        this.winDateList = winDateStr;
+        this.failDateList = failDateStr;
         this.createDate = createDate;
     }
 

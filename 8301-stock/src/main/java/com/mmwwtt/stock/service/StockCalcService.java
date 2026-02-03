@@ -3,6 +3,7 @@ package com.mmwwtt.stock.service;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
+import com.mmwwtt.stock.entity.StrategyResult;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,4 +66,10 @@ public interface StockCalcService {
     static List<StockStrategy> getStrategyList(String name) {
         return STRATEGY_LIST.stream().filter(item -> item.getStrategyName().startsWith(name)).toList();
     }
+
+    /**
+     * 获得所有股票列表
+     */
+    List<StrategyResult> getStrategyResultByName(String strategyName);
+
 }
