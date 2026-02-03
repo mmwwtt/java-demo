@@ -49,8 +49,14 @@ public class StrategyResult {
      */
     private LocalDateTime createDate;
 
-    public StrategyResult(String strategyCode, String stockCode, List<String> winDateList,
+    /**
+     * 条件层数
+     */
+    private Integer level;
+
+    public StrategyResult(Integer level, String strategyCode, String stockCode, List<String> winDateList,
                           List<String> failDateList,LocalDateTime createDate) {
+        this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
         this.winDateList = String.join(" ", winDateList);
@@ -58,8 +64,9 @@ public class StrategyResult {
         this.createDate = createDate;
     }
 
-    public StrategyResult(String strategyCode, String stockCode, String winDateStr,
+    public StrategyResult(Integer level,String strategyCode, String stockCode, String winDateStr,
                           String failDateStr,LocalDateTime createDate) {
+        this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
         this.winDateList = winDateStr;

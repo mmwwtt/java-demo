@@ -22,5 +22,8 @@ public class SetUtils使用 {
 
         // 并集
         Set<Integer> union = SetUtils.union(set1, set2);
+
+        //交集
+        Set<Integer> inter = SetUtils.intersection(set1, set2);
     }
 }

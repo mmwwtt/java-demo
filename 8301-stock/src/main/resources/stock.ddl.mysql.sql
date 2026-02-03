@@ -121,6 +121,7 @@ CREATE TABLE stock_strategy_result_t
     stock_code         VARCHAR(16) COMMENT '股票代码',
     win_date_list      VARCHAR(3000) COMMENT '预测对的日期列表',
     fail_date_list     VARCHAR(3000) COMMENT "预测错的日期列表",
+    level              INT(4)  comment  "条件层数",
     create_date        DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '单条策略预测表';
 

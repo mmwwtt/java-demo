@@ -70,6 +70,6 @@ public interface StockCalcService {
     /**
      * 获得所有股票列表
      */
-    List<StrategyResult> getStrategyResultByName(String strategyName);
+    List<StrategyResult> getStrategyResultByName(String strategyName, Integer level);
 
 }

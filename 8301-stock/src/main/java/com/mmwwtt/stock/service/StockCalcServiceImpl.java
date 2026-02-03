@@ -455,7 +455,7 @@ public class StockCalcServiceImpl implements StockCalcService {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
                     List<StockDetail> stockDetails = getStockDetail(stock.getCode(), 10);
-                    if(CollectionUtils.isEmpty(stockDetails)) {
+                    if (CollectionUtils.isEmpty(stockDetails)) {
                         continue;
                     }
                     codeToDetailMap.put(stock.getCode(), stockDetails.get(0));
@@ -511,10 +511,10 @@ public class StockCalcServiceImpl implements StockCalcService {
 
 
     @Override
-    public List<StrategyResult> getStrategyResultByName(String strategyName){
+    public List<StrategyResult> getStrategyResultByName(String strategyName, Integer level) {
         QueryWrapper<StrategyResult> wapper = new QueryWrapper<>();
-        wapper
-                .eq("strategy_code", strategyName);
+        wapper.eq("strategy_code", strategyName)
+                .eq("level", level);
         return strategyResultDao.selectList(wapper);
     }
 

@@ -17,7 +17,7 @@ public class Sets使用 {
         Set<Integer> set1 = Set.of(1,2,3);
         Set<Integer> set2 = Set.of(3,4,5);
         // 交集
-        Set<Integer> inter = Sets.intersection(set1, set2).immutableCopy();
+        Set<Integer> inter = Sets.intersection(set1, set2);
 
         // 并集
         Set<Integer> union = Sets.union(set1, set2);

@@ -16,6 +16,8 @@ import com.mmwwtt.stock.service.StockGuiUitls;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -269,6 +271,15 @@ public class CalcTest {
         }
     }
 
+
+    @Test
+    @DisplayName("生成符合单条枚举策略的数据")
+    public void ttt() throws ExecutionException, InterruptedException {
+        buildData();
+        buildData1();
+    }
+
+
     @Test
     @DisplayName("生成符合单条枚举策略的数据")
     public void buildData() throws ExecutionException, InterruptedException {
@@ -277,10 +288,10 @@ public class CalcTest {
         StrategyEnum[] values = StrategyEnum.values();
 
         List<List<Stock>> parts = stockCalcService.getStockPart();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             for (Stock stock : part) {
                 List<StockDetail> stockDetail = stockCalcService.getStockDetail(stock.getCode(), null);
-                List<CompletableFuture<Void>> futures = new ArrayList<>();
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     List<StrategyResult> list = new ArrayList<>();
                     for (StrategyEnum strategy : values) {
@@ -299,7 +310,7 @@ public class CalcTest {
                             }
                         }
                         if (!CollectionUtils.isEmpty(winDateList) || !CollectionUtils.isEmpty(failDateList)) {
-                            StrategyResult strategyResult = new StrategyResult(strategy.name(),
+                            StrategyResult strategyResult = new StrategyResult(1,strategy.name(),
                                     stock.getCode(), winDateList, failDateList, now);
                             list.add(strategyResult);
                         }
@@ -310,11 +321,10 @@ public class CalcTest {
                     strategyResultDao.insert(list);
                 }, ioThreadPool);
                 futures.add(future);
-
-                CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-                allTask.get();
             }
         }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
     }
 
     @Test
@@ -326,14 +336,20 @@ public class CalcTest {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int i = 0; i < values.length; i++) {
             StrategyEnum strategy1 = values[i];
-            Map<String, StrategyResult> map1 = stockCalcService.getStrategyResultByName(strategy1.name())
-                    .stream().collect(Collectors.toMap(StrategyResult::getStockCode, Function.identity()));
+            Map<String, Pair<Set<String>, Set<String>>> map1 = stockCalcService.getStrategyResultByName(strategy1.name(),1)
+                    .stream().collect(Collectors.toMap(StrategyResult::getStockCode, item ->
+                         Pair.of(Arrays.stream(item.getWinDateList().split(" ")).collect(Collectors.toSet()),
+                                Arrays.stream(item.getFailDateList().split(" ")).collect(Collectors.toSet()) )
+                    ));
             int nextI = i + 1;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (int i1 = nextI + 1; i1 < values.length; i1++) {
                     StrategyEnum strategy2 = values[i1];
-                    Map<String, StrategyResult> map2 = stockCalcService.getStrategyResultByName(strategy2.name())
-                            .stream().collect(Collectors.toMap(StrategyResult::getStockCode, Function.identity()));
+                    Map<String, Pair<Set<String>, Set<String>>> map2 = stockCalcService.getStrategyResultByName(strategy2.name(),1)
+                            .stream().collect(Collectors.toMap(StrategyResult::getStockCode, item ->
+                                    Pair.of(Arrays.stream(item.getWinDateList().split(" ")).collect(Collectors.toSet()),
+                                            Arrays.stream(item.getFailDateList().split(" ")).collect(Collectors.toSet()) )
+                            ));
                     String strategyName = strategy1.name() + " " + strategy2.name();
                     List<StrategyResult> strategyResultList = new ArrayList<>();
                     int count = 0;
@@ -342,15 +358,14 @@ public class CalcTest {
                         if (!map2.containsKey(stockCode)) {
                             return;
                         }
-                        String winDateStr = map1.get(stockCode).getWinDateList() + " " + map2.get(stockCode).getWinDateList();
-                        String failDateStr = map1.get(stockCode).getFailDateList() + " " + map2.get(stockCode).getFailDateList();
-                        Set<String> winSet = Arrays.stream(winDateStr.split(" ")).collect(Collectors.toSet());
-                        Set<String> failSet = Arrays.stream(failDateStr.split(" ")).collect(Collectors.toSet());
+                        Set<String> winSet = SetUtils.intersection(map1.get(stockCode).getLeft(), map2.get(stockCode).getLeft());
+                        Set<String> failSet =  SetUtils.intersection(map1.get(stockCode).getRight(), map2.get(stockCode).getRight());
+
                         if (winSet.size() + failSet.size() == 0) {
                             return;
                         }
                         count = count + winSet.size() + failSet.size();
-                        StrategyResult strategyResult = new StrategyResult(strategyName, stockCode,
+                        StrategyResult strategyResult = new StrategyResult(2,strategyName, stockCode,
                                 String.join(" ", winSet), String.join(" ", failSet), now);
                         strategyResultList.add(strategyResult);
                     }
