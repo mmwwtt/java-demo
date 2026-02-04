@@ -134,7 +134,7 @@ CREATE TABLE stock_strategy_win_t
     strategy_name      VARCHAR(200) COMMENT '策略名称',
     cnt                INT(8) COMMENT '总数',
     win_rate           DECIMAL(8, 4) COMMENT '胜率',
-    winPercRate        DECIMAL(8,4) COMMENT  '预测对的平均涨幅',
+    win_perc_rate        DECIMAL(8,4) COMMENT  '预测对的平均涨幅',
     one_perc_rate      DECIMAL(8,4) COMMENT  '1天后的平均涨幅',
     two_perc_rate      DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
     three_perc_rate    DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
@@ -143,7 +143,7 @@ CREATE TABLE stock_strategy_win_t
     ten_perc_rate      DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
     five_max_perc_rate DECIMAL(8, 4) COMMENT '5天内最高价 百分比叠加后的结果',
     ten_max_perc_rate  DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
-    create_date        DATETIME NOT NULL COMMENT '创建日期'
+    create_date        DATETIME COMMENT '创建日期'
 ) COMMENT '策略胜率表';
 
 

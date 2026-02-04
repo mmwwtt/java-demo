@@ -23,8 +23,8 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
     @Override
     public List<StrategyResult> getStrategyResult(StrategyResult strategyResult) {
         QueryWrapper<StrategyResult> wapper = new QueryWrapper<>();
-        if(StringUtils.isNotEmpty(strategyResult.getStockCode())) {
-            wapper.eq("strategy_code", strategyResult.getStockCode());
+        if(StringUtils.isNotEmpty(strategyResult.getStrategyCode())) {
+            wapper.eq("strategy_code", strategyResult.getStrategyCode());
         }
         if(Objects.nonNull(strategyResult.getLevel())) {
             wapper.eq("level", strategyResult.getLevel());

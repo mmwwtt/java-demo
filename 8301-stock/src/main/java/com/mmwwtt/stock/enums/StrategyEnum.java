@@ -175,7 +175,7 @@ public enum StrategyEnum implements BaseEnum {
 
     public static final Map<String, String> codeToNameMap;
     static {
-        codeToNameMap = Arrays.stream(StrategyEnum.values()).collect(Collectors.toMap(StrategyEnum::getCode, StrategyEnum::getDesc));
+        codeToNameMap = Arrays.stream(StrategyEnum.values()).collect(Collectors.toMap(StrategyEnum::getCode, StrategyEnum::name));
     }
 
 

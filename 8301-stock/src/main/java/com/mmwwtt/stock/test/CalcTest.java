@@ -352,6 +352,7 @@ public class CalcTest {
     @Test
     @DisplayName("根据组合数据，生成预测结果")
     public void getResult() throws ExecutionException, InterruptedException {
+        strategyWinServicel.remove(new QueryWrapper<>());
         LocalDateTime now = LocalDateTime.now();
         List<String> strategyCodeList = strategyResultService.getStrategyCode();
         Map<String, StrategyWin> strategyCodeToWinMap = new ConcurrentHashMap<>();
@@ -363,7 +364,7 @@ public class CalcTest {
             strategyWin.setCreateDate(now);
             strategyWin.setStrategyCode(item);
             strategyWin.setStrategyName(name);
-            strategyCodeToWinMap.put(item, new StrategyWin());
+            strategyCodeToWinMap.put(item, strategyWin);
         });
         List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -376,12 +377,12 @@ public class CalcTest {
                     List<StrategyResult> results =
                             strategyResultService.getStrategyResult(StrategyResult.builder().stockCode(stock.getCode()).build());
                     for (StrategyResult result : results) {
-                        StrategyWin strategyWin = strategyCodeToWinMap.get(result.getStockCode());
+                        StrategyWin strategyWin = strategyCodeToWinMap.get(result.getStrategyCode());
                         Arrays.stream(result.getStockDetailIdList().split(" "))
                                 .forEach(item -> strategyWin.addToResult(idToDetailMap.get(Long.valueOf(item))));
                     }
                 }
-            },ioThreadPool);
+            }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
