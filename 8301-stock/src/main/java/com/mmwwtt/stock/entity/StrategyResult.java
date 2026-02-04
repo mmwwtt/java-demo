@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @TableName("stock_strategy_result_t")
@@ -37,7 +38,7 @@ public class StrategyResult {
     /**
      * 预测对的列表
      */
-    private String dateList;
+    private String stockDetailIdList;
 
     /**
      * 创建日期
@@ -49,19 +50,19 @@ public class StrategyResult {
      */
     private Integer level;
 
-    public StrategyResult(Integer level, String strategyCode, String stockCode, List<String> dateList,LocalDateTime createDate) {
+    public StrategyResult(Integer level, String strategyCode, String stockCode, List<Long> stockDetailIdList, LocalDateTime createDate) {
         this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
-        this.dateList = String.join(" ", dateList);
+        this.stockDetailIdList = stockDetailIdList.stream().map(String::valueOf).collect(Collectors.joining(" "));
         this.createDate = createDate;
     }
 
-    public StrategyResult(Integer level,String strategyCode, String stockCode, String dateListStr,LocalDateTime createDate) {
+    public StrategyResult(Integer level,String strategyCode, String stockCode, String stockDetailIdListStr,LocalDateTime createDate) {
         this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
-        this.dateList = dateListStr;
+        this.stockDetailIdList = stockDetailIdListStr;
         this.createDate = createDate;
     }
 

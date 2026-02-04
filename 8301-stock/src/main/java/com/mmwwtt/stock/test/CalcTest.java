@@ -6,13 +6,10 @@ import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUitls;
 import com.mmwwtt.stock.convert.VoConvert;
-import com.mmwwtt.stock.dao.StockCalcResDao;
+import com.mmwwtt.stock.dao.StockCalcResDAO;
 import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.enums.StrategyEnum;
-import com.mmwwtt.stock.service.impl.StockCalcResServiceImpl;
-import com.mmwwtt.stock.service.impl.StockDetailServiceImpl;
-import com.mmwwtt.stock.service.impl.StockServiceImpl;
-import com.mmwwtt.stock.service.impl.StrategyResultServiceImpl;
+import com.mmwwtt.stock.service.impl.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -49,6 +46,9 @@ public class CalcTest {
     @Resource
     private StockCalcResServiceImpl stockCalcResService;
 
+    @Resource
+    private StrategyWinServiceImpl strategyWinServicel;
+
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
@@ -58,7 +58,7 @@ public class CalcTest {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Resource
-    private StockCalcResDao stockCalcResDao;
+    private StockCalcResDAO stockCalcResDao;
 
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
@@ -212,6 +212,51 @@ public class CalcTest {
     }
 
 
+    public Map<String, List<StockDetail>> calcByStrategy(List<StockStrategy> strategyList) throws ExecutionException, InterruptedException {
+        Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
+        LocalDateTime dataTime = LocalDateTime.now();
+        List<List<Stock>> parts = stockService.getStockPart();
+        log.info("开始计算");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), null);
+                    if (stockDetails.size() < 60) {
+                        return;
+                    }
+                    for (StockStrategy strategy : strategyList) {
+                        for (int i = 0; i < stockDetails.size() - 60; i++) {
+                            StockDetail stockDetail = stockDetails.get(i);
+                            if (moreThan(stockDetail.getPricePert(), "0.097")
+                                    || Objects.isNull(stockDetail.getNext1())
+                                    || !strategy.getRunFunc().apply(stockDetail)) {
+                                continue;
+                            }
+                            strategyToCalcMap.computeIfAbsent(strategy.getStrategyName(), v -> new ArrayList<>()).add(stockDetail);
+                        }
+                    }
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+
+        strategyToCalcMap.forEach((strategyName, list) -> {
+            stockCalcResService.saveCalcRes(list, strategyName, dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
+        });
+        log.info("结束计算");
+        return strategyToCalcMap;
+    }
+
+
+
+
+
+
+
+
     @Test
     @DisplayName("生成符合单条枚举策略的数据")
     public void buildData() throws ExecutionException, InterruptedException {
@@ -227,17 +272,17 @@ public class CalcTest {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     List<StrategyResult> list = new ArrayList<>();
                     for (StrategyEnum strategy : values) {
-                        List<String> dateList = new ArrayList<>();
+                        List<Long> dateList = new ArrayList<>();
                         for (StockDetail detail : stockDetail) {
                             if (Objects.isNull(detail.getNext1()) || Objects.isNull(detail.getSixtyDayLine())) {
                                 continue;
                             }
                             if (strategy.getRunFunc().apply(detail)) {
-                                dateList.add(detail.getDealDate());
+                                dateList.add(detail.getStockDetailId());
                             }
                         }
                         if (!CollectionUtils.isEmpty(dateList)) {
-                            StrategyResult strategyResult = new StrategyResult(1, strategy.name(),
+                            StrategyResult strategyResult = new StrategyResult(1, strategy.getCode(),
                                     stock.getCode(), dateList, now);
                             list.add(strategyResult);
                         }
@@ -310,41 +355,17 @@ public class CalcTest {
     }
 
 
-    public Map<String, List<StockDetail>> calcByStrategy(List<StockStrategy> strategyList) throws ExecutionException, InterruptedException {
-        Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
-        LocalDateTime dataTime = LocalDateTime.now();
-        List<List<Stock>> parts = stockService.getStockPart();
-        log.info("开始计算");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), null);
-                    if (stockDetails.size() < 60) {
-                        return;
-                    }
-                    for (StockStrategy strategy : strategyList) {
-                        for (int i = 0; i < stockDetails.size() - 60; i++) {
-                            StockDetail stockDetail = stockDetails.get(i);
-                            if (moreThan(stockDetail.getPricePert(), "0.097")
-                                    || Objects.isNull(stockDetail.getNext1())
-                                    || !strategy.getRunFunc().apply(stockDetail)) {
-                                continue;
-                            }
-                            strategyToCalcMap.computeIfAbsent(strategy.getStrategyName(), v -> new ArrayList<>()).add(stockDetail);
-                        }
-                    }
-                }
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
+    @Test
+    @DisplayName("根据组合数据，生成预测结果")
+    public void getResult() {
+        List<String> strategyCodes = strategyResultService.getStrategyCodes();
+        for (String strategyCode : strategyCodes) {
+            QueryWrapper<StrategyResult> wapper = new QueryWrapper<>();
+            wapper.eq("strategy_code", strategyCodes);
+            List<StrategyResult> list = strategyResultService.list(wapper);
+            list.stream().forEach(item -> {
 
-        strategyToCalcMap.forEach((strategyName, list) -> {
-            stockCalcResService.saveCalcRes(list, strategyName, dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
-        });
-        log.info("结束计算");
-        return strategyToCalcMap;
+            });
+        }
     }
 }

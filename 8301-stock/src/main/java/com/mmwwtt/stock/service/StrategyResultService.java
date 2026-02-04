@@ -21,5 +21,10 @@ public interface StrategyResultService {
      * @param level
      * @return
      */
-    List<String> getStrategyNameByLevel(Integer level);
+    List<String> getStrategyCodesByLevel(Integer level);
+
+    /**
+     * 获取策略名列表
+     */
+    List<String> getStrategyCodes();
 }

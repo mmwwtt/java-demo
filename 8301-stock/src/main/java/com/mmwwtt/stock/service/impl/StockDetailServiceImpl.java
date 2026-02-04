@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.StockConverter;
-import com.mmwwtt.stock.dao.StockDetailDao;
+import com.mmwwtt.stock.dao.StockDetailDAO;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.service.StockDetailService;
@@ -25,10 +25,7 @@ import java.util.function.Consumer;
 
 @Service
 @Slf4j
-public class StockDetailServiceImpl  extends ServiceImpl<StockDetailDao, StockDetail> implements StockDetailService {
-
-    @Autowired
-    private StockDetailDao stockDetailDao;
+public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDetail> implements StockDetailService {
 
     @Autowired
     private StockService stockService;
@@ -45,7 +42,7 @@ public class StockDetailServiceImpl  extends ServiceImpl<StockDetailDao, StockDe
         if (Objects.nonNull(limit)) {
             detailWapper.last("LIMIT " + limit);
         }
-        List<StockDetail> stockDetails = stockDetailDao.selectList(detailWapper);
+        List<StockDetail> stockDetails = list(detailWapper);
         return genAllStockDetail(stockDetails);
     }
 

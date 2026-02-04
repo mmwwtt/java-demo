@@ -7,7 +7,7 @@ import com.mmwwtt.stock.common.CommonUtils;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.VoConvert;
-import com.mmwwtt.stock.dao.StockCalcResDao;
+import com.mmwwtt.stock.dao.StockCalcResDAO;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
@@ -65,7 +65,7 @@ public class DownloadTest {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Resource
-    private StockCalcResDao stockCalcResDao;
+    private StockCalcResDAO stockCalcResDao;
 
     /**
      * 今天的日期

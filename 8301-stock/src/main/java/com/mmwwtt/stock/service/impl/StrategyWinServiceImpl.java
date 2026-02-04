@@ -1,26 +1,30 @@
 package com.mmwwtt.stock.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mmwwtt.stock.dao.StockCalcResDAO;
-import com.mmwwtt.stock.entity.StockCalcRes;
+import com.mmwwtt.stock.dao.StrategyWinDAO;
 import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.service.StockCalcResService;
+import com.mmwwtt.stock.entity.StrategyWin;
+import com.mmwwtt.stock.enums.StrategyEnum;
+import com.mmwwtt.stock.service.StrategyWinService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.add;
 import static com.mmwwtt.stock.common.CommonUtils.divide;
 
 @Service
-public class StockCalcResServiceImpl extends ServiceImpl<StockCalcResDAO, StockCalcRes> implements StockCalcResService {
+public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, StrategyWin> implements StrategyWinService {
+
 
     @Override
-    public void saveCalcRes(List<StockDetail> allAfterList, String strategyDesc, LocalDateTime dataTime, String type) {
+    public void saveByDetails(List<StockDetail> allAfterList, String strategyCode, LocalDateTime now) {
         if (CollectionUtils.isEmpty(allAfterList)) {
             return;
         }
@@ -84,23 +88,23 @@ public class StockCalcResServiceImpl extends ServiceImpl<StockCalcResDAO, StockC
                 tenCnt++;
             }
         }
+        String  strategyName = Arrays.stream(strategyCode.split(" ")).map(StrategyEnum.codeToNameMap::get).collect(Collectors.joining(" "));
 
-        StockCalcRes calcRes = new StockCalcRes();
-        calcRes.setStrategyDesc(strategyDesc);
-        calcRes.setWinRate(divide(winCnt, oneCnt));
-        calcRes.setWinPercRate(divide(winPriceRateSum, winCnt));
-        calcRes.setPercRate(divide(onePriceRateSum, oneCnt));
-        calcRes.setTwoPercRate(divide(twoPriceRateSum, twoCnt));
-        calcRes.setThreePercRate(divide(threePriceRateSum, threeCnt));
-        calcRes.setFourPercRate(divide(fourPriceRateSum, fourCnt));
-        calcRes.setFivePercRate(divide(fivePriceRateSum, fiveCnt));
-        calcRes.setTenPercRate(divide(tenPriceRateSum, tenCnt));
-        calcRes.setTenMaxPercRate(divide(tenMaxPriceRateSum, tenCnt));
-        calcRes.setFiveMaxPercRate(divide(fiveMaxPriceRateSum, fiveCnt));
-        calcRes.setCreateDate(dataTime);
-        calcRes.setAllCnt(allAfterList.size());
-        calcRes.setType(type);
-
-        save(calcRes);
+        StrategyWin strategyWin = new StrategyWin();
+        strategyWin.setStrategyCode(strategyCode);
+        strategyWin.setStrategyName(strategyName);
+        strategyWin.setWinRate(divide(winCnt, oneCnt));
+        strategyWin.setWinPercRate(divide(winPriceRateSum, winCnt));
+        strategyWin.setOnePercRate(divide(onePriceRateSum, oneCnt));
+        strategyWin.setTwoPercRate(divide(twoPriceRateSum, twoCnt));
+        strategyWin.setThreePercRate(divide(threePriceRateSum, threeCnt));
+        strategyWin.setFourPercRate(divide(fourPriceRateSum, fourCnt));
+        strategyWin.setFivePercRate(divide(fivePriceRateSum, fiveCnt));
+        strategyWin.setTenPercRate(divide(tenPriceRateSum, tenCnt));
+        strategyWin.setTenMaxPercRate(divide(tenMaxPriceRateSum, tenCnt));
+        strategyWin.setFiveMaxPercRate(divide(fiveMaxPriceRateSum, fiveCnt));
+        strategyWin.setCreateDate(now);
+        strategyWin.setCnt(allAfterList.size());
+        save(strategyWin);
     }
 }
