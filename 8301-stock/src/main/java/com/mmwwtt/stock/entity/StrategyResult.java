@@ -3,10 +3,7 @@ package com.mmwwtt.stock.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +13,7 @@ import java.util.stream.Collectors;
 @TableName("stock_strategy_result_t")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class StrategyResult {
 
     /**

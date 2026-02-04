@@ -251,12 +251,6 @@ public class CalcTest {
     }
 
 
-
-
-
-
-
-
     @Test
     @DisplayName("生成符合单条枚举策略的数据")
     public void buildData() throws ExecutionException, InterruptedException {
@@ -357,15 +351,42 @@ public class CalcTest {
 
     @Test
     @DisplayName("根据组合数据，生成预测结果")
-    public void getResult() {
-        List<String> strategyCodes = strategyResultService.getStrategyCodes();
-        for (String strategyCode : strategyCodes) {
-            QueryWrapper<StrategyResult> wapper = new QueryWrapper<>();
-            wapper.eq("strategy_code", strategyCodes);
-            List<StrategyResult> list = strategyResultService.list(wapper);
-            list.stream().forEach(item -> {
+    public void getResult() throws ExecutionException, InterruptedException {
+        LocalDateTime now = LocalDateTime.now();
+        List<String> strategyCodeList = strategyResultService.getStrategyCode();
+        Map<String, StrategyWin> strategyCodeToWinMap = new ConcurrentHashMap<>();
+        strategyCodeList.forEach(item -> {
+            String name = Arrays.stream(item.split(" "))
+                    .map(StrategyEnum.codeToNameMap::get)
+                    .collect(Collectors.joining(" "));
+            StrategyWin strategyWin = new StrategyWin();
+            strategyWin.setCreateDate(now);
+            strategyWin.setStrategyCode(item);
+            strategyWin.setStrategyName(name);
+            strategyCodeToWinMap.put(item, new StrategyWin());
+        });
+        List<List<Stock>> parts = stockService.getStockPart();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    Map<Long, StockDetail> idToDetailMap = stockDetailService.getStockDetail(stock.getCode(), null)
+                            .stream().collect(Collectors.toMap(StockDetail::getStockDetailId, item -> item));
 
-            });
+                    List<StrategyResult> results =
+                            strategyResultService.getStrategyResult(StrategyResult.builder().stockCode(stock.getCode()).build());
+                    for (StrategyResult result : results) {
+                        StrategyWin strategyWin = strategyCodeToWinMap.get(result.getStockCode());
+                        Arrays.stream(result.getStockDetailIdList().split(" "))
+                                .forEach(item -> strategyWin.addToResult(idToDetailMap.get(Long.valueOf(item))));
+                    }
+                }
+            },ioThreadPool);
+            futures.add(future);
         }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        strategyCodeToWinMap.values().forEach(StrategyWin::fillData);
+        strategyWinServicel.saveBatch(strategyCodeToWinMap.values().stream().toList());
     }
 }

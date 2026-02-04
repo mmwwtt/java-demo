@@ -1,20 +1,23 @@
 package com.mmwwtt.stock.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
+
+import static com.mmwwtt.stock.common.CommonUtils.add;
+import static com.mmwwtt.stock.common.CommonUtils.divide;
 
 @Data
 @TableName("stock_strategy_win_t")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class StrategyWin {
     /**
      * 结果id
@@ -95,5 +98,100 @@ public class StrategyWin {
      */
     private LocalDateTime createDate;
 
+    /**
+     * 临时属性
+     */
+    @TableField(exist = false)
+    private BigDecimal winPriceRateSum = BigDecimal.ZERO;
+    @TableField(exist = false)
+    private int winCnt = 0;
+    @TableField(exist = false)
+    private BigDecimal onePriceRateSum = BigDecimal.ZERO;
+    @TableField(exist = false)
+    private int oneCnt = 0;
+    @TableField(exist = false)
+    private BigDecimal twoPriceRateSum = BigDecimal.ZERO;
+    @TableField(exist = false)
+    private int twoCnt = 0;
+    @TableField(exist = false)
+    private BigDecimal threePriceRateSum = BigDecimal.ZERO;
+    @TableField(exist = false)
+    private int threeCnt = 0;
+    @TableField(exist = false)
+    private BigDecimal fourPriceRateSum = BigDecimal.ZERO;
+    @TableField(exist = false)
+    private int fourCnt = 0;
+    @TableField(exist = false)
+    private BigDecimal fivePriceRateSum = BigDecimal.ZERO;
+    @TableField(exist = false)
+    private BigDecimal fiveMaxPriceRateSum = BigDecimal.ZERO;
+    @TableField(exist = false)
+    private int fiveCnt = 0;
+    @TableField(exist = false)
+    private BigDecimal tenPriceRateSum = BigDecimal.ZERO;
+    @TableField(exist = false)
+    private BigDecimal tenMaxPriceRateSum = BigDecimal.ZERO;
+    @TableField(exist = false)
+    private int tenCnt = 0;
 
+    /**
+     * 将结果累加到数据中
+     */
+    public synchronized void addToResult(StockDetail stockDetail) {
+        if (Objects.nonNull(stockDetail.getNext1())) {
+            onePriceRateSum = add(onePriceRateSum, stockDetail.getNext1().getPricePert());
+            oneCnt++;
+            if (stockDetail.getNext1().getIsUp()) {
+                winPriceRateSum = add(winPriceRateSum, stockDetail.getNext1().getPricePert());
+                winCnt++;
+            }
+        }
+        if (Objects.nonNull(stockDetail.getNext2())) {
+            twoPriceRateSum = add(twoPriceRateSum, stockDetail.getNext2().getPricePert());
+            twoCnt++;
+        }
+
+        if (Objects.nonNull(stockDetail.getNext3())) {
+            threePriceRateSum = add(threePriceRateSum, stockDetail.getNext3().getPricePert());
+            threeCnt++;
+        }
+
+
+        if (Objects.nonNull(stockDetail.getNext4())) {
+            fourPriceRateSum = add(fourPriceRateSum, stockDetail.getNext4().getPricePert());
+            fourCnt++;
+        }
+
+
+        if (Objects.nonNull(stockDetail.getNext5())) {
+            fivePriceRateSum = add(fivePriceRateSum, stockDetail.getNext5().getPricePert());
+            fiveMaxPriceRateSum = add(fiveMaxPriceRateSum, stockDetail.getNext5().getNext5MaxPricePert());
+            fiveCnt++;
+        }
+
+
+        if (Objects.nonNull(stockDetail.getNext10())) {
+            tenPriceRateSum = add(tenPriceRateSum, stockDetail.getNext10().getPricePert());
+            tenMaxPriceRateSum = add(tenMaxPriceRateSum, stockDetail.getNext10().getNext10MaxPricePert());
+            tenCnt++;
+        }
+    }
+
+
+    /**
+     * 填充数据
+     */
+    public void fillData() {
+        winRate = divide(winCnt, oneCnt);
+        winPercRate = divide(winPriceRateSum, winCnt);
+        onePercRate = divide(onePriceRateSum, oneCnt);
+        twoPercRate = divide(twoPriceRateSum, twoCnt);
+        threePercRate = divide(threePriceRateSum, threeCnt);
+        fourPercRate = divide(fourPriceRateSum, fourCnt);
+        fivePercRate = divide(fivePriceRateSum, fiveCnt);
+        tenPercRate = divide(tenPriceRateSum, tenCnt);
+        tenMaxPercRate = divide(tenMaxPriceRateSum, tenCnt);
+        fiveMaxPercRate = divide(fiveMaxPriceRateSum, fiveCnt);
+        cnt = oneCnt;
+    }
 }

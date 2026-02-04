@@ -11,7 +11,7 @@ public interface StrategyResultService {
     /**
      * 获得所有股票列表
      */
-    List<StrategyResult> getStrategyResultByName(String strategyName, Integer level);
+    List<StrategyResult> getStrategyResult(StrategyResult strategyResult);
 
 
     Map<String, Set<String>> getStockCodeToDateMap(String strategy, Integer level);
@@ -21,10 +21,10 @@ public interface StrategyResultService {
      * @param level
      * @return
      */
-    List<String> getStrategyCodesByLevel(Integer level);
+    List<String> getStrategyCodeByLevel(Integer level);
 
     /**
      * 获取策略名列表
      */
-    List<String> getStrategyCodes();
+    List<String> getStrategyCode();
 }
