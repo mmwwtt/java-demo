@@ -1,5 +1,6 @@
 package com.mmwwtt.stock.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmwwtt.stock.dao.StockCalcResDao;
 import com.mmwwtt.stock.entity.StockCalcRes;
 import com.mmwwtt.stock.entity.StockDetail;
@@ -17,7 +18,7 @@ import static com.mmwwtt.stock.common.CommonUtils.add;
 import static com.mmwwtt.stock.common.CommonUtils.divide;
 
 @Service
-public class StockCalcResServiceImpl implements StockCalcResService {
+public class StockCalcResServiceImpl extends ServiceImpl<StockCalcResDao, StockCalcRes> implements StockCalcResService {
 
     @Resource
     private StockCalcResDao stockCalcResDao;

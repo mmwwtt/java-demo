@@ -1,6 +1,7 @@
 package com.mmwwtt.stock.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmwwtt.stock.dao.StrategyResultDao;
 import com.mmwwtt.stock.entity.StrategyResult;
 import com.mmwwtt.stock.service.StrategyResultService;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class StrategyResultServiceImpl implements StrategyResultService {
+public class StrategyResultServiceImpl  extends ServiceImpl<StrategyResultDao, StrategyResult>  implements StrategyResultService {
 
     @Autowired
     private StrategyResultDao strategyResultDao;

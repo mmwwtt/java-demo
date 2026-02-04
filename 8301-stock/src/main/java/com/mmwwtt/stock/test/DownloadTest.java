@@ -8,15 +8,13 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.dao.StockCalcResDao;
-import com.mmwwtt.stock.dao.StockDao;
-import com.mmwwtt.stock.dao.StockDetailDao;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
-import com.mmwwtt.stock.service.StockDetailService;
-import com.mmwwtt.stock.service.StockService;
-import com.mmwwtt.stock.service.StrategyResultService;
+import com.mmwwtt.stock.service.impl.StockDetailServiceImpl;
+import com.mmwwtt.stock.service.impl.StockServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyResultServiceImpl;
 import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
 import com.mmwwtt.stock.vo.StockDetailVO;
 import com.mmwwtt.stock.vo.StockVO;
@@ -39,7 +37,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.Constants.*;
-import static com.mmwwtt.stock.common.Constants.HISTORY_DATA_URL;
 
 /**
  * 必盈url   <a href="https://www.biyingapi.com/">...</a>
@@ -50,19 +47,13 @@ import static com.mmwwtt.stock.common.Constants.HISTORY_DATA_URL;
 public class DownloadTest {
 
     @Autowired
-    private StockDao stockDao;
+    private StockServiceImpl stockService;
 
     @Autowired
-    private StockDetailDao stockDetailDao;
+    private StockDetailServiceImpl stockDetailService;
 
     @Autowired
-    private StockService stockService;
-
-    @Autowired
-    private StockDetailService stockDetailService;
-
-    @Autowired
-    private StrategyResultService strategyResultService;
+    private StrategyResultServiceImpl strategyResultService;
 
 
 
@@ -134,8 +125,8 @@ public class DownloadTest {
         stockList = stockList.stream().filter(stock -> !stock.getCode().startsWith("30")
                 && !stock.getCode().startsWith("68")
                 && !stock.getName().contains("ST")).toList();
-        stockDao.delete(new QueryWrapper<>());
-        stockDao.insert(stockList);
+        stockService.remove(new QueryWrapper<>());
+        stockService.saveBatch(stockList);
         log.info("下载数据 end\n\n\n");
     }
 
@@ -171,7 +162,7 @@ public class DownloadTest {
 
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
-                    Map<String, StockDetail> dateToMap = stockDetailDao.selectList(detailWapper).stream()
+                    Map<String, StockDetail> dateToMap = stockDetailService.list(detailWapper).stream()
                             .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
                     for (StockDetail stockDetail : stockDetails) {
                         if (dateToMap.containsKey(stockDetail.getDealDate())) {
@@ -181,7 +172,7 @@ public class DownloadTest {
                     stockDetails.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
-                    stockDetailDao.insertOrUpdate(stockDetails);
+                    stockDetailService.saveOrUpdateBatch(stockDetails);
                 }
             }, ioThreadPool);
             futures.add(future);
@@ -223,13 +214,13 @@ public class DownloadTest {
                             .map(StockDetail::getStockDetailId).findFirst().orElse(null);
                     stockDetail.setStockDetailId(id);
 
-                    stockDetailDao.insertOrUpdate(stockDetail);
+                    stockDetailService.saveOrUpdate(stockDetail);
 
                     stockDetailList = stockDetailService.getStockDetail(stock.getCode(), null);
                     stockDetailList.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
                     stockDetailList.forEach(item -> item.calc());
                     StockDetail.calc(stockDetailList);
-                    stockDetailDao.insertOrUpdate(stockDetailList);
+                    stockDetailService.saveOrUpdateBatch(stockDetailList);
                 }
             }, ioThreadPool);
             futures.add(future);
@@ -254,7 +245,7 @@ public class DownloadTest {
                     List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), null);
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
-                    stockDetailDao.updateById(stockDetails);
+                    stockDetailService.updateBatchById(stockDetails);
                 }
             }, ioThreadPool);
             futures.add(future);
@@ -278,7 +269,7 @@ public class DownloadTest {
                     List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), 80);
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
-                    stockDetailDao.updateById(stockDetails);
+                    stockDetailService.updateBatchById(stockDetails);
                 }
             }, ioThreadPool);
             futures.add(future);

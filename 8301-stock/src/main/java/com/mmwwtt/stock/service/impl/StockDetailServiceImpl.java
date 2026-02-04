@@ -1,6 +1,7 @@
 package com.mmwwtt.stock.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.StockConverter;
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
 
 @Service
 @Slf4j
-public class StockDetailServiceImpl implements StockDetailService {
+public class StockDetailServiceImpl  extends ServiceImpl<StockDetailDao, StockDetail> implements StockDetailService {
 
     @Autowired
     private StockDetailDao stockDetailDao;

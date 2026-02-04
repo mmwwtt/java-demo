@@ -1,4 +1,4 @@
-package com.mmwwtt.stock.service;
+package com.mmwwtt.stock.common;
 
 import com.mmwwtt.stock.entity.StockDetail;
 
