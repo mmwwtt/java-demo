@@ -14,7 +14,9 @@ import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
-import com.mmwwtt.stock.service.StockCalcService;
+import com.mmwwtt.stock.service.StockDetailService;
+import com.mmwwtt.stock.service.StockService;
+import com.mmwwtt.stock.service.StrategyResultService;
 import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
 import com.mmwwtt.stock.vo.StockDetailVO;
 import com.mmwwtt.stock.vo.StockVO;
@@ -51,11 +53,18 @@ public class DownloadTest {
     private StockDao stockDao;
 
     @Autowired
-    private StockCalcService stockCalcService;
-
+    private StockDetailDao stockDetailDao;
 
     @Autowired
-    private StockDetailDao stockDetailDao;
+    private StockService stockService;
+
+    @Autowired
+    private StockDetailService stockDetailService;
+
+    @Autowired
+    private StrategyResultService strategyResultService;
+
+
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
@@ -134,7 +143,7 @@ public class DownloadTest {
     @DisplayName("调接口获取每日详细数据-全量")
     public void dataDetailDownLoad() throws InterruptedException, ExecutionException {
         log.info("下载股票详细数据");
-        List<Stock> stockList = stockCalcService.getAllStock();
+        List<Stock> stockList = stockService.getAllStock();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         for (List<Stock> part : parts) {
@@ -187,7 +196,7 @@ public class DownloadTest {
     @DisplayName("调接口获取每日的详细数据-增量")
     public void dataDetailDownLoadAdd() throws InterruptedException, ExecutionException {
         log.info("获取详细增量数据");
-        List<Stock> stockList = stockCalcService.getAllStock();
+        List<Stock> stockList = stockService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
@@ -208,7 +217,7 @@ public class DownloadTest {
 
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
-                    List<StockDetail> stockDetailList = stockCalcService.getStockDetail(stock.getCode(), null);
+                    List<StockDetail> stockDetailList = stockDetailService.getStockDetail(stock.getCode(), null);
                     Long id = stockDetailList.stream()
                             .filter(item -> Objects.equals(item.getDealDate(), stockDetail.getDealDate()))
                             .map(StockDetail::getStockDetailId).findFirst().orElse(null);
@@ -216,7 +225,7 @@ public class DownloadTest {
 
                     stockDetailDao.insertOrUpdate(stockDetail);
 
-                    stockDetailList = stockCalcService.getStockDetail(stock.getCode(), null);
+                    stockDetailList = stockDetailService.getStockDetail(stock.getCode(), null);
                     stockDetailList.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
                     stockDetailList.forEach(item -> item.calc());
                     StockDetail.calc(stockDetailList);
@@ -235,14 +244,14 @@ public class DownloadTest {
     @DisplayName("计算衍生数据-全量")
     public void dataDetailCalc() throws InterruptedException, ExecutionException {
         log.info("计算衍生数据--开始");
-        List<Stock> stockList = stockCalcService.getAllStock();
+        List<Stock> stockList = stockService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
                     log.info("计算衍生数据-{}", stock.getCode());
-                    List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), null);
+                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), null);
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);
@@ -259,14 +268,14 @@ public class DownloadTest {
     @DisplayName("计算衍生数据-增量")
     public void dataDetailCalcAdd() throws InterruptedException, ExecutionException {
         log.info("计算衍生数据--开始");
-        List<Stock> stockList = stockCalcService.getAllStock();
+        List<Stock> stockList = stockService.getAllStock();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
                     log.info("计算衍生数据-{}", stock.getCode());
-                    List<StockDetail> stockDetails = stockCalcService.getStockDetail(stock.getCode(), 80);
+                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), 80);
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
                     stockDetailDao.updateById(stockDetails);

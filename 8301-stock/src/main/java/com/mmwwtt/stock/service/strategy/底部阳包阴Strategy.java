@@ -1,8 +1,8 @@
 package com.mmwwtt.stock.service.strategy;
 
+import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
-import com.mmwwtt.stock.service.StockCalcService;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -15,7 +15,7 @@ public class 底部阳包阴Strategy {
 
 
         //前一天绿， 当天是红，将前一天完全包裹  放量1.5倍  下影线占4层以上
-        StockCalcService.STRATEGY_LIST.addAll(Arrays.asList(
+        Constants.STRATEGY_LIST.addAll(Arrays.asList(
 
                 new StockStrategy("底部阳包阴(看涨吞没) 放量1.5", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();

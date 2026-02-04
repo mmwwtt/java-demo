@@ -1,8 +1,8 @@
 package com.mmwwtt.stock.service.strategy;
 
+import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
-import com.mmwwtt.stock.service.StockCalcService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,7 +13,7 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 @Service
 public class 上升缺口Strategy {
     static {
-        StockCalcService.STRATEGY_LIST.addAll(Arrays.asList(
+        Constants.STRATEGY_LIST.addAll(Arrays.asList(
                 new StockStrategy("上升缺口", (StockDetail t0) -> {
                     return moreThan(t0.getLowPrice(), t0.getT1().getHighPrice());
                 }),

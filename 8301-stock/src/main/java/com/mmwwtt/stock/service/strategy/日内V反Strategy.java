@@ -1,8 +1,8 @@
 package com.mmwwtt.stock.service.strategy;
 
+import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
-import com.mmwwtt.stock.service.StockCalcService;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -17,7 +17,7 @@ public class 日内V反Strategy {
         //放量
         //下影线 占6成
 
-        StockCalcService.STRATEGY_LIST.addAll(Arrays.asList(
+        Constants.STRATEGY_LIST.addAll(Arrays.asList(
                 new StockStrategy("日内V反 振幅5-6", (StockDetail t0) -> {
                     return moreThan(t0.getLowShadowPert(), "0.6")
                             && t0.getIsRed()

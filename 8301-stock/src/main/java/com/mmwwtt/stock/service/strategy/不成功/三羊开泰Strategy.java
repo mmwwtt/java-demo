@@ -1,8 +1,8 @@
 package com.mmwwtt.stock.service.strategy.不成功;
 
+import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
-import com.mmwwtt.stock.service.StockCalcService;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 @Service
 public class 三羊开泰Strategy {
     static {
-        StockCalcService.STRATEGY_LIST.addAll(Arrays.asList(
+        Constants.STRATEGY_LIST.addAll(Arrays.asList(
                 new StockStrategy("三羊开泰", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
                     StockDetail t2 = t0.getT2();

@@ -15,6 +15,9 @@ from stock_calculation_result_t;
 select count(*)
 from stock_strategy_result_t;
 
+delete
+from stock_strategy_result_t
+where level != 1;
 
 select *
 from stock_calculation_result_t

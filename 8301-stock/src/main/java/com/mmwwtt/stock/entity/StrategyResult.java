@@ -37,12 +37,7 @@ public class StrategyResult {
     /**
      * 预测对的列表
      */
-    private String winDateList;
-
-    /**
-     * 预测错的列表
-     */
-    private String failDateList;
+    private String dateList;
 
     /**
      * 创建日期
@@ -54,23 +49,19 @@ public class StrategyResult {
      */
     private Integer level;
 
-    public StrategyResult(Integer level, String strategyCode, String stockCode, List<String> winDateList,
-                          List<String> failDateList,LocalDateTime createDate) {
+    public StrategyResult(Integer level, String strategyCode, String stockCode, List<String> dateList,LocalDateTime createDate) {
         this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
-        this.winDateList = String.join(" ", winDateList);
-        this.failDateList = String.join(" ", failDateList);
+        this.dateList = String.join(" ", dateList);
         this.createDate = createDate;
     }
 
-    public StrategyResult(Integer level,String strategyCode, String stockCode, String winDateStr,
-                          String failDateStr,LocalDateTime createDate) {
+    public StrategyResult(Integer level,String strategyCode, String stockCode, String dateListStr,LocalDateTime createDate) {
         this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
-        this.winDateList = winDateStr;
-        this.failDateList = failDateStr;
+        this.dateList = dateListStr;
         this.createDate = createDate;
     }
 

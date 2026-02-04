@@ -1,8 +1,8 @@
 package com.mmwwtt.stock.service.strategy;
 
+import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
-import com.mmwwtt.stock.service.StockCalcService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -10,15 +10,11 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.common.CommonUtils.divide;
-import static com.mmwwtt.stock.common.CommonUtils.max;
-import static com.mmwwtt.stock.common.CommonUtils.min;
-import static com.mmwwtt.stock.common.CommonUtils.multiply;
 
 @Service
 public class 一般Strategy {
     static {
-        StockCalcService.STRATEGY_LIST.addAll(Arrays.asList(
+        Constants.STRATEGY_LIST.addAll(Arrays.asList(
                 new StockStrategy("啥也不做", (StockDetail t0) -> true),
 
 

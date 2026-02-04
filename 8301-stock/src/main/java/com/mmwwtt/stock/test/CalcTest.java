@@ -3,6 +3,7 @@ package com.mmwwtt.stock.test;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.dao.StockCalcResDao;
@@ -11,13 +12,11 @@ import com.mmwwtt.stock.dao.StockDetailDao;
 import com.mmwwtt.stock.dao.StrategyResultDao;
 import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.enums.StrategyEnum;
-import com.mmwwtt.stock.service.StockCalcService;
-import com.mmwwtt.stock.service.StockGuiUitls;
+import com.mmwwtt.stock.service.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,13 +42,23 @@ public class CalcTest {
     private StockDao stockDao;
 
     @Autowired
-    private StockCalcService stockCalcService;
-
-    @Autowired
     private StockDetailDao stockDetailDao;
 
     @Autowired
     private StrategyResultDao strategyResultDao;
+
+    @Resource
+    private StockService stockService;
+
+    @Resource
+    private StockDetailService stockDetailService;
+
+    @Resource
+    private StrategyResultService strategyResultService;
+
+    @Resource
+    private StockCalcResService stockCalcResService;
+
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
@@ -67,7 +76,7 @@ public class CalcTest {
     @Test
     @DisplayName("根据所有策略计算胜率")
     public void startCalc2() throws ExecutionException, InterruptedException {
-        stockCalcService.calcByStrategy(StockCalcService.STRATEGY_LIST);
+        calcByStrategy(Constants.STRATEGY_LIST);
     }
 
     @Test
@@ -84,7 +93,7 @@ public class CalcTest {
                     && moreThan(t1.getPricePert().abs(), "0.01")
                     && moreThan(t2.getPricePert().abs(), "0.01");
         });
-        Map<String, List<StockDetail>> resMap = stockCalcService.calcByStrategy(List.of(strategy));
+        Map<String, List<StockDetail>> resMap =calcByStrategy(List.of(strategy));
         resMap.forEach((strategyName, resList) -> {
             resList.stream().filter(item -> item.getNext1().getIsDown()).limit(200).forEach(item -> {
                 try {
@@ -101,7 +110,7 @@ public class CalcTest {
     @Test
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
-        stockCalcService.calcByStrategy(List.of(
+        calcByStrategy(List.of(
 
                 new StockStrategy("test ", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
@@ -118,29 +127,29 @@ public class CalcTest {
     @Test
     @DisplayName("测试单个策略")
     public void startCalc5() throws ExecutionException, InterruptedException {
-        StockStrategy strategy = StockCalcService.getStrategy("");
-        stockCalcService.calcByStrategy(List.of(strategy));
+        StockStrategy strategy = Constants.getStrategy("");
+        calcByStrategy(List.of(strategy));
     }
 
 
     @Test
     @DisplayName("测试策略-大类")
     public void startCalc6() throws ExecutionException, InterruptedException {
-        List<StockStrategy> strategyList = StockCalcService.getStrategyList("上升缺口");
-        stockCalcService.calcByStrategy(strategyList);
+        List<StockStrategy> strategyList = Constants.getStrategyList("上升缺口");
+        calcByStrategy(strategyList);
     }
 
 
     @Test
     @DisplayName("根据策略预测")
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
-        stockCalcService.calcByStrategy(StockCalcService.STRATEGY_LIST);
+        calcByStrategy(Constants.STRATEGY_LIST);
 
         String curDate = "20260130";
         boolean isOnTime = false;
         Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
-        List<Stock> stockList = stockCalcService.getAllStock();
-        Map<String, StockDetail> codeToDetailMap = stockCalcService.getCodeToTodayDetailMap();
+        List<Stock> stockList = stockService.getAllStock();
+        Map<String, StockDetail> codeToDetailMap = stockDetailService.getCodeToTodayDetailMap();
 
         List<List<Stock>> parts = Lists.partition(stockList, 50);
 
@@ -156,7 +165,7 @@ public class CalcTest {
                 stockCalcResDao.selectList(detailWapper).stream()
                         .collect(Collectors.toMap(StockCalcRes::getStrategyDesc, item -> item.getWinRate().toString(), (key1, key2) -> key2));
         for (String strategyName : strategyMap.keySet()) {
-            Function<StockDetail, Boolean> runFunc = StockCalcService.getStrategy(strategyName).getRunFunc();
+            Function<StockDetail, Boolean> runFunc = Constants.getStrategy(strategyName).getRunFunc();
             for (List<Stock> part : parts) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (Stock stock : part) {
@@ -287,31 +296,26 @@ public class CalcTest {
         strategyResultDao.delete(new QueryWrapper<>());
         StrategyEnum[] values = StrategyEnum.values();
 
-        List<List<Stock>> parts = stockCalcService.getStockPart();
+        List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
             for (Stock stock : part) {
-                List<StockDetail> stockDetail = stockCalcService.getStockDetail(stock.getCode(), null);
+                List<StockDetail> stockDetail = stockDetailService.getStockDetail(stock.getCode(), null);
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     List<StrategyResult> list = new ArrayList<>();
                     for (StrategyEnum strategy : values) {
-                        List<String> winDateList = new ArrayList<>();
-                        List<String> failDateList = new ArrayList<>();
+                        List<String> dateList = new ArrayList<>();
                         for (StockDetail detail : stockDetail) {
                             if (Objects.isNull(detail.getNext1()) || Objects.isNull(detail.getSixtyDayLine())) {
                                 continue;
                             }
                             if (strategy.getRunFunc().apply(detail)) {
-                                if (detail.getNext1().getIsRed()) {
-                                    winDateList.add(detail.getDealDate());
-                                } else {
-                                    failDateList.add(detail.getDealDate());
-                                }
+                                dateList.add(detail.getDealDate());
                             }
                         }
-                        if (!CollectionUtils.isEmpty(winDateList) || !CollectionUtils.isEmpty(failDateList)) {
-                            StrategyResult strategyResult = new StrategyResult(1,strategy.name(),
-                                    stock.getCode(), winDateList, failDateList, now);
+                        if (!CollectionUtils.isEmpty(dateList)) {
+                            StrategyResult strategyResult = new StrategyResult(1, strategy.name(),
+                                    stock.getCode(), dateList, now);
                             list.add(strategyResult);
                         }
                     }
@@ -335,42 +339,77 @@ public class CalcTest {
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int i = 0; i < values.length; i++) {
-            StrategyEnum strategy1 = values[i];
-            Map<String, Pair<Set<String>, Set<String>>> map1 = stockCalcService.getStrategyResultByName(strategy1.name(),1)
-                    .stream().collect(Collectors.toMap(StrategyResult::getStockCode, item ->
-                         Pair.of(Arrays.stream(item.getWinDateList().split(" ")).collect(Collectors.toSet()),
-                                Arrays.stream(item.getFailDateList().split(" ")).collect(Collectors.toSet()) )
-                    ));
-            int nextI = i + 1;
+            int finalI = i;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (int i1 = nextI + 1; i1 < values.length; i1++) {
-                    StrategyEnum strategy2 = values[i1];
-                    Map<String, Pair<Set<String>, Set<String>>> map2 = stockCalcService.getStrategyResultByName(strategy2.name(),1)
-                            .stream().collect(Collectors.toMap(StrategyResult::getStockCode, item ->
-                                    Pair.of(Arrays.stream(item.getWinDateList().split(" ")).collect(Collectors.toSet()),
-                                            Arrays.stream(item.getFailDateList().split(" ")).collect(Collectors.toSet()) )
-                            ));
-                    String strategyName = strategy1.name() + " " + strategy2.name();
-                    List<StrategyResult> strategyResultList = new ArrayList<>();
-                    int count = 0;
-                    //筛选多条件都符合的数据
-                    for (String stockCode : map1.keySet()) {
-                        if (!map2.containsKey(stockCode)) {
-                            return;
-                        }
-                        Set<String> winSet = SetUtils.intersection(map1.get(stockCode).getLeft(), map2.get(stockCode).getLeft());
-                        Set<String> failSet =  SetUtils.intersection(map1.get(stockCode).getRight(), map2.get(stockCode).getRight());
+                StrategyEnum strategy1 = values[finalI];
+                Map<String, Set<String>> stockCodeToDateMap = strategyResultService.getStockCodeToDateMap(strategy1.name(), 1);
+                buildData2(finalI + 1, stockCodeToDateMap, strategy1.name(), now, 2);
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+    }
 
-                        if (winSet.size() + failSet.size() == 0) {
-                            return;
-                        }
-                        count = count + winSet.size() + failSet.size();
-                        StrategyResult strategyResult = new StrategyResult(2,strategyName, stockCode,
-                                String.join(" ", winSet), String.join(" ", failSet), now);
-                        strategyResultList.add(strategyResult);
+    public void buildData2(int startIdx, Map<String, Set<String>> sourceMap, String sourceStrategyName, LocalDateTime now, Integer level) {
+        if (level > 2) {
+            return;
+        }
+        Map<String, Set<String>> resMap = new HashMap<>();
+        StrategyEnum[] values = StrategyEnum.values();
+        for (int i = startIdx; i < values.length; i++) {
+            StrategyEnum strategy = values[i];
+            Map<String, Set<String>> map = strategyResultService.getStockCodeToDateMap(strategy.name(), 1);
+            String strategyName = sourceStrategyName + " " + strategy.name();
+            List<StrategyResult> strategyResultList = new ArrayList<>();
+            int count = 0;
+            //筛选多条件都符合的数据
+            for (String stockCode : sourceMap.keySet()) {
+                if (!map.containsKey(stockCode)) {
+                    continue;
+                }
+                Set<String> dateSet = SetUtils.intersection(sourceMap.get(stockCode), map.get(stockCode));
+
+                if (dateSet.isEmpty()) {
+                    continue;
+                }
+                count = count + dateSet.size();
+                StrategyResult strategyResult = new StrategyResult(level, strategyName, stockCode,
+                        String.join(" ", dateSet), now);
+                strategyResultList.add(strategyResult);
+                resMap.put(stockCode, dateSet);
+            }
+            if (count >= 100) {
+                strategyResultDao.insert(strategyResultList);
+                buildData2(i + 1, resMap, strategyName, now, level + 1);
+            }
+        }
+    }
+
+
+    public Map<String, List<StockDetail>> calcByStrategy(List<StockStrategy> strategyList) throws ExecutionException, InterruptedException {
+        Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
+        LocalDateTime dataTime = LocalDateTime.now();
+        List<List<Stock>> parts = stockService.getStockPart();
+        log.info("开始计算");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), null);
+                    if (stockDetails.size() < 60) {
+                        return;
                     }
-                    if (count >= 50) {
-                        strategyResultDao.insert(strategyResultList);
+                    for (StockStrategy strategy : strategyList) {
+                        for (int i = 0; i < stockDetails.size() - 60; i++) {
+                            StockDetail stockDetail = stockDetails.get(i);
+                            if (moreThan(stockDetail.getPricePert(), "0.097")
+                                    || Objects.isNull(stockDetail.getNext1())
+                                    || !strategy.getRunFunc().apply(stockDetail)) {
+                                continue;
+                            }
+                            strategyToCalcMap.computeIfAbsent(strategy.getStrategyName(), v -> new ArrayList<>()).add(stockDetail);
+                        }
                     }
                 }
             }, ioThreadPool);
@@ -378,5 +417,11 @@ public class CalcTest {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+
+        strategyToCalcMap.forEach((strategyName, list) -> {
+            stockCalcResService.saveCalcRes(list, strategyName, dataTime, StockCalcRes.TypeEnum.DETAIL.getCode());
+        });
+        log.info("结束计算");
+        return strategyToCalcMap;
     }
 }

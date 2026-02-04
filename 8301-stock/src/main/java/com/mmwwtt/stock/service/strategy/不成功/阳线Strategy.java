@@ -1,18 +1,19 @@
 package com.mmwwtt.stock.service.strategy.不成功;
 
+import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
-import com.mmwwtt.stock.service.StockCalcService;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
-import static com.mmwwtt.stock.common.CommonUtils.*;
+import static com.mmwwtt.stock.common.CommonUtils.isEquals;
+import static com.mmwwtt.stock.common.CommonUtils.isInRange;
 
 @Service
 public class 阳线Strategy {
     static {
-        StockCalcService.STRATEGY_LIST.addAll(Arrays.asList(
+        Constants.STRATEGY_LIST.addAll(Arrays.asList(
 
                 new StockStrategy("阳线 小阳线", (StockDetail t0) -> {
                     return isInRange(t0.getPricePert(), "0.00", "0.03");

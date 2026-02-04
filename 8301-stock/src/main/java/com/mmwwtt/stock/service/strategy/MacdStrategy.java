@@ -1,8 +1,8 @@
 package com.mmwwtt.stock.service.strategy;
 
+import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StockStrategy;
-import com.mmwwtt.stock.service.StockCalcService;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -13,7 +13,7 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 public class MacdStrategy {
 
     static {
-        StockCalcService.STRATEGY_LIST.addAll(Arrays.asList(
+        Constants.STRATEGY_LIST.addAll(Arrays.asList(
                 new StockStrategy("macd 小于 -2", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
                     StockDetail t2 = t0.getT2();
