@@ -143,6 +143,7 @@ CREATE TABLE stock_strategy_win_t
     ten_perc_rate      DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
     five_max_perc_rate DECIMAL(8, 4) COMMENT '5天内最高价 百分比叠加后的结果',
     ten_max_perc_rate  DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
+    level                INT(4) comment '条件层数',
     create_date        DATETIME COMMENT '创建日期'
 ) COMMENT '策略胜率表';
 

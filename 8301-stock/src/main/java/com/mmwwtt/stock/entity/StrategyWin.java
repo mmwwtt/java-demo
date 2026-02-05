@@ -4,14 +4,16 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.mmwwtt.stock.enums.StrategyEnum;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static com.mmwwtt.stock.common.CommonUtils.add;
-import static com.mmwwtt.stock.common.CommonUtils.divide;
+import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @Data
 @TableName("stock_strategy_win_t")
@@ -99,6 +101,11 @@ public class StrategyWin {
     private LocalDateTime createDate;
 
     /**
+     * 策略层级
+     */
+    private Integer level;
+
+    /**
      * 临时属性
      */
     @TableField(exist = false)
@@ -139,40 +146,42 @@ public class StrategyWin {
      */
     public synchronized void addToResult(StockDetail stockDetail) {
         if (Objects.nonNull(stockDetail.getNext1())) {
-            onePriceRateSum = add(onePriceRateSum, stockDetail.getNext1().getPricePert());
+            BigDecimal onPert = divide(subtract(stockDetail.getNext1().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice());
+            onePriceRateSum = add(onePriceRateSum, onPert);
             oneCnt++;
             if (stockDetail.getNext1().getIsUp()) {
-                winPriceRateSum = add(winPriceRateSum, stockDetail.getNext1().getPricePert());
+                winPriceRateSum = add(winPriceRateSum, onPert);
                 winCnt++;
             }
         }
         if (Objects.nonNull(stockDetail.getNext2())) {
-            twoPriceRateSum = add(twoPriceRateSum, stockDetail.getNext2().getPricePert());
+            twoPriceRateSum = add(twoPriceRateSum, divide(subtract(stockDetail.getNext2().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
             twoCnt++;
         }
 
         if (Objects.nonNull(stockDetail.getNext3())) {
-            threePriceRateSum = add(threePriceRateSum, stockDetail.getNext3().getPricePert());
+            threePriceRateSum = add(threePriceRateSum, divide(subtract(stockDetail.getNext3().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
             threeCnt++;
         }
 
 
         if (Objects.nonNull(stockDetail.getNext4())) {
-            fourPriceRateSum = add(fourPriceRateSum, stockDetail.getNext4().getPricePert());
+            fourPriceRateSum = add(fourPriceRateSum, divide(subtract(stockDetail.getNext1().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
             fourCnt++;
         }
 
 
         if (Objects.nonNull(stockDetail.getNext5())) {
-            fivePriceRateSum = add(fivePriceRateSum, stockDetail.getNext5().getPricePert());
-            fiveMaxPriceRateSum = add(fiveMaxPriceRateSum, stockDetail.getNext5().getNext5MaxPricePert());
+            fivePriceRateSum = add(fivePriceRateSum, divide(subtract(stockDetail.getNext5().getEndPrice(),
+                    stockDetail.getEndPrice()), stockDetail.getEndPrice()));
+            fiveMaxPriceRateSum = add(fiveMaxPriceRateSum, stockDetail.getNext5MaxPricePert());
             fiveCnt++;
         }
 
 
         if (Objects.nonNull(stockDetail.getNext10())) {
-            tenPriceRateSum = add(tenPriceRateSum, stockDetail.getNext10().getPricePert());
-            tenMaxPriceRateSum = add(tenMaxPriceRateSum, stockDetail.getNext10().getNext10MaxPricePert());
+            tenPriceRateSum = add(tenPriceRateSum, divide(subtract(stockDetail.getNext10().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
+            tenMaxPriceRateSum = add(tenMaxPriceRateSum, stockDetail.getNext10MaxPricePert());
             tenCnt++;
         }
     }
@@ -193,5 +202,18 @@ public class StrategyWin {
         tenMaxPercRate = divide(tenMaxPriceRateSum, tenCnt);
         fiveMaxPercRate = divide(fiveMaxPriceRateSum, fiveCnt);
         cnt = oneCnt;
+    }
+
+    public StrategyWin(String strategyCode, LocalDateTime now) {
+        String[] codes = strategyCode.split(" ");
+        String name = Arrays.stream(codes)
+                .map(StrategyEnum.codeToNameMap::get)
+                .collect(Collectors.joining(" "));
+
+        this.createDate = now;
+        this.strategyCode = strategyCode;
+        this.strategyName = name;
+        this.level = ((int) Arrays.stream(codes).count());
+
     }
 }

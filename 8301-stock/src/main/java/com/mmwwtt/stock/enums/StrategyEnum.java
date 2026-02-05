@@ -29,17 +29,6 @@ public enum StrategyEnum implements BaseEnum {
     下影线占比80_90("1008", (StockDetail t0) -> isInRange(t0.getLowShadowPert(), "0.8", "0.9"), ""),
     下影线占比90_100("1009", (StockDetail t0) -> isInRange(t0.getLowShadowPert(), "0.9", "0.10"), ""),
 
-    下影线长度_0_01("1010", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0", "0.01"), ""),
-    下影线长度_01_02("1011", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.01", "0.02"), ""),
-    下影线长度_02_03("1012", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.02", "0.03"), ""),
-    下影线长度_03_04("1013", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.03", "0.04"), ""),
-    下影线长度_04_05("1014", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.04", "0.05"), ""),
-    下影线长度_05_06("1015", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.05", "0.06"), ""),
-    下影线长度_06_07("1016", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.06", "0.07"), ""),
-    下影线长度_07_08("1017", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.07", "0.08"), ""),
-    下影线长度_08_09("1018", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.08", "0.09"), ""),
-    下影线长度_09_10("1019", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.09", "0.10"), ""),
-
 
     上影线占比0_10("1020", (StockDetail t0) -> isInRange(t0.getUpShadowPert(), "0", "0.1"), ""),
     上影线占比10_20("1021", (StockDetail t0) -> isInRange(t0.getUpShadowPert(), "0.1", "0.2"), ""),
@@ -130,6 +119,26 @@ public enum StrategyEnum implements BaseEnum {
         BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
         return isInRange(space, "0.04", "0.05");}, ""),
 
+    下影线长度_0_01("1100", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0", "0.01"), ""),
+    下影线长度_01_02("1101", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.01", "0.02"), ""),
+    下影线长度_02_03("1102", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.02", "0.03"), ""),
+    下影线长度_03_04("1103", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.03", "0.04"), ""),
+    下影线长度_04_05("1104", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.04", "0.05"), ""),
+    下影线长度_05_06("1105", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.05", "0.06"), ""),
+    下影线长度_06_07("1106", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.06", "0.07"), ""),
+    下影线长度_07_08("1107", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.07", "0.08"), ""),
+    下影线长度_08_09("1108", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.08", "0.09"), ""),
+    下影线长度_09_10("1109", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.09", "0.10"), ""),
+    下影线长度_10_11("1110", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.10", "0.11"), ""),
+    下影线长度_11_12("1111", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.11", "0.12"), ""),
+    下影线长度_12_13("1112", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.12", "0.13"), ""),
+    下影线长度_13_14("1113", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.13", "0.14"), ""),
+    下影线长度_14_15("1114", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.14", "0.15"), ""),
+    下影线长度_15_16("1115", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.15", "0.16"), ""),
+    下影线长度_16_17("1116", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.16", "0.17"), ""),
+    下影线长度_17_18("1117", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.17", "0.18"), ""),
+    下影线长度_18_19("1118", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.18", "0.19"), ""),
+    下影线长度_19_20("1119", (StockDetail t0) -> isInRange(t0.getLowShadowLen(), "0.19", "0.20"), ""),
 
 
 

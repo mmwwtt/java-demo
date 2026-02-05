@@ -1,11 +1,13 @@
 package com.mmwwtt.stock.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmwwtt.stock.dao.StrategyWinDAO;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.service.StrategyWinService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ import static com.mmwwtt.stock.common.CommonUtils.divide;
 @Service
 public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, StrategyWin> implements StrategyWinService {
 
+    @Resource
+    private StrategyWinDAO strategyWinDAO;
 
     @Override
     public void saveByDetails(List<StockDetail> allAfterList, String strategyCode, LocalDateTime now) {
@@ -106,5 +110,14 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
         strategyWin.setCreateDate(now);
         strategyWin.setCnt(allAfterList.size());
         save(strategyWin);
+    }
+
+    @Override
+    public List<StrategyWin> getStrategyWin(StrategyWin strategyWin) {
+        QueryWrapper<StrategyWin> wapper = new QueryWrapper<>();
+        if(Objects.nonNull(strategyWin.getLevel())) {
+            wapper.eq("level", strategyWin.getLevel());
+        }
+        return list(wapper);
     }
 }

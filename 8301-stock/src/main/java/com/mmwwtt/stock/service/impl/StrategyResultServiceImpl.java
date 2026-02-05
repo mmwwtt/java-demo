@@ -36,10 +36,9 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
     }
 
     @Override
-    public Map<String, Set<String>> getStockCodeToDateMap(String stockCode, Integer level) {
+    public Map<String, Set<String>> getStockCodeToDateMap(String strategyCode) {
         StrategyResult strategyResult = new StrategyResult();
-        strategyResult.setLevel(1);
-        strategyResult.setStockCode(stockCode);
+        strategyResult.setStrategyCode(strategyCode);
         return getStrategyResult(strategyResult)
                 .stream().collect(Collectors.toMap(StrategyResult::getStockCode, item ->
                         Arrays.stream(item.getStockDetailIdList().split(" ")).collect(Collectors.toSet()))
