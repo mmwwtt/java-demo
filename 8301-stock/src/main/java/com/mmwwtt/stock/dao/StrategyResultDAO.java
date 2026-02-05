@@ -15,5 +15,4 @@ public interface StrategyResultDAO extends BaseMapper<StrategyResult> {
 
     @Select("select distinct strategy_code from stock_strategy_result_t where level = #{level}")
     List<String> getStrategyCodeByLevel(Integer level);
-
 }

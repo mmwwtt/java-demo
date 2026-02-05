@@ -30,6 +30,9 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
     @Autowired
     private StockService stockService;
 
+    @Autowired
+    private StockDetailDAO detailDAO;
+
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
     private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
@@ -125,4 +128,5 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
         log.info("开始查询数据-结束");
         return codeToDetailMap;
     }
+
 }

@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
@@ -61,7 +62,6 @@ public class CalcTest {
     private StockCalcResDAO stockCalcResDao;
 
     private final VoConvert voConvert = VoConvert.INSTANCE;
-
 
     @Test
     @DisplayName("根据所有策略计算胜率")
@@ -169,7 +169,7 @@ public class CalcTest {
                             stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), "2"));
                         }
                         if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), curDate)
-                        || Objects.isNull(stockDetail.getSixtyDayLine())) {
+                                || Objects.isNull(stockDetail.getSixtyDayLine())) {
                             continue;
                         }
                         if (runFunc.apply(stockDetail)) {
@@ -243,6 +243,12 @@ public class CalcTest {
         return strategyToCalcMap;
     }
 
+    @Test
+    @DisplayName("生成符合单条枚举策略的数据")
+    public void buildStrateResultAll() throws ExecutionException, InterruptedException {
+        buildStrateResultLevel1();
+        buildStrateResultData();
+    }
 
     @Test
     @DisplayName("生成符合单条枚举策略的数据")
@@ -285,7 +291,9 @@ public class CalcTest {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        log.info("生成符合单条枚举策略的数据 - 结束");
         getResult(1, now);
+        log.info("单条策略计算胜率 - 结束");
     }
 
     @Test
@@ -303,6 +311,11 @@ public class CalcTest {
         delWapper.eq("level", level);
         strategyWinService.remove(delWapper);
 
+        QueryWrapper<StrategyResult> delWapper1 = new QueryWrapper<>();
+        delWapper1.eq("level", level);
+        strategyResultService.remove(delWapper1);
+
+        Map<String, Boolean> detailIdToNext1IsUpMap = getDetailIdToNext1IsUpMap();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StrategyWin> level1WinList = strategyWinService.getStrategyWin(StrategyWin.builder().level(1).build());
         List<StrategyWin> winList = strategyWinService.getStrategyWin(StrategyWin.builder().level(level - 1).build());
@@ -310,7 +323,7 @@ public class CalcTest {
             if (win.getCnt() < 100) {
                 continue;
             }
- //           CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (StrategyWin level1Win : level1WinList) {
                     if (win.getStrategyCode().contains(level1Win.getStrategyCode())) {
                         continue;
@@ -320,38 +333,51 @@ public class CalcTest {
                     Map<String, Set<String>> winStockCodeToDateMap = strategyResultService.getStockCodeToDateMap(win.getStrategyCode());
                     Map<String, Set<String>> level1WinStockCodeToDateMap = strategyResultService.getStockCodeToDateMap(level1Win.getStrategyCode());
                     int count = 0;
+                    int winCount = 0;
                     StrategyWin nowWin = new StrategyWin(strategCode, now);
                     //筛选多条件都符合的数据
                     for (String stockCode : winStockCodeToDateMap.keySet()) {
                         if (!level1WinStockCodeToDateMap.containsKey(stockCode)) {
                             continue;
                         }
-                        Set<String> dateSet = SetUtils.intersection(winStockCodeToDateMap.get(stockCode), level1WinStockCodeToDateMap.get(stockCode));
+                        Set<String> detailIdSet = SetUtils.intersection(winStockCodeToDateMap.get(stockCode), level1WinStockCodeToDateMap.get(stockCode));
 
-                        if (dateSet.isEmpty()) {
+                        if (detailIdSet.isEmpty()) {
                             continue;
                         }
-                        count = count + dateSet.size();
-                        StrategyResult strategyResult = new StrategyResult(level, strategCode, stockCode, String.join(" ", dateSet), now);
+                        for (String detailId : detailIdSet) {
+                            if (detailIdToNext1IsUpMap.getOrDefault(detailId, false)) {
+                                winCount++;
+                            }
+                        }
+                        count = count + detailIdSet.size();
+                        StrategyResult strategyResult = new StrategyResult(level, strategCode, stockCode, String.join(" ", detailIdSet), now);
                         strategyResultList.add(strategyResult);
                     }
-                    if (count >= 100) {
-                        strategyResultService.saveBatch(strategyResultList);
+                    //符合条件的数据过少/胜率比组合前的两个都低 则不保存
+                    if (count < 100) {
+                        continue;
                     }
+
+                    BigDecimal winRate = divide(winCount, count);
+                    if (lessThan(win.getWinRate(), winRate) && lessThan(level1Win.getWinRate(), winRate)) {
+                        continue;
+                    }
+                    strategyResultService.saveBatch(strategyResultList);
+
                 }
-//            }, ioThreadPool);
-//            futures.add(future);
+            }, cpuThreadPool);
+            futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        log.info("生成符合策略层级 {} 的数据 - 结束", level);
         getResult(level, now);
+        log.info("策略层级 {} 计算胜率 - 结束",level);
     }
 
 
     private void getResult(Integer level, LocalDateTime now) throws ExecutionException, InterruptedException {
-        QueryWrapper<StrategyWin> delWapper = new QueryWrapper<>();
-        delWapper.eq("level", level);
-        strategyWinService.remove(delWapper);
 
 
         List<String> strategyCodeList = strategyResultService.getStrategyCodeByLevel(level);
@@ -380,5 +406,28 @@ public class CalcTest {
         allTask.get();
         strategyCodeToWinMap.values().forEach(StrategyWin::fillData);
         strategyWinService.saveBatch(strategyCodeToWinMap.values().stream().toList());
+    }
+
+    public Map<String, Boolean> getDetailIdToNext1IsUpMap() throws ExecutionException, InterruptedException {
+        Map<String, Boolean> detailIdToNext1IsUpMap = new ConcurrentHashMap<>();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<List<Stock>> parts = stockService.getStockPart();
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    stockDetailService.getStockDetail(stock.getCode(), null).forEach(detail -> {
+                        if (Objects.nonNull(detail.getNext1())) {
+                            detailIdToNext1IsUpMap.put(String.valueOf(detail.getStockDetailId()), detail.getNext1().getIsUp());
+                        }
+                    });
+
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+
+        allTask.get();
+        return detailIdToNext1IsUpMap;
     }
 }

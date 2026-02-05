@@ -93,6 +93,16 @@ public class CommonUtils {
         return left.compareTo(tmp) <= 0 && tmp.compareTo(right) <= 0;
     }
 
+    public static Boolean isInRangeNotEquals(Object num, Object leftRange, Object rightRange) {
+        BigDecimal tmp = toBigDecimal(num);
+        BigDecimal left = toBigDecimal(leftRange);
+        BigDecimal right = toBigDecimal(rightRange);
+        if (tmp == null || left == null || right == null) {
+            return false;
+        }
+        return left.compareTo(tmp) < 0 && tmp.compareTo(right) < 0;
+    }
+
 
     public static Boolean bigDecimalEquals(Object num1, Object num2) {
         BigDecimal tmp1 = toBigDecimal(num1);
