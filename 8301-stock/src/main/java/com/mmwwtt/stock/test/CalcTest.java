@@ -315,7 +315,7 @@ public class CalcTest {
         Set<String> strategyCodeSet = ConcurrentHashMap.newKeySet();
         Set<String> strategyCodeHaveDateSet = ConcurrentHashMap.newKeySet();
         for (StrategyWin win : winList) {
-            if (win.getCnt() < 100) {
+            if (win.getCnt() < 100 || moreThan(win.getWinRate(), "0.975")) {
                 continue;
             }
             Map<String, Set<String>> winStockCodeToDateMap = strategyResultService.getStockCodeToDateMap(win.getStrategyCode());
@@ -364,8 +364,8 @@ public class CalcTest {
                     }
                     strategyCodeHaveDateSet.add(strategyCode);
                     strategyResultService.saveBatch(strategyResultList);
-                    log.info("层级{} 策略{} 计算结束", level, strategyCode);
                 }
+                log.info("层级{} 策略{} 计算结束", level, win.getStrategyCode());
             }, cpuThreadPool);
             futures.add(future);
         }
