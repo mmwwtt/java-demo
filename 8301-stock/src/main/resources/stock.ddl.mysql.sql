@@ -123,7 +123,8 @@ CREATE TABLE stock_strategy_result_t
     level                INT(4) comment '条件层数',
     create_date          DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '策略预测表';
-
+create index strategy_code on stock_strategy_result_t (strategy_code);
+create index stock_code on stock_strategy_result_t (stock_code);
 
 
 DROP TABLE IF EXISTS stock_strategy_win_t;

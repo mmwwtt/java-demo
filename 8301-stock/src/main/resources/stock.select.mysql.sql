@@ -15,7 +15,8 @@ from stock_calculation_result_t;
 select count(*)
 from stock_strategy_result_t;
 
-
+select * from stock_strategy_win_t where level = '1';
+select * from stock_strategy_win_t where win_rate> '0.85';
 
 delete
 from stock_strategy_result_t
@@ -63,3 +64,7 @@ SHOW STATUS LIKE 'Threads_connected';
 SHOW VARIABLES LIKE 'max_connections';
 #正在执行sql的线程
 SHOW STATUS LIKE 'Threads_running';
+
+
+
+delete  from stock_strategy_result_t where level =2
