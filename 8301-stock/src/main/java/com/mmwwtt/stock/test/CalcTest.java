@@ -246,17 +246,18 @@ public class CalcTest {
     @Test
     @DisplayName("生成符合单条枚举策略的数据")
     public void buildStrateResultAll() throws ExecutionException, InterruptedException {
+        LocalDateTime now = LocalDateTime.now();
         buildStrateResultLevel1();
-        buildStrateResultData();
+        buildDataByUnion(now, 2);
+        buildDataByUnion(now, 3);
     }
 
     @Test
     @DisplayName("生成符合单条枚举策略的数据")
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        LocalDateTime now = LocalDateTime.now();
         strategyResultService.remove(new QueryWrapper<>());
         StrategyEnum[] values = StrategyEnum.values();
-
+        LocalDateTime now = LocalDateTime.now();
         List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<Stock> part : parts) {
@@ -294,14 +295,6 @@ public class CalcTest {
         log.info("生成符合单条枚举策略的数据 - 结束");
         getResult( 1,now, Arrays.stream(StrategyEnum.values()).map(StrategyEnum::getCode).toList());
         log.info("单条策略计算胜率 - 结束");
-    }
-
-    @Test
-    @DisplayName("生成符合单条枚举策略的数据，组合策略")
-    public void buildStrateResultData() throws ExecutionException, InterruptedException {
-        LocalDateTime now = LocalDateTime.now();
-        buildDataByUnion(now, 2);
-        buildDataByUnion(now, 3);
     }
 
     @Test
