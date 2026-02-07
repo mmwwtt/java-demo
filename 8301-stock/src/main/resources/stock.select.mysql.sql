@@ -15,12 +15,13 @@ from stock_calculation_result_t;
 select count(*)
 from stock_strategy_result_t;
 
-select * from stock_strategy_win_t where level = '1';
-select * from stock_strategy_win_t where win_rate> '0.85';
+select * from stock_strategy_win_t where level = '3';
+
+select * from stock_strategy_result_t where stock_code = '000933.SZ'
 
 delete
 from stock_strategy_result_t
-where level != 1;
+where level = 4;
 
 select *
 from stock_calculation_result_t

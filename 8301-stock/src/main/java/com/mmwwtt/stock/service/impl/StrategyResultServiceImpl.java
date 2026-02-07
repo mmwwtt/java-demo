@@ -23,13 +23,13 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
     @Override
     public List<StrategyResult> getStrategyResult(StrategyResult strategyResult) {
         QueryWrapper<StrategyResult> wapper = new QueryWrapper<>();
-        if(StringUtils.isNotEmpty(strategyResult.getStrategyCode())) {
+        if (StringUtils.isNotEmpty(strategyResult.getStrategyCode())) {
             wapper.eq("strategy_code", strategyResult.getStrategyCode());
         }
-        if(Objects.nonNull(strategyResult.getLevel())) {
+        if (Objects.nonNull(strategyResult.getLevel())) {
             wapper.eq("level", strategyResult.getLevel());
         }
-        if(StringUtils.isNotEmpty(strategyResult.getStockCode())) {
+        if (StringUtils.isNotEmpty(strategyResult.getStockCode())) {
             wapper.eq("stock_code", strategyResult.getStockCode());
         }
         return list(wapper);
@@ -37,12 +37,17 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
 
     @Override
     public Map<String, Set<String>> getStockCodeToDateMap(String strategyCode) {
-        StrategyResult strategyResult = new StrategyResult();
-        strategyResult.setStrategyCode(strategyCode);
-        return getStrategyResult(strategyResult)
-                .stream().collect(Collectors.toMap(StrategyResult::getStockCode, item ->
-                        Arrays.stream(item.getStockDetailIdList().split(" ")).collect(Collectors.toSet()))
-                );
+        try {
+            StrategyResult strategyResult = new StrategyResult();
+            strategyResult.setStrategyCode(strategyCode);
+            return getStrategyResult(strategyResult)
+                    .stream().collect(Collectors.toMap(StrategyResult::getStockCode, item ->
+                            Arrays.stream(item.getStockDetailIdList().split(" ")).collect(Collectors.toSet()))
+                    );
+        } catch (Exception e) {
+            log.info("getStockCodeToDateMap error , stragetyCode : {}", strategyCode);
+            throw e;
+        }
     }
 
     @Override
