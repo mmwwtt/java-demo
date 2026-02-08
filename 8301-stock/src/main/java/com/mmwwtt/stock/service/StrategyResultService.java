@@ -27,4 +27,9 @@ public interface StrategyResultService {
      * 获取策略名列表
      */
     List<String> getStrategyCode();
+
+    /**
+     * 策略-股票代码-日期Set
+     */
+    Map<String, Map<String, Set<String>>> getLevel1StrategyToStockAndDateSetMap();
 }

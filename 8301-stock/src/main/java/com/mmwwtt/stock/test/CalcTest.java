@@ -52,7 +52,7 @@ public class CalcTest {
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
-
+    private final ThreadPoolExecutor middleThreadPool = GlobalThreadPool.getMiddleThreadPool();
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
     private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
@@ -306,7 +306,7 @@ public class CalcTest {
 
 
     public void buildDataByUnion(LocalDateTime now, Integer level) throws ExecutionException, InterruptedException {
-
+        Map<String, Map<String, Set<String>>> level1StrategyToStockAndDateSetMap = strategyResultService.getLevel1StrategyToStockAndDateSetMap();
         Map<String, Boolean> detailIdToNext1IsUpMap = getDetailIdToNext1IsUpMap();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StrategyWin> level1WinList = strategyWinService.getStrategyWin(StrategyWin.builder().level(1).build());
@@ -331,7 +331,8 @@ public class CalcTest {
                     }
                     strategyCodeSet.add(strategyCode);
                     List<StrategyResult> strategyResultList = new ArrayList<>();
-                    Map<String, Set<String>> level1WinStockCodeToDateMap = strategyResultService.getStockCodeToDateMap(level1Win.getStrategyCode());
+                    Map<String, Set<String>> level1WinStockCodeToDateMap =
+                            level1StrategyToStockAndDateSetMap.getOrDefault(level1Win.getStrategyCode(),Collections.emptyMap());
                     int count = 0;
                     int winCount = 0;
                     //筛选多条件都符合的数据
@@ -366,7 +367,7 @@ public class CalcTest {
                     strategyResultService.saveBatch(strategyResultList);
                 }
                 log.info("层级{} 策略{} 计算结束", level, win.getStrategyCode());
-            }, cpuThreadPool);
+            }, middleThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));

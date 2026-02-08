@@ -36,6 +36,8 @@ public class GlobalThreadPool {
     // 线程池实例，使用volatile保证可见性以及禁止指令重排序
     private static volatile ThreadPoolExecutor cpuThreadPool;
 
+    private static volatile ThreadPoolExecutor middleThreadPool;
+
 
     // 获取线程池实例的静态方法，用双重校验的单例模式
     public static ThreadPoolExecutor getCpuThreadPool() {
@@ -55,6 +57,26 @@ public class GlobalThreadPool {
             }
         }
         return cpuThreadPool;
+    }
+
+    // 获取线程池实例的静态方法，用双重校验的单例模式
+    public static ThreadPoolExecutor getMiddleThreadPool() {
+        if (ioThreadPool == null) {
+            synchronized (GlobalThreadPool.class) {
+                if (ioThreadPool == null) {
+                    ioThreadPool = new ThreadPoolExecutor(
+                            CPU_CORE_SIZE * 3,
+                            CPU_CORE_SIZE * 4,
+                            KEEP_ALIVE_TIME,
+                            UNIT,
+                            WORK_QUEUE,
+                            new ThreadPoolExecutor.AbortPolicy()
+                    );
+                    ioThreadPool.allowCoreThreadTimeOut(true);
+                }
+            }
+        }
+        return ioThreadPool;
     }
 
     // 获取线程池实例的静态方法，用双重校验的单例模式
