@@ -1,16 +1,18 @@
 package com.mmwwtt.stock.entity;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Data
-@TableName("stock_strategy_result_t")
+@TableName(value = "stock_strategy_result_t", autoResultMap = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -33,10 +35,12 @@ public class StrategyResult {
      */
     private String stockCode;
 
+
     /**
      * 预测对的列表
      */
-    private String stockDetailIdList;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray stockDetailIdList;
 
     /**
      * 创建日期
@@ -48,20 +52,11 @@ public class StrategyResult {
      */
     private Integer level;
 
-    public StrategyResult(Integer level, String strategyCode, String stockCode, List<Long> stockDetailIdList, LocalDateTime createDate) {
+    public StrategyResult(Integer level, String strategyCode, String stockCode, Set<Long> stockDetailIdList, LocalDateTime createDate) {
         this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
-        this.stockDetailIdList = stockDetailIdList.stream().map(String::valueOf).collect(Collectors.joining(" "));
+        this.stockDetailIdList = new JSONArray(stockDetailIdList);
         this.createDate = createDate;
     }
-
-    public StrategyResult(Integer level,String strategyCode, String stockCode, String stockDetailIdListStr,LocalDateTime createDate) {
-        this.level = level;
-        this.strategyCode = strategyCode;
-        this.stockCode = stockCode;
-        this.stockDetailIdList = stockDetailIdListStr;
-        this.createDate = createDate;
-    }
-
 }

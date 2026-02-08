@@ -145,6 +145,9 @@ public class StrategyWin {
      * 将结果累加到数据中
      */
     public synchronized void addToResult(StockDetail stockDetail) {
+        if(Objects.isNull(stockDetail)) {
+            return;
+        }
         if (Objects.nonNull(stockDetail.getNext1())) {
             BigDecimal onPert = divide(subtract(stockDetail.getNext1().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice());
             onePriceRateSum = add(onePriceRateSum, onPert);

@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -248,14 +249,17 @@ public class CalcTest {
     public void buildStrateResultAll() throws ExecutionException, InterruptedException {
         LocalDateTime now = LocalDateTime.now();
         buildStrateResultLevel1();
-        buildDataByUnion(now, 2);
-        buildDataByUnion(now, 3);
+        Map<String, Map<String, Set<Long>>> level1StrategyToStockAndDateSetMap =
+                strategyResultService.getLevel1StrategyToStockAndDateSetMap();
+        buildDataByUnion(now, 2, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 3, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 4, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 5, level1StrategyToStockAndDateSetMap);
     }
 
     @Test
     @DisplayName("生成符合单条枚举策略的数据")
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        strategyResultService.remove(new QueryWrapper<>());
         StrategyEnum[] values = StrategyEnum.values();
         LocalDateTime now = LocalDateTime.now();
         List<List<Stock>> parts = stockService.getStockPart();
@@ -266,7 +270,7 @@ public class CalcTest {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     List<StrategyResult> list = new ArrayList<>();
                     for (StrategyEnum strategy : values) {
-                        List<Long> dateList = new ArrayList<>();
+                        Set<Long> dateList = new HashSet<>();
                         for (StockDetail detail : stockDetails) {
                             if (Objects.isNull(detail.getNext1()) || Objects.isNull(detail.getSixtyDayLine())
                                     || moreThan(detail.getPricePert(), "0.097")) {
@@ -282,7 +286,7 @@ public class CalcTest {
                             list.add(strategyResult);
                         }
                     }
-                    if (CollectionUtils.isEmpty(list) ||list.size() < 10) {
+                    if (CollectionUtils.isEmpty(list) || list.size() < 10) {
                         return;
                     }
                     strategyResultService.saveBatch(list);
@@ -293,7 +297,7 @@ public class CalcTest {
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         log.info("生成符合单条枚举策略的数据 - 结束");
-        getResult( 1,now, Arrays.stream(StrategyEnum.values()).map(StrategyEnum::getCode).toList());
+        getResult(1, now, Arrays.stream(StrategyEnum.values()).map(StrategyEnum::getCode).toList());
         log.info("单条策略计算胜率 - 结束");
     }
 
@@ -301,13 +305,17 @@ public class CalcTest {
     @DisplayName("生成符合单条枚举策略的数据，组合策略")
     public void buildStrateResultData1() throws ExecutionException, InterruptedException {
         LocalDateTime now = LocalDateTime.now();
-        buildDataByUnion(now, 4);
+        Map<String, Map<String, Set<Long>>> level1StrategyToStockAndDateSetMap =
+                strategyResultService.getLevel1StrategyToStockAndDateSetMap();
+        buildDataByUnion(now, 2, level1StrategyToStockAndDateSetMap);
     }
 
 
-    public void buildDataByUnion(LocalDateTime now, Integer level) throws ExecutionException, InterruptedException {
-        Map<String, Map<String, Set<String>>> level1StrategyToStockAndDateSetMap = strategyResultService.getLevel1StrategyToStockAndDateSetMap();
-        Map<String, Boolean> detailIdToNext1IsUpMap = getDetailIdToNext1IsUpMap();
+    public void buildDataByUnion(LocalDateTime now, Integer level,
+                                 Map<String, Map<String, Set<Long>>> level1StrategyToStockAndDateSetMap)
+            throws ExecutionException, InterruptedException {
+
+        Map<Long, Boolean> detailIdToNext1IsUpMap = getDetailIdToNext1IsUpMap();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StrategyWin> level1WinList = strategyWinService.getStrategyWin(StrategyWin.builder().level(1).build());
         List<StrategyWin> winList = strategyWinService.getStrategyWin(StrategyWin.builder().level(level - 1).build());
@@ -318,48 +326,44 @@ public class CalcTest {
             if (win.getCnt() < 100 || moreThan(win.getWinRate(), "0.975")) {
                 continue;
             }
-            Map<String, Set<String>> winStockCodeToDateMap = strategyResultService.getStockCodeToDateMap(win.getStrategyCode());
+            Map<String, Set<Long>> winStockCodeToDateMap = strategyResultService.getStockCodeToDateMap(win.getStrategyCode());
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (StrategyWin level1Win : level1WinList) {
                     if (win.getStrategyCode().contains(level1Win.getStrategyCode())) {
                         continue;
                     }
-                    Arrays.stream(win.getStrategyCode().split(" ")).collect(Collectors.toSet()).add(level1Win.getStrategyCode());
                     String strategyCode = addStrategyCode(win.getStrategyCode(), level1Win.getStrategyCode());
-                    if(strategyCodeSet.contains(strategyCode)) {
+                    if (strategyCodeSet.contains(strategyCode)) {
                         continue;
                     }
                     strategyCodeSet.add(strategyCode);
                     List<StrategyResult> strategyResultList = new ArrayList<>();
-                    Map<String, Set<String>> level1WinStockCodeToDateMap =
-                            level1StrategyToStockAndDateSetMap.getOrDefault(level1Win.getStrategyCode(),Collections.emptyMap());
-                    int count = 0;
-                    int winCount = 0;
-                    //筛选多条件都符合的数据
-                    for (String stockCode : winStockCodeToDateMap.keySet()) {
-                        if (!level1WinStockCodeToDateMap.containsKey(stockCode)) {
-                            continue;
-                        }
-                        Set<String> detailIdSet = SetUtils.intersection(winStockCodeToDateMap.get(stockCode), level1WinStockCodeToDateMap.get(stockCode));
-
+                    Map<String, Set<Long>> level1WinStockCodeToDateMap =
+                            level1StrategyToStockAndDateSetMap.getOrDefault(level1Win.getStrategyCode(), Collections.emptyMap());
+                    AtomicInteger count = new AtomicInteger();
+                    AtomicInteger winCount = new AtomicInteger();
+                    //筛选符合条件的数据
+                    winStockCodeToDateMap.forEach((stockCode, dateSet) -> {
+                        Set<Long> detailIdSet = SetUtils.intersection(dateSet, level1WinStockCodeToDateMap.getOrDefault(stockCode, Collections.emptySet()));
                         if (detailIdSet.isEmpty()) {
-                            continue;
+                            return;
                         }
-                        for (String detailId : detailIdSet) {
+                        for (Long detailId : detailIdSet) {
                             if (detailIdToNext1IsUpMap.getOrDefault(detailId, false)) {
-                                winCount++;
+                                winCount.getAndIncrement();
                             }
                         }
-                        count = count + detailIdSet.size();
-                        StrategyResult strategyResult = new StrategyResult(level, strategyCode, stockCode, String.join(" ", detailIdSet), now);
+                        count.addAndGet(detailIdSet.size());
+                        StrategyResult strategyResult = new StrategyResult(level, strategyCode, stockCode, detailIdSet, now);
                         strategyResultList.add(strategyResult);
-                    }
+                    });
+
                     //符合条件的数据过少/胜率比组合前的两个都低 则不保存
-                    if (count < 100) {
+                    if (count.get() < 100) {
                         continue;
                     }
 
-                    BigDecimal winRate = divide(winCount, count);
+                    BigDecimal winRate = divide(winCount.get(), count.get());
                     if (lessThan(winRate, win.getWinRate()) || lessThan(winRate, level1Win.getWinRate())) {
                         continue;
                     }
@@ -367,13 +371,13 @@ public class CalcTest {
                     strategyResultService.saveBatch(strategyResultList);
                 }
                 log.info("层级{} 策略{} 计算结束", level, win.getStrategyCode());
-            }, middleThreadPool);
+            }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
         log.info("生成符合策略层级 {} 的数据 - 结束", level);
-        getResult(level,now, new ArrayList<>(strategyCodeHaveDateSet));
+        getResult(level, now, new ArrayList<>(strategyCodeHaveDateSet));
         log.info("策略层级 {} 计算胜率 - 结束", level);
     }
 
@@ -393,11 +397,13 @@ public class CalcTest {
                                     StrategyResult.builder().stockCode(stock.getCode()).level(level).build());
                     for (StrategyResult result : results) {
                         StrategyWin strategyWin = strategyCodeToWinMap.get(result.getStrategyCode());
-                        if(Objects.isNull(strategyWin)) {
+                        if (Objects.isNull(strategyWin)) {
                             continue;
                         }
-                        Arrays.stream(result.getStockDetailIdList().split(" "))
-                                .forEach(item -> strategyWin.addToResult(idToDetailMap.get(Long.valueOf(item))));
+                        for (int i = 0; i < result.getStockDetailIdList().size(); i++) {
+                            Long detailId = result.getStockDetailIdList().getLong(i);
+                            strategyWin.addToResult(idToDetailMap.get(detailId));
+                        }
                     }
                 }
             }, ioThreadPool);
@@ -409,13 +415,13 @@ public class CalcTest {
         strategyCodeToWinMap.values().forEach(StrategyWin::fillData);
         List<StrategyWin> resList = strategyCodeToWinMap.values().stream()
                 .filter(item -> item.getCnt() > 50)
-                .filter(item -> moreThan(item.getWinRate(),"0.35")).toList();
+                .filter(item -> moreThan(item.getWinRate(), "0.35")).toList();
         strategyWinService.saveBatch(resList);
         log.info("保存win结果 完成");
     }
 
-    public Map<String, Boolean> getDetailIdToNext1IsUpMap() throws ExecutionException, InterruptedException {
-        Map<String, Boolean> detailIdToNext1IsUpMap = new ConcurrentHashMap<>();
+    public Map<Long, Boolean> getDetailIdToNext1IsUpMap() throws ExecutionException, InterruptedException {
+        Map<Long, Boolean> detailIdToNext1IsUpMap = new ConcurrentHashMap<>();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = stockService.getStockPart();
         for (List<Stock> part : parts) {
@@ -423,7 +429,7 @@ public class CalcTest {
                 for (Stock stock : part) {
                     stockDetailService.getStockDetail(stock.getCode(), null).forEach(detail -> {
                         if (Objects.nonNull(detail.getNext1())) {
-                            detailIdToNext1IsUpMap.put(String.valueOf(detail.getStockDetailId()), detail.getNext1().getIsUp());
+                            detailIdToNext1IsUpMap.put(detail.getStockDetailId(), detail.getNext1().getIsUp());
                         }
                     });
 
@@ -439,7 +445,7 @@ public class CalcTest {
 
     public String addStrategyCode(String strategyCode1, String strategyCode2) {
         List<String> list1 = new ArrayList<>(Arrays.stream(strategyCode1.split(" ")).toList());
-        List<String> list2= new ArrayList<>(Arrays.stream(strategyCode2.split(" ")).toList());
+        List<String> list2 = new ArrayList<>(Arrays.stream(strategyCode2.split(" ")).toList());
         list1.addAll(list2);
         return list1.stream().distinct().sorted().collect(Collectors.joining(" "));
     }

@@ -14,7 +14,7 @@ public interface StrategyResultService {
     List<StrategyResult> getStrategyResult(StrategyResult strategyResult);
 
 
-    Map<String, Set<String>> getStockCodeToDateMap(String strategyCode);
+    Map<String, Set<Long>> getStockCodeToDateMap(String strategyCode);
 
     /**
      * 获取对应level的策略名列表
@@ -31,5 +31,5 @@ public interface StrategyResultService {
     /**
      * 策略-股票代码-日期Set
      */
-    Map<String, Map<String, Set<String>>> getLevel1StrategyToStockAndDateSetMap();
+    Map<String, Map<String, Set<Long>>> getLevel1StrategyToStockAndDateSetMap();
 }

@@ -10,8 +10,8 @@ use stock;
 SET GLOBAL max_connections = 200;
 set global innodb_flush_log_at_trx_commit = 0;
 set global sync_binlog = 100000;
-SET GLOBAL innodb_buffer_pool_size = 4 * 1024 * 1024 * 1024; -- 4 GB
-SET GLOBAL innodb_log_buffer_size = 64 * 1024 * 1024; -- 16 MB
+SET GLOBAL innodb_buffer_pool_size = 8 * 1024 * 1024 * 1024; -- 8 GB
+SET GLOBAL innodb_log_buffer_size = 128 * 1024 * 1024; -- 128 MB
 SET GLOBAL thread_cache_size = 50;
 
 #已连接的线程
@@ -20,7 +20,9 @@ SHOW STATUS LIKE 'Threads_connected';
 SHOW VARIABLES LIKE 'max_connections';
 #正在执行sql的线程
 SHOW STATUS LIKE 'Threads_running';
-
+#查询正在执行的sql
+SHOW FULL PROCESSLIST;
+KILL  2273;
 
 DROP TABLE IF EXISTS stock_t;
 CREATE TABLE stock_t
@@ -138,7 +140,7 @@ CREATE TABLE stock_strategy_result_t
     strategy_result_id   INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code        VARCHAR(200) COMMENT '策略编码',
     stock_code           VARCHAR(16) COMMENT '股票代码',
-    stock_detail_id_list VARCHAR(3000) COMMENT '预测的股票详情id列表',
+    stock_detail_id_list JSON COMMENT '预测的股票详情id列表',
     level                INT(4) comment '条件层数',
     create_date          DATETIME NOT NULL COMMENT '创建日期'
 ) COMMENT '策略预测表';
