@@ -255,6 +255,7 @@ public class CalcTest {
         buildDataByUnion(now, 3, level1StrategyToStockAndDateSetMap);
         buildDataByUnion(now, 4, level1StrategyToStockAndDateSetMap);
         buildDataByUnion(now, 5, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 6, level1StrategyToStockAndDateSetMap);
     }
 
     @Test
@@ -307,7 +308,7 @@ public class CalcTest {
         LocalDateTime now = LocalDateTime.now();
         Map<String, Map<String, Set<Long>>> level1StrategyToStockAndDateSetMap =
                 strategyResultService.getLevel1StrategyToStockAndDateSetMap();
-        buildDataByUnion(now, 2, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 7, level1StrategyToStockAndDateSetMap);
     }
 
 
@@ -368,7 +369,7 @@ public class CalcTest {
                         continue;
                     }
                     strategyCodeHaveDateSet.add(strategyCode);
-                    strategyResultService.saveBatch(strategyResultList);
+                    strategyResultService.saveBatch(strategyResultList,100);
                 }
                 log.info("层级{} 策略{} 计算结束", level, win.getStrategyCode());
             }, ioThreadPool);
