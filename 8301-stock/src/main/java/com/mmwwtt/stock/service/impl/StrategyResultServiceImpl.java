@@ -6,7 +6,6 @@ import com.mmwwtt.stock.dao.StrategyResultDAO;
 import com.mmwwtt.stock.dao.StrategyWinDAO;
 import com.mmwwtt.stock.entity.StrategyResult;
 import com.mmwwtt.stock.service.StrategyResultService;
-import com.mmwwtt.stock.service.strategy.一般Strategy;
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +21,7 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
 
     @Resource
     private StrategyResultDAO strategyResultDAO;
-    @Autowired
-    private 一般Strategy strategy;
+
     @Autowired
     private StrategyWinDAO strategyWinDAO;
 
