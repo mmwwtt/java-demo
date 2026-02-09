@@ -156,6 +156,8 @@ public class CalcAllTest {
         buildDataByUnion(now, 4, level1StrategyToStockAndDateSetMap);
         buildDataByUnion(now, 5, level1StrategyToStockAndDateSetMap);
         buildDataByUnion(now, 6, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 7, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 8, level1StrategyToStockAndDateSetMap);
     }
 
     @Test
@@ -197,9 +199,8 @@ public class CalcAllTest {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        log.info("生成符合单条枚举策略的数据 - 结束");
         getResult(1, now, Arrays.stream(StrategyEnum.values()).map(StrategyEnum::getCode).toList());
-        log.info("单条策略计算胜率 - 结束");
+        log.info("策略层级 1 计算胜率 - 结束");
     }
 
     @Test
@@ -208,7 +209,7 @@ public class CalcAllTest {
         LocalDateTime now = LocalDateTime.now();
         Map<String, Map<String, Set<Integer>>> level1StrategyToStockAndDateSetMap =
                 strategyResultService.getLevel1StrategyToStockAndDateSetMap();
-        buildDataByUnion(now, 7, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 9, level1StrategyToStockAndDateSetMap);
     }
 
 
@@ -272,13 +273,12 @@ public class CalcAllTest {
                     strategyCodeHaveDateSet.add(strategyCode);
                     strategyResultService.saveBatch(strategyResultList, 100);
                 }
-                log.info("层级{} 策略{} 计算结束", level, win.getStrategyCode());
+//                log.info("层级{} 策略{} 计算结束", level, win.getStrategyCode());
             }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        log.info("生成符合策略层级 {} 的数据 - 结束", level);
         getResult(level, now, new ArrayList<>(strategyCodeHaveDateSet));
         log.info("策略层级 {} 计算胜率 - 结束", level);
     }
