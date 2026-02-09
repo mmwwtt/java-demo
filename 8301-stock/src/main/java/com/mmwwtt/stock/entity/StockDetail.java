@@ -28,7 +28,7 @@ public class StockDetail {
      */
     @EqualsAndHashCode.Include
     @TableId(type = IdType.AUTO)
-    private Long stockDetailId;
+    private Integer stockDetailId;
 
     /**
      * 股票代码

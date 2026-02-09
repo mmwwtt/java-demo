@@ -22,12 +22,12 @@ SHOW VARIABLES LIKE 'max_connections';
 SHOW STATUS LIKE 'Threads_running';
 #查询正在执行的sql
 SHOW FULL PROCESSLIST;
-KILL  2273;
+
 
 DROP TABLE IF EXISTS stock_t;
 CREATE TABLE stock_t
 (
-    stock_Id INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    stock_Id INT(8)     NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     name     VARCHAR(16) NOT NULL COMMENT '股票名称',
     code     VARCHAR(16) NOT NULL COMMENT '股票编码'
 
@@ -37,7 +37,7 @@ CREATE TABLE stock_t
 DROP TABLE IF EXISTS stock_detail_t;
 CREATE TABLE stock_detail_t
 (
-    stock_detail_Id          INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    stock_detail_Id          INT(8)        NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     stock_code               VARCHAR(16)    NOT NULL COMMENT '股票代码',
     deal_date                VARCHAR(16)    NOT NULL COMMENT '交易日期',
     start_price              decimal(10, 4) NOT NULL COMMENT '开盘价',

@@ -40,7 +40,7 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
     }
 
     @Override
-    public Map<String, Set<Long>> getStockCodeToDateMap(String strategyCode) {
+    public Map<String, Set<Integer>> getStockCodeToDateMap(String strategyCode) {
         try {
             StrategyResult strategyResult = new StrategyResult();
             strategyResult.setStrategyCode(strategyCode);
@@ -48,9 +48,9 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
             return getStrategyResult(strategyResult)
                     .stream().collect(Collectors.toMap(StrategyResult::getStockCode,
                             item -> {
-                                Set<Long> set = new HashSet<>();
+                                Set<Integer> set = new HashSet<>();
                                 for (int i = 0; i < item.getStockDetailIdList().size(); i++) {
-                                    set.add(item.getStockDetailIdList().getLong(i));
+                                    set.add(item.getStockDetailIdList().getInteger(i));
                                 }
                                 return set;
                             }
@@ -72,12 +72,12 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
     }
 
     @Override
-    public Map<String, Map<String, Set<Long>>> getLevel1StrategyToStockAndDateSetMap() {
-        Map<String, Map<String, Set<Long>>> res = new HashMap<>();
+    public Map<String, Map<String, Set<Integer>>> getLevel1StrategyToStockAndDateSetMap() {
+        Map<String, Map<String, Set<Integer>>> res = new HashMap<>();
 
         List<String> level1CodeList = strategyResultDAO.getStrategyCodeByLevel(1);
         level1CodeList.forEach(strategyCode -> {
-            Map<String, Set<Long>> stockCodeToDateMap = getStockCodeToDateMap(strategyCode);
+            Map<String, Set<Integer>> stockCodeToDateMap = getStockCodeToDateMap(strategyCode);
             res.put(strategyCode, stockCodeToDateMap);
         });
         return res;

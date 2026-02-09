@@ -52,7 +52,7 @@ public class StrategyResult {
      */
     private Integer level;
 
-    public StrategyResult(Integer level, String strategyCode, String stockCode, Set<Long> stockDetailIdList, LocalDateTime createDate) {
+    public StrategyResult(Integer level, String strategyCode, String stockCode, Set<Integer> stockDetailIdList, LocalDateTime createDate) {
         this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;

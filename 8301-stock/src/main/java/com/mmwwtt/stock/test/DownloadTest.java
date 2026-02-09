@@ -209,7 +209,7 @@ public class DownloadTest {
                     QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
                     detailWapper.eq("stock_code", stock.getCode());
                     List<StockDetail> stockDetailList = stockDetailService.getStockDetail(stock.getCode(), null);
-                    Long id = stockDetailList.stream()
+                    Integer id = stockDetailList.stream()
                             .filter(item -> Objects.equals(item.getDealDate(), stockDetail.getDealDate()))
                             .map(StockDetail::getStockDetailId).findFirst().orElse(null);
                     stockDetail.setStockDetailId(id);
