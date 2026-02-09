@@ -23,7 +23,6 @@ SHOW STATUS LIKE 'Threads_running';
 #查询正在执行的sql
 SHOW FULL PROCESSLIST;
 
-
 DROP TABLE IF EXISTS stock_t;
 CREATE TABLE stock_t
 (

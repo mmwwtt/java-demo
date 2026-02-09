@@ -260,9 +260,11 @@ public enum StrategyEnum implements BaseEnum {
     }
 
     public static final Map<String, String> codeToNameMap;
+    public static final Map<String, StrategyEnum> codeToEnumMap;
 
     static {
         codeToNameMap = Arrays.stream(StrategyEnum.values()).collect(Collectors.toMap(StrategyEnum::getCode, StrategyEnum::name));
+        codeToEnumMap = Arrays.stream(StrategyEnum.values()).collect(Collectors.toMap(StrategyEnum::getCode, item -> item));
     }
 
 

@@ -3,6 +3,7 @@ package com.mmwwtt.stock.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmwwtt.stock.dao.StrategyResultDAO;
+import com.mmwwtt.stock.dao.StrategyWinDAO;
 import com.mmwwtt.stock.entity.StrategyResult;
 import com.mmwwtt.stock.service.StrategyResultService;
 import com.mmwwtt.stock.service.strategy.一般Strategy;
@@ -23,6 +24,8 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
     private StrategyResultDAO strategyResultDAO;
     @Autowired
     private 一般Strategy strategy;
+    @Autowired
+    private StrategyWinDAO strategyWinDAO;
 
     @Override
     public List<StrategyResult> getStrategyResult(StrategyResult strategyResult) {
@@ -53,7 +56,7 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
                                     set.add(item.getStockDetailIdList().getInteger(i));
                                 }
                                 return set;
-                            }
+                            },(a,b) -> b
                     ));
         } catch (Exception e) {
             log.info("getStockCodeToDateMap error , stragetyCode : {}", strategyCode);
@@ -61,21 +64,12 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
         }
     }
 
-    @Override
-    public List<String> getStrategyCodeByLevel(Integer level) {
-        return strategyResultDAO.getStrategyCodeByLevel(level);
-    }
-
-    @Override
-    public List<String> getStrategyCode() {
-        return strategyResultDAO.getStrategyCode();
-    }
 
     @Override
     public Map<String, Map<String, Set<Integer>>> getLevel1StrategyToStockAndDateSetMap() {
         Map<String, Map<String, Set<Integer>>> res = new HashMap<>();
 
-        List<String> level1CodeList = strategyResultDAO.getStrategyCodeByLevel(1);
+        List<String> level1CodeList = strategyWinDAO.getStrategyCodeByLevel(1);
         level1CodeList.forEach(strategyCode -> {
             Map<String, Set<Integer>> stockCodeToDateMap = getStockCodeToDateMap(strategyCode);
             res.put(strategyCode, stockCodeToDateMap);

@@ -2,9 +2,7 @@ package com.mmwwtt.stock.test;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.mmwwtt.stock.common.Constants;
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.common.StockGuiUitls;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.dao.StockCalcResDAO;
 import com.mmwwtt.stock.entity.*;
@@ -34,7 +32,7 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @Slf4j
 @SpringBootTest
-public class CalcTest {
+public class CalcAllTest {
 
     @Resource
     private StockServiceImpl stockService;
@@ -65,78 +63,15 @@ public class CalcTest {
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
     @Test
-    @DisplayName("根据所有策略计算胜率")
-    public void startCalc2() throws ExecutionException, InterruptedException {
-        calcByStrategy(Constants.STRATEGY_LIST);
-    }
-
-    @Test
-    @DisplayName("根据策略绘制蜡烛图")
-    public void startCalc3() throws ExecutionException, InterruptedException {
-        StockStrategy strategy = new StockStrategy("test_" + getTimeStr(), (StockDetail t0) -> {
-            StockDetail t1 = t0.getT1();
-            StockDetail t2 = t0.getT2();
-            StockDetail t3 = t0.getT3();
-            return isInRange(t0.getLowPrice(), subtract(t1.getLowPrice(), "0.02"), add(t1.getLowPrice(), "0.02"))
-                    && isInRange(t0.getLowPrice(), subtract(t2.getLowPrice(), "0.02"), add(t2.getLowPrice(), "0.02"))
-                    && lessThan(t0.getPosition20(), "0.2")
-                    && moreThan(t0.getPricePert().abs(), "0.01")
-                    && moreThan(t1.getPricePert().abs(), "0.01")
-                    && moreThan(t2.getPricePert().abs(), "0.01");
-        });
-        Map<String, List<StockDetail>> resMap = calcByStrategy(List.of(strategy));
-        resMap.forEach((strategyName, resList) -> resList.stream().filter(item -> item.getNext1().getIsDown()).limit(200).forEach(item -> {
-            try {
-                StockGuiUitls.genDetailImage(item, strategyName);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }));
-        log.info("绘制完成");
-    }
-
-
-    @Test
-    @DisplayName("测试单个策略-自定义")
-    public void startCalc4() throws ExecutionException, InterruptedException {
-        calcByStrategy(List.of(
-
-                new StockStrategy("test ", (StockDetail t0) -> {
-                    StockDetail t1 = t0.getT1();
-                    StockDetail t2 = t0.getT2();
-                    StockDetail t3 = t0.getT3();
-                    return isInRange(t0.getLowPrice(), subtract(t1.getLowPrice(), "0.02"), add(t1.getLowPrice(), "0.02"))
-                            && isInRange(t0.getLowPrice(), subtract(t2.getLowPrice(), "0.02"), add(t2.getLowPrice(), "0.02"))
-                            && lessThan(t0.getPosition20(), "0.2");
-                })
-        ));
-    }
-
-
-    @Test
-    @DisplayName("测试单个策略")
-    public void startCalc5() throws ExecutionException, InterruptedException {
-        StockStrategy strategy = Constants.getStrategy("");
-        calcByStrategy(List.of(strategy));
-    }
-
-
-    @Test
-    @DisplayName("测试策略-大类")
-    public void startCalc6() throws ExecutionException, InterruptedException {
-        List<StockStrategy> strategyList = Constants.getStrategyList("上升缺口");
-        calcByStrategy(strategyList);
-    }
-
-
-    @Test
     @DisplayName("根据策略预测")
     public void getStockByStrategy() throws InterruptedException, ExecutionException {
-        calcByStrategy(Constants.STRATEGY_LIST);
+        Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
+        List<StrategyWin> strategyWinList = getStrategyWinList();
+        strategyWinList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
 
-        String curDate = "20260205";
+        String curDate = "20260209";
         boolean isOnTime = true;
-        Map<String, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
+        Map<StrategyWin, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockService.getAllStock();
         Map<String, StockDetail> codeToDetailMap = stockDetailService.getCodeToTodayDetailMap();
 
@@ -146,15 +81,10 @@ public class CalcTest {
         //策略
         log.info("开始计算");
         QueryWrapper<StockCalcRes> detailWapper = new QueryWrapper<>();
-        detailWapper.last("where type = 1" +
-                " and create_date = (select max(create_date) from stock_calculation_result_t where type = '1')" +
-                " and win_rate > 0.6" +
-                " order by win_rate desc;");
-        Map<String, String> strategyMap =
-                stockCalcResDao.selectList(detailWapper).stream()
-                        .collect(Collectors.toMap(StockCalcRes::getStrategyDesc, item -> item.getWinRate().toString(), (key1, key2) -> key2));
-        for (String strategyName : strategyMap.keySet()) {
-            Function<StockDetail, Boolean> runFunc = Constants.getStrategy(strategyName).getRunFunc();
+
+        for (StrategyWin strategyWin : strategyWinList) {
+            List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
+                    .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
             for (List<Stock> part : parts) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (Stock stock : part) {
@@ -165,14 +95,15 @@ public class CalcTest {
                             continue;
                         }
                         if (isOnTime) {
-                            stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), "2"));
+                            stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), "1.3"));
                         }
                         if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), curDate)
                                 || Objects.isNull(stockDetail.getSixtyDayLine())) {
                             continue;
                         }
-                        if (runFunc.apply(stockDetail)) {
-                            strategyToStockMap.computeIfAbsent(strategyName, k -> new ArrayList<>())
+                        boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
+                        if (res) {
+                            strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>())
                                     .add(stock.getCode() + "_" + stock.getName() + "_" + stockDetail.getPricePert().doubleValue());
                         }
                     }
@@ -193,52 +124,24 @@ public class CalcTest {
 
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
-            for (Map.Entry<String, List<String>> entry : strategyToStockMap.entrySet()) {
-                fos.write(("\n\n" + entry.getKey() + "   " + strategyMap.get(entry.getKey()) + "\n").getBytes());
-                for (String s : entry.getValue()) {
+            List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();
+            for (StrategyWin strategyWin : list) {
+                List<String> resStockList = strategyToStockMap.get(strategyWin);
+                fos.write(("\n\n" + strategyWin.getWinRate().toString() + "    " + strategyWin.getStrategyName() + "\n").getBytes());
+                for (String s : resStockList) {
                     fos.write((s + "\n").getBytes());
                 }
             }
+
         } catch (IOException ignored) {
         }
 
     }
 
-    public Map<String, List<StockDetail>> calcByStrategy(List<StockStrategy> strategyList) throws ExecutionException, InterruptedException {
-        Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
-        LocalDateTime dataTime = LocalDateTime.now();
-        List<List<Stock>> parts = stockService.getStockPart();
-        log.info("开始计算");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), null);
-                    if (stockDetails.size() < 60) {
-                        return;
-                    }
-                    for (StockStrategy strategy : strategyList) {
-                        for (int i = 0; i < stockDetails.size() - 60; i++) {
-                            StockDetail stockDetail = stockDetails.get(i);
-                            if (moreThan(stockDetail.getPricePert(), "0.097")
-                                    || Objects.isNull(stockDetail.getNext1())
-                                    || !strategy.getRunFunc().apply(stockDetail)) {
-                                continue;
-                            }
-                            strategyToCalcMap.computeIfAbsent(strategy.getStrategyName(), v -> new ArrayList<>()).add(stockDetail);
-                        }
-                    }
-                }
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-
-        strategyToCalcMap.forEach((strategyName, list) ->
-                stockCalcResService.saveCalcRes(list, strategyName, dataTime, StockCalcRes.TypeEnum.DETAIL.getCode()));
-        log.info("结束计算");
-        return strategyToCalcMap;
+    private List<StrategyWin> getStrategyWinList() {
+        StrategyWin strategyWin = new StrategyWin();
+        strategyWin.setWinRate(new BigDecimal("0.85"));
+        return strategyWinService.getStrategyWin(strategyWin);
     }
 
     @Test
@@ -367,7 +270,7 @@ public class CalcTest {
                         continue;
                     }
                     strategyCodeHaveDateSet.add(strategyCode);
-                    strategyResultService.saveBatch(strategyResultList,100);
+                    strategyResultService.saveBatch(strategyResultList, 100);
                 }
                 log.info("层级{} 策略{} 计算结束", level, win.getStrategyCode());
             }, ioThreadPool);

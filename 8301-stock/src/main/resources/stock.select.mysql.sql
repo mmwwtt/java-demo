@@ -50,8 +50,4 @@ from stock_detail_t
 where stock_code = '002083.SZ'
 order by deal_date desc;
 
-
-
-
-
-delete  from stock_strategy_result_t where level =2
+select * from stock_strategy_result_t  where strategy_code = '1026 1032 1084 11 12 13';

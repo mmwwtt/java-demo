@@ -118,6 +118,9 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
         if(Objects.nonNull(strategyWin.getLevel())) {
             wapper.eq("level", strategyWin.getLevel());
         }
+        if(Objects.nonNull(strategyWin.getWinRate())) {
+            wapper.ge("win_rate", strategyWin.getWinRate());
+        }
         return list(wapper);
     }
 }

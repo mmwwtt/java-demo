@@ -3,7 +3,6 @@ package com.mmwwtt.stock.test;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.mmwwtt.stock.common.CommonUtils;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.VoConvert;
@@ -182,102 +181,6 @@ public class DownloadTest {
         log.info("下载股票详细数据  end \n\n\n");
     }
 
-
-    @Test
-    @DisplayName("调接口获取每日的详细数据-增量")
-    public void dataDetailDownLoadAdd() throws InterruptedException, ExecutionException {
-        log.info("获取详细增量数据");
-        List<Stock> stockList = stockService.getAllStock();
-        List<List<Stock>> parts = Lists.partition(stockList, 50);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    log.info("获取详情数据-{}", stock.getCode());
-                    Map<String, String> map2 = new HashMap<>();
-                    map2.put(LICENCE, BI_YING_LICENCE);
-                    map2.put(STOCK_CODE, stock.getCode().split("\\.")[0]);
-                    StockDetailOnTimeVO stockDetailOnTimeVO = getResponse(ON_TIME_DATA_URL, map2, new ParameterizedTypeReference<StockDetailOnTimeVO>() {
-                    });
-                    if (Objects.isNull(stockDetailOnTimeVO)) {
-                        continue;
-                    }
-                    stockDetailOnTimeVO.setStockCode(stock.getCode());
-                    stockDetailOnTimeVO.setV(CommonUtils.multiply(stockDetailOnTimeVO.getV(), 10000));
-                    StockDetail stockDetail = voConvert.convertToStockDetail(stockDetailOnTimeVO);
-
-                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                    detailWapper.eq("stock_code", stock.getCode());
-                    List<StockDetail> stockDetailList = stockDetailService.getStockDetail(stock.getCode(), null);
-                    Integer id = stockDetailList.stream()
-                            .filter(item -> Objects.equals(item.getDealDate(), stockDetail.getDealDate()))
-                            .map(StockDetail::getStockDetailId).findFirst().orElse(null);
-                    stockDetail.setStockDetailId(id);
-
-                    stockDetailService.saveOrUpdate(stockDetail);
-
-                    stockDetailList = stockDetailService.getStockDetail(stock.getCode(), null);
-                    stockDetailList.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
-                    stockDetailList.forEach(item -> item.calc());
-                    StockDetail.calc(stockDetailList);
-                    stockDetailService.saveOrUpdateBatch(stockDetailList);
-                }
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("end");
-    }
-
-
-    @Test
-    @DisplayName("计算衍生数据-全量")
-    public void dataDetailCalc() throws InterruptedException, ExecutionException {
-        log.info("计算衍生数据--开始");
-        List<Stock> stockList = stockService.getAllStock();
-        List<List<Stock>> parts = Lists.partition(stockList, 50);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    log.info("计算衍生数据-{}", stock.getCode());
-                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), null);
-                    stockDetails.forEach(item -> item.calc());
-                    StockDetail.calc(stockDetails);
-                    stockDetailService.updateBatchById(stockDetails);
-                }
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("衍生数据计算--完毕  \n\n\n");
-    }
-
-    @Test
-    @DisplayName("计算衍生数据-增量")
-    public void dataDetailCalcAdd() throws InterruptedException, ExecutionException {
-        log.info("计算衍生数据--开始");
-        List<Stock> stockList = stockService.getAllStock();
-        List<List<Stock>> parts = Lists.partition(stockList, 50);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    log.info("计算衍生数据-{}", stock.getCode());
-                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), 80);
-                    stockDetails.forEach(item -> item.calc());
-                    StockDetail.calc(stockDetails);
-                    stockDetailService.updateBatchById(stockDetails);
-                }
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("衍生数据计算--完毕  \n\n\n");
-    }
 
     private <T> T getResponse(String url, Map<String, String> paramMap, ParameterizedTypeReference<T> reference) {
         while (true) {
