@@ -2,6 +2,7 @@ package com.mmwwtt.stock.test;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.dao.StockCalcResDAO;
@@ -11,7 +12,6 @@ import com.mmwwtt.stock.service.impl.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -250,9 +250,10 @@ public class CalcAllTest {
                             level1StrategyToStockAndDateSetMap.getOrDefault(level1Win.getStrategyCode(), Collections.emptyMap());
                     AtomicInteger count = new AtomicInteger();
                     AtomicInteger winCount = new AtomicInteger();
+
                     //筛选符合条件的数据
                     winStockCodeToDateMap.forEach((stockCode, dateSet) -> {
-                        Set<Integer> detailIdSet = SetUtils.intersection(dateSet, level1WinStockCodeToDateMap.getOrDefault(stockCode, Collections.emptySet()));
+                        Set<Integer> detailIdSet = Sets.intersection(dateSet, level1WinStockCodeToDateMap.getOrDefault(stockCode, Collections.emptySet()));
                         if (detailIdSet.isEmpty()) {
                             return;
                         }
