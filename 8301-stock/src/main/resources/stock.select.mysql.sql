@@ -15,6 +15,42 @@ from stock_calculation_result_t;
 select count(*)
 from stock_strategy_result_t;
 
+select count(*)
+from stock_strategy_result_t where level = 1;
+
+select count(*)
+from stock_strategy_result_t where level = 2;
+
+select count(*)
+from stock_strategy_result_t  where level = 3;
+
+select count(*)
+from stock_strategy_result_t  where level = 4;
+
+select count(*)
+from stock_strategy_result_t  where level = 5;
+
+select count(*)
+from stock_strategy_result_t  where level = 6;
+
+select count(*)
+from stock_strategy_result_t  where level = 7;
+
+select count(*)
+from stock_strategy_result_t  where level = 8;
+
+select count(*)
+from stock_strategy_result_t  where level = 9;
+
+select count(*)
+from stock_strategy_result_t  where level = 10;
+
+select count(*)
+from stock_strategy_result_t  where level = 11;
+
+
+
+
 select * from stock_strategy_win_t where level = '2';
 
 select * from stock_strategy_result_t where stock_code = '000933.SZ';

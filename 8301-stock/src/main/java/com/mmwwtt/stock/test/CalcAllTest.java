@@ -158,6 +158,9 @@ public class CalcAllTest {
         buildDataByUnion(now, 6, level1StrategyToStockAndDateSetMap);
         buildDataByUnion(now, 7, level1StrategyToStockAndDateSetMap);
         buildDataByUnion(now, 8, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 9, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 10, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 11, level1StrategyToStockAndDateSetMap);
     }
 
     @Test
@@ -210,6 +213,8 @@ public class CalcAllTest {
         Map<String, Map<String, Set<Integer>>> level1StrategyToStockAndDateSetMap =
                 strategyResultService.getLevel1StrategyToStockAndDateSetMap();
         buildDataByUnion(now, 9, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 10, level1StrategyToStockAndDateSetMap);
+        buildDataByUnion(now, 11, level1StrategyToStockAndDateSetMap);
     }
 
 
