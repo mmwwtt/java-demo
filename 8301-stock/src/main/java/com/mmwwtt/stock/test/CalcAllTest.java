@@ -2,7 +2,6 @@ package com.mmwwtt.stock.test;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.dao.StockCalcResDAO;
@@ -69,7 +68,7 @@ public class CalcAllTest {
         List<StrategyWin> strategyWinList = getStrategyWinList();
         strategyWinList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
 
-        String curDate = "20260209";
+        String curDate = "20260210";
         boolean isOnTime = true;
         Map<StrategyWin, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<Stock> stockList = stockService.getAllStock();
@@ -95,9 +94,10 @@ public class CalcAllTest {
                             continue;
                         }
                         if (isOnTime) {
-                            stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), "1.3"));
+                            stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), "2"));
                         }
-                        if (moreThan(stockDetail.getPricePert(), "0.097") || !Objects.equals(stockDetail.getDealDate(), curDate)
+                        if (moreThan(stockDetail.getPricePert(), "0.097")
+                                || !Objects.equals(stockDetail.getDealDate(), curDate)
                                 || Objects.isNull(stockDetail.getSixtyDayLine())) {
                             continue;
                         }
@@ -124,10 +124,13 @@ public class CalcAllTest {
 
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
-            List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();
+            List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getOnePercRate).reversed()).toList();
             for (StrategyWin strategyWin : list) {
                 List<String> resStockList = strategyToStockMap.get(strategyWin);
-                fos.write(("\n\n" + strategyWin.getWinRate().toString() + "    " + strategyWin.getStrategyName() + "\n").getBytes());
+                String str = String.format("\n\n策略id:%d \n胜率:%4f \n明天平均涨幅:%4f  \n十日最高平均涨幅：%4f \n策略：%s \n",
+                        strategyWin.getStrategyWinId(),strategyWin.getWinRate(), strategyWin.getOnePercRate(),
+                        strategyWin.getTenMaxPercRate(), strategyWin.getStrategyName());
+                fos.write(str.getBytes());
                 for (String s : resStockList) {
                     fos.write((s + "\n").getBytes());
                 }
@@ -152,15 +155,15 @@ public class CalcAllTest {
         Map<String, Map<String, Set<Integer>>> level1StrategyToStockAndDateSetMap =
                 strategyResultService.getLevel1StrategyToStockAndDateSetMap();
         buildDataByUnion(now, 2, level1StrategyToStockAndDateSetMap);
-        buildDataByUnion(now, 3, level1StrategyToStockAndDateSetMap);
-        buildDataByUnion(now, 4, level1StrategyToStockAndDateSetMap);
-        buildDataByUnion(now, 5, level1StrategyToStockAndDateSetMap);
-        buildDataByUnion(now, 6, level1StrategyToStockAndDateSetMap);
-        buildDataByUnion(now, 7, level1StrategyToStockAndDateSetMap);
-        buildDataByUnion(now, 8, level1StrategyToStockAndDateSetMap);
-        buildDataByUnion(now, 9, level1StrategyToStockAndDateSetMap);
-        buildDataByUnion(now, 10, level1StrategyToStockAndDateSetMap);
-        buildDataByUnion(now, 11, level1StrategyToStockAndDateSetMap);
+        //buildDataByUnion(now, 3, level1StrategyToStockAndDateSetMap);
+       // buildDataByUnion(now, 4, level1StrategyToStockAndDateSetMap);
+//        buildDataByUnion(now, 5, level1StrategyToStockAndDateSetMap);
+//        buildDataByUnion(now, 6, level1StrategyToStockAndDateSetMap);
+//        buildDataByUnion(now, 7, level1StrategyToStockAndDateSetMap);
+//        buildDataByUnion(now, 8, level1StrategyToStockAndDateSetMap);
+//        buildDataByUnion(now, 9, level1StrategyToStockAndDateSetMap);
+//        buildDataByUnion(now, 10, level1StrategyToStockAndDateSetMap);
+//        buildDataByUnion(now, 11, level1StrategyToStockAndDateSetMap);
     }
 
     @Test
@@ -226,14 +229,12 @@ public class CalcAllTest {
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StrategyWin> level1WinList = strategyWinService.getStrategyWin(StrategyWin.builder().level(1).build());
-        List<StrategyWin> winList = strategyWinService.getStrategyWin(StrategyWin.builder().level(level - 1).build());
+        List<StrategyWin> winList = strategyWinService.getStrategyWin(StrategyWin.builder().level(level - 1).build())
+                .stream().filter(win -> win.getCnt() > 100 || lessThan(win.getWinRate(), "0.975")).toList();
 
         Set<String> strategyCodeSet = ConcurrentHashMap.newKeySet();
         Set<String> strategyCodeHaveDateSet = ConcurrentHashMap.newKeySet();
         for (StrategyWin win : winList) {
-            if (win.getCnt() < 100 || moreThan(win.getWinRate(), "0.975")) {
-                continue;
-            }
             Map<String, Set<Integer>> winStockCodeToDateMap = strategyResultService.getStockCodeToDateMap(win.getStrategyCode());
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (StrategyWin level1Win : level1WinList) {
@@ -253,17 +254,18 @@ public class CalcAllTest {
 
                     //筛选符合条件的数据
                     winStockCodeToDateMap.forEach((stockCode, dateSet) -> {
-                        Set<Integer> detailIdSet = Sets.intersection(dateSet, level1WinStockCodeToDateMap.getOrDefault(stockCode, Collections.emptySet()));
-                        if (detailIdSet.isEmpty()) {
+                        Set<Integer> level1Set = level1WinStockCodeToDateMap.getOrDefault(stockCode, Collections.emptySet());
+                        dateSet.retainAll(level1Set);
+                        if (dateSet.isEmpty()) {
                             return;
                         }
-                        for (Integer detailId : detailIdSet) {
+                        for (Integer detailId : dateSet) {
                             if (detailIdToNext1IsUpMap[detailId]) {
                                 winCount.getAndIncrement();
                             }
                         }
-                        count.addAndGet(detailIdSet.size());
-                        StrategyResult strategyResult = new StrategyResult(level, strategyCode, stockCode, detailIdSet, now);
+                        count.addAndGet(dateSet.size());
+                        StrategyResult strategyResult = new StrategyResult(level, strategyCode, stockCode, dateSet, now);
                         strategyResultList.add(strategyResult);
                     });
 
@@ -279,7 +281,7 @@ public class CalcAllTest {
                     strategyCodeHaveDateSet.add(strategyCode);
                     strategyResultService.saveBatch(strategyResultList, 100);
                 }
-//                log.info("层级{} 策略{} 计算结束", level, win.getStrategyCode());
+                log.info("层级{} 策略{} 计算结束", level, win.getStrategyCode());
             }, ioThreadPool);
             futures.add(future);
         }
@@ -322,7 +324,7 @@ public class CalcAllTest {
         log.info("获取win结果 开始填充数据");
         strategyCodeToWinMap.values().forEach(StrategyWin::fillData);
         List<StrategyWin> resList = strategyCodeToWinMap.values().stream()
-                .filter(item -> item.getCnt() > 50)
+                .filter(item -> item.getCnt() > 100)
                 .filter(item -> moreThan(item.getWinRate(), "0.35")).toList();
         strategyWinService.saveBatch(resList);
         log.info("保存win结果 完成");

@@ -18,6 +18,9 @@ public class Sets使用 {
         Set<Integer> set2 = Set.of(3,4,5);
         // 交集
         Set<Integer> inter = Sets.intersection(set1, set2);
+        //取交集 会修改原对象
+        //set1.retainAll(set2);
+
 
         // 并集
         Set<Integer> union = Sets.union(set1, set2);

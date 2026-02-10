@@ -17,6 +17,82 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 @Getter
 public enum StrategyEnum implements BaseEnum {
 
+    二连红("4", (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed()),
+    三连红("5", (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed()),
+    是十字星("6", StockDetail::getIsTenStar),
+    多头排列_5日线_大于10_大于20("7", (StockDetail t0) ->
+            moreThan(t0.getFiveDayLine(), t0.getTenDayLine()) && moreThan(t0.getTenDayLine(), t0.getTwentyDayLine())),
+
+    区间5向上("10", StockDetail::getFiveIsUp),
+    区间10向上("11", StockDetail::getTenIsUp),
+    区间20向上("12", StockDetail::getTwentyIsUp),
+    区间40向上("13", StockDetail::getFortyIsUp),
+    区间60向上("14", StockDetail::getSixtyIsUp),
+
+    区间5向下("15", (StockDetail t0) -> !t0.getFiveIsUp()),
+    区间10向下("16", (StockDetail t0) -> !t0.getTenIsUp()),
+    区间20向下("17", (StockDetail t0) -> !t0.getTwentyIsUp()),
+    区间40向下("18", (StockDetail t0) -> !t0.getFortyIsUp()),
+    区间60向下("19", (StockDetail t0) -> !t0.getSixtyIsUp()),
+
+    //macd相关
+    //DIF 快线
+    //DEA 慢线
+    DIF线上穿DEA线_金叉("20", (StockDetail t0) -> {
+        StockDetail t1 = t0.getT1();
+        StockDetail t2 = t0.getT2();
+        StockDetail t3 = t0.getT3();
+        return moreThan(t0.getDif(), t0.getDea())
+                && lessThan(t1.getDif(), t1.getDea())
+                && lessThan(t2.getDif(), t2.getDea())
+                && lessThan(t3.getDif(), t3.getDea());
+    }),
+    macd_小于负2("30", (StockDetail t0) -> lessThan(t0.getMacd(), "-2")),
+    macd_负2_负1("31", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "-2", "-1")),
+    macd_负1_0("32", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "-1", "0")),
+    macd_0_1("33", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "0", "1")),
+    macd_1_2("34", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "1", "2")),
+    macd_2_10("35", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "2", "10")),
+    macd_大于10("36", (StockDetail t0) -> moreThan(t0.getMacd(), "10")),
+
+
+    WR威廉指标_上穿负80_脱离超卖区("40", (StockDetail t0) -> moreThan(t0.getWr(), "-80")
+            && lessThan(t0.getT1().getWr(), "-80")
+            && lessThan(t0.getT2().getWr(), "-80")),
+
+
+    上穿过5日线("100", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFiveDayLine())
+            && lessThan(t0.getLowPrice(), t0.getFiveDayLine())
+            && lessThan(t0.getT1().getHighPrice(), t0.getFiveDayLine())),
+    上穿过10日线("101", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getTenDayLine())
+            && lessThan(t0.getLowPrice(), t0.getTenDayLine())
+            && lessThan(t0.getT1().getHighPrice(), t0.getTenDayLine())),
+    上穿过20日线("102", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getTwentyDayLine())
+            && lessThan(t0.getLowPrice(), t0.getTwentyDayLine())
+            && lessThan(t0.getT1().getHighPrice(), t0.getTwentyDayLine())),
+    上穿过40日线("103", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFortyDayLine())
+            && lessThan(t0.getLowPrice(), t0.getFortyDayLine())
+            && lessThan(t0.getT1().getHighPrice(), t0.getFortyDayLine())),
+    上穿过60日线("104", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getSixtyDayLine())
+            && lessThan(t0.getLowPrice(), t0.getSixtyDayLine())
+            && lessThan(t0.getT1().getHighPrice(), t0.getSixtyDayLine())),
+
+    下穿过5日线("105", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFiveDayLine())
+            && lessThan(t0.getLowPrice(), t0.getFiveDayLine())
+            && moreThan(t0.getT1().getLowPrice(), t0.getFiveDayLine())),
+    下穿过10日线("106", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getTenDayLine())
+            && lessThan(t0.getLowPrice(), t0.getTenDayLine())
+            && moreThan(t0.getT1().getLowPrice(), t0.getTenDayLine())),
+    下穿过20日线("107", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getTwentyDayLine())
+            && lessThan(t0.getLowPrice(), t0.getTwentyDayLine())
+            && moreThan(t0.getT1().getLowPrice(), t0.getTwentyDayLine())),
+    下穿过40日线("108", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFortyDayLine())
+            && lessThan(t0.getLowPrice(), t0.getFortyDayLine())
+            && moreThan(t0.getT1().getLowPrice(), t0.getFortyDayLine())),
+    下穿过60日线("109", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getSixtyDayLine())
+            && lessThan(t0.getLowPrice(), t0.getSixtyDayLine())
+            && moreThan(t0.getT1().getLowPrice(), t0.getSixtyDayLine())),
+
 
     下影线占比0_10("1000", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowPert(), "0", "0.1")),
     下影线占比10_20("1001", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowPert(), "0.1", "0.2")),
@@ -103,6 +179,7 @@ public enum StrategyEnum implements BaseEnum {
     区间20_80_90("1088", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition20(), "0.8", "0.9")),
     区间20_90_100("1089", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition20(), "0.9", "0.10")),
 
+
     上升缺口_00_01("1090", (StockDetail t0) -> {
         BigDecimal space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
         return isInRangeNotEquals(space, "0.00", "0.01");
@@ -170,7 +247,7 @@ public enum StrategyEnum implements BaseEnum {
             multiply(t0.getT1().getDealQuantity(), "0.9"), multiply(t0.getT1().getDealQuantity(), "1.0"))),
 
 
-//    比前一天放量_00_10("1130", (StockDetail t0) -> isInRangeNotEquals(t0.getDealQuantity(),
+    //    比前一天放量_00_10("1130", (StockDetail t0) -> isInRangeNotEquals(t0.getDealQuantity(),
 //            multiply(t0.getT1().getDealQuantity(), "1"), multiply(t0.getT1().getDealQuantity(), "2.8"))),
     比前一天放量_10_20("1131", (StockDetail t0) -> isInRangeNotEquals(t0.getDealQuantity(),
             multiply(t0.getT1().getDealQuantity(), "1.1"), multiply(t0.getT1().getDealQuantity(), "1.2"))),
@@ -211,41 +288,16 @@ public enum StrategyEnum implements BaseEnum {
     比前一天放量_大于190("1149", (StockDetail t0) -> moreThan(t0.getDealQuantity(),
             multiply(t0.getT1().getDealQuantity(), "2.9"))),
 
-
-    二连红("4", (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed()),
-    三连红("5", (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed()),
-    是十字星("6", StockDetail::getIsTenStar),
-
-
-    区间20向上("11", StockDetail::getTwentyIsUp),
-    区间40向上("12", StockDetail::getFortyIsUp),
-    区间60向上("13", StockDetail::getSixtyIsUp),
-
-    区间20向下("14", (StockDetail t0) -> !t0.getTwentyIsUp()),
-    区间40向下("15", (StockDetail t0) -> !t0.getFortyIsUp()),
-    区间60向下("16", (StockDetail t0) -> !t0.getSixtyIsUp()),
-
-    上穿过5日线("100", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFiveDayLine())
-            && lessThan(t0.getLowPrice(), t0.getFiveDayLine()) && lessThan(t0.getT1().getHighPrice(), t0.getFiveDayLine())),
-    上穿过10日线("101", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getTenDayLine())
-            && lessThan(t0.getLowPrice(), t0.getTenDayLine()) && lessThan(t0.getT1().getHighPrice(), t0.getTenDayLine())),
-    上穿过20日线("102", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getTwentyDayLine())
-            && lessThan(t0.getLowPrice(), t0.getTwentyDayLine()) && lessThan(t0.getT1().getHighPrice(), t0.getTwentyDayLine())),
-    上穿过40日线("103", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFortyDayLine())
-            && lessThan(t0.getLowPrice(), t0.getFortyDayLine()) && lessThan(t0.getT1().getHighPrice(), t0.getFortyDayLine())),
-    上穿过60日线("104", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getSixtyDayLine())
-            && lessThan(t0.getLowPrice(), t0.getSixtyDayLine()) && lessThan(t0.getT1().getHighPrice(), t0.getSixtyDayLine())),
-
-    下穿过5日线("105", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFiveDayLine())
-            && lessThan(t0.getLowPrice(), t0.getFiveDayLine()) && moreThan(t0.getT1().getLowPrice(), t0.getFiveDayLine())),
-    下穿过10日线("106", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getTenDayLine())
-            && lessThan(t0.getLowPrice(), t0.getTenDayLine()) && moreThan(t0.getT1().getLowPrice(), t0.getTenDayLine())),
-    下穿过20日线("107", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getTwentyDayLine())
-            && lessThan(t0.getLowPrice(), t0.getTwentyDayLine()) && moreThan(t0.getT1().getLowPrice(), t0.getTwentyDayLine())),
-    下穿过40日线("108", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFortyDayLine())
-            && lessThan(t0.getLowPrice(), t0.getFortyDayLine()) && moreThan(t0.getT1().getLowPrice(), t0.getFortyDayLine())),
-    下穿过60日线("109", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getSixtyDayLine())
-            && lessThan(t0.getLowPrice(), t0.getSixtyDayLine()) && moreThan(t0.getT1().getLowPrice(), t0.getSixtyDayLine())),
+    区间10_0_10("1150", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0", "0.1")),
+    区间10_10_20("1151", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.1", "0.2")),
+    区间10_20_30("1152", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.2", "0.3")),
+    区间10_30_40("1153", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.3", "0.4")),
+    区间10_40_50("1154", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.4", "0.5")),
+    区间10_50_60("1155", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.5", "0.6")),
+    区间10_60_70("1156", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.6", "0.7")),
+    区间10_70_80("1157", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.7", "0.8")),
+    区间10_80_90("1158", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.8", "0.9")),
+    区间10_90_100("1159", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.9", "0.10")),
 
 
     ;

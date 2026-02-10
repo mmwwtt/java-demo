@@ -4,8 +4,6 @@ CREATE DATABASE stock;
 use stock;
 
 
-
-
 # 设置最大连接数为500
 SET GLOBAL max_connections = 200;
 set global innodb_flush_log_at_trx_commit = 0;
@@ -26,7 +24,7 @@ SHOW FULL PROCESSLIST;
 DROP TABLE IF EXISTS stock_t;
 CREATE TABLE stock_t
 (
-    stock_Id INT(8)     NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    stock_Id INT(8)      NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     name     VARCHAR(16) NOT NULL COMMENT '股票名称',
     code     VARCHAR(16) NOT NULL COMMENT '股票编码'
 
@@ -36,7 +34,7 @@ CREATE TABLE stock_t
 DROP TABLE IF EXISTS stock_detail_t;
 CREATE TABLE stock_detail_t
 (
-    stock_detail_Id          INT(8)        NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    stock_detail_Id          INT(8)         NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     stock_code               VARCHAR(16)    NOT NULL COMMENT '股票代码',
     deal_date                VARCHAR(16)    NOT NULL COMMENT '交易日期',
     start_price              decimal(10, 4) NOT NULL COMMENT '开盘价',
@@ -58,10 +56,16 @@ CREATE TABLE stock_detail_t
     five_high                decimal(10, 4) COMMENT '5日最高',
     five_low                 decimal(10, 4) COMMENT '5日最低',
     five_day_deal_quantity   decimal(20, 4) COMMENT '5日均量',
+    five_high_date           varchar(64) COMMENT '5日最高日期',
+    five_low_date            varchar(64) COMMENT '5日最低日期',
+    five_is_up               boolean COMMENT '是否处于5日中的上涨',
     ten_day_line             decimal(10, 4) COMMENT '10日线',
     ten_high                 decimal(10, 4) COMMENT '10日最高',
     ten_low                  decimal(10, 4) COMMENT '10日最低',
     ten_day_deal_quantity    decimal(20, 4) COMMENT '10日均量',
+    ten_high_date            varchar(64) COMMENT '10日最高日期',
+    ten_low_date             varchar(64) COMMENT '10日最低日期',
+    ten_is_up                boolean COMMENT '是否处于10日中的上涨',
     twenty_day_line          decimal(10, 4) COMMENT '20日线',
     twenty_high              decimal(10, 4) COMMENT '20日最高',
     twenty_low               decimal(10, 4) COMMENT '20日最低',
@@ -103,6 +107,8 @@ CREATE TABLE stock_detail_t
     dif                      decimal(10, 4) COMMENT 'MACD相关指标',
     dea                      decimal(10, 4) COMMENT 'MACD相关指标',
     macd                     decimal(10, 4) COMMENT 'MACD相关指标',
+    position5                decimal(10, 4) comment '5天内位置',
+    position10               decimal(10, 4) comment '10天内位置',
     position20               decimal(10, 4) COMMENT '在20日中的位置  (收盘价- 20日最低) / (20日最高- 20日最低)   大于80%是高位   小于20%是低位',
     position40               decimal(10, 4) comment '40天内位置',
     position60               decimal(10, 4) comment '60天内位置'
@@ -150,13 +156,13 @@ create index stock_code on stock_strategy_result_t (stock_code);
 DROP TABLE IF EXISTS stock_strategy_win_t;
 CREATE TABLE stock_strategy_win_t
 (
-    strategy_win_id    INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_win_id    INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code      VARCHAR(200) COMMENT '策略编码',
     strategy_name      VARCHAR(200) COMMENT '策略名称',
     cnt                INT(8) COMMENT '总数',
     win_rate           DECIMAL(8, 4) COMMENT '胜率',
-    win_perc_rate        DECIMAL(8,4) COMMENT  '预测对的平均涨幅',
-    one_perc_rate      DECIMAL(8,4) COMMENT  '1天后的平均涨幅',
+    win_perc_rate      DECIMAL(8, 4) COMMENT '预测对的平均涨幅',
+    one_perc_rate      DECIMAL(8, 4) COMMENT '1天后的平均涨幅',
     two_perc_rate      DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
     three_perc_rate    DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
     four_perc_rate     DECIMAL(8, 4) COMMENT '4天后百分比叠加后的结果',
@@ -164,6 +170,6 @@ CREATE TABLE stock_strategy_win_t
     ten_perc_rate      DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
     five_max_perc_rate DECIMAL(8, 4) COMMENT '5天内最高价 百分比叠加后的结果',
     ten_max_perc_rate  DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
-    level                INT(4) comment '条件层数',
+    level              INT(4) comment '条件层数',
     create_date        DATETIME COMMENT '创建日期'
 ) COMMENT '策略胜率表';

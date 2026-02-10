@@ -49,7 +49,7 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
             return getStrategyResult(strategyResult)
                     .stream().collect(Collectors.toMap(StrategyResult::getStockCode,
                             item -> {
-                                Set<Integer> set = new HashSet<>();
+                                Set<Integer> set = new HashSet<>(item.getStockDetailIdList().size());
                                 for (int i = 0; i < item.getStockDetailIdList().size(); i++) {
                                     set.add(item.getStockDetailIdList().getInteger(i));
                                 }

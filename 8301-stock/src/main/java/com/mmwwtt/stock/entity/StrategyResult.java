@@ -1,6 +1,5 @@
 package com.mmwwtt.stock.entity;
 
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -57,7 +56,9 @@ public class StrategyResult {
         this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
-        this.stockDetailIdList = (JSONArray) JSON.toJSON(stockDetailIdSet);
+        JSONArray array = new JSONArray(stockDetailIdSet.size());
+        array.addAll(stockDetailIdSet);
+        this.stockDetailIdList = array;
         this.createDate = createDate;
     }
 }

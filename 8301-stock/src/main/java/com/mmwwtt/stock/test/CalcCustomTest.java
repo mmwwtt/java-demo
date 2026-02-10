@@ -100,8 +100,6 @@ public class CalcCustomTest {
         ));
     }
 
-
-
     public Map<String, List<StockDetail>> calcByStrategy(List<StockStrategy> strategyList) throws ExecutionException, InterruptedException {
         Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
         LocalDateTime dataTime = LocalDateTime.now();
