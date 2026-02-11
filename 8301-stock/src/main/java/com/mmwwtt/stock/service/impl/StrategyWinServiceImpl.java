@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.add;
@@ -122,5 +120,14 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
             wapper.ge("win_rate", strategyWin.getWinRate());
         }
         return list(wapper);
+    }
+
+
+    @Override
+    public List<StrategyWin> getL1StrategyWin() {
+        Map<String, Map<String, Set<Integer>>> res = new HashMap<>();
+        QueryWrapper<StrategyWin> wapper = new QueryWrapper<>();
+        wapper.eq("level",1);
+        return strategyWinDAO.selectList(wapper);
     }
 }

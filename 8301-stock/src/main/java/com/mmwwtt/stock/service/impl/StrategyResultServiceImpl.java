@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmwwtt.stock.dao.StrategyResultDAO;
 import com.mmwwtt.stock.dao.StrategyWinDAO;
 import com.mmwwtt.stock.entity.StrategyResult;
+import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.StrategyResultService;
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
@@ -64,7 +65,7 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
 
 
     @Override
-    public Map<String, Map<String, Set<Integer>>> getLevel1StrategyToStockAndDateSetMap() {
+    public Map<String, Map<String, Set<Integer>>> getL1StrategyToStockToDateIdSetMap() {
         Map<String, Map<String, Set<Integer>>> res = new HashMap<>();
 
         List<String> level1CodeList = strategyWinDAO.getStrategyCodeByLevel(1);

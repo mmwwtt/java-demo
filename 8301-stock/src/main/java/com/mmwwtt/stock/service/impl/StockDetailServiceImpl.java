@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.convert.StockConverter;
 import com.mmwwtt.stock.dao.StockDetailDAO;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
@@ -68,7 +67,7 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
             for (Pair<Integer, Consumer<StockDetail>> pair : pairList) {
                 Integer idx = pair.getLeft();
                 if (0 <= idx && idx < stockDetails.size()) {
-                    StockDetail tmp = StockConverter.INSTANCE.convertToStockDetail(stockDetails.get(idx));
+                    StockDetail tmp =stockDetails.get(idx);
                     pair.getRight().accept(tmp);
                 }
             }

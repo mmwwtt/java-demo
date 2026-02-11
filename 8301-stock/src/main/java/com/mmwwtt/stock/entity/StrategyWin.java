@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -41,7 +42,7 @@ public class StrategyWin {
     /**
      * 符合数据的股票详情总数
      */
-    private Integer cnt;
+    private Integer cnt=0;
 
     /**
      * 胜率
@@ -218,5 +219,15 @@ public class StrategyWin {
         this.strategyName = name;
         this.level = ((int) Arrays.stream(codes).count());
 
+    }
+
+    public StrategyWin(Set<String> strategyCodeSet) {
+        String name = strategyCodeSet.stream()
+                .map(StrategyEnum.codeToNameMap::get)
+                .collect(Collectors.joining(" "));
+
+        this.strategyCode = String.join(" ", strategyCodeSet);
+        this.strategyName = name;
+        this.level = strategyCodeSet.size();
     }
 }

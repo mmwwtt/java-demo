@@ -19,5 +19,6 @@ public interface StrategyResultService {
     /**
      * 策略-股票代码-日期Set
      */
-    Map<String, Map<String, Set<Integer>>> getLevel1StrategyToStockAndDateSetMap();
+    Map<String, Map<String, Set<Integer>>> getL1StrategyToStockToDateIdSetMap();
+
 }

@@ -11,6 +11,8 @@ import org.mapstruct.factory.Mappers;
 
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.mmwwtt.stock.common.CommonUtils.divide;
 import static com.mmwwtt.stock.common.CommonUtils.subtract;
@@ -73,4 +75,7 @@ public interface VoConvert {
         stockDetail.setDealPrice(stockDetail.getDealPrice().setScale(4, RoundingMode.HALF_UP));
         stockDetail.setLastPrice(stockDetail.getLastPrice().setScale(4, RoundingMode.HALF_UP));
     }
+
+    Map<String, Set<Integer>> convertToMap(Map<String, Set<Integer>> map);
+    Set<Integer> convertToSet(Set<Integer> set);
 }

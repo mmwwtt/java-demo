@@ -32,3 +32,5 @@ sql设置
 
     -- 4. 可选：把“没走索引”的语句也记下来
     SET GLOBAL log_queries_not_using_indexes = 'ON';
+
+类的静态代码块和代码块中不能用注入的bean(当时还未注入)，可用使用@PostConstruct 依赖注入完成后执行

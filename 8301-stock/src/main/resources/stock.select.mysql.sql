@@ -1,5 +1,3 @@
-
-
 use stock;
 
 
@@ -16,44 +14,58 @@ select count(*)
 from stock_strategy_result_t;
 
 select count(*)
-from stock_strategy_result_t where level = 1;
+from stock_strategy_result_t
+where level = 1;
 
 select count(*)
-from stock_strategy_result_t where level = 2;
+from stock_strategy_result_t
+where level = 2;
 
 select count(*)
-from stock_strategy_result_t  where level = 3;
+from stock_strategy_result_t
+where level = 3;
 
 select count(*)
-from stock_strategy_result_t  where level = 4;
+from stock_strategy_result_t
+where level = 4;
 
 select count(*)
-from stock_strategy_result_t  where level = 5;
+from stock_strategy_result_t
+where level = 5;
 
 select count(*)
-from stock_strategy_result_t  where level = 6;
+from stock_strategy_result_t
+where level = 6;
 
 select count(*)
-from stock_strategy_result_t  where level = 7;
+from stock_strategy_result_t
+where level = 7;
 
 select count(*)
-from stock_strategy_result_t  where level = 8;
+from stock_strategy_result_t
+where level = 8;
 
 select count(*)
-from stock_strategy_result_t  where level = 9;
+from stock_strategy_result_t
+where level = 9;
 
 select count(*)
-from stock_strategy_result_t  where level = 10;
+from stock_strategy_result_t
+where level = 10;
 
 select count(*)
-from stock_strategy_result_t  where level = 11;
+from stock_strategy_result_t
+where level = 11;
 
 
 
+select *
+from stock_strategy_win_t
+where level = '2';
 
-select * from stock_strategy_win_t where level = '2';
-
-select * from stock_strategy_result_t where stock_code = '000933.SZ';
+select *
+from stock_strategy_result_t
+where stock_code = '000933.SZ';
 
 delete
 from stock_strategy_result_t
@@ -86,4 +98,13 @@ from stock_detail_t
 where stock_code = '002083.SZ'
 order by deal_date desc;
 
-select * from stock_strategy_result_t  where strategy_code = '1026 1032 1084 11 12 13';
+select *
+from stock_strategy_result_t
+where strategy_code = '1026 1032 1084 11 12 13';
+
+delete
+from stock_strategy_result_t
+where level != 1;
+delete
+from stock_strategy_win_t
+where level != 1;

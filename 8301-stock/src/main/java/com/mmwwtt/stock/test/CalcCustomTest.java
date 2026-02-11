@@ -47,7 +47,6 @@ public class CalcCustomTest {
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
-    private final ThreadPoolExecutor middleThreadPool = GlobalThreadPool.getMiddleThreadPool();
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
     private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
