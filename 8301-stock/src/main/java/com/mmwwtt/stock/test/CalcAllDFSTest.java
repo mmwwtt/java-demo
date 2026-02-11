@@ -2,7 +2,6 @@ package com.mmwwtt.stock.test;
 
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
-import com.mmwwtt.stock.dao.StockCalcResDAO;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyWin;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -37,14 +35,10 @@ public class CalcAllDFSTest {
     @Resource
     private StrategyResultServiceImpl strategyResultService;
 
-    @Resource
-    private StockCalcResServiceImpl stockCalcResService;
 
     @Resource
     private StrategyWinServiceImpl strategyWinService;
 
-    @Resource
-    private CalcCommonService calcCommonService;
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
@@ -54,10 +48,6 @@ public class CalcAllDFSTest {
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
     private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
-    @Resource
-    private StockCalcResDAO stockCalcResDao;
 
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
