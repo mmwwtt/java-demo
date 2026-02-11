@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 
+/**
+ * 深度优先遍历各种策略
+ */
 @Slf4j
 @SpringBootTest
 public class CalcAllDFSTest {
