@@ -127,8 +127,8 @@ public class CalcAllDFSTest {
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
             if (win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
-                    || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
-                    || (moreThan(win.getCnt() / parentWin.getCnt(), "0.98") && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.02")))
+                    || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.02")))
+                    || (moreThan(win.getCnt() / parentWin.getCnt(), "0.99") && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.02")))
                     || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.90"))
                     || (win.getCnt() < 200 && lessThan(win.getWinRate(), "0.80"))
                     || (win.getCnt() < 300 && lessThan(win.getWinRate(), "0.70"))

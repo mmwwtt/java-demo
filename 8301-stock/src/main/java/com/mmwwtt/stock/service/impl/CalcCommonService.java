@@ -124,8 +124,8 @@ public class CalcCommonService {
             List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getOnePercRate).reversed()).toList();
             for (StrategyWin strategyWin : list) {
                 List<String> resStockList = strategyToStockMap.get(strategyWin);
-                String str = String.format("\n\n策略id:%d \n胜率:%4f \n明天平均涨幅:%4f  \n十日最高平均涨幅：%4f \n策略：%s \n",
-                        strategyWin.getStrategyWinId(),strategyWin.getWinRate(), strategyWin.getOnePercRate(),
+                String str = String.format("\n\n策略id:%d \n胜率:%4f \n历史总数：%d\n明天平均涨幅:%4f  \n十日最高平均涨幅：%4f \n策略：%s \n",
+                        strategyWin.getStrategyWinId(),strategyWin.getWinRate(), strategyWin.getCnt(),strategyWin.getOnePercRate(),
                         strategyWin.getTenMaxPercRate(), strategyWin.getStrategyName());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {
