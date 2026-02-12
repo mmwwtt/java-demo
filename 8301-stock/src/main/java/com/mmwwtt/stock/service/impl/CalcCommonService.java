@@ -122,7 +122,7 @@ public class CalcCommonService {
             for (StrategyWin strategyWin : list) {
                 List<String> resStockList = strategyToStockMap.get(strategyWin);
                 String str = String.format("\n\n策略id:%d \n胜率:%4f \n历史总数：%d\n明天平均涨幅:%4f  \n十日最高平均涨幅：%4f \n策略：%s \n",
-                        strategyWin.getStrategyWinId(),strategyWin.getWinRate(), strategyWin.getCnt(),strategyWin.getOnePercRate(),
+                        strategyWin.getStrategyWinId(), strategyWin.getWinRate(), strategyWin.getCnt(), strategyWin.getOnePercRate(),
                         strategyWin.getTenMaxPercRate(), strategyWin.getStrategyName());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {
@@ -142,9 +142,8 @@ public class CalcCommonService {
     }
 
 
-
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        List<StrategyEnum> values =StrategyEnum.strategyList;
+        List<StrategyEnum> values = StrategyEnum.strategyList;
         LocalDateTime now = LocalDateTime.now();
         List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -156,7 +155,9 @@ public class CalcCommonService {
                     for (StrategyEnum strategy : values) {
                         Set<Integer> dateList = new HashSet<>();
                         for (StockDetail detail : stockDetails) {
-                            if (Objects.isNull(detail.getNext1()) || Objects.isNull(detail.getSixtyDayLine())
+                            if (Objects.isNull(detail.getNext1())
+                                    || Objects.isNull(detail.getT10())
+                                    || Objects.isNull(detail.getT10().getSixtyDayLine())
                                     || moreThan(detail.getPricePert(), "0.097")) {
                                 continue;
                             }

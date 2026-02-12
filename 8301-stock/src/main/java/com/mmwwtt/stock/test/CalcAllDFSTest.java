@@ -102,7 +102,7 @@ public class CalcAllDFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 10) {
+        if (level > 20) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -119,7 +119,8 @@ public class CalcAllDFSTest {
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
-            if (win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
+            if (moreThan(win.getWinRate(), "0.99")
+                    || win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
                     || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.02")))
                     || (moreThan(win.getCnt() / parentWin.getCnt(), "0.99") && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.02")))
                     || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.90"))

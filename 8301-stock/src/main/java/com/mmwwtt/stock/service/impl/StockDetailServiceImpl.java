@@ -64,6 +64,11 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
             pairList.add(Pair.of(i + 3, t0::setT3));
             pairList.add(Pair.of(i + 4, t0::setT4));
             pairList.add(Pair.of(i + 5, t0::setT5));
+            pairList.add(Pair.of(i + 6, t0::setT6));
+            pairList.add(Pair.of(i + 7, t0::setT7));
+            pairList.add(Pair.of(i + 8, t0::setT8));
+            pairList.add(Pair.of(i + 9, t0::setT9));
+            pairList.add(Pair.of(i + 10, t0::setT10));
             for (Pair<Integer, Consumer<StockDetail>> pair : pairList) {
                 Integer idx = pair.getLeft();
                 if (0 <= idx && idx < stockDetails.size()) {

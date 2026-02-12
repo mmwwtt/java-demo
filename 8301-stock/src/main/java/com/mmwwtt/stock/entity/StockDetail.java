@@ -440,6 +440,17 @@ public class StockDetail {
     @TableField(exist = false)
     private StockDetail t5;
 
+    @TableField(exist = false)
+    private StockDetail t6;
+    @TableField(exist = false)
+    private StockDetail t7;
+    @TableField(exist = false)
+    private StockDetail t8;
+    @TableField(exist = false)
+    private StockDetail t9;
+    @TableField(exist = false)
+    private StockDetail t10;
+
 
     /**
      * 量比  相较5日线

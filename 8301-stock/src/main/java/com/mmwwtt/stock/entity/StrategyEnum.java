@@ -318,7 +318,7 @@ public class StrategyEnum {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
             cur.setCode("0" + item.getCode());
             cur.setName("T0-" + item.getName());
-            cur.setRunFunc((StockDetail t0) -> item.getRunFunc().apply(t0.getT1()));
+            cur.setRunFunc(item.getRunFunc());
             return cur;
         }).toList();
 
