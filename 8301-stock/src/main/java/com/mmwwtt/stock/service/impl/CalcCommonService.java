@@ -1,10 +1,8 @@
 package com.mmwwtt.stock.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
-import com.mmwwtt.stock.dao.StockCalcResDAO;
 import com.mmwwtt.stock.entity.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -51,8 +49,6 @@ public class CalcCommonService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Resource
-    private StockCalcResDAO stockCalcResDao;
 
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
@@ -73,7 +69,6 @@ public class CalcCommonService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         //策略
         log.info("开始计算");
-        QueryWrapper<StockCalcRes> detailWapper = new QueryWrapper<>();
 
         for (StrategyWin strategyWin : strategyWinList) {
             List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))

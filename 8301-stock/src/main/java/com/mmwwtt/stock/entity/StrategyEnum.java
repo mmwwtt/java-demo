@@ -347,9 +347,9 @@ public class StrategyEnum {
         }).toList();
 
         strategyList.addAll(t0List);
-        strategyList.addAll(t1List);
-        strategyList.addAll(t2List);
-        strategyList.addAll(t3List);
+//        strategyList.addAll(t1List);
+//        strategyList.addAll(t2List);
+//        strategyList.addAll(t3List);
         for (StrategyEnum strategyEnum : strategyList) {
             codeToEnumMap.put(strategyEnum.getCode(), strategyEnum);
         }

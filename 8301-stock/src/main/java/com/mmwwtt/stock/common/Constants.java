@@ -1,12 +1,9 @@
 package com.mmwwtt.stock.common;
 
-import com.mmwwtt.stock.entity.StockStrategy;
 import lombok.Data;
 
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 public class Constants {
@@ -79,15 +76,4 @@ public class Constants {
     public static final MathContext MC = new MathContext(4, RoundingMode.HALF_UP);
 
 
-
-
-    public static final List<StockStrategy> STRATEGY_LIST = new ArrayList<>();
-
-    public static StockStrategy getStrategy(String name) {
-        return STRATEGY_LIST.stream().filter(item -> item.getStrategyName().startsWith(name)).findFirst().orElse(null);
-    }
-
-    public static List<StockStrategy> getStrategyList(String name) {
-        return STRATEGY_LIST.stream().filter(item -> item.getStrategyName().startsWith(name)).toList();
-    }
 }

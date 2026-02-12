@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.VoConvert;
-import com.mmwwtt.stock.dao.StockCalcResDAO;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
@@ -17,7 +16,6 @@ import com.mmwwtt.stock.service.impl.StrategyResultServiceImpl;
 import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
 import com.mmwwtt.stock.vo.StockDetailVO;
 import com.mmwwtt.stock.vo.StockVO;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,9 +59,6 @@ public class DownloadTest {
     private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
     private final RestTemplate restTemplate = new RestTemplate();
-
-    @Resource
-    private StockCalcResDAO stockCalcResDao;
 
     /**
      * 今天的日期

@@ -3,7 +3,6 @@ package com.mmwwtt.stock.test;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUitls;
 import com.mmwwtt.stock.convert.VoConvert;
-import com.mmwwtt.stock.dao.StockCalcResDAO;
 import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.service.impl.*;
 import jakarta.annotation.Resource;
@@ -46,15 +45,13 @@ public class CalcCustomTest {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Resource
-    private StockCalcResDAO stockCalcResDao;
 
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
     @Test
     @DisplayName("根据策略绘制蜡烛图")
     public void startCalc3() throws ExecutionException, InterruptedException {
-        StockStrategy strategy = new StockStrategy("test_" + getTimeStr(), (StockDetail t0) -> {
+        StrategyEnum strategy = new StrategyEnum("testCode","test_" + getTimeStr(), (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
@@ -82,7 +79,7 @@ public class CalcCustomTest {
     public void startCalc4() throws ExecutionException, InterruptedException {
         calcByStrategy(List.of(
 
-                new StockStrategy("test ", (StockDetail t0) -> {
+                new StrategyEnum("testCode","testName", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1();
                     StockDetail t2 = t0.getT2();
                     StockDetail t3 = t0.getT3();
@@ -93,7 +90,7 @@ public class CalcCustomTest {
         ));
     }
 
-    public Map<String, List<StockDetail>> calcByStrategy(List<StockStrategy> strategyList) throws ExecutionException, InterruptedException {
+    public Map<String, List<StockDetail>> calcByStrategy(List<StrategyEnum> strategyList) throws ExecutionException, InterruptedException {
         Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
         LocalDateTime dataTime = LocalDateTime.now();
         List<List<Stock>> parts = stockService.getStockPart();
@@ -106,7 +103,7 @@ public class CalcCustomTest {
                     if (stockDetails.size() < 60) {
                         return;
                     }
-                    for (StockStrategy strategy : strategyList) {
+                    for (StrategyEnum strategy : strategyList) {
                         for (int i = 0; i < stockDetails.size() - 60; i++) {
                             StockDetail stockDetail = stockDetails.get(i);
                             if (moreThan(stockDetail.getPricePert(), "0.097")
@@ -114,7 +111,7 @@ public class CalcCustomTest {
                                     || !strategy.getRunFunc().apply(stockDetail)) {
                                 continue;
                             }
-                            strategyToCalcMap.computeIfAbsent(strategy.getStrategyName(), v -> new ArrayList<>()).add(stockDetail);
+                            strategyToCalcMap.computeIfAbsent(strategy.getName(), v -> new ArrayList<>()).add(stockDetail);
                         }
                     }
                 }
