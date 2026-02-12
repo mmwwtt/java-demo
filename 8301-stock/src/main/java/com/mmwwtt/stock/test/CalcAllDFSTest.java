@@ -39,6 +39,9 @@ public class CalcAllDFSTest {
     @Resource
     private StrategyWinServiceImpl strategyWinService;
 
+    @Resource
+    private CalcCommonService calcCommonService;
+
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
     private final ThreadPoolExecutor middleThreadPool2 = GlobalThreadPool.getMiddleThreadPool2();
@@ -83,6 +86,12 @@ public class CalcAllDFSTest {
 
 
     @Test
+    @DisplayName("生成level1策略结果")
+    public void getL1Strategy() throws InterruptedException, ExecutionException {
+        calcCommonService.buildStrateResultLevel1();
+    }
+
+    @Test
     @DisplayName("生成符合单条枚举策略的数据")
     public void buildStrateResultAll() throws ExecutionException, InterruptedException {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -103,7 +112,7 @@ public class CalcAllDFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 2) {
+        if (level > 10) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -122,11 +131,7 @@ public class CalcAllDFSTest {
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
             if (win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
                     || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
-                    || (moreThan(win.getCnt() / parentWin.getCnt(), "0.98") && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
-                    || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.90"))
-                    || (win.getCnt() < 200 && lessThan(win.getWinRate(), "0.80"))
-                    || (win.getCnt() < 300 && lessThan(win.getWinRate(), "0.70"))
-                    || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.60"))) {
+                    || (moreThan(win.getCnt() / parentWin.getCnt(), "0.99") && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))) {
                 continue;
             }
             strategyWinService.save(win);

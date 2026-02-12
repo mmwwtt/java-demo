@@ -208,8 +208,7 @@ public class StrategyWin {
     }
 
     public StrategyWin(String strategyCode) {
-        new StrategyWin(Set.of(strategyCode));
-
+        this(Set.of(strategyCode));
     }
 
     public StrategyWin(Set<String> strategyCodeSet) {
