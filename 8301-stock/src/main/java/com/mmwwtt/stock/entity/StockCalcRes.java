@@ -109,4 +109,6 @@ public class StockCalcRes {
         private final String code;
         private final String desc;
     }
+
+
 }

@@ -40,7 +40,6 @@ public class CalcAllDFSTest {
     private StrategyWinServiceImpl strategyWinService;
 
 
-
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
     private final ThreadPoolExecutor middleThreadPool2 = GlobalThreadPool.getMiddleThreadPool2();
     private final ThreadPoolExecutor middleThreadPool3 = GlobalThreadPool.getMiddleThreadPool3();
@@ -58,7 +57,9 @@ public class CalcAllDFSTest {
     @PostConstruct
     public void init() {
         l1StrategyToStockToDetailIdSetMap = strategyResultService.getL1StrategyToStockToDateIdSetMap();
-        l1StrategyList = strategyWinService.getL1StrategyWin();
+        l1StrategyList = strategyWinService.getL1StrategyWin().stream()
+                        .filter(item -> moreThan(item.getWinRate(), "0.40"))
+                        .sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();
         Map<String, Map<Integer, StockDetail>> map = new HashMap<>();
         List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -102,7 +103,7 @@ public class CalcAllDFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 20) {
+        if (level > 7) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -119,14 +120,13 @@ public class CalcAllDFSTest {
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
-            if (moreThan(win.getWinRate(), "0.99")
+            if (lessThan(win.getWinRate(), parentWin.getWinRate())
                     || win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
-                    || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.02")))
-                    || (moreThan(win.getCnt() / parentWin.getCnt(), "0.99") && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.02")))
-                    || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.90"))
-                    || (win.getCnt() < 200 && lessThan(win.getWinRate(), "0.80"))
-                    || (win.getCnt() < 300 && lessThan(win.getWinRate(), "0.70"))
-                    || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.60"))) {
+                    || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.95"))
+                    || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.80"))
+                    || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.75"))
+                    || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.70"))
+                    || (win.getCnt() < 1000 && lessThan(win.getWinRate(), "0.60"))) {
                 continue;
             }
             strategyWinService.save(win);
@@ -142,6 +142,23 @@ public class CalcAllDFSTest {
                         win.addToResult(idToDetailMap.get(detailId))));
         win.fillData();
         return win;
+    }
+
+    private boolean filter1(StrategyWin win,  StrategyWin parentWin) {
+        if (moreThan(win.getWinRate(), "0.98")
+                || win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
+                || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
+                || (win.getCnt() > 1000 && moreThan(win.getCnt() / parentWin.getCnt(), "0.97")
+                && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
+                || (win.getCnt() < 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.005")))
+                || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.95"))
+                || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.80"))
+                || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.75"))
+                || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.70"))
+                || (win.getCnt() < 1000 && lessThan(win.getWinRate(), "0.60"))) {
+            return false;
+        }
+        return true;
     }
 }
 

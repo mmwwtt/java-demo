@@ -4,10 +4,7 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUitls;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.dao.StockCalcResDAO;
-import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockCalcRes;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StockStrategy;
+import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.service.impl.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +35,6 @@ public class CalcCustomTest {
 
     @Resource
     private StrategyResultServiceImpl strategyResultService;
-
-    @Resource
-    private StockCalcResServiceImpl stockCalcResService;
 
     @Resource
     private StrategyWinServiceImpl strategyWinService;
@@ -130,8 +124,12 @@ public class CalcCustomTest {
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
 
-        strategyToCalcMap.forEach((strategyName, list) ->
-                stockCalcResService.saveCalcRes(list, strategyName, dataTime, StockCalcRes.TypeEnum.DETAIL.getCode()));
+        strategyToCalcMap.forEach((strategyName, list) -> {
+            StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyName);
+            strategyWin.setLevel(0);
+            list.forEach(strategyWin::addToResult);
+            strategyWinService.save(strategyWin);
+        });
         log.info("结束计算");
         return strategyToCalcMap;
     }

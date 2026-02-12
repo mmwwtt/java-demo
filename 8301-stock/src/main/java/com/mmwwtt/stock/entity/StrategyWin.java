@@ -7,8 +7,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -94,11 +92,6 @@ public class StrategyWin {
      * 预测的10天内最高价 的平均涨幅
      */
     private BigDecimal tenMaxPercRate;
-
-    /**
-     * 创建日期
-     */
-    private LocalDateTime createDate;
 
     /**
      * 策略层级
@@ -207,16 +200,15 @@ public class StrategyWin {
         cnt = oneCnt;
     }
 
-    public StrategyWin(String strategyCode, LocalDateTime now) {
-        String[] codes = strategyCode.split(" ");
-        String name = Arrays.stream(codes)
-                .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())
-                .collect(Collectors.joining(" "));
+    public static StrategyWin createByStrategyName(String strategyName) {
+        StrategyWin strategyWin = new StrategyWin();
+        strategyWin.setStrategyName(strategyName);
+        return strategyWin;
 
-        this.createDate = now;
-        this.strategyCode = strategyCode;
-        this.strategyName = name;
-        this.level = ((int) Arrays.stream(codes).count());
+    }
+
+    public StrategyWin(String strategyCode) {
+        new StrategyWin(Set.of(strategyCode));
 
     }
 

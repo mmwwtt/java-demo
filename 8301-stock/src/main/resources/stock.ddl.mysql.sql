@@ -117,28 +117,6 @@ CREATE TABLE stock_detail_t
 create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc);
 
 
-
-DROP TABLE IF EXISTS stock_calculation_result_t;
-CREATE TABLE stock_calculation_result_t
-(
-    calc_res_id        INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    type               VARCHAR(64) COMMENT '策略类型',
-    strategy_desc      VARCHAR(256) COMMENT '策略描述',
-    win_rate           DECIMAL(8, 4) COMMENT '预测胜率',
-    all_cnt            INT(11) COMMENT '符合条件的数据量',
-    perc_rate          DECIMAL(8, 4) COMMENT '百分比叠加后的结果',
-    win_perc_rate      DECIMAL(8, 4) COMMENT '预测对的百分比叠加后的结果',
-    two_perc_rate      DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
-    three_perc_rate    DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
-    four_perc_rate     DECIMAL(8, 4) COMMENT '4天后百分比叠加后的结果',
-    five_perc_rate     DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
-    five_max_perc_rate DECIMAL(8, 4) COMMENT '5天内最高价 百分比叠加后的结果',
-    ten_perc_rate      DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
-    ten_max_perc_rate  DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
-    create_date        DATETIME NOT NULL COMMENT '创建日期'
-) COMMENT '股票计算结果表';
-
-
 DROP TABLE IF EXISTS stock_strategy_result_t;
 CREATE TABLE stock_strategy_result_t
 (
@@ -170,6 +148,5 @@ CREATE TABLE stock_strategy_win_t
     ten_perc_rate      DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
     five_max_perc_rate DECIMAL(8, 4) COMMENT '5天内最高价 百分比叠加后的结果',
     ten_max_perc_rate  DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
-    level              INT(4) comment '条件层数',
-    create_date        DATETIME COMMENT '创建日期'
+    level              INT(4) comment '条件层数'
 ) COMMENT '策略胜率表';
