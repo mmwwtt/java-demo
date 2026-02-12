@@ -3,8 +3,14 @@ package com.mmwwtt.stock.test;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUitls;
 import com.mmwwtt.stock.convert.VoConvert;
-import com.mmwwtt.stock.entity.*;
-import com.mmwwtt.stock.service.impl.*;
+import com.mmwwtt.stock.entity.Stock;
+import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StrategyEnum;
+import com.mmwwtt.stock.entity.StrategyWin;
+import com.mmwwtt.stock.service.impl.StockDetailServiceImpl;
+import com.mmwwtt.stock.service.impl.StockServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyResultServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +56,7 @@ public class CalcCustomTest {
     @Test
     @DisplayName("根据策略绘制蜡烛图")
     public void startCalc3() throws ExecutionException, InterruptedException {
-        StrategyEnum strategy = new StrategyEnum("testCode","test_" + getTimeStr(), (StockDetail t0) -> {
+        StrategyEnum strategy = new StrategyEnum("testCode", "test_" + getTimeStr(), (StockDetail t0) -> {
             StockDetail t1 = t0.getT1();
             StockDetail t2 = t0.getT2();
             StockDetail t3 = t0.getT3();
@@ -79,20 +84,16 @@ public class CalcCustomTest {
     public void startCalc4() throws ExecutionException, InterruptedException {
         calcByStrategy(List.of(
 
-                new StrategyEnum("testCode","testName", (StockDetail t0) -> {
-                    StockDetail t1 = t0.getT1();
-                    StockDetail t2 = t0.getT2();
-                    StockDetail t3 = t0.getT3();
-                    return isInRange(t0.getLowPrice(), subtract(t1.getLowPrice(), "0.02"), add(t1.getLowPrice(), "0.02"))
-                            && isInRange(t0.getLowPrice(), subtract(t2.getLowPrice(), "0.02"), add(t2.getLowPrice(), "0.02"))
-                            && lessThan(t0.getPosition20(), "0.2");
+                new StrategyEnum("testCode", "testName", (StockDetail t0) -> {
+                    return t0.getSixtyIsUp()
+                            && isInRangeNotEquals(t0.getPosition40(), "0.2", "0.3")
+                            && isInRangeNotEquals(t0.getLowShadowLen(), "0.08", "0.09");
                 })
         ));
     }
 
     public Map<String, List<StockDetail>> calcByStrategy(List<StrategyEnum> strategyList) throws ExecutionException, InterruptedException {
         Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
-        LocalDateTime dataTime = LocalDateTime.now();
         List<List<Stock>> parts = stockService.getStockPart();
         log.info("开始计算");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -108,6 +109,8 @@ public class CalcCustomTest {
                             StockDetail stockDetail = stockDetails.get(i);
                             if (moreThan(stockDetail.getPricePert(), "0.097")
                                     || Objects.isNull(stockDetail.getNext1())
+                                    || Objects.isNull(stockDetail.getT10())
+                                    || Objects.isNull(stockDetail.getT10().getSixtyDayLine())
                                     || !strategy.getRunFunc().apply(stockDetail)) {
                                 continue;
                             }
@@ -125,6 +128,7 @@ public class CalcCustomTest {
             StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyName);
             strategyWin.setLevel(0);
             list.forEach(strategyWin::addToResult);
+            strategyWin.fillData();
             strategyWinService.save(strategyWin);
         });
         log.info("结束计算");

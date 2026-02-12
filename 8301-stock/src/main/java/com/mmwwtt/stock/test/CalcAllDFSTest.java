@@ -21,6 +21,8 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 
 /**
  * 深度优先遍历各种策略
+ * 区间60向上 区间40_20_30 下影线长度_08_09   是100%胜率
+ * l1 cnt限值不能大于50
  */
 @Slf4j
 @SpringBootTest
@@ -56,6 +58,8 @@ public class CalcAllDFSTest {
     private Map<String, Map<String, Set<Integer>>> l1StrategyToStockToDetailIdSetMap;
     private Map<Integer, StockDetail> idToDetailMap = new HashMap<>();
     private List<StrategyWin> l1StrategyList;
+
+    public static Set<String> set = Set.of( "00014","01072","01108");
 
     @PostConstruct
     public void init() {
@@ -99,6 +103,9 @@ public class CalcAllDFSTest {
             StrategyWin strategyWin = l1StrategyList.get(i);
             Map<String, Set<Integer>> stockCodeToDateSetMap = l1StrategyToStockToDetailIdSetMap.get(strategyWin.getStrategyCode());
             int finalI = i;
+            if(!set.contains(strategyWin.getStrategyCode())){
+                continue;
+            }
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 Set<String> strategySet = new HashSet<>();
                 strategySet.add(strategyWin.getStrategyCode());
@@ -112,14 +119,16 @@ public class CalcAllDFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 10) {
+        if (level > 5) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
             StrategyWin strategy = l1StrategyList.get(i);
-            if (strategySet.contains(strategy.getStrategyCode())) {
+            if (strategySet.contains(strategy.getStrategyCode())
+            ||!set.contains(strategy.getStrategyCode())) {
                 continue;
             }
+
             Map<String, Set<Integer>> curStockToDetailIdSetMap = voConvert.convertToMap(stockToDetailIdSetMap);
 
             Map<String, Set<Integer>> l1StockToDetailIdMap = l1StrategyToStockToDetailIdSetMap.get(strategy.getStrategyCode());
@@ -129,11 +138,11 @@ public class CalcAllDFSTest {
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
-            if (win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
-                    || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
-                    || (moreThan(win.getCnt() / parentWin.getCnt(), "0.99") && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))) {
-                continue;
-            }
+//            if (win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
+//                    || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
+//                    || (moreThan(win.getCnt() / parentWin.getCnt(), "0.99") && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))) {
+//                continue;
+//            }
             strategyWinService.save(win);
             log.info("策略：{} 开始计算并保存完成", win.getStrategyCode());
             buildByLevel(level + 1, curStockToDetailIdSetMap, curStrategyCodeSet, win, i);

@@ -213,7 +213,7 @@ public class CalcCommonService {
         log.info("获取win结果 开始填充数据");
         strategyCodeToWinMap.values().forEach(StrategyWin::fillData);
         List<StrategyWin> resList = strategyCodeToWinMap.values().stream()
-                .filter(item -> item.getCnt() > 100)
+                .filter(item -> item.getCnt() > 35)  //不能拉高阈值，很多都是小众的重要条件
                 .filter(item -> moreThan(item.getWinRate(), "0.35")).toList();
         strategyWinService.saveBatch(resList);
         log.info("保存win结果 完成");
