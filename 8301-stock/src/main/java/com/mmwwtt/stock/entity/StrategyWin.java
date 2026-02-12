@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.mmwwtt.stock.enums.StrategyEnum;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -211,7 +210,7 @@ public class StrategyWin {
     public StrategyWin(String strategyCode, LocalDateTime now) {
         String[] codes = strategyCode.split(" ");
         String name = Arrays.stream(codes)
-                .map(StrategyEnum.codeToNameMap::get)
+                .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())
                 .collect(Collectors.joining(" "));
 
         this.createDate = now;
@@ -223,7 +222,7 @@ public class StrategyWin {
 
     public StrategyWin(Set<String> strategyCodeSet) {
         String name = strategyCodeSet.stream()
-                .map(StrategyEnum.codeToNameMap::get)
+                .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())
                 .collect(Collectors.joining(" "));
 
         this.strategyCode = String.join(" ", strategyCodeSet);

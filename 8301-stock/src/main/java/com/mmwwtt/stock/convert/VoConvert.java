@@ -2,6 +2,7 @@ package com.mmwwtt.stock.convert;
 
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StrategyEnum;
 import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
 import com.mmwwtt.stock.vo.StockDetailVO;
 import com.mmwwtt.stock.vo.StockVO;
@@ -78,4 +79,6 @@ public interface VoConvert {
 
     Map<String, Set<Integer>> convertToMap(Map<String, Set<Integer>> map);
     Set<Integer> convertToSet(Set<Integer> set);
+
+    StrategyEnum convertTo(StrategyEnum strategyEnum);
 }

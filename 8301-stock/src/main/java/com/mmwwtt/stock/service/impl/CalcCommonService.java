@@ -6,7 +6,6 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.dao.StockCalcResDAO;
 import com.mmwwtt.stock.entity.*;
-import com.mmwwtt.stock.enums.StrategyEnum;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -38,8 +37,6 @@ public class CalcCommonService {
     @Resource
     private StrategyResultServiceImpl strategyResultService;
 
-    @Resource
-    private StockCalcResServiceImpl stockCalcResService;
 
     @Resource
     private StrategyWinServiceImpl strategyWinService;
@@ -147,7 +144,7 @@ public class CalcCommonService {
 
 
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        StrategyEnum[] values = StrategyEnum.values();
+        List<StrategyEnum> values =StrategyEnum.strategyList;
         LocalDateTime now = LocalDateTime.now();
         List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -183,7 +180,7 @@ public class CalcCommonService {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        getResult(1, now, Arrays.stream(StrategyEnum.values()).map(StrategyEnum::getCode).toList());
+        getResult(1, now, StrategyEnum.codeToEnumMap.keySet().stream().toList());
         log.info("策略层级 1 计算胜率 - 结束");
     }
 

@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmwwtt.stock.dao.StrategyWinDAO;
 import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StrategyEnum;
 import com.mmwwtt.stock.entity.StrategyWin;
-import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.service.StrategyWinService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -90,7 +90,9 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
                 tenCnt++;
             }
         }
-        String  strategyName = Arrays.stream(strategyCode.split(" ")).map(StrategyEnum.codeToNameMap::get).collect(Collectors.joining(" "));
+        String strategyName = Arrays.stream(strategyCode.split(" "))
+                .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())
+                .collect(Collectors.joining(" "));
 
         StrategyWin strategyWin = new StrategyWin();
         strategyWin.setStrategyCode(strategyCode);

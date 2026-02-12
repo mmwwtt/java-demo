@@ -55,7 +55,6 @@ public class DownloadTest {
     private StrategyResultServiceImpl strategyResultService;
 
 
-
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
