@@ -111,7 +111,7 @@ public class CalcAllDFSTest {
                 Set<String> strategySet = new HashSet<>();
                 strategySet.add(strategyWin.getStrategyCode());
                 buildByLevel(2, stockCodeToDateSetMap, strategySet, strategyWin, finalI);
-            }, middleThreadPool2);
+            }, cpuThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -160,6 +160,9 @@ public class CalcAllDFSTest {
     }
 
     private boolean isNot(StrategyWin win, StrategyWin parentWin, Integer level) {
+        if (win.getCnt() < 10) {
+            return true;
+        }
         if (moreThan(win.getTenMaxPercRate(), "0.09") || moreThan(win.getOnePercRate(), "0.2")) {
             return false;
         }
@@ -167,6 +170,8 @@ public class CalcAllDFSTest {
                 || win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")
                 || Objects.equals(win.getCnt(), parentWin.getCnt())
                 || isEquals(win.getWinRate(), BigDecimal.ONE)
+                || (win.getCnt() > 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
+                || (win.getCnt() < 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.001")))
                 || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.7") && level > 6)
                 || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.65") && level > 6)
                 || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.60") && level > 6)
