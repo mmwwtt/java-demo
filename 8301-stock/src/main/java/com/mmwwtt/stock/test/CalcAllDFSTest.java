@@ -141,7 +141,7 @@ public class CalcAllDFSTest {
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
-            if (isNot(win, parentWin, level)) {
+            if (isNot1(win, parentWin, level)) {
                 continue;
             }
             strategyWinService.save(win);
@@ -182,9 +182,6 @@ public class CalcAllDFSTest {
     }
 
     private boolean isNot1(StrategyWin win, StrategyWin parentWin, Integer level) {
-        if (moreThan(win.getTenMaxPercRate(), "0.09") || moreThan(win.getOnePercRate(), "0.2")) {
-            return false;
-        }
         if (lessAndEqualsThan(win.getWinRate(), parentWin.getWinRate())
                 || win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")
                 || Objects.equals(win.getCnt(), parentWin.getCnt())

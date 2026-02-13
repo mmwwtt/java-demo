@@ -132,13 +132,13 @@ public class CalcCommonService {
 
     private List<StrategyWin> getStrategyWinList() {
         StrategyWin strategyWin = new StrategyWin();
-        strategyWin.setWinRate(new BigDecimal("0.85"));
+        strategyWin.setWinRate(new BigDecimal("0.8"));
         return strategyWinService.getStrategyWin(strategyWin);
     }
 
 
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        List<StrategyEnum> values = StrategyEnum.strategy4DayList;
+        List<StrategyEnum> values = StrategyEnum.strategy1DayList;
         LocalDateTime now = LocalDateTime.now();
         List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();

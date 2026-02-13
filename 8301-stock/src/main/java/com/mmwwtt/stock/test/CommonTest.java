@@ -17,7 +17,7 @@ public class CommonTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260210", true, 1.2);
+        calcCommonService.predict("20260213", false, 1.2);
     }
 
     @Test
