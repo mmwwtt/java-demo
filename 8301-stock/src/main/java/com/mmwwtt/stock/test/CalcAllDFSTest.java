@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -59,14 +60,14 @@ public class CalcAllDFSTest {
     private Map<Integer, StockDetail> idToDetailMap = new HashMap<>();
     private List<StrategyWin> l1StrategyList;
 
-    public static Set<String> set = Set.of( "00014","01072","01108");
+    public static Set<String> set = Set.of("00014", "01072", "01108");
 
     @PostConstruct
     public void init() {
         l1StrategyToStockToDetailIdSetMap = strategyResultService.getL1StrategyToStockToDateIdSetMap();
         l1StrategyList = strategyWinService.getL1StrategyWin().stream()
-                        .filter(item -> moreThan(item.getWinRate(), "0.40"))
-                        .sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();
+                .filter(item -> moreThan(item.getWinRate(), "0.40"))
+                .sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();
         Map<String, Map<Integer, StockDetail>> map = new HashMap<>();
         List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -96,16 +97,16 @@ public class CalcAllDFSTest {
     }
 
     @Test
-    @DisplayName("生成符合单条枚举策略的数据")
+    @DisplayName("DFS深度遍历")
     public void buildStrateResultAll() throws ExecutionException, InterruptedException {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int i = 0; i < l1StrategyList.size(); i++) {
             StrategyWin strategyWin = l1StrategyList.get(i);
             Map<String, Set<Integer>> stockCodeToDateSetMap = l1StrategyToStockToDetailIdSetMap.get(strategyWin.getStrategyCode());
             int finalI = i;
-            if(!set.contains(strategyWin.getStrategyCode())){
-                continue;
-            }
+//            if(!set.contains(strategyWin.getStrategyCode())){
+//                continue;
+//            }
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 Set<String> strategySet = new HashSet<>();
                 strategySet.add(strategyWin.getStrategyCode());
@@ -119,15 +120,17 @@ public class CalcAllDFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 5) {
+        if (level > 10) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
             StrategyWin strategy = l1StrategyList.get(i);
-            if (strategySet.contains(strategy.getStrategyCode())
-            ||!set.contains(strategy.getStrategyCode())) {
+            if (strategySet.contains(strategy.getStrategyCode())) {
                 continue;
             }
+//            if (!set.contains(strategy.getStrategyCode())) {
+//                continue;
+//            }
 
             Map<String, Set<Integer>> curStockToDetailIdSetMap = voConvert.convertToMap(stockToDetailIdSetMap);
 
@@ -138,11 +141,9 @@ public class CalcAllDFSTest {
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
-//            if (win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
-//                    || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
-//                    || (moreThan(win.getCnt() / parentWin.getCnt(), "0.99") && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))) {
-//                continue;
-//            }
+            if (isNot(win, parentWin, level)) {
+                continue;
+            }
             strategyWinService.save(win);
             log.info("策略：{} 开始计算并保存完成", win.getStrategyCode());
             buildByLevel(level + 1, curStockToDetailIdSetMap, curStrategyCodeSet, win, i);
@@ -158,38 +159,38 @@ public class CalcAllDFSTest {
         return win;
     }
 
-    private boolean filter1(StrategyWin win,  StrategyWin parentWin, Integer level) {
-        if (lessThan(win.getWinRate(), parentWin.getWinRate())
-                || win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
-                || (win.getCnt() < 150 && lessThan(win.getWinRate(), "0.85"))
-                || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.80"))
-                || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.75"))
-                || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.70"))
-                || (win.getCnt() < 1000 && lessThan(win.getWinRate(), "0.60") && level > 4)
-                || (win.getCnt() < 2000 && lessThan(win.getWinRate(), "0.55") && level > 4)
-                || (win.getCnt() < 3000 && lessThan(win.getWinRate(), "0.50") && level > 4)
-                || (win.getCnt() > 1000 && moreThan(win.getCnt() , multiply( parentWin.getCnt(), "0.97"))
-                && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.03")))) {
+    private boolean isNot(StrategyWin win, StrategyWin parentWin, Integer level) {
+        if (moreThan(win.getTenMaxPercRate(), "0.09") || moreThan(win.getOnePercRate(), "0.2")) {
             return false;
         }
-        return true;
+        if (lessThan(win.getWinRate(), parentWin.getWinRate())
+                || win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")
+                || Objects.equals(win.getCnt(), parentWin.getCnt())
+                || isEquals(win.getWinRate(), BigDecimal.ONE)
+                || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.7") && level > 6)
+                || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.65") && level > 6)
+                || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.60") && level > 6)
+                || (win.getCnt() < 3000 && lessThan(win.getWinRate(), "0.50") && level > 6)) {
+            return true;
+        }
+        return false;
     }
 
-    private boolean filter2(StrategyWin win,  StrategyWin parentWin) {
-        if (moreThan(win.getWinRate(), "0.98")
-                || win.getCnt() < 50 || lessThan(win.getWinRate(), "0.40")
-                || (win.getCnt() > 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
-                || (win.getCnt() > 1000 && moreThan(win.getCnt() / parentWin.getCnt(), "0.97")
-                && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
-                || (win.getCnt() < 1000 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.005")))
-                || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.95"))
-                || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.80"))
-                || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.75"))
-                || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.70"))
-                || (win.getCnt() < 1000 && lessThan(win.getWinRate(), "0.60"))) {
+    private boolean isNot1(StrategyWin win, StrategyWin parentWin, Integer level) {
+        if (moreThan(win.getTenMaxPercRate(), "0.09") || moreThan(win.getOnePercRate(), "0.2")) {
             return false;
         }
-        return true;
+        if (lessThan(win.getWinRate(), parentWin.getWinRate())
+                || win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")
+                || Objects.equals(win.getCnt(), parentWin.getCnt())
+                || isEquals(win.getWinRate(), BigDecimal.ONE)
+                || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.7") && level > 6)
+                || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.65") && level > 6)
+                || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.60") && level > 6)
+                || (win.getCnt() < 3000 && lessThan(win.getWinRate(), "0.50") && level > 6)) {
+            return true;
+        }
+        return false;
     }
 }
 

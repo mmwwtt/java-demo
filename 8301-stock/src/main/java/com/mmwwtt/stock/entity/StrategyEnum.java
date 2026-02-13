@@ -21,10 +21,12 @@ public class StrategyEnum {
     private String name;
     private Function<StockDetail, Boolean> runFunc;
 
-    public static final List<StrategyEnum> strategyList = new ArrayList<>();
-
     public static final List<StrategyEnum> baseStrategyList = new ArrayList<>();
 
+    public static final List<StrategyEnum> strategy1DayList = new ArrayList<>();
+
+
+    public static final List<StrategyEnum> strategy4DayList = new ArrayList<>();
     public static final Map<String, StrategyEnum> codeToEnumMap = new HashMap<>();
 
     static {
@@ -321,6 +323,19 @@ public class StrategyEnum {
             cur.setRunFunc(item.getRunFunc());
             return cur;
         }).toList();
+        strategy1DayList.addAll(t0List);
+        for (StrategyEnum strategyEnum : strategy1DayList) {
+            codeToEnumMap.put(strategyEnum.getCode(), strategyEnum);
+        }
+    }
+    static {
+        List<StrategyEnum> t0List = baseStrategyList.stream().map(item -> {
+            StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
+            cur.setCode("0" + item.getCode());
+            cur.setName("T0-" + item.getName());
+            cur.setRunFunc(item.getRunFunc());
+            return cur;
+        }).toList();
 
         List<StrategyEnum> t1List = baseStrategyList.stream().map(item -> {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
@@ -346,11 +361,11 @@ public class StrategyEnum {
             return cur;
         }).toList();
 
-        strategyList.addAll(t0List);
-//        strategyList.addAll(t1List);
-//        strategyList.addAll(t2List);
-//        strategyList.addAll(t3List);
-        for (StrategyEnum strategyEnum : strategyList) {
+        strategy4DayList.addAll(t0List);
+        strategy4DayList.addAll(t1List);
+        strategy4DayList.addAll(t2List);
+        strategy4DayList.addAll(t3List);
+        for (StrategyEnum strategyEnum : strategy4DayList) {
             codeToEnumMap.put(strategyEnum.getCode(), strategyEnum);
         }
     }

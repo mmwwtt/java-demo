@@ -138,7 +138,7 @@ public class CalcCommonService {
 
 
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        List<StrategyEnum> values = StrategyEnum.strategyList;
+        List<StrategyEnum> values = StrategyEnum.strategy4DayList;
         LocalDateTime now = LocalDateTime.now();
         List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -150,7 +150,7 @@ public class CalcCommonService {
                     for (StrategyEnum strategy : values) {
                         Set<Integer> dateList = new HashSet<>();
                         for (StockDetail detail : stockDetails) {
-                            if (Objects.isNull(detail.getNext1())
+                            if (detail.getDealDate().startsWith("202505")||Objects.isNull(detail.getNext1())
                                     || Objects.isNull(detail.getT10())
                                     || Objects.isNull(detail.getT10().getSixtyDayLine())
                                     || moreThan(detail.getPricePert(), "0.097")) {
