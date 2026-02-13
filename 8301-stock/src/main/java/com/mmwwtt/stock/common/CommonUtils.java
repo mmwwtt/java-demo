@@ -121,6 +121,14 @@ public class CommonUtils {
         }
         return tmp1.compareTo(tmp2) < 0;
     }
+    public static Boolean lessAndEqualsThan(Object num1, Object num2) {
+        BigDecimal tmp1 = toBigDecimal(num1);
+        BigDecimal tmp2 = toBigDecimal(num2);
+        if (tmp1 == null || tmp2 == null) {
+            return false;
+        }
+        return tmp1.compareTo(tmp2) <= 0;
+    }
 
     public static BigDecimal max(Object... nums) {
         List<BigDecimal> list = Arrays.stream(nums).map(CommonUtils::toBigDecimal).toList();

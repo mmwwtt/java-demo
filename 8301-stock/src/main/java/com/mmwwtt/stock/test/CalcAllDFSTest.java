@@ -166,12 +166,12 @@ public class CalcAllDFSTest {
         if (moreThan(win.getTenMaxPercRate(), "0.09") || moreThan(win.getOnePercRate(), "0.2")) {
             return false;
         }
-        if (lessThan(win.getWinRate(), parentWin.getWinRate())
+        if (lessAndEqualsThan(win.getWinRate(), parentWin.getWinRate())
                 || win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")
                 || Objects.equals(win.getCnt(), parentWin.getCnt())
                 || isEquals(win.getWinRate(), BigDecimal.ONE)
-                || (win.getCnt() > 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
-                || (win.getCnt() < 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.001")))
+                || (win.getCnt() > 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.1")))
+                || (win.getCnt() < 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
                 || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.7") && level > 6)
                 || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.65") && level > 6)
                 || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.60") && level > 6)
@@ -185,7 +185,7 @@ public class CalcAllDFSTest {
         if (moreThan(win.getTenMaxPercRate(), "0.09") || moreThan(win.getOnePercRate(), "0.2")) {
             return false;
         }
-        if (lessThan(win.getWinRate(), parentWin.getWinRate())
+        if (lessAndEqualsThan(win.getWinRate(), parentWin.getWinRate())
                 || win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")
                 || Objects.equals(win.getCnt(), parentWin.getCnt())
                 || isEquals(win.getWinRate(), BigDecimal.ONE)
