@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.concurrent.ExecutionException;
 
 @SpringBootTest
-public class CommonTest {
+public class Test1{
 
     @Resource
     private CalcCommonService calcCommonService;

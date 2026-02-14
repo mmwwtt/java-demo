@@ -29,7 +29,7 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @Slf4j
 @SpringBootTest
-public class CalcCustomTest {
+public class CustomTest {
 
     @Resource
     private StockServiceImpl stockService;

@@ -27,7 +27,7 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
  */
 @Slf4j
 @SpringBootTest
-public class CalcAllDFSTest {
+public class DFSTest {
 
     @Resource
     private StockServiceImpl stockService;
