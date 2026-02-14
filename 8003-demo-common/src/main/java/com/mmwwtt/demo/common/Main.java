@@ -1,7 +1,6 @@
 package com.mmwwtt.demo.common;
 
 
-
 import static com.mmwwtt.demo.common.util.CommonUtils.compressJson;
 
 public class Main {
