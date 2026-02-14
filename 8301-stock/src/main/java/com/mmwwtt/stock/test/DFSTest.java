@@ -11,6 +11,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
@@ -29,20 +30,20 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 @SpringBootTest
 public class DFSTest {
 
-    @Resource
+    @Autowired
     private StockServiceImpl stockService;
 
-    @Resource
+    @Autowired
     private StockDetailServiceImpl stockDetailService;
 
-    @Resource
+    @Autowired
     private StrategyResultServiceImpl strategyResultService;
 
 
-    @Resource
+    @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
-    @Resource
+    @Autowired
     private CalcCommonService calcCommonService;
 
 

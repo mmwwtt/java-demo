@@ -7,6 +7,7 @@ import com.mmwwtt.stock.entity.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,17 +27,17 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 @Slf4j
 public class CalcCommonService {
 
-    @Resource
+    @Autowired
     private StockServiceImpl stockService;
 
-    @Resource
+    @Autowired
     private StockDetailServiceImpl stockDetailService;
 
-    @Resource
+    @Autowired
     private StrategyResultServiceImpl strategyResultService;
 
 
-    @Resource
+    @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
 
