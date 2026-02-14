@@ -16,6 +16,7 @@ import com.mmwwtt.stock.service.impl.StrategyResultServiceImpl;
 import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
 import com.mmwwtt.stock.vo.StockDetailVO;
 import com.mmwwtt.stock.vo.StockVO;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,13 +44,13 @@ import static com.mmwwtt.stock.common.Constants.*;
 @Slf4j
 public class DownloadTest {
 
-    @Autowired
+    @Resource
     private StockServiceImpl stockService;
 
-    @Autowired
+    @Resource
     private StockDetailServiceImpl stockDetailService;
 
-    @Autowired
+    @Resource
     private StrategyResultServiceImpl strategyResultService;
 
 

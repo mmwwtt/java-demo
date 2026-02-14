@@ -23,7 +23,7 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
     @Resource
     private StrategyResultDAO strategyResultDAO;
 
-    @Autowired
+    @Resource
     private StrategyWinDAO strategyWinDAO;
 
     @Override

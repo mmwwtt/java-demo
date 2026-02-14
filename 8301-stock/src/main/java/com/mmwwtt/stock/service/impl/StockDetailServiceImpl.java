@@ -9,6 +9,7 @@ import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.service.StockDetailService;
 import com.mmwwtt.stock.service.StockService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -26,10 +27,10 @@ import java.util.function.Consumer;
 @Slf4j
 public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDetail> implements StockDetailService {
 
-    @Autowired
+    @Resource
     private StockService stockService;
 
-    @Autowired
+    @Resource
     private StockDetailDAO detailDAO;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();

@@ -40,7 +40,7 @@
 
 
     <properties>
-      <java.version>17</java.version>
+      <java.version>25</java.version>
       <spring-boot-version>3.4.3</spring-boot-version>
     </properties>
 
@@ -51,7 +51,7 @@
       <dependency>
         <groupId>com.mysql</groupId>
         <artifactId>mysql-connector-j</artifactId>
-        <version>9.2.0</version>
+        <version>9.3.0</version>
       </dependency>
 
       <!-- mybatis依赖-->
@@ -92,7 +92,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.28</version>
+      <version>1.18.42</version>
       <optional>true</optional>
     </dependency>
 
