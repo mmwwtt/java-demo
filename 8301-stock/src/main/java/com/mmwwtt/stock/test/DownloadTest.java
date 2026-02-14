@@ -44,14 +44,11 @@ import static com.mmwwtt.stock.common.Constants.*;
 @Slf4j
 public class DownloadTest {
 
-    @Resource
+    @Autowired
     private StockServiceImpl stockService;
 
-    @Resource
+    @Autowired
     private StockDetailServiceImpl stockDetailService;
-
-    @Resource
-    private StrategyResultServiceImpl strategyResultService;
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
