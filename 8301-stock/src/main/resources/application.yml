@@ -11,12 +11,6 @@ spring:
     hikari:
       maximum-pool-size: 100   # 太小容易被打满
       connection-timeout: 30000
-logging:
-  level:
-    org:
-      springframework:
-        context:
-          annotation: DEBUG
 
 
 mybatis-plus:
