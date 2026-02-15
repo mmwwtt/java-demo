@@ -7,8 +7,6 @@ from stock_t;
 select count(*)
 from stock_detail_t;
 
-select count(*)
-from stock_calculation_result_t;
 
 select count(*)
 from stock_strategy_result_t;
@@ -88,3 +86,6 @@ where level != 1;
 delete
 from stock_strategy_win_t
 where level != 1;
+
+
+select * from stock_strategy_win_t  t where t.win_rate > 0.9 && t.ten_max_perc_rate > 0.10

@@ -121,7 +121,7 @@ public class DFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 10) {
+        if (level > 5) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -142,7 +142,7 @@ public class DFSTest {
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
-            if (isNot1(win, parentWin, level)) {
+            if (isNot(win, parentWin, level)) {
                 continue;
             }
             strategyWinService.save(win);
@@ -164,15 +164,12 @@ public class DFSTest {
         if (win.getCnt() < 10) {
             return true;
         }
-        if (moreThan(win.getTenMaxPercRate(), "0.09") || moreThan(win.getOnePercRate(), "0.2")) {
-            return false;
-        }
         if (lessAndEqualsThan(win.getWinRate(), parentWin.getWinRate())
                 || win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")
                 || Objects.equals(win.getCnt(), parentWin.getCnt())
                 || isEquals(win.getWinRate(), BigDecimal.ONE)
-                || (win.getCnt() > 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.1")))
-                || (win.getCnt() < 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
+                || (win.getCnt() > 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
+                || (win.getCnt() < 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.005")))
                 || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.7") && level > 6)
                 || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.65") && level > 6)
                 || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.60") && level > 6)
