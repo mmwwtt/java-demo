@@ -139,7 +139,7 @@ public class CalcCommonService {
 
 
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        List<StrategyEnum> values = StrategyEnum.strategy1DayList;
+        List<StrategyEnum> values = StrategyEnum.strategy4DayList;
         LocalDateTime now = LocalDateTime.now();
         List<List<Stock>> parts = stockService.getStockPart();
         List<CompletableFuture<Void>> futures = new ArrayList<>();

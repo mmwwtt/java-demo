@@ -25,7 +25,7 @@ public class StrategyEnum {
 
     public static final List<StrategyEnum> strategy1DayList = new ArrayList<>();
 
-
+    public static final List<StrategyEnum> strategy3DayList = new ArrayList<>();
     public static final List<StrategyEnum> strategy4DayList = new ArrayList<>();
     public static final Map<String, StrategyEnum> codeToEnumMap = new HashMap<>();
 
@@ -366,6 +366,40 @@ public class StrategyEnum {
         strategy4DayList.addAll(t2List);
         strategy4DayList.addAll(t3List);
         for (StrategyEnum strategyEnum : strategy4DayList) {
+            codeToEnumMap.put(strategyEnum.getCode(), strategyEnum);
+        }
+    }
+
+    static {
+        List<StrategyEnum> t0List = baseStrategyList.stream().map(item -> {
+            StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
+            cur.setCode("0" + item.getCode());
+            cur.setName("T0-" + item.getName());
+            cur.setRunFunc(item.getRunFunc());
+            return cur;
+        }).toList();
+
+        List<StrategyEnum> t1List = baseStrategyList.stream().map(item -> {
+            StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
+            cur.setCode("1" + item.getCode());
+            cur.setName("T1-" + item.getName());
+            cur.setRunFunc((StockDetail t0) -> item.getRunFunc().apply(t0.getT1()));
+            return cur;
+        }).toList();
+
+        List<StrategyEnum> t2List = baseStrategyList.stream().map(item -> {
+            StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
+            cur.setCode("2" + item.getCode());
+            cur.setName("T2-" + item.getName());
+            cur.setRunFunc((StockDetail t0) -> item.getRunFunc().apply(t0.getT2()));
+            return cur;
+        }).toList();
+
+
+        strategy3DayList.addAll(t0List);
+        strategy3DayList.addAll(t1List);
+        strategy3DayList.addAll(t2List);
+        for (StrategyEnum strategyEnum : strategy3DayList) {
             codeToEnumMap.put(strategyEnum.getCode(), strategyEnum);
         }
     }

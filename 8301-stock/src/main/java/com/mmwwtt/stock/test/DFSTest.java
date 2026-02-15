@@ -105,14 +105,11 @@ public class DFSTest {
             StrategyWin strategyWin = l1StrategyList.get(i);
             Map<String, Set<Integer>> stockCodeToDateSetMap = l1StrategyToStockToDetailIdSetMap.get(strategyWin.getStrategyCode());
             int finalI = i;
-//            if(!set.contains(strategyWin.getStrategyCode())){
-//                continue;
-//            }
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 Set<String> strategySet = new HashSet<>();
                 strategySet.add(strategyWin.getStrategyCode());
                 buildByLevel(2, stockCodeToDateSetMap, strategySet, strategyWin, finalI);
-            }, cpuThreadPool);
+            }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -121,7 +118,7 @@ public class DFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 5) {
+        if (level > 7) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -129,9 +126,6 @@ public class DFSTest {
             if (strategySet.contains(strategy.getStrategyCode())) {
                 continue;
             }
-//            if (!set.contains(strategy.getStrategyCode())) {
-//                continue;
-//            }
 
             Map<String, Set<Integer>> curStockToDetailIdSetMap = voConvert.convertToMap(stockToDetailIdSetMap);
 
@@ -161,19 +155,25 @@ public class DFSTest {
     }
 
     private boolean isNot(StrategyWin win, StrategyWin parentWin, Integer level) {
-        if (win.getCnt() < 10) {
+        if (win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")) {
             return true;
         }
+        if (moreThan(win.getFiveMaxPercRate(), "0.12") || moreThan(win.getWinRate(), "0.94")) {
+            return false;
+        }
         if (lessAndEqualsThan(win.getWinRate(), parentWin.getWinRate())
-                || win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")
                 || Objects.equals(win.getCnt(), parentWin.getCnt())
                 || isEquals(win.getWinRate(), BigDecimal.ONE)
-                || (win.getCnt() > 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.05")))
-                || (win.getCnt() < 500 && lessThan(win.getWinRate(), multiply(parentWin.getWinRate(), "1.005")))
-                || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.7") && level > 6)
-                || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.65") && level > 6)
-                || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.60") && level > 6)
-                || (win.getCnt() < 3000 && lessThan(win.getWinRate(), "0.50") && level > 6)) {
+
+                || (level == 2 && lessThan(win.getWinRate(), "0.55"))
+                || (level == 3 && lessThan(win.getWinRate(), "0.65"))
+                || (level == 4 && lessThan(win.getWinRate(), "0.76"))
+                || (level == 5 && lessThan(win.getWinRate(), "0.82"))
+                || (level == 6 && lessThan(win.getWinRate(), "0.88"))
+                || (level == 7 && lessThan(win.getWinRate(), "0.89"))
+                || (level == 8 && lessThan(win.getWinRate(), "0.90"))
+                || (win.getCnt() < 50 && lessThan(win.getWinRate(), "0.7")
+                || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.6")))) {
             return true;
         }
         return false;
