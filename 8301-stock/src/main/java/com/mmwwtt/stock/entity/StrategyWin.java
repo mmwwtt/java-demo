@@ -1,9 +1,11 @@
 package com.mmwwtt.stock.entity;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -97,6 +99,9 @@ public class StrategyWin {
      * 策略层级
      */
     private Integer level;
+
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray stockDetailIdList;
 
     /**
      * 临时属性

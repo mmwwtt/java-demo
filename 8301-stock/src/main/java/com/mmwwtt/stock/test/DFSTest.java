@@ -168,12 +168,13 @@ public class DFSTest {
                 || isEquals(win.getWinRate(), BigDecimal.ONE)
 
                 || (level == 2 && lessThan(win.getWinRate(), "0.55"))
-                || (level == 3 && lessThan(win.getWinRate(), "0.65"))
-                || (level == 4 && lessThan(win.getWinRate(), "0.76"))
-                || (level == 5 && lessThan(win.getWinRate(), "0.82"))
+                || (level == 3 && lessThan(win.getWinRate(), "0.66"))
+                || (level == 4 && lessThan(win.getWinRate(), "0.77"))
+                || (level == 5 && lessThan(win.getWinRate(), "0.84"))
                 || (level == 6 && lessThan(win.getWinRate(), "0.88"))
                 || (level == 7 && lessThan(win.getWinRate(), "0.89"))
-                || (level == 8 && lessThan(win.getWinRate(), "0.90"))
+                || (level == 8 && lessThan(win.getWinRate(), "0.91"))
+
                 || (win.getCnt() < 50 && lessThan(win.getWinRate(), "0.7")
                 || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.6")))) {
             return true;

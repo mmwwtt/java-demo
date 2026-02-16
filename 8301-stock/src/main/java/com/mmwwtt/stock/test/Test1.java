@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 import static com.mmwwtt.stock.common.CommonUtils.divide;
 
 @SpringBootTest
-public class Test1{
+public class Test1 {
 
     @Resource
     private CalcCommonService calcCommonService;
@@ -35,15 +35,11 @@ public class Test1{
             int all = 0;
             int win = 0;
             for (Map.Entry<StrategyWin, List<StockDetail>> entry : map.entrySet()) {
-                List<StockDetail> details= entry.getValue();
+                List<StockDetail> details = entry.getValue();
                 all += details.size();
-                try {
-                    win += (int) details.stream().filter(item -> item.getNext1().getIsUp()).count();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                win += (int) details.stream().filter(item -> item.getNext1().getIsUp()).count();
             }
-            System.out.println(divide(win,all).toString());
+            System.out.println(divide(win, all));
         });
         return;
     }
