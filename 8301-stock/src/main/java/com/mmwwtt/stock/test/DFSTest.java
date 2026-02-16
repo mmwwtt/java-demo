@@ -6,6 +6,7 @@ import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.*;
+import com.mmwwtt.stock.vo.StockDetailQueryVO;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +76,8 @@ public class DFSTest {
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    Map<Integer, StockDetail> idToDetailMap = stockDetailService.getStockDetail(stock.getCode(), null)
+                    Map<Integer, StockDetail> idToDetailMap = stockDetailService.
+                            getStockDetail(StockDetailQueryVO.builder().stockCode(stock.getCode()).build())
                             .stream().collect(Collectors.toMap(StockDetail::getStockDetailId, item -> item));
                     this.idToDetailMap.putAll(idToDetailMap);
                 }

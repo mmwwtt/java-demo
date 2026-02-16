@@ -9,6 +9,9 @@ import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.service.StockDetailService;
 import com.mmwwtt.stock.service.StockService;
+import com.mmwwtt.stock.vo.StockDetailQueryVO;
+import com.mmwwtt.stock.vo.StockDetailVO;
+import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -37,13 +40,17 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
     private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
+
     @Override
-    public List<StockDetail> getStockDetail(String stockCode, Integer limit) {
+    public List<StockDetail> getStockDetail(StockDetailQueryVO queryVO) {
         QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-        detailWapper.eq("stock_code", stockCode);
+        detailWapper.eq("stock_code", queryVO.getStockCode());
+        if (StringUtils.isNotBlank(queryVO.getDealDate())) {
+            detailWapper.eq("deal_date", queryVO.getDealDate());
+        }
         detailWapper.orderByDesc("deal_date");
-        if (Objects.nonNull(limit)) {
-            detailWapper.last("LIMIT " + limit);
+        if (Objects.nonNull(queryVO.getLimit())) {
+            detailWapper.last("LIMIT " + queryVO.getLimit());
         }
         List<StockDetail> stockDetails = list(detailWapper);
         return genAllStockDetail(stockDetails);
@@ -73,7 +80,7 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
             for (Pair<Integer, Consumer<StockDetail>> pair : pairList) {
                 Integer idx = pair.getLeft();
                 if (0 <= idx && idx < stockDetails.size()) {
-                    StockDetail tmp =stockDetails.get(idx);
+                    StockDetail tmp = stockDetails.get(idx);
                     pair.getRight().accept(tmp);
                 }
             }
@@ -97,7 +104,7 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    List<StockDetail> stockDetails = getStockDetail(stock.getCode(), limit);
+                    List<StockDetail> stockDetails = getStockDetail(StockDetailQueryVO.builder().stockCode(stock.getCode()).build());
                     codeToDetailMap.put(stock.getCode(), stockDetails);
                 }
             }, ioThreadPool);
@@ -119,11 +126,43 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    List<StockDetail> stockDetails = getStockDetail(stock.getCode(), 10);
+                    List<StockDetail> stockDetails = getStockDetail(StockDetailQueryVO.builder().stockCode(stock.getCode()).build());
                     if (CollectionUtils.isEmpty(stockDetails)) {
                         continue;
                     }
                     codeToDetailMap.put(stock.getCode(), stockDetails.get(0));
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        log.info("开始查询数据-结束");
+        return codeToDetailMap;
+    }
+
+    @Override
+    public Map<String, StockDetail> getCodeToTodayDetailMap(String date) throws ExecutionException, InterruptedException {
+        List<Stock> stockList = stockService.getAllStock();
+        Map<String, StockDetail> codeToDetailMap = new ConcurrentHashMap<>();
+        log.info("开始查询数据");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    List<StockDetail> stockDetails = getStockDetail(
+                            StockDetailQueryVO.builder().stockCode(stock.getCode()).build());
+                    if (CollectionUtils.isEmpty(stockDetails)) {
+                        continue;
+                    }
+                    StockDetail detail = stockDetails.stream()
+                            .filter(item -> Objects.equals(item.getDealDate(), date))
+                            .findFirst().orElse(null);
+                    if (Objects.isNull(detail)) {
+                        continue;
+                    }
+                    codeToDetailMap.put(stock.getCode(), detail);
                 }
             }, ioThreadPool);
             futures.add(future);

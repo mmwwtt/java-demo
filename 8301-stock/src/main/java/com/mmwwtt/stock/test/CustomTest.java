@@ -11,6 +11,7 @@ import com.mmwwtt.stock.service.impl.StockDetailServiceImpl;
 import com.mmwwtt.stock.service.impl.StockServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyResultServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
+import com.mmwwtt.stock.vo.StockDetailQueryVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -100,7 +101,7 @@ public class CustomTest {
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(stock.getCode(), null);
+                    List<StockDetail> stockDetails = stockDetailService.getStockDetail(StockDetailQueryVO.builder().stockCode(stock.getCode()).build());
                     if (stockDetails.size() < 60) {
                         return;
                     }
