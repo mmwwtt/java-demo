@@ -93,8 +93,12 @@ public class CalcCommonService {
                         }
                         boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
                         if (res) {
-                            strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>())
-                                    .add(stock.getCode() + "_" + stock.getName() + "_" + stockDetail.getPricePert().doubleValue());
+                            try {
+                                strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>())
+                                        .add(stock.getCode() + "_" + stock.getName() + "_" + stockDetail.getPricePert().doubleValue());
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
                 }, cpuThreadPool);
@@ -104,6 +108,7 @@ public class CalcCommonService {
 
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
+        filterPriduct(strategyToStockMap);
         log.info("计算结束");
         String filePath = "src/main/resources/file/test.txt";
 
@@ -114,12 +119,12 @@ public class CalcCommonService {
 
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
-            List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getOnePercRate).reversed()).toList();
+            List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
             for (StrategyWin strategyWin : list) {
                 List<String> resStockList = strategyToStockMap.get(strategyWin);
-                String str = String.format("\n\n策略id:%d \n胜率:%4f \n历史总数：%d\n明天平均涨幅:%4f  \n十日最高平均涨幅：%4f \n策略：%s \n",
+                String str = String.format("\n\n策略id:%d \n胜率:%4f \n历史总数：%d\n明天平均涨幅:%4f  \n5日最高平均涨幅：%4f \n策略：%s \n",
                         strategyWin.getStrategyWinId(), strategyWin.getWinRate(), strategyWin.getCnt(), strategyWin.getOnePercRate(),
-                        strategyWin.getTenMaxPercRate(), strategyWin.getStrategyName());
+                        strategyWin.getFiveMaxPercRate(), strategyWin.getStrategyName());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {
                     fos.write((s + "\n").getBytes());
@@ -131,9 +136,23 @@ public class CalcCommonService {
 
     }
 
+    private void filterPriduct( Map<StrategyWin, List<String>> map) {
+        Set<String> stockSet = new HashSet<>();
+        map.forEach((k,v)-> {
+            v.removeIf(stockSet::contains);
+            stockSet.addAll(v);
+        });
+        map.keySet().forEach(k->{
+            if(CollectionUtils.isEmpty(map.get(k))
+            ||lessThan(k.getFiveMaxPercRate(), "0.05")) {
+                map.remove(k);
+            }
+        });
+    }
+
     private List<StrategyWin> getStrategyWinList() {
         StrategyWin strategyWin = new StrategyWin();
-        strategyWin.setWinRate(new BigDecimal("0.8"));
+        strategyWin.setWinRate(new BigDecimal("0.95"));
         return strategyWinService.getStrategyWin(strategyWin);
     }
 
