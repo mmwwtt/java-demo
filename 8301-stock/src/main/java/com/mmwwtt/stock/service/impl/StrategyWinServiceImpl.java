@@ -25,13 +25,15 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
         if(Objects.nonNull(strategyWin.getWinRate())) {
             wapper.ge("win_rate", strategyWin.getWinRate());
         }
+        if(Objects.nonNull(strategyWin.getFiveMaxPercRate())) {
+            wapper.ge("five_max_perc_rate", strategyWin.getFiveMaxPercRate());
+        }
         return list(wapper);
     }
 
 
     @Override
     public List<StrategyWin> getL1StrategyWin() {
-        Map<String, Map<String, Set<Integer>>> res = new HashMap<>();
         QueryWrapper<StrategyWin> wapper = new QueryWrapper<>();
         wapper.eq("level",1);
         return strategyWinDAO.selectList(wapper);

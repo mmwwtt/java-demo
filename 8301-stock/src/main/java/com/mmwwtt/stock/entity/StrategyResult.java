@@ -42,23 +42,18 @@ public class StrategyResult {
     @TableField(typeHandler = FastjsonTypeHandler.class)
     private JSONArray stockDetailIdList;
 
-    /**
-     * 创建日期
-     */
-    private LocalDateTime createDate;
 
     /**
      * 条件层数
      */
     private Integer level;
 
-    public StrategyResult(Integer level, String strategyCode, String stockCode, Set<Integer> stockDetailIdSet, LocalDateTime createDate) {
+    public StrategyResult(Integer level, String strategyCode, String stockCode, Set<Integer> stockDetailIdSet) {
         this.level = level;
         this.strategyCode = strategyCode;
         this.stockCode = stockCode;
         JSONArray array = new JSONArray(stockDetailIdSet.size());
         array.addAll(stockDetailIdSet);
         this.stockDetailIdList = array;
-        this.createDate = createDate;
     }
 }

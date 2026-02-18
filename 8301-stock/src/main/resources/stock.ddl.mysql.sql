@@ -124,8 +124,7 @@ CREATE TABLE stock_strategy_result_t
     strategy_code        VARCHAR(200) COMMENT '策略编码',
     stock_code           VARCHAR(16) COMMENT '股票代码',
     stock_detail_id_list JSON COMMENT '预测的股票详情id列表',
-    level                INT(4) comment '条件层数',
-    create_date          DATETIME NOT NULL COMMENT '创建日期'
+    level                INT(4) comment '条件层数'
 ) COMMENT '策略预测表';
 create index strategy_code on stock_strategy_result_t (strategy_code);
 create index stock_code on stock_strategy_result_t (stock_code);

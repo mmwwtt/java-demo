@@ -1,5 +1,6 @@
 package com.mmwwtt.stock.test;
 
+import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.Stock;
@@ -21,6 +22,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
+import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 /**
  * 深度优先遍历各种策略
@@ -58,47 +60,6 @@ public class DFSTest {
 
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
-    private Map<String, Map<String, Set<Integer>>> l1StrategyToStockToDetailIdSetMap;
-    private Map<Integer, StockDetail> idToDetailMap = new HashMap<>();
-    private List<StrategyWin> l1StrategyList;
-
-    public static Set<String> set = Set.of("00014", "01072", "01108");
-
-    @PostConstruct
-    public void init() {
-        l1StrategyToStockToDetailIdSetMap = strategyResultService.getL1StrategyToStockToDateIdSetMap();
-        l1StrategyList = strategyWinService.getL1StrategyWin().stream()
-                .filter(item -> moreThan(item.getWinRate(), "0.40"))
-                .sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();
-        Map<String, Map<Integer, StockDetail>> map = new HashMap<>();
-        List<List<Stock>> parts = stockService.getStockPart();
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    Map<Integer, StockDetail> idToDetailMap = stockDetailService.
-                            getStockDetail(StockDetailQueryVO.builder().stockCode(stock.getCode()).build())
-                            .stream().collect(Collectors.toMap(StockDetail::getStockDetailId, item -> item));
-                    this.idToDetailMap.putAll(idToDetailMap);
-                }
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        try {
-            allTask.get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    @Test
-    @DisplayName("生成level1策略结果")
-    public void getL1Strategy() throws InterruptedException, ExecutionException {
-        calcCommonService.buildStrateResultLevel1();
-    }
-
     @Test
     @DisplayName("DFS深度遍历")
     public void buildStrateResultAll() throws ExecutionException, InterruptedException {
@@ -118,9 +79,10 @@ public class DFSTest {
         allTask.get();
     }
 
+
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 7) {
+        if (level > 4) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -138,7 +100,7 @@ public class DFSTest {
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
-            if (isNot(win, parentWin, level)) {
+            if (isNotByFiveMax(win, parentWin, level)) {
                 continue;
             }
             strategyWinService.save(win);
@@ -147,6 +109,8 @@ public class DFSTest {
         }
     }
 
+
+
     private StrategyWin saveStrategyWin(Set<String> strategyCodeSet, Map<String, Set<Integer>> stockToDetailIdSetMap) {
         StrategyWin win = new StrategyWin(strategyCodeSet);
         stockToDetailIdSetMap.forEach((stock, detailIdSet) ->
@@ -154,6 +118,30 @@ public class DFSTest {
                         win.addToResult(idToDetailMap.get(detailId))));
         win.fillData();
         return win;
+    }
+
+    private boolean isNotByFiveMax(StrategyWin win, StrategyWin parentWin, Integer level) {
+        if (win.getCnt() < 50 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
+            return true;
+        }
+        if (lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
+                || Objects.equals(win.getCnt(), parentWin.getCnt())
+                || isEquals(win.getWinRate(), BigDecimal.ONE)
+
+                || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
+                || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
+                || (level == 4 && lessThan(win.getWinRate(), "0.10"))
+//                || (level == 5 && lessThan(win.getWinRate(), "0.84"))
+//                || (level == 6 && lessThan(win.getWinRate(), "0.88"))
+//                || (level == 7 && lessThan(win.getWinRate(), "0.89"))
+//                || (level == 8 && lessThan(win.getWinRate(), "0.91"))
+//
+//                || (win.getCnt() < 50 && lessThan(win.getWinRate(), "0.7")
+//                || (win.getCnt() < 100 && lessThan(win.getWinRate(), "0.6"))
+        ) {
+            return true;
+        }
+        return false;
     }
 
     private boolean isNot(StrategyWin win, StrategyWin parentWin, Integer level) {
