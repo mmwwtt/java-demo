@@ -144,8 +144,7 @@ public class CalcCommonService {
             stockSet.addAll(v);
         });
         map.keySet().forEach(k -> {
-            if (CollectionUtils.isEmpty(map.get(k))
-                    || lessThan(k.getFiveMaxPercRate(), "0.07")) {
+            if (CollectionUtils.isEmpty(map.get(k))) {
                 map.remove(k);
             }
         });

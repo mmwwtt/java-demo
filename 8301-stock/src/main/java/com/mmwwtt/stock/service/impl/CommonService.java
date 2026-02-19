@@ -1,6 +1,7 @@
 package com.mmwwtt.stock.service.impl;
 
 import com.google.common.collect.Lists;
+import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.vo.StockDetailQueryVO;
@@ -54,7 +55,23 @@ public class CommonService {
     @PostConstruct
     public void init() {
         log.info("初始化开始");
-        l1StrategyToStockToDetailIdSetMap = strategyResultService.getL1StrategyToStockToDateIdSetMap();
+
+        l1StrategyToStockToDetailIdSetMap = new HashMap<>();
+        Map<String, List<StrategyResult>> strategyToResList = strategyResultService.list()
+                .stream().filter(item -> Objects.equals(item.getLevel(), 1))
+                .collect(Collectors.groupingBy(StrategyResult::getStrategyCode));
+        strategyToResList.forEach((strategy, list) -> {
+            Map<String, Set<Integer>> codeToDetailMap = new HashMap<>();
+            list.forEach(item -> {
+                Set<Integer> set = new HashSet<>(item.getStockDetailIdList().size());
+                for (int i = 0; i < item.getStockDetailIdList().size(); i++) {
+                    set.add(item.getStockDetailIdList().getInteger(i));
+                }
+                codeToDetailMap.put(item.getStockCode(), set);
+            });
+            l1StrategyToStockToDetailIdSetMap.put(strategy, codeToDetailMap);
+        });
+
         l1StrategyList = strategyWinService.getL1StrategyWin().stream()
                 .filter(item -> moreThan(item.getWinRate(), "0.40"))
                 .sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();

@@ -22,8 +22,7 @@ import static com.mmwwtt.stock.common.CommonUtils.divide;
 @SpringBootTest
 public class Test1 {
 
-    @Resource
-    private CommonService commonService;
+
     @Resource
     private CalcCommonService calcCommonService;
 
@@ -70,10 +69,4 @@ public class Test1 {
         return;
     }
 
-
-    @Test
-    @DisplayName("生成level1策略结果")
-    public void getL1Strategy() throws InterruptedException, ExecutionException {
-        commonService.buildStrateResultLevel1();
-    }
 }

@@ -41,38 +41,4 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
         return list(wapper);
     }
 
-    @Override
-    public Map<String, Set<Integer>> getStockCodeToDateMap(String strategyCode) {
-        try {
-            StrategyResult strategyResult = new StrategyResult();
-            strategyResult.setStrategyCode(strategyCode);
-
-            return getStrategyResult(strategyResult)
-                    .stream().collect(Collectors.toMap(StrategyResult::getStockCode,
-                            item -> {
-                                Set<Integer> set = new HashSet<>(item.getStockDetailIdList().size());
-                                for (int i = 0; i < item.getStockDetailIdList().size(); i++) {
-                                    set.add(item.getStockDetailIdList().getInteger(i));
-                                }
-                                return set;
-                            },(a,b) -> b
-                    ));
-        } catch (Exception e) {
-            log.info("getStockCodeToDateMap error , stragetyCode : {}", strategyCode);
-            throw e;
-        }
-    }
-
-
-    @Override
-    public Map<String, Map<String, Set<Integer>>> getL1StrategyToStockToDateIdSetMap() {
-        Map<String, Map<String, Set<Integer>>> res = new HashMap<>();
-
-        List<String> level1CodeList = strategyWinDAO.getStrategyCodeByLevel(1);
-        level1CodeList.forEach(strategyCode -> {
-            Map<String, Set<Integer>> stockCodeToDateMap = getStockCodeToDateMap(strategyCode);
-            res.put(strategyCode, stockCodeToDateMap);
-        });
-        return res;
-    }
 }
