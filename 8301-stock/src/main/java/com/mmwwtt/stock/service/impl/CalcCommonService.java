@@ -23,80 +23,58 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
+import static com.mmwwtt.stock.service.impl.CommonService.predictDateList;
+import static com.mmwwtt.stock.service.impl.CommonService.stockCodePartList;
 
 @Service
 @Slf4j
 public class CalcCommonService {
 
     @Autowired
-    private StockServiceImpl stockService;
-
-    @Autowired
     private StockDetailServiceImpl stockDetailService;
 
-    @Autowired
-    private StrategyResultServiceImpl strategyResultService;
-
-
-    @Autowired
-    private StrategyWinServiceImpl strategyWinService;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
-    private final ThreadPoolExecutor middleThreadPool2 = GlobalThreadPool.getMiddleThreadPool2();
-    private final ThreadPoolExecutor middleThreadPool3 = GlobalThreadPool.getMiddleThreadPool3();
-    private final ThreadPoolExecutor middleThreadPool4 = GlobalThreadPool.getMiddleThreadPool4();
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
-    private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
-
-    private final RestTemplate restTemplate = new RestTemplate();
-
-
-    private final VoConvert voConvert = VoConvert.INSTANCE;
 
 
     /**
      * 预测明日股票
      */
-    public void predict(String curDate, boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
+    public void predict(String curDate, List<StrategyWin> strategyWinList, boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
         Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
-        List<StrategyWin> strategyWinList = getStrategyWinList();
-        strategyWinList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
-
         Map<StrategyWin, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
-        List<Stock> stockList = stockService.getAllStock();
         Map<String, StockDetail> codeToDetailMap = stockDetailService.getCodeToTodayDetailMap();
-
-        List<List<Stock>> parts = Lists.partition(stockList, 50);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         //策略
         log.info("开始计算");
-
+        Set<String> stockCodeSet = new HashSet<>();
         for (StrategyWin strategyWin : strategyWinList) {
             List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
                     .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
-            for (List<Stock> part : parts) {
+            for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                    for (Stock stock : part) {
-                        StockDetail stockDetail = codeToDetailMap.get(stock.getCode());
-                        if (Objects.isNull(stockDetail) || Objects.isNull(stockDetail.getT1())
+                    for (String stockCode : part) {
+                        StockDetail stockDetail = codeToDetailMap.get(stockCode);
+                        if (stockCodeSet.contains(stockCode) ||
+                                Objects.isNull(stockDetail) || Objects.isNull(stockDetail.getT1())
                                 || Objects.isNull(stockDetail.getT2()) || Objects.isNull(stockDetail.getT3())
-                                || Objects.isNull(stockDetail.getT4()) || Objects.isNull(stockDetail.getT5())) {
+                                || Objects.isNull(stockDetail.getT4()) || Objects.isNull(stockDetail.getT5())
+                                || moreThan(stockDetail.getPricePert(), "0.097")
+                                || !Objects.equals(stockDetail.getDealDate(), curDate)
+                                || Objects.isNull(stockDetail.getSixtyDayLine())) {
                             continue;
                         }
                         if (isOnTime) {
                             stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), quantityMult));
                         }
-                        if (moreThan(stockDetail.getPricePert(), "0.097")
-                                || !Objects.equals(stockDetail.getDealDate(), curDate)
-                                || Objects.isNull(stockDetail.getSixtyDayLine())) {
-                            continue;
-                        }
                         boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
                         if (res) {
+                            stockCodeSet.add(stockCode);
                             try {
                                 strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>())
-                                        .add(stock.getCode() + "_" + stock.getName() + "_" + stockDetail.getPricePert().doubleValue());
+                                        .add(stockCode + "_" + stockDetail.getPricePert().doubleValue());
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -109,7 +87,6 @@ public class CalcCommonService {
 
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        filterPriduct(strategyToStockMap);
         log.info("计算结束");
         String filePath = "src/main/resources/file/test.txt";
 
@@ -137,45 +114,12 @@ public class CalcCommonService {
 
     }
 
-    private void filterPriduct(Map<StrategyWin, List<String>> map) {
-        Set<String> stockSet = new HashSet<>();
-        map.forEach((k, v) -> {
-            v.removeIf(stockSet::contains);
-            stockSet.addAll(v);
-        });
-        map.keySet().forEach(k -> {
-            if (CollectionUtils.isEmpty(map.get(k))) {
-                map.remove(k);
-            }
-        });
-    }
-
-    private List<StrategyWin> getStrategyWinList() {
-        StrategyWin strategyWin = new StrategyWin();
-        strategyWin.setFiveMaxPercRate(new BigDecimal("0.12"));
-        return strategyWinService.getStrategyWin(strategyWin);
-    }
-
-
-    public Map<String, Map<StrategyWin, List<StockDetail>>> verifyPredictRes() throws ExecutionException, InterruptedException {
-        Map<String, Map<StrategyWin, List<StockDetail>>> dateMap = new HashMap<>();
-        List<StockDetail> stockDetails = CommonService.codeToDetailMap.get("000001.SZ").stream().limit(20).toList();
-        List<String> dateList = stockDetails.stream().map(StockDetail::getDealDate).toList();
-        for (String date : dateList) {
-            Map<StrategyWin, List<StockDetail>> resMap = verifyPredictRes(date);
-            dateMap.put(date, resMap);
-        }
-        return dateMap;
-    }
 
     /**
      * 验证预测的股票结果
      */
-    private Map<StrategyWin, List<StockDetail>> verifyPredictRes(String curDate) throws InterruptedException, ExecutionException {
+    public Map<StrategyWin, List<StockDetail>> verifyPredictRes(String curDate, List<StrategyWin> strategyWinList) throws InterruptedException, ExecutionException {
         Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
-        List<StrategyWin> strategyWinList = getStrategyWinList();
-        strategyWinList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
-
         Map<StrategyWin, List<StockDetail>> strategyToStockMap = new ConcurrentHashMap<>();
         Map<String, StockDetail> codeToDetailMap = CommonService.idToDetailMap.values().stream()
                 .filter(item -> Objects.equals(item.getDealDate(), curDate))
@@ -183,32 +127,28 @@ public class CalcCommonService {
 
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
+        Set<String> stockCodeSet = new HashSet<>();
         //策略
         log.info("开始计算");
 
         for (StrategyWin strategyWin : strategyWinList) {
             List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
                     .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
-            for (List<String> part : CommonService.stockCodePartList) {
+            for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
                         StockDetail stockDetail = codeToDetailMap.get(stockCode);
-                        if (Objects.isNull(stockDetail) || Objects.isNull(stockDetail.getT1())
-                                || Objects.isNull(stockDetail.getNext1())
+                        if (stockCodeSet.contains(stockCode) || Objects.isNull(stockDetail)
+                                || Objects.isNull(stockDetail.getT1()) || Objects.isNull(stockDetail.getNext1())
                                 || Objects.isNull(stockDetail.getT2()) || Objects.isNull(stockDetail.getT3())
                                 || Objects.isNull(stockDetail.getT4()) || Objects.isNull(stockDetail.getT5())
-                                || Objects.isNull(stockDetail.getT5().getSixtyDayLine())) {
-                            continue;
-                        }
-                        if (moreThan(stockDetail.getPricePert(), 0.097)
-                                || !Objects.equals(stockDetail.getDealDate(), curDate)
-                                || Objects.isNull(stockDetail.getSixtyDayLine())) {
+                                || Objects.isNull(stockDetail.getT5().getSixtyDayLine())
+                                || moreThan(stockDetail.getPricePert(), 0.097)) {
                             continue;
                         }
                         boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
                         if (res) {
-                            strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>())
-                                    .add(stockDetail);
+                            strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>()).add(stockDetail);
                         }
                     }
                 }, ioThreadPool);
@@ -217,22 +157,8 @@ public class CalcCommonService {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        filterPriduct2(strategyToStockMap);
         return strategyToStockMap;
     }
 
-    private void filterPriduct2(Map<StrategyWin, List<StockDetail>> map) {
-        Set<String> stockSet = new HashSet<>();
-        map.forEach((k, v) -> {
-            v.removeIf(item -> stockSet.contains(item.getStockCode()));
-            v.forEach(item -> stockSet.add(item.getStockCode()));
-        });
-        map.keySet().forEach(k -> {
-            if (CollectionUtils.isEmpty(map.get(k))
-                    || lessThan(k.getFiveMaxPercRate(), "0.07")) {
-                map.remove(k);
-            }
-        });
-    }
 
 }

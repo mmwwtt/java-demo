@@ -35,22 +35,15 @@ public class CommonService {
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
-    @Autowired
-    private CalcCommonService calcCommonService;
-
-
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
-    private final ThreadPoolExecutor middleThreadPool2 = GlobalThreadPool.getMiddleThreadPool2();
-    private final ThreadPoolExecutor middleThreadPool3 = GlobalThreadPool.getMiddleThreadPool3();
-    private final ThreadPoolExecutor middleThreadPool4 = GlobalThreadPool.getMiddleThreadPool4();
-    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
-    private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
     public static Map<String, Map<String, Set<Integer>>> l1StrategyToStockToDetailIdSetMap;
     public static Map<Integer, StockDetail> idToDetailMap;
     public static Map<String, List<StockDetail>> codeToDetailMap;
     public static List<StrategyWin> l1StrategyList;
     public static List<List<String>> stockCodePartList;
+    public static String calcEndDate;
+    public static List<String> predictDateList;
 
     @PostConstruct
     public void init() {
@@ -84,6 +77,14 @@ public class CommonService {
             stockDetailService.genAllStockDetail(list);
         }
         stockCodePartList = Lists.partition(codeToDetailMap.keySet().stream().toList(), 50);
+
+
+        predictDateList = codeToDetailMap.get("000001.SZ")
+                .stream().limit(20)
+                .map(StockDetail::getDealDate).toList();
+        calcEndDate = codeToDetailMap.get("000001.SZ")
+                .stream().skip(20)
+                .map(StockDetail::getDealDate).findFirst().orElse("20260201");
         log.info("初始化结束");
     }
 

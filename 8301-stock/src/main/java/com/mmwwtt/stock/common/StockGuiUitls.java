@@ -14,8 +14,8 @@ import java.util.List;
 
 public class StockGuiUitls {
 
-    private static final int IMG_W = 300;   // 图片宽
-    private static final int IMG_H = 300;   // 图片高
+    private static final int IMG_W = 600;   // 图片宽
+    private static final int IMG_H = 600;   // 图片高
     private static final int MARGIN = 20;   // 四边留白
     private static final int GAP = 8;   // K 线区与量区间距
 
