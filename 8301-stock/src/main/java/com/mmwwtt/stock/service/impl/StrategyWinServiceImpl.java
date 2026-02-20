@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmwwtt.stock.dao.StrategyWinDAO;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.StrategyWinService;
+import com.mmwwtt.stock.vo.StrategyWinVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
     private StrategyWinDAO strategyWinDAO;
 
     @Override
-    public List<StrategyWin> getStrategyWin(StrategyWin strategyWin) {
+    public List<StrategyWin> getStrategyWin(StrategyWinVO strategyWin) {
         QueryWrapper<StrategyWin> wapper = new QueryWrapper<>();
         if(Objects.nonNull(strategyWin.getLevel())) {
             wapper.eq("level", strategyWin.getLevel());
@@ -25,8 +26,14 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
         if(Objects.nonNull(strategyWin.getWinRate())) {
             wapper.ge("win_rate", strategyWin.getWinRate());
         }
-        if(Objects.nonNull(strategyWin.getFiveMaxPercRate())) {
-            wapper.ge("five_max_perc_rate", strategyWin.getFiveMaxPercRate());
+        if(Objects.nonNull(strategyWin.getFiveMaxPercRateStart())) {
+            wapper.ge("five_max_perc_rate", strategyWin.getFiveMaxPercRateStart());
+        }
+        if(Objects.nonNull(strategyWin.getFiveMaxPercRateEnd())) {
+            wapper.le("five_max_perc_rate", strategyWin.getFiveMaxPercRateEnd());
+        }
+        if(Objects.nonNull(strategyWin.getTenMaxPercRate())) {
+            wapper.ge("ten_max_perc_rate", strategyWin.getTenMaxPercRate());
         }
         return list(wapper);
     }

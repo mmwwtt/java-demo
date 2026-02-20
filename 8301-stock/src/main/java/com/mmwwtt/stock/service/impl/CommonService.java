@@ -105,7 +105,7 @@ public class CommonService {
                                     || Objects.isNull(detail.getT10().getSixtyDayLine())
                                     || moreThan(detail.getPricePert(), "0.097")
                                     || detail.getDealDate().compareTo("202505") < 0
-                                    || detail.getDealDate().compareTo("20260101") > 0) {
+                                    || detail.getDealDate().compareTo(calcEndDate) > 0) {
                                 continue;
                             }
                             if (strategy.getRunFunc().apply(detail)) {

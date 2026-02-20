@@ -6,6 +6,7 @@ import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyEnum;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.*;
+import com.mmwwtt.stock.vo.StrategyWinVO;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +48,10 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        StrategyWin strategyWin = new StrategyWin();
-        strategyWin.setFiveMaxPercRate(new BigDecimal("0.12"));
+        StrategyWinVO strategyWin = new StrategyWinVO();
+        strategyWin.setFiveMaxPercRateStart(new BigDecimal("0.13"));
+        strategyWin.setFiveMaxPercRateEnd(new BigDecimal("0.14"));
+        //strategyWin.setTenMaxPercRate(new BigDecimal("0.18"));
         winList = strategyWinService.getStrategyWin(strategyWin);
         winList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
     }
@@ -64,13 +67,6 @@ public class BuildTest {
     public void predict() throws InterruptedException, ExecutionException {
         calcCommonService.predict("20260213", winList, false, 1.2);
     }
-
-    @Test
-    @DisplayName("验证策略预测")
-    public void verifyPredictRes() throws InterruptedException, ExecutionException {
-        verifyPredictResDetail();
-    }
-
 
     @Test
     @DisplayName("验证策略预测-5max")
@@ -167,40 +163,19 @@ public class BuildTest {
     public void verifyPredictResByFiveMaxDetail() throws InterruptedException, ExecutionException {
         Map<String, Map<StrategyWin, List<StockDetail>>> dateResMap = new HashMap<>();
         for (String date : predictDateList) {
+            log.info("\n\n日期：" + date);
             Map<StrategyWin, List<StockDetail>> resMap = calcCommonService.verifyPredictRes(date, winList);
             dateResMap.put(date, resMap);
-        }
-        dateResMap.forEach((date, map) -> {
-            System.out.println("\n\n日期：" + date + "\n");
             int all = 0;
             AtomicReference<BigDecimal> count = new AtomicReference<>(BigDecimal.ZERO);
-            for (Map.Entry<StrategyWin, List<StockDetail>> entry : map.entrySet()) {
+            for (Map.Entry<StrategyWin, List<StockDetail>> entry : resMap.entrySet()) {
                 List<StockDetail> details = entry.getValue();
                 all += details.size();
                 details.stream().filter(item -> Objects.nonNull(item.getNext5MaxPricePert()))
                         .forEach(item -> count.set(add(count.get(), item.getNext5MaxPricePert())));
             }
-            System.out.println(divide(count.get(), all));
-        });
-    }
-
-
-    public void verifyPredictResDetail() throws InterruptedException, ExecutionException {
-        Map<String, Map<StrategyWin, List<StockDetail>>> dateResMap = new HashMap<>();
-        for (String date : predictDateList) {
-            Map<StrategyWin, List<StockDetail>> resMap = calcCommonService.verifyPredictRes(date, winList);
-            dateResMap.put(date, resMap);
+            log.info(divide(count.get(), all).toString());
         }
-        dateResMap.forEach((date, map) -> {
-            System.out.println("\n\n日期：" + date + "\n");
-            int all = 0;
-            int win = 0;
-            for (Map.Entry<StrategyWin, List<StockDetail>> entry : map.entrySet()) {
-                List<StockDetail> details = entry.getValue();
-                all += details.size();
-                win += (int) details.stream().filter(item -> item.getNext1().getIsUp()).count();
-            }
-            System.out.println(divide(win, all));
-        });
+
     }
 }

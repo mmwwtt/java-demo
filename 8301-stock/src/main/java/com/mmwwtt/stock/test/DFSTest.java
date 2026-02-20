@@ -82,7 +82,7 @@ public class DFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 4) {
+        if (level > 7) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -121,7 +121,7 @@ public class DFSTest {
     }
 
     private boolean isNotByFiveMax(StrategyWin win, StrategyWin parentWin, Integer level) {
-        if (win.getCnt() < 50 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
+        if (win.getCnt() < 40 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
             return true;
         }
         if (lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
@@ -130,7 +130,7 @@ public class DFSTest {
 
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
-                || (level == 4 && lessThan(win.getWinRate(), "0.10"))
+                || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))
 //                || (level == 5 && lessThan(win.getWinRate(), "0.84"))
 //                || (level == 6 && lessThan(win.getWinRate(), "0.88"))
 //                || (level == 7 && lessThan(win.getWinRate(), "0.89"))
@@ -170,18 +170,5 @@ public class DFSTest {
         return false;
     }
 
-    private boolean isNot1(StrategyWin win, StrategyWin parentWin, Integer level) {
-        if (lessAndEqualsThan(win.getWinRate(), parentWin.getWinRate())
-                || win.getCnt() < 20 || lessThan(win.getWinRate(), "0.40")
-                || Objects.equals(win.getCnt(), parentWin.getCnt())
-                || isEquals(win.getWinRate(), BigDecimal.ONE)
-                || (win.getCnt() < 250 && lessThan(win.getWinRate(), "0.7") && level > 6)
-                || (win.getCnt() < 400 && lessThan(win.getWinRate(), "0.65") && level > 6)
-                || (win.getCnt() < 500 && lessThan(win.getWinRate(), "0.60") && level > 6)
-                || (win.getCnt() < 3000 && lessThan(win.getWinRate(), "0.50") && level > 6)) {
-            return true;
-        }
-        return false;
-    }
 }
 
