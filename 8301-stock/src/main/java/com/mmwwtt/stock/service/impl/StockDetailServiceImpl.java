@@ -117,60 +117,22 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
     }
 
     @Override
-    public Map<String, StockDetail> getCodeToTodayDetailMap() throws ExecutionException, InterruptedException {
-        List<Stock> stockList = stockService.getAllStock();
+    public Map<String, StockDetail> getCodeToCurDetailMap(String curDate) throws ExecutionException, InterruptedException {
         Map<String, StockDetail> codeToDetailMap = new ConcurrentHashMap<>();
         log.info("开始查询数据");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<List<Stock>> parts = Lists.partition(stockList, 50);
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = getStockDetail(StockDetailQueryVO.builder().stockCode(stock.getCode()).build());
-                    if (CollectionUtils.isEmpty(stockDetails)) {
-                        continue;
-                    }
-                    codeToDetailMap.put(stock.getCode(), stockDetails.get(0));
+        for (List<String> part : CommonService.stockCodePartList) {
+            for (String stockCode : part) {
+                StockDetail detail = CommonService.codeToDetailMap.get(stockCode).stream()
+                        .filter(item -> Objects.equals(curDate, item.getDealDate()))
+                        .findFirst().orElse(null);
+                if (Objects.nonNull(detail)) {
+                    codeToDetailMap.put(stockCode, detail);
                 }
-            }, ioThreadPool);
-            futures.add(future);
+            }
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
         log.info("开始查询数据-结束");
         return codeToDetailMap;
     }
 
-    @Override
-    public Map<String, StockDetail> getCodeToTodayDetailMap(String date) throws ExecutionException, InterruptedException {
-        List<Stock> stockList = stockService.getAllStock();
-        Map<String, StockDetail> codeToDetailMap = new ConcurrentHashMap<>();
-        log.info("开始查询数据");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<List<Stock>> parts = Lists.partition(stockList, 50);
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<StockDetail> stockDetails = getStockDetail(
-                            StockDetailQueryVO.builder().stockCode(stock.getCode()).build());
-                    if (CollectionUtils.isEmpty(stockDetails)) {
-                        continue;
-                    }
-                    StockDetail detail = stockDetails.stream()
-                            .filter(item -> Objects.equals(item.getDealDate(), date))
-                            .findFirst().orElse(null);
-                    if (Objects.isNull(detail)) {
-                        continue;
-                    }
-                    codeToDetailMap.put(stock.getCode(), detail);
-                }
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("开始查询数据-结束");
-        return codeToDetailMap;
-    }
 
 }

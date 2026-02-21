@@ -49,7 +49,7 @@ public class BuildTest {
     @PostConstruct
     public void init() {
         StrategyWinVO strategyWin = new StrategyWinVO();
-        strategyWin.setFiveMaxPercRateStart(new BigDecimal("0.13"));
+        strategyWin.setFiveMaxPercRateStart(new BigDecimal("0.12"));
         strategyWin.setFiveMaxPercRateEnd(new BigDecimal("0.14"));
         //strategyWin.setTenMaxPercRate(new BigDecimal("0.18"));
         winList = strategyWinService.getStrategyWin(strategyWin);
@@ -65,7 +65,7 @@ public class BuildTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260213", winList, false, 1.2);
+        calcCommonService.predict("20260130", winList, false, 1.2);
     }
 
     @Test

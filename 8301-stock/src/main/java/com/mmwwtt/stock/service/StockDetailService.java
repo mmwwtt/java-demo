@@ -28,11 +28,6 @@ public interface StockDetailService {
     /**
      * 获得股票 当天交易数据
      */
-    Map<String, StockDetail> getCodeToTodayDetailMap() throws ExecutionException, InterruptedException;
-
-    /**
-     * 获得股票 当天交易数据
-     */
-    Map<String, StockDetail> getCodeToTodayDetailMap(String date) throws ExecutionException, InterruptedException;
+    Map<String, StockDetail> getCodeToCurDetailMap(String curDate) throws ExecutionException, InterruptedException;
 
 }

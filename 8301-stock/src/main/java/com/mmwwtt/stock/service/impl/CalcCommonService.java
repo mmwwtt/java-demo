@@ -44,7 +44,7 @@ public class CalcCommonService {
     public void predict(String curDate, List<StrategyWin> strategyWinList, boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
         Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
         Map<StrategyWin, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
-        Map<String, StockDetail> codeToDetailMap = stockDetailService.getCodeToTodayDetailMap();
+        Map<String, StockDetail> codeToDetailMap = stockDetailService.getCodeToCurDetailMap(curDate);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         //策略
@@ -57,13 +57,10 @@ public class CalcCommonService {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
                         StockDetail stockDetail = codeToDetailMap.get(stockCode);
-                        if (stockCodeSet.contains(stockCode) ||
-                                Objects.isNull(stockDetail) || Objects.isNull(stockDetail.getT1())
-                                || Objects.isNull(stockDetail.getT2()) || Objects.isNull(stockDetail.getT3())
-                                || Objects.isNull(stockDetail.getT4()) || Objects.isNull(stockDetail.getT5())
-                                || moreThan(stockDetail.getPricePert(), "0.097")
-                                || !Objects.equals(stockDetail.getDealDate(), curDate)
-                                || Objects.isNull(stockDetail.getSixtyDayLine())) {
+                        if (stockCodeSet.contains(stockCode)
+                                || Objects.isNull(stockDetail) || Objects.isNull(stockDetail.getT5())
+                                || Objects.isNull(stockDetail.getT5().getSixtyDayLine())
+                                || moreThan(stockDetail.getPricePert(), "0.097")) {
                             continue;
                         }
                         if (isOnTime) {
