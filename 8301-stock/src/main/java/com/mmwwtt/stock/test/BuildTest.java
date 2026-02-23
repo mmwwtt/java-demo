@@ -31,9 +31,6 @@ import static com.mmwwtt.stock.service.impl.CommonService.predictDateList;
 public class BuildTest {
 
     @Resource
-    private StockServiceImpl stockService;
-
-    @Resource
     private StrategyWinServiceImpl strategyWinService;
 
     @Resource
@@ -50,9 +47,11 @@ public class BuildTest {
     public void init() {
         StrategyWinVO strategyWin = new StrategyWinVO();
         strategyWin.setFiveMaxPercRateStart(new BigDecimal("0.12"));
-        strategyWin.setFiveMaxPercRateEnd(new BigDecimal("0.14"));
-        //strategyWin.setTenMaxPercRate(new BigDecimal("0.18"));
+        strategyWin.setFiveMaxPercRateEnd(new BigDecimal("0.13"));
+   //     strategyWin.setFivePercRateStart(new BigDecimal("0.05"));
+        //strategyWin.setTenMaxPercRateStart(new BigDecimal("0.18"));
         winList = strategyWinService.getStrategyWin(strategyWin);
+
         winList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
     }
 
@@ -65,7 +64,7 @@ public class BuildTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260130", winList, false, 1.2);
+        calcCommonService.predict("20260205", winList, false, 1.2);
     }
 
     @Test
@@ -162,6 +161,8 @@ public class BuildTest {
 
     public void verifyPredictResByFiveMaxDetail() throws InterruptedException, ExecutionException {
         Map<String, Map<StrategyWin, List<StockDetail>>> dateResMap = new HashMap<>();
+        BigDecimal cnt = BigDecimal.ZERO;
+        int dayCnt=0;
         for (String date : predictDateList) {
             log.info("\n\n日期：" + date);
             Map<StrategyWin, List<StockDetail>> resMap = calcCommonService.verifyPredictRes(date, winList);
@@ -174,8 +175,14 @@ public class BuildTest {
                 details.stream().filter(item -> Objects.nonNull(item.getNext5MaxPricePert()))
                         .forEach(item -> count.set(add(count.get(), item.getNext5MaxPricePert())));
             }
-            log.info(divide(count.get(), all).toString());
+            BigDecimal res = divide(count.get(), all);
+            if (res.compareTo(BigDecimal.ZERO)==0) {
+                continue;
+            }
+            dayCnt++;
+            log.info(res.toString());
+            cnt = add(cnt, res);
         }
-
+        log.info("平均5日最高涨幅 {}", divide(cnt, dayCnt).toString());
     }
 }

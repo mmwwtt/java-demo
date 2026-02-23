@@ -32,8 +32,14 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
         if(Objects.nonNull(strategyWin.getFiveMaxPercRateEnd())) {
             wapper.le("five_max_perc_rate", strategyWin.getFiveMaxPercRateEnd());
         }
-        if(Objects.nonNull(strategyWin.getTenMaxPercRate())) {
-            wapper.ge("ten_max_perc_rate", strategyWin.getTenMaxPercRate());
+        if(Objects.nonNull(strategyWin.getTenMaxPercRateStart())) {
+            wapper.ge("ten_max_perc_rate", strategyWin.getFiveMaxPercRateStart());
+        }
+        if(Objects.nonNull(strategyWin.getTenMaxPercRateEnd())) {
+            wapper.ge("ten_max_perc_rate", strategyWin.getTenMaxPercRateEnd());
+        }
+        if(Objects.nonNull(strategyWin.getFivePercRateStart())) {
+            wapper.ge("five_perc_rate", strategyWin.getFivePercRateStart());
         }
         return list(wapper);
     }

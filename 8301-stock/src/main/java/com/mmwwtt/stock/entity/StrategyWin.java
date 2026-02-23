@@ -167,7 +167,7 @@ public class StrategyWin {
 
 
         if (Objects.nonNull(stockDetail.getNext4())) {
-            fourPriceRateSum = add(fourPriceRateSum, divide(subtract(stockDetail.getNext1().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
+            fourPriceRateSum = add(fourPriceRateSum, divide(subtract(stockDetail.getNext4().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
             fourCnt++;
         }
 

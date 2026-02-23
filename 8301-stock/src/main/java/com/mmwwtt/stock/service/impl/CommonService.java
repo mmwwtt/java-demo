@@ -40,6 +40,7 @@ public class CommonService {
     public static Map<String, Map<String, Set<Integer>>> l1StrategyToStockToDetailIdSetMap;
     public static Map<Integer, StockDetail> idToDetailMap;
     public static Map<String, List<StockDetail>> codeToDetailMap;
+    public static Map<String, String> stockCodeToNameMap;
     public static List<StrategyWin> l1StrategyList;
     public static List<List<String>> stockCodePartList;
     public static String calcEndDate;
@@ -85,12 +86,13 @@ public class CommonService {
         calcEndDate = codeToDetailMap.get("000001.SZ")
                 .stream().skip(20)
                 .map(StockDetail::getDealDate).findFirst().orElse("20260201");
+        stockCodeToNameMap = stockService.list().stream().collect(Collectors.toMap(Stock::getCode, Stock::getName));
         log.info("初始化结束");
     }
 
 
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        List<StrategyEnum> values = StrategyEnum.strategy4DayList;
+        List<StrategyEnum> values = StrategyEnum.strategy2_4DayList;
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<String> part : stockCodePartList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {

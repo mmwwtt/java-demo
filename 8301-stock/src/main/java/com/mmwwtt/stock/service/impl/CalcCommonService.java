@@ -23,8 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.predictDateList;
-import static com.mmwwtt.stock.service.impl.CommonService.stockCodePartList;
+import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 @Service
 @Slf4j
@@ -71,7 +70,7 @@ public class CalcCommonService {
                             stockCodeSet.add(stockCode);
                             try {
                                 strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>())
-                                        .add(stockCode + "_" + stockDetail.getPricePert().doubleValue());
+                                        .add(stockCode + "_" + stockCodeToNameMap.get(stockCode) + " " + stockDetail.getPricePert().doubleValue());
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }

@@ -61,7 +61,8 @@ public class StrategyWinVO {
     /**
      * 预测后的5天平均涨幅
      */
-    private BigDecimal fivePercRate;
+    private BigDecimal fivePercRateStart;
+    private BigDecimal fivePercRateEnd;
 
     /**
      * 预测后的10天平均涨幅
@@ -78,10 +79,8 @@ public class StrategyWinVO {
      */
     private BigDecimal fiveMaxPercRateEnd;
 
-    /**
-     * 预测的10天内最高价 的平均涨幅
-     */
-    private BigDecimal tenMaxPercRate;
+    private BigDecimal tenMaxPercRateStart;
+    private BigDecimal tenMaxPercRateEnd;
 
     /**
      * 策略层级
