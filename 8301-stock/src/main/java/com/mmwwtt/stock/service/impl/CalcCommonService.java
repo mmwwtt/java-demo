@@ -139,12 +139,18 @@ public class CalcCommonService {
                                 || Objects.isNull(stockDetail.getT2()) || Objects.isNull(stockDetail.getT3())
                                 || Objects.isNull(stockDetail.getT4()) || Objects.isNull(stockDetail.getT5())
                                 || Objects.isNull(stockDetail.getT5().getSixtyDayLine())
-                                || moreThan(stockDetail.getPricePert(), 0.097)) {
+                                || moreThan(stockDetail.getPricePert(), 0.097)
+                                || !stockDetail.getFiveIsUp()) {
                             continue;
                         }
                         boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
                         if (res) {
-                            strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>()).add(stockDetail);
+                            try{
+                                strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>()).add(stockDetail);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+      //                      strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>()).add(stockDetail);
                         }
                     }
                 }, ioThreadPool);

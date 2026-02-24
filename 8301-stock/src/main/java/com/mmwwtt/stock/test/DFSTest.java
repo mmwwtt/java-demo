@@ -34,29 +34,9 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 public class DFSTest {
 
     @Autowired
-    private StockServiceImpl stockService;
-
-    @Autowired
-    private StockDetailServiceImpl stockDetailService;
-
-    @Autowired
-    private StrategyResultServiceImpl strategyResultService;
-
-
-    @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
-    @Autowired
-    private CalcCommonService calcCommonService;
-
-
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
-    private final ThreadPoolExecutor middleThreadPool2 = GlobalThreadPool.getMiddleThreadPool2();
-    private final ThreadPoolExecutor middleThreadPool3 = GlobalThreadPool.getMiddleThreadPool3();
-    private final ThreadPoolExecutor middleThreadPool4 = GlobalThreadPool.getMiddleThreadPool4();
-    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
-    private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
-
 
     private final VoConvert voConvert = VoConvert.INSTANCE;
 

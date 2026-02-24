@@ -68,7 +68,7 @@ public class CommonService {
 
         l1StrategyList = strategyWinService.getL1StrategyWin().stream()
                 .filter(item -> moreThan(item.getWinRate(), "0.40"))
-                .sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();
+                .sorted(Comparator.comparing(StrategyWin::getStrategyCode).reversed()).toList();
 
         List<StockDetail> allDetailList = stockDetailService.list();
         idToDetailMap = allDetailList.stream().collect(Collectors.toMap(StockDetail::getStockDetailId, item -> item));

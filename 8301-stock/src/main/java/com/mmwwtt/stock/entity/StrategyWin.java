@@ -9,8 +9,7 @@ import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -217,11 +216,13 @@ public class StrategyWin {
     }
 
     public StrategyWin(Set<String> strategyCodeSet) {
-        String name = strategyCodeSet.stream()
+        List<String> list = new ArrayList<>(strategyCodeSet);
+        Collections.sort(list);
+        String name = list.stream()
                 .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())
                 .collect(Collectors.joining(" "));
 
-        this.strategyCode = String.join(" ", strategyCodeSet);
+        this.strategyCode = String.join(" ", list);
         this.strategyName = name;
         this.level = strategyCodeSet.size();
     }
