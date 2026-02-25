@@ -140,7 +140,7 @@ public class CalcCommonService {
                                 || Objects.isNull(stockDetail.getT4()) || Objects.isNull(stockDetail.getT5())
                                 || Objects.isNull(stockDetail.getT5().getSixtyDayLine())
                                 || moreThan(stockDetail.getPricePert(), 0.097)
-                                || !stockDetail.getFiveIsUp()) {
+                                || (!stockDetail.getFiveIsUp()&& !stockDetail.getTenIsUp())) {
                             continue;
                         }
                         boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
