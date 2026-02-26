@@ -1,29 +1,27 @@
 package com.mmwwtt.stock.service.impl;
 
-import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.convert.VoConvert;
-import com.mmwwtt.stock.entity.*;
-import com.mmwwtt.stock.vo.StockDetailQueryVO;
-import jakarta.annotation.Resource;
+import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StrategyEnum;
+import com.mmwwtt.stock.entity.StrategyWin;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.*;
+import static com.mmwwtt.stock.service.impl.CommonService.stockCodePartList;
+import static com.mmwwtt.stock.service.impl.CommonService.stockCodeToNameMap;
 
 @Service
 @Slf4j
@@ -115,21 +113,21 @@ public class CalcCommonService {
      * 验证预测的股票结果
      */
     public Map<StrategyWin, List<StockDetail>> verifyPredictRes(String curDate, List<StrategyWin> strategyWinList) throws InterruptedException, ExecutionException {
-        Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
-        Map<StrategyWin, List<StockDetail>> strategyToStockMap = new ConcurrentHashMap<>();
-        Map<String, StockDetail> codeToDetailMap = CommonService.idToDetailMap.values().stream()
-                .filter(item -> Objects.equals(item.getDealDate(), curDate))
-                .collect(Collectors.toMap(StockDetail::getStockCode, item -> item));
+                Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
+                Map<StrategyWin, List<StockDetail>> strategyToStockMap = new ConcurrentHashMap<>();
+                Map<String, StockDetail> codeToDetailMap = CommonService.idToDetailMap.values().stream()
+                        .filter(item -> Objects.equals(item.getDealDate(), curDate))
+                        .collect(Collectors.toMap(StockDetail::getStockCode, item -> item));
 
 
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        Set<String> stockCodeSet = new HashSet<>();
-        //策略
-        log.info("开始计算");
+                List<CompletableFuture<Void>> futures = new ArrayList<>();
+                Set<String> stockCodeSet = new HashSet<>();
+                //策略
+                log.info("开始计算");
 
-        for (StrategyWin strategyWin : strategyWinList) {
-            List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
-                    .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
+                for (StrategyWin strategyWin : strategyWinList) {
+                    List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
+                            .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
