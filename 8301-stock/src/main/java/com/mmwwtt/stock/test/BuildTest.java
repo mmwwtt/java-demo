@@ -5,8 +5,9 @@ import com.mmwwtt.stock.common.StockGuiUitls;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyEnum;
 import com.mmwwtt.stock.entity.StrategyWin;
-import com.mmwwtt.stock.service.impl.*;
-import com.mmwwtt.stock.vo.StrategyWinVO;
+import com.mmwwtt.stock.service.impl.CalcCommonService;
+import com.mmwwtt.stock.service.impl.CommonService;
+import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -45,12 +46,8 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        StrategyWinVO strategyWin = new StrategyWinVO();
-        strategyWin.setFiveMaxPercRateStart(new BigDecimal("0.14"));
-   //     strategyWin.setFiveMaxPercRateEnd(new BigDecimal("0.13"));
-  //      strategyWin.setFivePercRateStart(new BigDecimal("0.05"));
-    //    strategyWin.setTenMaxPercRateStart(new BigDecimal("0.19"));
-        winList = strategyWinService.getStrategyWin(strategyWin);
+        String sql = "   five_max_perc_rate > 0.015 " ;
+        winList = strategyWinService.getStrategyWin(sql);
 
         winList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
     }
@@ -64,7 +61,7 @@ public class BuildTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260224", winList, false, 1.2);
+        calcCommonService.predict("20260225", winList, false, 1.2);
     }
 
     @Test
@@ -172,7 +169,8 @@ public class BuildTest {
             for (Map.Entry<StrategyWin, List<StockDetail>> entry : resMap.entrySet()) {
                 List<StockDetail> details = entry.getValue();
                 all += details.size();
-                details.stream().filter(item -> Objects.nonNull(item.getNext5MaxPricePert()))
+                details.stream().filter(Objects::nonNull)
+                        .filter(item -> Objects.nonNull(item.getNext5MaxPricePert()))
                         .forEach(item -> count.set(add(count.get(), item.getNext5MaxPricePert())));
             }
             BigDecimal res = divide(count.get(), all);

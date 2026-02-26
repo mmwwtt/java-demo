@@ -88,4 +88,10 @@ from stock_strategy_win_t
 where level != 1;
 
 
-select * from stock_strategy_win_t  t where t.win_rate > 0.9 && t.ten_max_perc_rate > 0.10
+select *
+from stock_strategy_win_t t
+where one_perc_rate < two_perc_rate
+  and two_perc_rate < three_perc_rate
+  and three_perc_rate < four_perc_rate
+  and four_perc_rate< five_perc_rate
+and five_perc_rate > 0.06

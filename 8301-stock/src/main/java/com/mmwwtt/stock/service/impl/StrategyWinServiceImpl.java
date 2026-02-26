@@ -18,29 +18,9 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
     private StrategyWinDAO strategyWinDAO;
 
     @Override
-    public List<StrategyWin> getStrategyWin(StrategyWinVO strategyWin) {
+    public List<StrategyWin> getStrategyWin(String sql) {
         QueryWrapper<StrategyWin> wapper = new QueryWrapper<>();
-        if(Objects.nonNull(strategyWin.getLevel())) {
-            wapper.eq("level", strategyWin.getLevel());
-        }
-        if(Objects.nonNull(strategyWin.getWinRate())) {
-            wapper.ge("win_rate", strategyWin.getWinRate());
-        }
-        if(Objects.nonNull(strategyWin.getFiveMaxPercRateStart())) {
-            wapper.ge("five_max_perc_rate", strategyWin.getFiveMaxPercRateStart());
-        }
-        if(Objects.nonNull(strategyWin.getFiveMaxPercRateEnd())) {
-            wapper.le("five_max_perc_rate", strategyWin.getFiveMaxPercRateEnd());
-        }
-        if(Objects.nonNull(strategyWin.getTenMaxPercRateStart())) {
-            wapper.ge("ten_max_perc_rate", strategyWin.getFiveMaxPercRateStart());
-        }
-        if(Objects.nonNull(strategyWin.getTenMaxPercRateEnd())) {
-            wapper.ge("ten_max_perc_rate", strategyWin.getTenMaxPercRateEnd());
-        }
-        if(Objects.nonNull(strategyWin.getFivePercRateStart())) {
-            wapper.ge("five_perc_rate", strategyWin.getFivePercRateStart());
-        }
+        wapper.apply(sql);
         return list(wapper);
     }
 

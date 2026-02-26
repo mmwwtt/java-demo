@@ -1,15 +1,9 @@
 package com.mmwwtt.stock.test;
 
-import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
-import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyWin;
-import com.mmwwtt.stock.service.impl.*;
-import com.mmwwtt.stock.vo.StockDetailQueryVO;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
+import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,8 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
@@ -101,7 +96,7 @@ public class DFSTest {
     }
 
     private boolean isNotByFiveMax(StrategyWin win, StrategyWin parentWin, Integer level) {
-        if (win.getCnt() < 40 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
+        if (win.getCnt() < 30 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
             return true;
         }
         if (lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())

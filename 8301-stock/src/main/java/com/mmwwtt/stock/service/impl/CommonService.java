@@ -1,19 +1,19 @@
 package com.mmwwtt.stock.service.impl;
 
 import com.google.common.collect.Lists;
-import com.mmwwtt.demo.common.entity.BaseInfo;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.*;
-import com.mmwwtt.stock.vo.StockDetailQueryVO;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.moreThan;
@@ -80,10 +80,10 @@ public class CommonService {
         stockCodePartList = Lists.partition(codeToDetailMap.keySet().stream().toList(), 50);
 
 
-        predictDateList = codeToDetailMap.get("000001.SZ")
+        predictDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
                 .stream().limit(20)
                 .map(StockDetail::getDealDate).toList();
-        calcEndDate = codeToDetailMap.get("000001.SZ")
+        calcEndDate = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
                 .stream().skip(20)
                 .map(StockDetail::getDealDate).findFirst().orElse("20260201");
         stockCodeToNameMap = stockService.list().stream().collect(Collectors.toMap(Stock::getCode, Stock::getName));
