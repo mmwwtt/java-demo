@@ -81,10 +81,10 @@ public class CommonService {
 
 
         predictDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
-                .stream().limit(20)
+                .stream().limit(15)
                 .map(StockDetail::getDealDate).toList();
         calcEndDate = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
-                .stream().skip(20)
+                .stream().skip(15)
                 .map(StockDetail::getDealDate).findFirst().orElse("20260201");
         stockCodeToNameMap = stockService.list().stream().collect(Collectors.toMap(Stock::getCode, Stock::getName));
         log.info("初始化结束");

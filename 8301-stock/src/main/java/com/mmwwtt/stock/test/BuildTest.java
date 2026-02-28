@@ -61,7 +61,7 @@ public class BuildTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260225", winList, false, 1.2);
+        calcCommonService.predict("20260212", winList, false, 1.2);
     }
 
     @Test

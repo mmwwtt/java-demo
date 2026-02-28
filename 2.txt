@@ -34,3 +34,7 @@ sql设置
     SET GLOBAL log_queries_not_using_indexes = 'ON';
 
 类的静态代码块和代码块中不能用注入的bean(当时还未注入)，可用使用@PostConstruct 依赖注入完成后执行
+
+
+  .sorted(Comparator.comparing(Map.Entry::getValue).reversed())  // 增加reversed后会报错  类型擦除，需要注明类型
+  .sorted(Comparator.comparing(Map.Entry<String, Integer>::getValue).reversed())

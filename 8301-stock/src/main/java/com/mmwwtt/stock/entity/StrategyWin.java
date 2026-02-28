@@ -103,6 +103,11 @@ public class StrategyWin {
     private JSONArray stockDetailIdList;
 
     /**
+     * 日期统计
+     */
+    private String dateCnt;
+
+    /**
      * 临时属性
      */
     @TableField(exist = false)
@@ -137,6 +142,8 @@ public class StrategyWin {
     private BigDecimal tenMaxPriceRateSum = BigDecimal.ZERO;
     @TableField(exist = false)
     private int tenCnt = 0;
+    @TableField(exist = false)
+    private Map<String, Integer> dateToCntMap = new HashMap<>();
 
     /**
      * 将结果累加到数据中
@@ -145,6 +152,7 @@ public class StrategyWin {
         if(Objects.isNull(stockDetail)) {
             return;
         }
+        dateToCntMap.put(stockDetail.getDealDate(), dateToCntMap.computeIfAbsent(stockDetail.getDealDate(), item -> 0) + 1);
         if (Objects.nonNull(stockDetail.getNext1())) {
             BigDecimal onPert = divide(subtract(stockDetail.getNext1().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice());
             onePriceRateSum = add(onePriceRateSum, onPert);
@@ -202,6 +210,12 @@ public class StrategyWin {
         tenMaxPercRate = divide(tenMaxPriceRateSum, tenCnt);
         fiveMaxPercRate = divide(fiveMaxPriceRateSum, fiveCnt);
         cnt = oneCnt;
+        if(cnt <200) {
+            dateCnt = dateToCntMap.entrySet().stream()
+                    .sorted(Comparator.comparing(Map.Entry<String, Integer>::getValue).reversed())
+                    .map(item -> String.format("%s_%s", item.getKey(), item.getValue()))
+                    .collect(Collectors.joining(" \n"));
+        }
     }
 
     public static StrategyWin createByStrategyName(String strategyName) {
