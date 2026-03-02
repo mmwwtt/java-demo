@@ -218,9 +218,10 @@ public class StrategyWin {
         }
     }
 
-    public static StrategyWin createByStrategyName(String strategyName) {
+    public static StrategyWin createByStrategyName(StrategyEnum strategyEnum) {
         StrategyWin strategyWin = new StrategyWin();
-        strategyWin.setStrategyName(strategyName);
+        strategyWin.setStrategyName(strategyEnum.getName());
+        strategyWin.setStrategyCode(strategyEnum.getCode());
         return strategyWin;
 
     }

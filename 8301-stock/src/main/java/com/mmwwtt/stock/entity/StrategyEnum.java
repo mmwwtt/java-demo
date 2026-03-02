@@ -66,10 +66,10 @@ public class StrategyEnum {
                 new StrategyEnum("20036", "macd_大于10", (StockDetail t0) -> moreThan(t0.getMacd(), "10")),
 
 
-                new StrategyEnum("20040", "WR威廉指标_上穿负80_脱离超卖区", (StockDetail t0) -> moreThan(t0.getWr(), "-80")
-                        && lessThan(t0.getT1().getWr(), "-80")
-                        && lessThan(t0.getT2().getWr(), "-80")),
-
+                new StrategyEnum("20040", "WR威廉指标_上穿负80_脱离超卖区", (StockDetail t0) -> lessThan(t0.getWr(), "-80")
+                        && moreThan(t0.getT1().getWr(), "-80")
+                        && moreThan(t0.getT2().getWr(), "-80")),
+                new StrategyEnum("20040", "WR威廉指标_负80一下，在超卖区", (StockDetail t0) -> lessThan(t0.getWr(), "-80")),
 
                 new StrategyEnum("20100", "上穿过5日线", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFiveDayLine())
                         && lessThan(t0.getLowPrice(), t0.getFiveDayLine())

@@ -46,7 +46,7 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        String sql = "   five_max_perc_rate > 0.15 " ;
+        String sql = "   five_max_perc_rate > 0.14 " ;
         winList = strategyWinService.getStrategyWin(sql);
 
         winList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
@@ -78,22 +78,54 @@ public class BuildTest {
     }
 
 
+
+
+
     @Test
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         List<StrategyEnum> strategyEnums = List.of(
                 new StrategyEnum("testCode", "testName", (StockDetail t0) -> {
-                    return t0.getSixtyIsUp()
-                            && isInRangeNotEquals(t0.getPosition40(), "0.2", "0.3")
-                            && isInRangeNotEquals(t0.getLowShadowLen(), "0.08", "0.09");
+                    return t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed() && t0.getT3().getIsRed() && t0.getT4().getIsRed()
+                            && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
+                            && lessThan(t0.getT1().getDealQuantity(), t0.getT2().getDealQuantity())
+                            && lessThan(t0.getT2().getDealQuantity(), t0.getT3().getDealQuantity())
+                            && lessThan(t0.getT3().getDealQuantity(), t0.getT4().getDealQuantity());
                 })
         );
 
         calcByStrategy(strategyEnums);
     }
 
-    public Map<String, List<StockDetail>> calcByStrategy(List<StrategyEnum> strategyList) throws ExecutionException, InterruptedException {
-        Map<String, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
+    @Test
+    @DisplayName("根据策略绘制蜡烛图-自定义")
+    public void startCalc5() throws ExecutionException, InterruptedException {
+        StrategyEnum strategyEnumDemo = new StrategyEnum("testCode", "testName", (StockDetail t0) -> {
+            return t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed() && t0.getT3().getIsRed() && t0.getT4().getIsRed()
+                    && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
+                    && lessThan(t0.getT1().getDealQuantity(), t0.getT2().getDealQuantity())
+                    && lessThan(t0.getT2().getDealQuantity(), t0.getT3().getDealQuantity())
+                    && lessThan(t0.getT3().getDealQuantity(), t0.getT4().getDealQuantity());
+        });
+
+        log.info("开始查找符合条件的数据");
+        Map<StrategyEnum, List<StockDetail>> resMap = calcByStrategy(List.of(strategyEnumDemo));
+        log.info("开始绘制");
+        resMap.forEach((strategyEnum, resList) -> {
+            List<StockDetail> curList = resList.stream().limit(200).toList();
+            for (StockDetail detail : curList) {
+                try {
+                    StockGuiUitls.genDetailImage(detail, strategyEnum.getName());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        log.info("绘制完成");
+    }
+
+    public Map<StrategyEnum, List<StockDetail>> calcByStrategy(List<StrategyEnum> strategyList) throws ExecutionException, InterruptedException {
+        Map<StrategyEnum, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
         log.info("开始计算");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<String> part : CommonService.stockCodePartList) {
@@ -113,7 +145,7 @@ public class BuildTest {
                                     || !strategy.getRunFunc().apply(stockDetail)) {
                                 continue;
                             }
-                            strategyToCalcMap.computeIfAbsent(strategy.getName(), v -> new ArrayList<>()).add(stockDetail);
+                            strategyToCalcMap.computeIfAbsent(strategy, v -> new ArrayList<>()).add(stockDetail);
                         }
                     }
                 }
@@ -123,8 +155,8 @@ public class BuildTest {
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
 
-        strategyToCalcMap.forEach((strategyName, list) -> {
-            StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyName);
+        strategyToCalcMap.forEach((strategyEnum, list) -> {
+            StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyEnum);
             strategyWin.setLevel(0);
             list.forEach(strategyWin::addToResult);
             strategyWin.fillData();
@@ -139,15 +171,15 @@ public class BuildTest {
         List<StrategyEnum> list = Arrays.stream(strategyStr.split(" ")).map(StrategyEnum.codeToEnumMap::get).toList();
         StrategyEnum strategy = new StrategyEnum("testCode", "test_" + getTimeStr(),
                 (StockDetail t0) -> list.stream().allMatch(item -> item.getRunFunc().apply(t0)));
-        Map<String, List<StockDetail>> resMap = calcByStrategy(List.of(strategy));
+        Map<StrategyEnum, List<StockDetail>> resMap = calcByStrategy(List.of(strategy));
         log.info("开始绘制");
-        resMap.forEach((strategyName, resList) -> {
+        resMap.forEach((strategyEnum, resList) -> {
             List<StockDetail> curList = onlyNext1IsUp
                     ? resList.stream().filter(item -> item.getNext1().getIsDown()).limit(200).toList()
                     : resList.stream().limit(200).toList();
             for (StockDetail detail : curList) {
                 try {
-                    StockGuiUitls.genDetailImage(detail, strategyName);
+                    StockGuiUitls.genDetailImage(detail, strategyEnum.getName());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
