@@ -43,16 +43,16 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
 
     @Override
     public List<StockDetail> getStockDetail(StockDetailQueryVO queryVO) {
-        QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-        detailWapper.eq("stock_code", queryVO.getStockCode());
+        QueryWrapper<StockDetail> detailWrapper = new QueryWrapper<>();
+        detailWrapper.eq("stock_code", queryVO.getStockCode());
         if (StringUtils.isNotBlank(queryVO.getDealDate())) {
-            detailWapper.eq("deal_date", queryVO.getDealDate());
+            detailWrapper.eq("deal_date", queryVO.getDealDate());
         }
-        detailWapper.orderByDesc("deal_date");
+        detailWrapper.orderByDesc("deal_date");
         if (Objects.nonNull(queryVO.getLimit())) {
-            detailWapper.last("LIMIT " + queryVO.getLimit());
+            detailWrapper.last("LIMIT " + queryVO.getLimit());
         }
-        List<StockDetail> stockDetails = list(detailWapper);
+        List<StockDetail> stockDetails = list(detailWrapper);
         return genAllStockDetail(stockDetails);
     }
 

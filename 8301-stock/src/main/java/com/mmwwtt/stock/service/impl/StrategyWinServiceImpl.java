@@ -19,16 +19,16 @@ public class StrategyWinServiceImpl extends ServiceImpl<StrategyWinDAO, Strategy
 
     @Override
     public List<StrategyWin> getStrategyWin(String sql) {
-        QueryWrapper<StrategyWin> wapper = new QueryWrapper<>();
-        wapper.apply(sql);
-        return list(wapper);
+        QueryWrapper<StrategyWin> wrapper = new QueryWrapper<>();
+        wrapper.apply(sql);
+        return list(wrapper);
     }
 
 
     @Override
     public List<StrategyWin> getL1StrategyWin() {
-        QueryWrapper<StrategyWin> wapper = new QueryWrapper<>();
-        wapper.eq("level",1);
-        return strategyWinDAO.selectList(wapper);
+        QueryWrapper<StrategyWin> wrapper = new QueryWrapper<>();
+        wrapper.eq("level", 1);
+        return strategyWinDAO.selectList(wrapper);
     }
 }

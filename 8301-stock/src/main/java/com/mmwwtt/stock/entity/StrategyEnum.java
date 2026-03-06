@@ -69,7 +69,7 @@ public class StrategyEnum {
                 new StrategyEnum("20040", "WR威廉指标_上穿负80_脱离超卖区", (StockDetail t0) -> lessThan(t0.getWr(), "-80")
                         && moreThan(t0.getT1().getWr(), "-80")
                         && moreThan(t0.getT2().getWr(), "-80")),
-                new StrategyEnum("20040", "WR威廉指标_负80一下，在超卖区", (StockDetail t0) -> lessThan(t0.getWr(), "-80")),
+                new StrategyEnum("20041", "WR威廉指标_负80以下_在超卖区", (StockDetail t0) -> lessThan(t0.getWr(), "-80")),
 
                 new StrategyEnum("20100", "上穿过5日线", (StockDetail t0) -> moreThan(t0.getHighPrice(), t0.getFiveDayLine())
                         && lessThan(t0.getLowPrice(), t0.getFiveDayLine())
@@ -131,7 +131,7 @@ public class StrategyEnum {
                 new StrategyEnum("21070", "区间40_00_30", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition40(), "0", "0.3")),
                 new StrategyEnum("21072", "区间40_30_60", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition40(), "0.3", "0.6")),
                 new StrategyEnum("21074", "区间40_60_90", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition40(), "0.6", "0.9")),
-                new StrategyEnum("21076", "区间40_90_10", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition40(), "0.9", "1.0")),
+                new StrategyEnum("21076", "区间40_90_100", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition40(), "0.9", "1.0")),
 
                 new StrategyEnum("21080", "区间20_00_30", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition20(), "0", "0.3")),
                 new StrategyEnum("21082", "区间20_30_60", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition20(), "0.3", "0.6")),
@@ -156,7 +156,7 @@ public class StrategyEnum {
                 new StrategyEnum("21100", "下影线长度_00_03", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0", "0.03")),
                 new StrategyEnum("21102", "下影线长度_03_06", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0.03", "0.06")),
                 new StrategyEnum("21104", "下影线长度_06_09", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0.06", "0.09")),
-                new StrategyEnum("21106", "下影线长度_09_12", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0.9", "0.12")),
+                new StrategyEnum("21106", "下影线长度_09_12", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0.09", "0.12")),
                 new StrategyEnum("21107", "下影线长度大于_12", (StockDetail t0) -> moreThan(t0.getLowShadowLen(), "0.12")),
 
 

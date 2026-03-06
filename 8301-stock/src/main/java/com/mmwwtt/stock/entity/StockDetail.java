@@ -632,7 +632,7 @@ public class StockDetail {
             calcIsUp(list, i, 5, cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveHigh, cur::setFiveLow,
                     cur::setFiveHighDate, cur::setFiveLowDate, cur::setFiveIsUp);
             calcIsUp(list, i, 10, cur::setTenDayLine, cur::setTenDayDealQuantity, cur::setTenHigh, cur::setTenLow,
-                    cur::setTenHighDate, cur::setFiveLowDate, cur::setTenIsUp);
+                    cur::setTenHighDate, cur::setTenLowDate, cur::setTenIsUp);
             calcIsUp(list, i, 20, cur::setTwentyDayLine, cur::setTwentyDayDealQuantity, cur::setTwentyHigh, cur::setTwentyLow,
                     cur::setTwentyHighDate, cur::setTwentyLowDate, cur::setTwentyIsUp);
             calcIsUp(list, i, 40, cur::setFortyDayLine, cur::setFortyDayDealQuantity, cur::setFortyHigh, cur::setFortyLow,

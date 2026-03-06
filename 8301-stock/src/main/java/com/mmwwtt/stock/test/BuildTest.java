@@ -1,7 +1,7 @@
 package com.mmwwtt.stock.test;
 
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.common.StockGuiUitls;
+import com.mmwwtt.stock.common.StockGuiUtils;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyEnum;
 import com.mmwwtt.stock.entity.StrategyWin;
@@ -115,7 +115,7 @@ public class BuildTest {
             List<StockDetail> curList = resList.stream().limit(200).toList();
             for (StockDetail detail : curList) {
                 try {
-                    StockGuiUitls.genDetailImage(detail, strategyEnum.getName());
+                    StockGuiUtils.genDetailImage(detail, strategyEnum.getName());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -179,7 +179,7 @@ public class BuildTest {
                     : resList.stream().limit(200).toList();
             for (StockDetail detail : curList) {
                 try {
-                    StockGuiUitls.genDetailImage(detail, strategyEnum.getName());
+                    StockGuiUtils.genDetailImage(detail, strategyEnum.getName());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

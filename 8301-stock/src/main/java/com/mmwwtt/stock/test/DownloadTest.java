@@ -151,9 +151,9 @@ public class DownloadTest {
                             .collect(Collectors.toList());
                     List<StockDetail> stockDetails = voConvert.convertToStockDetail(stockDetailVOs);
 
-                    QueryWrapper<StockDetail> detailWapper = new QueryWrapper<>();
-                    detailWapper.eq("stock_code", stock.getCode());
-                    Map<String, StockDetail> dateToMap = stockDetailService.list(detailWapper).stream()
+                    QueryWrapper<StockDetail> detailWrapper = new QueryWrapper<>();
+                    detailWrapper.eq("stock_code", stock.getCode());
+                    Map<String, StockDetail> dateToMap = stockDetailService.list(detailWrapper).stream()
                             .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
                     for (StockDetail stockDetail : stockDetails) {
                         if (dateToMap.containsKey(stockDetail.getDealDate())) {

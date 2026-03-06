@@ -38,3 +38,6 @@ sql设置
 
   .sorted(Comparator.comparing(Map.Entry::getValue).reversed())  // 增加reversed后会报错  类型擦除，需要注明类型
   .sorted(Comparator.comparing(Map.Entry<String, Integer>::getValue).reversed())
+
+
+  子类执行默认构造函数时，会调用父类构造函数(子类有个默认的无参构造， 父类有有参数的构造， 会调用父类且报没有入参的提示， 此时需要父类加个无参构造来消除报错)

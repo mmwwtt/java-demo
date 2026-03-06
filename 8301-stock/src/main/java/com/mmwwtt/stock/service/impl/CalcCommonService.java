@@ -46,7 +46,7 @@ public class CalcCommonService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         //策略
         log.info("开始计算");
-        Set<String> stockCodeSet = new HashSet<>();
+        Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
         for (StrategyWin strategyWin : strategyWinList) {
             List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
                     .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
@@ -66,12 +66,10 @@ public class CalcCommonService {
                         boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
                         if (res) {
                             stockCodeSet.add(stockCode);
-                            try {
-                                strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>())
-                                        .add(stockCode + "_" + stockCodeToNameMap.get(stockCode) + " " + stockDetail.getPricePert().doubleValue());
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
+                            String name = stockCodeToNameMap.getOrDefault(stockCode, "");
+                            double pert = stockDetail.getPricePert() != null ? stockDetail.getPricePert().doubleValue() : 0;
+                            strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>())
+                                    .add(stockCode + "_" + name + " " + pert);
                         }
                     }
                 }, cpuThreadPool);
@@ -121,7 +119,7 @@ public class CalcCommonService {
 
 
                 List<CompletableFuture<Void>> futures = new ArrayList<>();
-                Set<String> stockCodeSet = new HashSet<>();
+                Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
                 //策略
                 log.info("开始计算");
 
@@ -143,12 +141,7 @@ public class CalcCommonService {
                         }
                         boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
                         if (res) {
-                            try{
-                                strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>()).add(stockDetail);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-      //                      strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>()).add(stockDetail);
+                            strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>()).add(stockDetail);
                         }
                     }
                 }, ioThreadPool);

@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 
-public class StockGuiUitls {
+public class StockGuiUtils {
 
     private static final int IMG_W = 600;   // 图片宽
     private static final int IMG_H = 600;   // 图片高
@@ -64,7 +64,7 @@ public class StockGuiUitls {
         double maxPrice = list.stream().mapToDouble(d -> d.getHighPrice().doubleValue()).max().orElse(0);
         double minPrice = list.stream().mapToDouble(d -> d.getLowPrice().doubleValue()).min().orElse(0);
         double maxVol = list.stream().mapToDouble(d -> d.getDealQuantity().doubleValue()).max().orElse(0);
-        double priceRange = maxPrice - minPrice;
+        double priceRange = Math.max(maxPrice - minPrice, 1e-10);
         double candleW = (IMG_W - 2 * MARGIN) / (double) list.size();
 
         /* 边框 */
@@ -105,8 +105,9 @@ public class StockGuiUitls {
             g2.fillRect((int) (x - candleW * 0.3), (int) bodyTop, (int) (candleW * 0.6), (int) bodyH);
 
             /* 成交量柱 */
-            double volY = MARGIN + priceH + GAP + (1 - vol / maxVol) * volH;
-            double volBarH = vol / maxVol * volH;
+            double volRatio = maxVol > 0 ? vol / maxVol : 0;
+            double volY = MARGIN + priceH + GAP + (1 - volRatio) * volH;
+            double volBarH = volRatio * volH;
             g2.fillRect((int) (x - candleW * 0.3), (int) volY, (int) (candleW * 0.6), (int) volBarH);
 
             if (dataSet.contains(i)) {
