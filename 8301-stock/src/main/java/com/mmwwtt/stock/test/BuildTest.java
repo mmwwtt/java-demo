@@ -46,9 +46,8 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        String sql = "   five_max_perc_rate > 0.14 " ;
+        String sql = "   five_perc_rate > 0.06 " ;
         winList = strategyWinService.getStrategyWin(sql);
-
         winList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
     }
 
@@ -61,7 +60,7 @@ public class BuildTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260227", winList, false, 1.2);
+        calcCommonService.predict("20260306", winList, false, 1.2);
     }
 
     @Test
