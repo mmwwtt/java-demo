@@ -5,7 +5,7 @@ use stock;
 
 
 # 设置最大连接数为500
-SET GLOBAL max_connections = 200;
+SET GLOBAL max_connections = 500;
 set global innodb_flush_log_at_trx_commit = 0;
 set global sync_binlog = 100000;
 SET GLOBAL innodb_buffer_pool_size = 8 * 1024 * 1024 * 1024; -- 8 GB
