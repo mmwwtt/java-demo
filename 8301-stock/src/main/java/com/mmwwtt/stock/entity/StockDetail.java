@@ -560,8 +560,84 @@ public class StockDetail {
      */
     private BigDecimal position60;
 
-    //违五日线   前四天的综合/五
+    // ========== 趋势判断补充属性 ==========
 
+    /**
+     * RSI相对强弱指标(14日)
+     * 计算: RS = 14日内平均涨幅 / 14日内平均跌幅, RSI = 100 - 100/(1+RS)
+     * 意义: 0~100, >70超买, <30超卖, 50附近多空平衡
+     */
+    private BigDecimal rsi;
+
+    /**
+     * ATR平均真实波幅(14日)
+     * 计算: TR = max(当日最高-最低, |当日最高-前收|, |当日最低-前收|), ATR=14日TR的EMA
+     * 意义: 反映波动率, 值越大波动越剧烈, 可用于止损/仓位管理
+     */
+    private BigDecimal atr14;
+
+    /**
+     * 5日乖离率
+     * 计算: (收盘价 - 5日均线) / 5日均线 × 100
+     * 意义: >5%偏离均线过远可能回调, <-5%可能反弹
+     */
+    private BigDecimal bias5;
+
+    /**
+     * 10日乖离率
+     */
+    private BigDecimal bias10;
+
+    /**
+     * 20日乖离率
+     */
+    private BigDecimal bias20;
+
+    /**
+     * 均线多头排列强度(0~4)
+     * 计算: 满足 5日>10日 + 10日>20日 + 20日>40日 + 40日>60日 的个数
+     * 意义: 4=完美多头, 0=无多头排列
+     */
+    private Integer maAlignBullScore;
+
+    /**
+     * 均线空头排列强度(0~4)
+     * 计算: 满足 5日<10日 + 10日<20日 + 20日<40日 + 40日<60日 的个数
+     */
+    private Integer maAlignBearScore;
+
+    /**
+     * 布林带位置(0~1)
+     * 计算: (收盘价 - 下轨) / (上轨 - 下轨), 上轨=20日均+2×20日标准差, 下轨=20日均-2×20日标准差
+     * 意义: >1突破上轨, <0跌破下轨, 0.5在中轨附近
+     */
+    private BigDecimal bollPosition;
+
+    /**
+     * 20日均线斜率(日变化率)
+     * 计算: (当日20日线 - 前一日20日线) / 前一日20日线
+     * 意义: >0均线向上, <0均线向下, 反映趋势加速度
+     */
+    private BigDecimal ma20Slope;
+
+    /**
+     * 20日波动率
+     * 计算: 20日收盘价标准差 / 20日均价
+     * 意义: 值越大波动越大, 可用于评估风险
+     */
+    private BigDecimal volatility20;
+
+    /**
+     * 量价背离信号
+     * 计算: 价涨量缩=1, 价跌量增=-1, 同向=0
+     * 意义: 背离常预示趋势可能反转
+     */
+    private Integer volumePriceDivergence;
+
+
+    /**
+     * 在拉取数据的时候就进行计算  并保存到数据库中，避免之后重复计算
+     */
     public void calc() {
         entityLen = divide(subtract(endPrice, startPrice).abs(), lastPrice);
         upShadowLen = divide(subtract(highPrice, max(startPrice, endPrice)).abs(), lastPrice);
@@ -579,6 +655,12 @@ public class StockDetail {
         isTenStar = moreThan(allLen, "0") && lessThan(entityLen, "0.005");
     }
 
+
+
+    /**
+     * 在拉取数据的时候就进行计算  并保存到数据库中，避免之后重复计算
+     * @param list
+     */
     public static void calc(List<StockDetail> list) {
         for (int i = list.size() - 1; i >= 0; i--) {
             StockDetail cur = list.get(i);
@@ -597,8 +679,8 @@ public class StockDetail {
             cur.setDif(subtract(ema12, ema26));
 
             BigDecimal dea = i == list.size() - 1
-                    ? multiply(cur.getDif(), 2 / (9 + 1))
-                    : sum(multiply(cur.getDif(), 2 / (9 + 1)), multiply(list.get(i + 1).getDea(), (8 / (9 + 1))));
+                    ? multiply(cur.getDif(), 2.0 / (9 + 1))
+                    : sum(multiply(cur.getDif(), 2.0 / (9 + 1)), multiply(list.get(i + 1).getDea(), 8.0 / (9 + 1)));
             cur.setDea(dea);
 
             cur.setMacd(multiply(subtract(cur.getDif(), cur.getDea()), 2));
@@ -655,6 +737,121 @@ public class StockDetail {
             cur.position20 = divide(subtract(cur.endPrice, cur.twentyLow), subtract(cur.twentyHigh, cur.twentyLow));
             cur.position40 = divide(subtract(cur.endPrice, cur.fortyLow), subtract(cur.fortyHigh, cur.fortyLow));
             cur.position60 = divide(subtract(cur.endPrice, cur.sixtyLow), subtract(cur.sixtyHigh, cur.sixtyLow));
+
+        }
+        for (int i = 0; i < list.size(); i++) {
+            StockDetail cur = list.get(i);
+            // RSI(14): 14日涨跌的平均
+            if (i + 14 < list.size()) {
+                BigDecimal upSum = BigDecimal.ZERO;
+                BigDecimal downSum = BigDecimal.ZERO;
+                for (int j = i; j <= i + 13; j++) {
+                    BigDecimal chg = subtract(list.get(j).getEndPrice(), list.get(j + 1).getEndPrice());
+                    if (chg != null && chg.compareTo(BigDecimal.ZERO) > 0) {
+                        upSum = upSum.add(chg);
+                    } else if (chg != null && chg.compareTo(BigDecimal.ZERO) < 0) {
+                        downSum = downSum.add(chg.abs());
+                    }
+                }
+                BigDecimal avgUp = divide(upSum, 14);
+                BigDecimal avgDown = divide(downSum, 14);
+                if (avgDown == null || avgDown.compareTo(BigDecimal.ZERO) == 0) {
+                    cur.setRsi(avgUp != null && avgUp.compareTo(BigDecimal.ZERO) > 0 ? BigDecimal.valueOf(100) : BigDecimal.valueOf(50));
+                } else if (avgUp != null) {
+                    BigDecimal rs = divide(avgUp, avgDown);
+                    cur.setRsi(subtract(BigDecimal.valueOf(100), divide(BigDecimal.valueOf(100), sum(BigDecimal.ONE, rs != null ? rs : BigDecimal.ZERO))));
+                }
+            }
+
+            // ATR(14): TR = max(H-L, |H-前收|, |L-前收|)
+            if (i + 14 < list.size()) {
+                BigDecimal atrSum = BigDecimal.ZERO;
+                for (int j = i; j <= i + 13; j++) {
+                    StockDetail d = list.get(j);
+                    StockDetail prev = list.get(j + 1);
+                    if (d == null || prev == null) continue;
+                    BigDecimal hl = subtract(d.getHighPrice(), d.getLowPrice());
+                    BigDecimal hc = subtract(d.getHighPrice(), prev.getEndPrice());
+                    BigDecimal lc = subtract(d.getLowPrice(), prev.getEndPrice());
+                    BigDecimal tr = max(java.util.List.of(
+                            hl != null ? hl : BigDecimal.ZERO,
+                            hc != null ? hc.abs() : BigDecimal.ZERO,
+                            lc != null ? lc.abs() : BigDecimal.ZERO));
+                    atrSum = atrSum.add(tr);
+                }
+                cur.setAtr14(divide(atrSum, 14));
+            }
+
+            // 乖离率
+            if (cur.getFiveDayLine() != null && cur.getFiveDayLine().compareTo(BigDecimal.ZERO) != 0) {
+                cur.setBias5(multiply(divide(subtract(cur.endPrice, cur.fiveDayLine), cur.fiveDayLine), 100));
+            }
+            if (cur.getTenDayLine() != null && cur.getTenDayLine().compareTo(BigDecimal.ZERO) != 0) {
+                cur.setBias10(multiply(divide(subtract(cur.endPrice, cur.tenDayLine), cur.tenDayLine), 100));
+            }
+            if (cur.getTwentyDayLine() != null && cur.getTwentyDayLine().compareTo(BigDecimal.ZERO) != 0) {
+                cur.setBias20(multiply(divide(subtract(cur.endPrice, cur.twentyDayLine), cur.twentyDayLine), 100));
+            }
+
+            // 均线排列强度
+            int bullScore = 0, bearScore = 0;
+            if (cur.fiveDayLine != null && cur.tenDayLine != null && moreThan(cur.fiveDayLine, cur.tenDayLine)) bullScore++;
+            if (cur.tenDayLine != null && cur.twentyDayLine != null && moreThan(cur.tenDayLine, cur.twentyDayLine)) bullScore++;
+            if (cur.twentyDayLine != null && cur.fortyDayLine != null && moreThan(cur.twentyDayLine, cur.fortyDayLine)) bullScore++;
+            if (cur.fortyDayLine != null && cur.sixtyDayLine != null && moreThan(cur.fortyDayLine, cur.sixtyDayLine)) bullScore++;
+            if (cur.fiveDayLine != null && cur.tenDayLine != null && lessThan(cur.fiveDayLine, cur.tenDayLine)) bearScore++;
+            if (cur.tenDayLine != null && cur.twentyDayLine != null && lessThan(cur.tenDayLine, cur.twentyDayLine)) bearScore++;
+            if (cur.twentyDayLine != null && cur.fortyDayLine != null && lessThan(cur.twentyDayLine, cur.fortyDayLine)) bearScore++;
+            if (cur.fortyDayLine != null && cur.sixtyDayLine != null && lessThan(cur.fortyDayLine, cur.sixtyDayLine)) bearScore++;
+            cur.setMaAlignBullScore(bullScore);
+            cur.setMaAlignBearScore(bearScore);
+
+            // 布林带位置: 中轨=20日均, 上轨=中轨+2σ, 下轨=中轨-2σ
+            if (i + 20 < list.size() && cur.twentyDayLine != null && cur.twentyDayLine.compareTo(BigDecimal.ZERO) != 0) {
+                BigDecimal mean = cur.twentyDayLine;
+                BigDecimal sumSq = BigDecimal.ZERO;
+                for (int j = i; j < i + 20; j++) {
+                    BigDecimal diff = subtract(list.get(j).getEndPrice(), mean);
+                    sumSq = sumSq.add(diff != null ? diff.multiply(diff) : BigDecimal.ZERO);
+                }
+                BigDecimal std = java.math.BigDecimal.valueOf(Math.sqrt(divide(sumSq, 20).doubleValue()));
+                BigDecimal upper = mean.add(multiply(std, 2));
+                BigDecimal lower = mean.subtract(multiply(std, 2));
+                BigDecimal bandRange = subtract(upper, lower);
+                if (bandRange != null && bandRange.compareTo(BigDecimal.ZERO) != 0) {
+                    cur.setBollPosition(divide(subtract(cur.endPrice, lower), bandRange));
+                }
+            }
+
+            // 20日均线斜率
+            if (i + 21 < list.size()) {
+                StockDetail prev = list.get(i + 1);
+                BigDecimal prevMa20 = prev.getTwentyDayLine();
+                if (prevMa20 != null && prevMa20.compareTo(BigDecimal.ZERO) != 0) {
+                    cur.setMa20Slope(divide(subtract(cur.twentyDayLine, prevMa20), prevMa20));
+                }
+            }
+
+            // 20日波动率
+            if (i + 20 < list.size() && cur.twentyDayLine != null && cur.twentyDayLine.compareTo(BigDecimal.ZERO) != 0) {
+                BigDecimal sumSq = BigDecimal.ZERO;
+                for (int j = i; j < i + 20; j++) {
+                    BigDecimal diff = subtract(list.get(j).getEndPrice(), cur.twentyDayLine);
+                    sumSq = sumSq.add(diff != null ? diff.multiply(diff) : BigDecimal.ZERO);
+                }
+                BigDecimal std = java.math.BigDecimal.valueOf(Math.sqrt(divide(sumSq, 20).doubleValue()));
+                cur.setVolatility20(divide(std, cur.twentyDayLine));
+            }
+
+            // 量价背离: 当日涨跌 vs 量能变化
+            if (i + 1 < list.size() && cur.getT1() != null) {
+                boolean priceUp = moreThan(cur.endPrice, cur.getT1().getEndPrice());
+                boolean volUp = cur.getDealQuantity() != null && cur.getT1().getDealQuantity() != null
+                        && moreThan(cur.getDealQuantity(), cur.getT1().getDealQuantity());
+                if (priceUp && !volUp) cur.setVolumePriceDivergence(1);   // 价涨量缩
+                else if (!priceUp && volUp) cur.setVolumePriceDivergence(-1); // 价跌量增
+                else cur.setVolumePriceDivergence(0);
+            }
         }
 
     }

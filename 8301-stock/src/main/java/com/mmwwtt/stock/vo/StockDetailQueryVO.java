@@ -1,22 +1,17 @@
 package com.mmwwtt.stock.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
-import java.util.function.Consumer;
-
-import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class StockDetailQueryVO {
 
     /**
@@ -553,4 +548,8 @@ public class StockDetailQueryVO {
     private BigDecimal position60;
 
     private Integer limit;
+
+    public StockDetailQueryVO(String stockCode) {
+        this.stockCode = stockCode;
+    }
 }

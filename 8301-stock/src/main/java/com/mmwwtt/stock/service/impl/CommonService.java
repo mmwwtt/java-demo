@@ -3,6 +3,7 @@ package com.mmwwtt.stock.service.impl;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.*;
+import com.mmwwtt.stock.vo.StockDetailQueryVO;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -10,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.moreThan;
@@ -38,8 +36,8 @@ public class CommonService {
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
     public static Map<String, Map<String, Set<Integer>>> l1StrategyToStockToDetailIdSetMap;
-    public static Map<Integer, StockDetail> idToDetailMap;
-    public static Map<String, List<StockDetail>> codeToDetailMap;
+    public static Map<Integer, StockDetail> idToDetailMap = new HashMap<>(1048576);
+    public static Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>(4096);
     public static Map<String, String> stockCodeToNameMap;
     public static List<StrategyWin> l1StrategyList;
     public static List<List<String>> stockCodePartList;
@@ -47,7 +45,7 @@ public class CommonService {
     public static List<String> predictDateList;
 
     @PostConstruct
-    public void init() {
+    public void init() throws ExecutionException, InterruptedException {
         log.info("初始化开始");
 
         l1StrategyToStockToDetailIdSetMap = new HashMap<>();
@@ -67,17 +65,24 @@ public class CommonService {
         });
 
         l1StrategyList = strategyWinService.getL1StrategyWin().stream()
-                .filter(item -> moreThan(item.getWinRate(), "0.40"))
                 .sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();
 
-        List<StockDetail> allDetailList = stockDetailService.list();
-        idToDetailMap = allDetailList.stream().collect(Collectors.toMap(StockDetail::getStockDetailId, item -> item));
-        codeToDetailMap = allDetailList.stream().collect(Collectors.groupingBy(StockDetail::getStockCode));
-        for (List<StockDetail> list : codeToDetailMap.values()) {
-            list.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
-            stockDetailService.genAllStockDetail(list);
-        }
-        stockCodePartList = Lists.partition(codeToDetailMap.keySet().stream().toList(), 50);
+        stockCodePartList = Lists.partition(stockService.list().stream().map(Stock::getCode).toList(), 50);
+
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        stockCodePartList.forEach(part -> {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
+                List<StockDetail> stockDetails = stockDetailService.getStockDetail(new StockDetailQueryVO(stockCode));
+                stockDetails.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
+                stockDetailService.genAllStockDetail(stockDetails);
+                stockDetails.forEach(item -> idToDetailMap.put(item.getStockDetailId(), item));
+                codeToDetailMap.put(stockCode, stockDetails);
+            }), ioThreadPool);
+            futures.add(future);
+        });
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+
 
 
         predictDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())

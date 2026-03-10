@@ -111,8 +111,18 @@ CREATE TABLE stock_detail_t
     position10               decimal(10, 4) comment '10天内位置',
     position20               decimal(10, 4) COMMENT '在20日中的位置  (收盘价- 20日最低) / (20日最高- 20日最低)   大于80%是高位   小于20%是低位',
     position40               decimal(10, 4) comment '40天内位置',
-    position60               decimal(10, 4) comment '60天内位置'
-
+    position60               decimal(10, 4) comment '60天内位置',
+    rsi                      decimal(10, 4) comment 'RSI相对强弱指标(14日)',
+    atr14                    decimal(10, 4) comment 'ATR平均真实波幅(14日)',
+    bias5                    decimal(10, 4) comment '5日乖离率',
+    bias10                   decimal(10, 4) comment '10日乖离率',
+    bias20                   decimal(10, 4) comment ' 20日乖离率',
+    ma_align_bull_score      INT4 comment ' 均线多头排列强度(0~4)',
+    ma_align_bear_score      INT4 comment '均线空头排列强度(0~4)',
+    boll_position            decimal(10, 4) comment ' 20日均线斜率(日变化率)',
+    ma20_slope               decimal(10, 4) comment 'RSI相对强弱指标(14日)',
+    volatility20             decimal(10, 4) comment '20日波动率',
+    volume_price_divergence  INT4 comment '量价背离信号'
 ) COMMENT '股票详情表';
 create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc);
 
@@ -120,7 +130,7 @@ create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc)
 DROP TABLE IF EXISTS stock_strategy_result_t;
 CREATE TABLE stock_strategy_result_t
 (
-    strategy_result_id   INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_result_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code        VARCHAR(200) COMMENT '策略编码',
     stock_code           VARCHAR(16) COMMENT '股票代码',
     stock_detail_id_list JSON COMMENT '预测的股票详情id列表',

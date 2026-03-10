@@ -26,7 +26,9 @@ public class StrategyEnum {
     public static final Map<String, StrategyEnum> codeToEnumMap = new HashMap<>();
 
     static {
-        base2StrategyList.addAll(Arrays.asList(new StrategyEnum("20004", "二连红",
+         base2StrategyList.addAll(
+        Arrays.asList(
+                new StrategyEnum("20004", "二连红",
                         (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed()),
                 new StrategyEnum("20005", "三连红", (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed()),
                 new StrategyEnum("20006", "是十字星", StockDetail::getIsTenStar),
@@ -184,15 +186,59 @@ public class StrategyEnum {
                 new StrategyEnum("21150", "区间10_00_30", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0", "0.3")),
                 new StrategyEnum("21152", "区间10_30_60", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.3", "0.6")),
                 new StrategyEnum("21154", "区间10_60_90", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.6", "0.9")),
-                new StrategyEnum("21156", "区间10_90_100", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.9", "1.0"))
+                new StrategyEnum("21156", "区间10_90_100", (StockDetail t0) -> isInRangeNotEquals(t0.getPosition10(), "0.9", "1.0")),
 
+                // RSI相对强弱
+                new StrategyEnum("21200", "RSI_超卖_小于30", (StockDetail t0) -> t0.getRsi() != null && lessThan(t0.getRsi(), "30")),
+                new StrategyEnum("21201", "RSI_30_50", (StockDetail t0) -> t0.getRsi() != null && isInRange(t0.getRsi(), "30", "50")),
+                new StrategyEnum("21202", "RSI_50_70", (StockDetail t0) -> t0.getRsi() != null && isInRange(t0.getRsi(), "50", "70")),
+                new StrategyEnum("21203", "RSI_超买_大于70", (StockDetail t0) -> t0.getRsi() != null && moreThan(t0.getRsi(), "70")),
 
+                // 乖离率BIAS
+                new StrategyEnum("21210", "BIAS5_负偏离_小于负5", (StockDetail t0) -> t0.getBias5() != null && lessThan(t0.getBias5(), "-5")),
+                new StrategyEnum("21211", "BIAS5_负5_0", (StockDetail t0) -> t0.getBias5() != null && isInRange(t0.getBias5(), "-5", "0")),
+                new StrategyEnum("21212", "BIAS5_0_5", (StockDetail t0) -> t0.getBias5() != null && isInRange(t0.getBias5(), "0", "5")),
+                new StrategyEnum("21213", "BIAS5_正偏离_大于5", (StockDetail t0) -> t0.getBias5() != null && moreThan(t0.getBias5(), "5")),
+                new StrategyEnum("21214", "BIAS20_负偏离_小于负8", (StockDetail t0) -> t0.getBias20() != null && lessThan(t0.getBias20(), "-8")),
+                new StrategyEnum("21215", "BIAS20_负8_0", (StockDetail t0) -> t0.getBias20() != null && isInRange(t0.getBias20(), "-8", "0")),
+                new StrategyEnum("21216", "BIAS20_0_8", (StockDetail t0) -> t0.getBias20() != null && isInRange(t0.getBias20(), "0", "8")),
+                new StrategyEnum("21217", "BIAS20_正偏离_大于8", (StockDetail t0) -> t0.getBias20() != null && moreThan(t0.getBias20(), "8")),
 
+                // 均线排列强度
+                new StrategyEnum("21220", "均线多头排列_4档", (StockDetail t0) -> Integer.valueOf(4).equals(t0.getMaAlignBullScore())),
+                new StrategyEnum("21221", "均线多头排列_3档以上", (StockDetail t0) -> t0.getMaAlignBullScore() != null && t0.getMaAlignBullScore() >= 3),
+                new StrategyEnum("21222", "均线空头排列_4档", (StockDetail t0) -> Integer.valueOf(4).equals(t0.getMaAlignBearScore())),
+                new StrategyEnum("21223", "均线空头排列_3档以上", (StockDetail t0) -> t0.getMaAlignBearScore() != null && t0.getMaAlignBearScore() >= 3),
 
+                // 布林带位置
+                new StrategyEnum("21230", "布林带_跌破下轨_小于0", (StockDetail t0) -> t0.getBollPosition() != null && lessThan(t0.getBollPosition(), "0")),
+                new StrategyEnum("21231", "布林带_下轨附近_0_0.2", (StockDetail t0) -> t0.getBollPosition() != null && isInRange(t0.getBollPosition(), "0", "0.2")),
+                new StrategyEnum("21232", "布林带_中轨附近_0.4_0.6", (StockDetail t0) -> t0.getBollPosition() != null && isInRange(t0.getBollPosition(), "0.4", "0.6")),
+                new StrategyEnum("21233", "布林带_上轨附近_0.8_1", (StockDetail t0) -> t0.getBollPosition() != null && isInRange(t0.getBollPosition(), "0.8", "1")),
+                new StrategyEnum("21234", "布林带_突破上轨_大于1", (StockDetail t0) -> t0.getBollPosition() != null && moreThan(t0.getBollPosition(), "1")),
 
+                // 20日均线斜率
+                new StrategyEnum("21240", "均线20斜率_向下_小于负0.01", (StockDetail t0) -> t0.getMa20Slope() != null && lessThan(t0.getMa20Slope(), "-0.01")),
+                new StrategyEnum("21241", "均线20斜率_走平_负0.01_0.01", (StockDetail t0) -> t0.getMa20Slope() != null && isInRange(t0.getMa20Slope(), "-0.01", "0.01")),
+                new StrategyEnum("21242", "均线20斜率_向上_大于0.01", (StockDetail t0) -> t0.getMa20Slope() != null && moreThan(t0.getMa20Slope(), "0.01")),
 
+                // 20日波动率
+                new StrategyEnum("21250", "波动率20_低_小于0.02", (StockDetail t0) -> t0.getVolatility20() != null && lessThan(t0.getVolatility20(), "0.02")),
+                new StrategyEnum("21251", "波动率20_中_0.02_0.04", (StockDetail t0) -> t0.getVolatility20() != null && isInRange(t0.getVolatility20(), "0.02", "0.04")),
+                new StrategyEnum("21252", "波动率20_高_大于0.04", (StockDetail t0) -> t0.getVolatility20() != null && moreThan(t0.getVolatility20(), "0.04")),
 
-        ));
+                // 量价背离
+                new StrategyEnum("21260", "量价背离_价涨量缩", (StockDetail t0) -> Integer.valueOf(1).equals(t0.getVolumePriceDivergence())),
+                new StrategyEnum("21261", "量价背离_价跌量增", (StockDetail t0) -> Integer.valueOf(-1).equals(t0.getVolumePriceDivergence())),
+
+                // ATR波动率(需结合lastPrice判断相对波动)
+                new StrategyEnum("21270", "ATR14_低波动_小于1pct", (StockDetail t0) -> t0.getAtr14() != null && t0.getLastPrice() != null
+                        && lessThan(divide(t0.getAtr14(), t0.getLastPrice()), "0.01")),
+                new StrategyEnum("21271", "ATR14_中波动_1_3pct", (StockDetail t0) -> t0.getAtr14() != null && t0.getLastPrice() != null
+                        && isInRange(divide(t0.getAtr14(), t0.getLastPrice()), "0.01", "0.03")),
+                new StrategyEnum("21272", "ATR14_高波动_大于3pct", (StockDetail t0) -> t0.getAtr14() != null && t0.getLastPrice() != null
+                        && moreThan(divide(t0.getAtr14(), t0.getLastPrice()), "0.03"))
+                ));
     }
 
     static {

@@ -157,7 +157,8 @@ public class StrategyWin {
             BigDecimal onPert = divide(subtract(stockDetail.getNext1().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice());
             onePriceRateSum = add(onePriceRateSum, onPert);
             oneCnt++;
-            if (stockDetail.getNext1().getIsUp()) {
+            // 胜率：次日收盘 > 信号日收盘（直接比较，不依赖 next1.isUp/lastPrice）
+            if (moreThan(stockDetail.getNext1().getEndPrice(), stockDetail.getEndPrice())) {
                 winPriceRateSum = add(winPriceRateSum, onPert);
                 winCnt++;
             }
