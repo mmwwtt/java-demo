@@ -249,7 +249,7 @@ public class StrategyWin {
         fiveMaxPercRate = divide(fiveMaxPriceRateSum, fiveCnt);
         cnt = oneCnt;
         // 按日聚合后 oneCnt=交易日数；dateCnt 用 dateToDetailListMap 现算，避免 dateToCntMap 未维护为空
-        if (cnt < 200 && !dateToDetailListMap.isEmpty()) {
+        if (cnt < 100 && !dateToDetailListMap.isEmpty()) {
             dateCnt = dateToDetailListMap.entrySet().stream()
                     .sorted(Comparator.comparing(e -> e.getValue().size(), Comparator.reverseOrder()))
                     .map(e -> String.format("%s_%d", e.getKey(), e.getValue().size()))

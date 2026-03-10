@@ -186,7 +186,7 @@ public class DFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 7) {
+        if (level > 5) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
