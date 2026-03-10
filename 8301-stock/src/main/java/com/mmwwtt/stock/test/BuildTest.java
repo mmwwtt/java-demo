@@ -84,41 +84,7 @@ public class BuildTest {
         // 思路：超卖反弹 + 刚金叉 + 低位 + 缩量回调 或 温和放量突破
         List<StrategyEnum> strategyEnums = List.of(
                 new StrategyEnum("riseStrategy", "上涨预测_低吸型", (StockDetail d) -> {
-                    if (d.getT5() == null || d.getT10() == null || d.getSixtyDayLine() == null
-                            || d.getT1() == null || d.getT2() == null || d.getT3() == null)
-                        return false;
-
-                    // 1. 位置偏低：20日区间 20%-70%，留出上涨空间，避免追高
-                    boolean posLow = d.getPosition20() != null
-                            && moreThan(d.getPosition20(), "0.2")
-                            && lessThan(d.getPosition20(), "0.7");
-
-                    // 2. 威廉指标超卖反弹：在超卖区(WR<-80) 或 刚脱离超卖(今日>-80且昨日<-80)
-                    boolean wrRebound = d.getWr() != null
-                            && (lessThan(d.getWr(), "-80")
-                            || (d.getT1().getWr() != null && moreThan(d.getWr(), "-80") && lessThan(d.getT1().getWr(), "-80")));
-
-                    // 3. MACD 刚金叉：今日DIF>DEA，前几日DIF<DEA
-                    boolean macdGolden = d.getDif() != null && d.getDea() != null
-                            && moreThan(d.getDif(), d.getDea())
-                            && lessThan(d.getT1().getDif(), d.getT1().getDea())
-                            && lessThan(d.getT2().getDif(), d.getT2().getDea());
-
-                    // 4. 上穿20日线：刚突破均线压力
-                    boolean cross20 = moreThan(d.getHighPrice(), d.getTwentyDayLine())
-                            && lessThan(d.getLowPrice(), d.getTwentyDayLine())
-                            && lessThan(d.getT1().getHighPrice(), d.getTwentyDayLine());
-
-                    // 5. 均线有支撑：收盘在5日或10日线上方
-                    boolean maSupport = moreThan(d.getEndPrice(), d.getFiveDayLine())
-                            || moreThan(d.getEndPrice(), d.getTenDayLine());
-
-                    // 组合：(超卖反弹 或 MACD金叉) + 位置偏低 + (上穿20日线 或 均线支撑)
-                    // 优先缩量/阴线(低吸)，但不强制，避免样本过少
-                    boolean signal = (wrRebound || macdGolden) && posLow;
-                    boolean trend = cross20 || (maSupport && Boolean.TRUE.equals(d.getTenIsUp()));
-
-                    return signal && trend;
+                    return true;
                 })
         );
 

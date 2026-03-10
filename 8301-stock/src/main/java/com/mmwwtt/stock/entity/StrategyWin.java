@@ -90,9 +90,6 @@ public class StrategyWin {
      */
     private Integer level;
 
-    @TableField(typeHandler = FastjsonTypeHandler.class)
-    private JSONArray stockDetailIdList;
-
     /**
      * 日期统计
      */
