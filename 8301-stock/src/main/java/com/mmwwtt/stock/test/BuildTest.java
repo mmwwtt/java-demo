@@ -46,9 +46,9 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        String sql = "   five_max_perc_rate > 0.07 ";
+        String sql = "   five_max_perc_rate > 0.12  and cnt>100";
         winList = strategyWinService.getStrategyWin(sql);
-        winList.sort(Comparator.comparing(StrategyWin::getWinRate).reversed());
+        winList.sort(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class BuildTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260306", winList, false, 1.2);
+        calcCommonService.predict("20260310", winList, false, 1.2);
     }
 
     @Test
@@ -173,7 +173,7 @@ public class BuildTest {
                                     || !strategy.getRunFunc().apply(stockDetail)) {
                                 continue;
                             }
-                            strategyToCalcMap.computeIfAbsent(strategy, v -> new ArrayList<>()).add(stockDetail);
+                            strategyToCalcMap.computeIfAbsent(strategy, v -> Collections.synchronizedList(new ArrayList<>())).add(stockDetail);
                         }
                     }
                 }

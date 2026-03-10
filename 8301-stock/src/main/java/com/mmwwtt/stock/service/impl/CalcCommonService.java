@@ -68,7 +68,7 @@ public class CalcCommonService {
                             stockCodeSet.add(stockCode);
                             String name = stockCodeToNameMap.getOrDefault(stockCode, "");
                             double pert = stockDetail.getPricePert() != null ? stockDetail.getPricePert().doubleValue() : 0;
-                            strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>())
+                            strategyToStockMap.computeIfAbsent(strategyWin, k -> Collections.synchronizedList(new ArrayList<>()))
                                     .add(stockCode + "_" + name + " " + pert);
                         }
                     }
@@ -92,8 +92,8 @@ public class CalcCommonService {
             List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
             for (StrategyWin strategyWin : list) {
                 List<String> resStockList = strategyToStockMap.get(strategyWin);
-                String str = String.format("\n\n策略id:%d \n胜率:%4f \n历史总数：%d\n明天平均涨幅:%4f  \n5日最高平均涨幅：%4f \n策略：%s \n",
-                        strategyWin.getStrategyWinId(), strategyWin.getWinRate(), strategyWin.getCnt(), strategyWin.getOnePercRate(),
+                String str = String.format("\n\n策略id:%d  \n历史总数：%d\n明天平均涨幅:%4f  \n5日最高平均涨幅：%4f \n策略：%s \n",
+                        strategyWin.getStrategyWinId(), strategyWin.getCnt(), strategyWin.getOnePercRate(),
                         strategyWin.getFiveMaxPercRate(), strategyWin.getStrategyName());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {
@@ -141,7 +141,7 @@ public class CalcCommonService {
                         }
                         boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
                         if (res) {
-                            strategyToStockMap.computeIfAbsent(strategyWin, k -> new ArrayList<>()).add(stockDetail);
+                            strategyToStockMap.computeIfAbsent(strategyWin, k -> Collections.synchronizedList(new ArrayList<>())).add(stockDetail);
                         }
                     }
                 }, ioThreadPool);

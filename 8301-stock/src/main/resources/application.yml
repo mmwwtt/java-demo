@@ -17,7 +17,7 @@ logging:
     org:
       springframework:
         boot:
-          autoconfigure: error
+          autoconfigure: INFO
 mybatis-plus:
   mapper-locations: classpath:dao/*.xml
   configuration:

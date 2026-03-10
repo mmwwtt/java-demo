@@ -10,6 +10,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -41,16 +42,6 @@ public class StrategyWin {
      * 符合数据的股票详情总数
      */
     private Integer cnt=0;
-
-    /**
-     * 胜率
-     */
-    private BigDecimal winRate;
-
-    /**
-     * 预测后的预测对的平均涨幅
-     */
-    private BigDecimal winPercRate;
 
     /**
      * 预测后的1天平均涨幅
@@ -143,7 +134,7 @@ public class StrategyWin {
     @TableField(exist = false)
     private int tenCnt = 0;
     @TableField(exist = false)
-    private Map<String, Integer> dateToCntMap = new HashMap<>();
+    private Map<String, List<StockDetail>> dateToDetailListMap = new ConcurrentHashMap<>();
 
     /**
      * 将结果累加到数据中
@@ -152,47 +143,9 @@ public class StrategyWin {
         if(Objects.isNull(stockDetail)) {
             return;
         }
-        dateToCntMap.put(stockDetail.getDealDate(), dateToCntMap.computeIfAbsent(stockDetail.getDealDate(), item -> 0) + 1);
-        if (Objects.nonNull(stockDetail.getNext1())) {
-            BigDecimal onPert = divide(subtract(stockDetail.getNext1().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice());
-            onePriceRateSum = add(onePriceRateSum, onPert);
-            oneCnt++;
-            // 胜率：次日收盘 > 信号日收盘（直接比较，不依赖 next1.isUp/lastPrice）
-            if (moreThan(stockDetail.getNext1().getEndPrice(), stockDetail.getEndPrice())) {
-                winPriceRateSum = add(winPriceRateSum, onPert);
-                winCnt++;
-            }
-        }
-        if (Objects.nonNull(stockDetail.getNext2())) {
-            twoPriceRateSum = add(twoPriceRateSum, divide(subtract(stockDetail.getNext2().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
-            twoCnt++;
-        }
 
-        if (Objects.nonNull(stockDetail.getNext3())) {
-            threePriceRateSum = add(threePriceRateSum, divide(subtract(stockDetail.getNext3().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
-            threeCnt++;
-        }
-
-
-        if (Objects.nonNull(stockDetail.getNext4())) {
-            fourPriceRateSum = add(fourPriceRateSum, divide(subtract(stockDetail.getNext4().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
-            fourCnt++;
-        }
-
-
-        if (Objects.nonNull(stockDetail.getNext5())) {
-            fivePriceRateSum = add(fivePriceRateSum, divide(subtract(stockDetail.getNext5().getEndPrice(),
-                    stockDetail.getEndPrice()), stockDetail.getEndPrice()));
-            fiveMaxPriceRateSum = add(fiveMaxPriceRateSum, stockDetail.getNext5MaxPricePert());
-            fiveCnt++;
-        }
-
-
-        if (Objects.nonNull(stockDetail.getNext10())) {
-            tenPriceRateSum = add(tenPriceRateSum, divide(subtract(stockDetail.getNext10().getEndPrice(), stockDetail.getEndPrice()), stockDetail.getEndPrice()));
-            tenMaxPriceRateSum = add(tenMaxPriceRateSum, stockDetail.getNext10MaxPricePert());
-            tenCnt++;
-        }
+        dateToDetailListMap.computeIfAbsent(stockDetail.getDealDate(),
+                k-> Collections.synchronizedList(new ArrayList<>())).add(stockDetail);
     }
 
 
@@ -200,8 +153,95 @@ public class StrategyWin {
      * 填充数据
      */
     public void fillData() {
-        winRate = divide(winCnt, oneCnt);
-        winPercRate = divide(winPriceRateSum, winCnt);
+        dateToDetailListMap.forEach((date, details) -> {
+            BigDecimal curOnePertSum=BigDecimal.ZERO;
+            BigDecimal curTwoPertSum=BigDecimal.ZERO;
+            BigDecimal curThreePertSum=BigDecimal.ZERO;
+            BigDecimal curFourPertSum=BigDecimal.ZERO;
+            BigDecimal curFivePertSum=BigDecimal.ZERO;
+            BigDecimal curFiveMaxPertSum=BigDecimal.ZERO;
+            int curOneCnt=0;
+            int curTwoCnt=0;
+            int curThreeCnt=0;
+            int curFourCnt=0;
+            int curFiveCnt=0;
+            int curTenCnt=0;
+            BigDecimal curTenPertSum=BigDecimal.ZERO;
+            BigDecimal curTenMaxPertSum=BigDecimal.ZERO;
+            for (StockDetail detail : details) {
+                if (Objects.nonNull(detail.getNext1())) {
+                    BigDecimal onPert = divide(subtract(detail.getNext1().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
+                    curOnePertSum = add(curOnePertSum, onPert);
+                     curOneCnt++;
+                }
+                if (Objects.nonNull(detail.getNext2())) {
+                    curTwoPertSum = add(curTwoPertSum, divide(subtract(detail.getNext2().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+                    curTwoCnt++;
+                }
+
+                if (Objects.nonNull(detail.getNext3())) {
+                    curThreePertSum = add(curThreePertSum, divide(subtract(detail.getNext3().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+                    curThreeCnt++;
+                }
+
+
+                if (Objects.nonNull(detail.getNext4())) {
+                    curFourPertSum = add(curFourPertSum, divide(subtract(detail.getNext4().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+                    curFourCnt++;
+                }
+
+
+                if (Objects.nonNull(detail.getNext5())) {
+                    curFivePertSum = add(curFivePertSum, divide(subtract(detail.getNext5().getEndPrice(),
+                            detail.getEndPrice()), detail.getEndPrice()));
+                    curFiveMaxPertSum = add(curFiveMaxPertSum, detail.getNext5MaxPricePert());
+                    curFiveCnt++;
+                }
+
+
+                if (Objects.nonNull(detail.getNext10())) {
+                    curTenPertSum = add(curTenPertSum, divide(subtract(detail.getNext10().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+                    curTenMaxPertSum = add(curTenMaxPertSum, detail.getNext10MaxPricePert());
+                    curTenCnt++;
+                }
+            }
+
+            if (curOneCnt>0) {
+                onePriceRateSum = add(onePriceRateSum, divide(curOnePertSum, curOneCnt));
+                oneCnt++;
+            }
+            if (curTwoCnt>0) {
+                twoPriceRateSum = add(twoPriceRateSum, divide(curTwoPertSum, curTwoCnt));
+                twoCnt++;
+            }
+
+            if (curThreeCnt>0) {
+                threePriceRateSum = add(threePriceRateSum, divide(curThreePertSum, curThreeCnt));
+                threeCnt++;
+            }
+
+
+            if (curFourCnt>0) {
+                fourPriceRateSum = add(fourPriceRateSum, divide(curFourPertSum, curFourCnt));
+                fourCnt++;
+            }
+
+
+            if (curFiveCnt>0) {
+                fivePriceRateSum = add(fivePriceRateSum, divide(curFivePertSum, curFiveCnt));
+                fiveMaxPriceRateSum = add(fiveMaxPriceRateSum, divide(curFiveMaxPertSum, curFiveCnt));
+                fiveCnt++;
+            }
+
+
+            if (curTenCnt > 0) {
+                tenPriceRateSum = add(tenPriceRateSum, divide(curTenPertSum, curTenCnt));
+                tenMaxPriceRateSum = add(tenMaxPriceRateSum, divide(curTenMaxPertSum, curTenCnt));
+                tenCnt++;
+            }
+
+        });
+
         onePercRate = divide(onePriceRateSum, oneCnt);
         twoPercRate = divide(twoPriceRateSum, twoCnt);
         threePercRate = divide(threePriceRateSum, threeCnt);
@@ -211,10 +251,11 @@ public class StrategyWin {
         tenMaxPercRate = divide(tenMaxPriceRateSum, tenCnt);
         fiveMaxPercRate = divide(fiveMaxPriceRateSum, fiveCnt);
         cnt = oneCnt;
-        if(cnt <200) {
-            dateCnt = dateToCntMap.entrySet().stream()
-                    .sorted(Comparator.comparing(Map.Entry<String, Integer>::getValue).reversed())
-                    .map(item -> String.format("%s_%s", item.getKey(), item.getValue()))
+        // 按日聚合后 oneCnt=交易日数；dateCnt 用 dateToDetailListMap 现算，避免 dateToCntMap 未维护为空
+        if (cnt < 200 && !dateToDetailListMap.isEmpty()) {
+            dateCnt = dateToDetailListMap.entrySet().stream()
+                    .sorted(Comparator.comparing(e -> e.getValue().size(), Comparator.reverseOrder()))
+                    .map(e -> String.format("%s_%d", e.getKey(), e.getValue().size()))
                     .collect(Collectors.joining(" \n"));
         }
     }

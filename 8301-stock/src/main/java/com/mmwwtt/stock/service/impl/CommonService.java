@@ -65,7 +65,8 @@ public class CommonService {
         });
 
         l1StrategyList = strategyWinService.getL1StrategyWin().stream()
-                .sorted(Comparator.comparing(StrategyWin::getWinRate).reversed()).toList();
+                .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
+                .toList();
 
         stockCodePartList = Lists.partition(stockService.list().stream().map(Stock::getCode).toList(), 50);
 
@@ -173,7 +174,7 @@ public class CommonService {
         strategyCodeToWinMap.values().forEach(StrategyWin::fillData);
         List<StrategyWin> resList = strategyCodeToWinMap.values().stream()
                 .filter(item -> item.getCnt() > 35)  //不能拉高阈值，很多都是小众的重要条件
-                .filter(item -> moreThan(item.getWinRate(), "0.35")).toList();
+                .toList();
         strategyWinService.saveBatch(resList);
         log.info("保存win结果 完成");
     }
