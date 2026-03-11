@@ -66,7 +66,7 @@ public class DFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               LinkedHashSet<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 4) {
+        if (level > 5) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -88,7 +88,6 @@ public class DFSTest {
                 continue;
             }
             strategyWinService.save(win);
-            //log.info("策略：{} 开始计算并保存完成", win.getStrategyCode());
             buildByLevel(level + 1, curStockToDetailIdSetMap, curStrategyCodeSet, win, i);
         }
     }
@@ -103,13 +102,12 @@ public class DFSTest {
     }
 
     private boolean isNotByFiveMax(StrategyWin win, StrategyWin parentWin, Integer level) {
-        if (win.getCnt() < 30 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
+        if (win.getCnt() < 80 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
             return true;
         }
         if (lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
                 || Objects.equals(win.getCnt(), parentWin.getCnt())
-                || (win.getCnt() > 50 && lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.1)))
-                || (win.getCnt() < 50 && lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.1)))
+                || (win.getCnt() > 50 && lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.01)))
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
                 || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))
