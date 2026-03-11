@@ -102,15 +102,16 @@ public class DFSTest {
     }
 
     private boolean isNotByFiveMax(StrategyWin win, StrategyWin parentWin, Integer level) {
-        if (win.getCnt() < 80 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
+        if (win.getCnt() < 100 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
             return true;
         }
         if (lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
                 || Objects.equals(win.getCnt(), parentWin.getCnt())
-                || (win.getCnt() > 50 && lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.1)))
+                || lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.02))
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
                 || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))
+                || (level == 5 && lessThan(win.getFiveMaxPercRate(), "0.11"))
         ) {
             return true;
         }
