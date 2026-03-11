@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -39,7 +40,7 @@ public class StrategyWin {
     /**
      * 符合数据的股票详情总数
      */
-    private Integer cnt=0;
+    private Integer cnt = 0;
 
     /**
      * 预测后的1天平均涨幅
@@ -97,37 +98,27 @@ public class StrategyWin {
      * 临时属性
      */
     @TableField(exist = false)
-    private BigDecimal winPriceRateSum = BigDecimal.ZERO;
+    private List<BigDecimal> onePercRateList = new ArrayList<>();
+
     @TableField(exist = false)
-    private int winCnt = 0;
+    private List<BigDecimal> twoPercRateList = new ArrayList<>();
+
     @TableField(exist = false)
-    private BigDecimal onePriceRateSum = BigDecimal.ZERO;
+    private List<BigDecimal> threePercRateList = new ArrayList<>();
+
     @TableField(exist = false)
-    private int oneCnt = 0;
+    private List<BigDecimal> fourPercRateList = new ArrayList<>();
+
     @TableField(exist = false)
-    private BigDecimal twoPriceRateSum = BigDecimal.ZERO;
+    private List<BigDecimal> fivePercRateList = new ArrayList<>();
     @TableField(exist = false)
-    private int twoCnt = 0;
+    private List<BigDecimal> fiveMaxPercRateList = new ArrayList<>();
+
     @TableField(exist = false)
-    private BigDecimal threePriceRateSum = BigDecimal.ZERO;
+    private List<BigDecimal> tenPercRateList = new ArrayList<>();
     @TableField(exist = false)
-    private int threeCnt = 0;
-    @TableField(exist = false)
-    private BigDecimal fourPriceRateSum = BigDecimal.ZERO;
-    @TableField(exist = false)
-    private int fourCnt = 0;
-    @TableField(exist = false)
-    private BigDecimal fivePriceRateSum = BigDecimal.ZERO;
-    @TableField(exist = false)
-    private BigDecimal fiveMaxPriceRateSum = BigDecimal.ZERO;
-    @TableField(exist = false)
-    private int fiveCnt = 0;
-    @TableField(exist = false)
-    private BigDecimal tenPriceRateSum = BigDecimal.ZERO;
-    @TableField(exist = false)
-    private BigDecimal tenMaxPriceRateSum = BigDecimal.ZERO;
-    @TableField(exist = false)
-    private int tenCnt = 0;
+    private List<BigDecimal> tenMaxPercRateList = new ArrayList<>();
+
     @TableField(exist = false)
     private Map<String, List<StockDetail>> dateToDetailListMap = new ConcurrentHashMap<>();
 
@@ -138,12 +129,12 @@ public class StrategyWin {
      * 将结果累加到数据中
      */
     public synchronized void addToResult(StockDetail stockDetail) {
-        if(Objects.isNull(stockDetail)) {
+        if (Objects.isNull(stockDetail)) {
             return;
         }
 
         dateToDetailListMap.computeIfAbsent(stockDetail.getDealDate(),
-                k-> Collections.synchronizedList(new ArrayList<>())).add(stockDetail);
+                k -> Collections.synchronizedList(new ArrayList<>())).add(stockDetail);
     }
 
 
@@ -152,103 +143,93 @@ public class StrategyWin {
      */
     public void fillData() {
         dateToDetailListMap.forEach((date, details) -> {
-            BigDecimal curOnePertSum=BigDecimal.ZERO;
-            BigDecimal curTwoPertSum=BigDecimal.ZERO;
-            BigDecimal curThreePertSum=BigDecimal.ZERO;
-            BigDecimal curFourPertSum=BigDecimal.ZERO;
-            BigDecimal curFivePertSum=BigDecimal.ZERO;
-            BigDecimal curFiveMaxPertSum=BigDecimal.ZERO;
-            int curOneCnt=0;
-            int curTwoCnt=0;
-            int curThreeCnt=0;
-            int curFourCnt=0;
-            int curFiveCnt=0;
-            int curTenCnt=0;
-            BigDecimal curTenPertSum=BigDecimal.ZERO;
-            BigDecimal curTenMaxPertSum=BigDecimal.ZERO;
+            List<BigDecimal> curOnePertList = new ArrayList<>();
+            List<BigDecimal> curTwoPertList = new ArrayList<>();
+            List<BigDecimal> curThreePertList = new ArrayList<>();
+            List<BigDecimal> curFourPertList = new ArrayList<>();
+            List<BigDecimal> curFivePertList = new ArrayList<>();
+            List<BigDecimal> curFiveMaxPertList = new ArrayList<>();
+            List<BigDecimal> curTenPertList = new ArrayList<>();
+            List<BigDecimal> curTenMaxPertList = new ArrayList<>();
             for (StockDetail detail : details) {
                 if (Objects.nonNull(detail.getNext1())) {
                     BigDecimal onPert = divide(subtract(detail.getNext1().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
-                    curOnePertSum = add(curOnePertSum, onPert);
-                     curOneCnt++;
+                    curOnePertList.add(onPert);
+
                 }
                 if (Objects.nonNull(detail.getNext2())) {
-                    curTwoPertSum = add(curTwoPertSum, divide(subtract(detail.getNext2().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
-                    curTwoCnt++;
+                    curTwoPertList.add(divide(subtract(detail.getNext2().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+
                 }
 
                 if (Objects.nonNull(detail.getNext3())) {
-                    curThreePertSum = add(curThreePertSum, divide(subtract(detail.getNext3().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
-                    curThreeCnt++;
+                    curThreePertList.add(divide(subtract(detail.getNext3().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+
                 }
 
 
                 if (Objects.nonNull(detail.getNext4())) {
-                    curFourPertSum = add(curFourPertSum, divide(subtract(detail.getNext4().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
-                    curFourCnt++;
+                    curFourPertList.add(divide(subtract(detail.getNext4().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+
                 }
 
 
                 if (Objects.nonNull(detail.getNext5())) {
-                    curFivePertSum = add(curFivePertSum, divide(subtract(detail.getNext5().getEndPrice(),
-                            detail.getEndPrice()), detail.getEndPrice()));
-                    curFiveMaxPertSum = add(curFiveMaxPertSum, detail.getNext5MaxPricePert());
-                    curFiveCnt++;
+                    curFivePertList.add(divide(subtract(detail.getNext5().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+                    curFiveMaxPertList.add(detail.getNext5MaxPricePert());
+
                 }
 
 
                 if (Objects.nonNull(detail.getNext10())) {
-                    curTenPertSum = add(curTenPertSum, divide(subtract(detail.getNext10().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
-                    curTenMaxPertSum = add(curTenMaxPertSum, detail.getNext10MaxPricePert());
-                    curTenCnt++;
+                    curTenPertList.add(divide(subtract(detail.getNext10().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+                    curTenMaxPertList.add(detail.getNext10MaxPricePert());
+
                 }
             }
 
-            if (curOneCnt>0) {
-                onePriceRateSum = add(onePriceRateSum, divide(curOnePertSum, curOneCnt));
-                oneCnt++;
+            if (CollectionUtils.isNotEmpty(curOnePertList)) {
+                onePercRateList.add(divide(sum(curOnePertList), curOnePertList.size()));
             }
-            if (curTwoCnt>0) {
-                twoPriceRateSum = add(twoPriceRateSum, divide(curTwoPertSum, curTwoCnt));
-                twoCnt++;
-            }
+            if (CollectionUtils.isNotEmpty(curTwoPertList)) {
+                twoPercRateList.add(divide(sum(curTwoPertList), curTwoPertList.size()));
 
-            if (curThreeCnt>0) {
-                threePriceRateSum = add(threePriceRateSum, divide(curThreePertSum, curThreeCnt));
-                threeCnt++;
             }
 
+            if (CollectionUtils.isNotEmpty(curThreePertList)) {
+                threePercRateList.add(divide(sum(curThreePertList), curThreePertList.size()));
 
-            if (curFourCnt>0) {
-                fourPriceRateSum = add(fourPriceRateSum, divide(curFourPertSum, curFourCnt));
-                fourCnt++;
             }
 
 
-            if (curFiveCnt>0) {
-                fivePriceRateSum = add(fivePriceRateSum, divide(curFivePertSum, curFiveCnt));
-                fiveMaxPriceRateSum = add(fiveMaxPriceRateSum, divide(curFiveMaxPertSum, curFiveCnt));
-                fiveCnt++;
+            if (CollectionUtils.isNotEmpty(curFourPertList)) {
+                fourPercRateList.add(divide(sum(curFourPertList), curFourPertList.size()));
+
             }
 
 
-            if (curTenCnt > 0) {
-                tenPriceRateSum = add(tenPriceRateSum, divide(curTenPertSum, curTenCnt));
-                tenMaxPriceRateSum = add(tenMaxPriceRateSum, divide(curTenMaxPertSum, curTenCnt));
-                tenCnt++;
+            if (CollectionUtils.isNotEmpty(curFivePertList)) {
+                fivePercRateList.add(divide(sum(curFivePertList), curFivePertList.size()));
+                fiveMaxPercRateList.add(divide(sum(curFiveMaxPertList), curFiveMaxPertList.size()));
+            }
+
+
+            if (CollectionUtils.isNotEmpty(curTenPertList)) {
+                tenPercRateList.add(divide(sum(curTenPertList), curTenPertList.size()));
+                tenMaxPercRateList.add(divide(sum(curTenMaxPertList), curTenMaxPertList.size()));
             }
 
         });
 
-        onePercRate = divide(onePriceRateSum, oneCnt);
-        twoPercRate = divide(twoPriceRateSum, twoCnt);
-        threePercRate = divide(threePriceRateSum, threeCnt);
-        fourPercRate = divide(fourPriceRateSum, fourCnt);
-        fivePercRate = divide(fivePriceRateSum, fiveCnt);
-        tenPercRate = divide(tenPriceRateSum, tenCnt);
-        tenMaxPercRate = divide(tenMaxPriceRateSum, tenCnt);
-        fiveMaxPercRate = divide(fiveMaxPriceRateSum, fiveCnt);
-        cnt = oneCnt;
+        onePercRate = average(onePercRateList);
+        twoPercRate = average(twoPercRateList);
+        threePercRate = average(threePercRateList);
+        fourPercRate = average(fourPercRateList);
+        fivePercRate = average(fivePercRateList);
+        fiveMaxPercRate = average(fiveMaxPercRateList);
+        tenPercRate = average(tenPercRateList);
+        tenMaxPercRate = average(tenMaxPercRateList);
+        cnt = onePercRateList.size();
         // 按日聚合后 oneCnt=交易日数；dateCnt 用 dateToDetailListMap 现算，避免 dateToCntMap 未维护为空
         if (cnt < 100 && !dateToDetailListMap.isEmpty()) {
             dateCnt = dateToDetailListMap.entrySet().stream()
@@ -280,5 +261,16 @@ public class StrategyWin {
         this.strategyCode = String.join(" ", list);
         this.strategyName = name;
         this.level = strategyCodeSet.size();
+    }
+
+    /**
+     * 求平均值  去掉首尾各2个
+     *
+     * @return
+     */
+    private BigDecimal average(List<BigDecimal> list) {
+        return list.size() < 100
+                ? divide(sum(list.subList(2, list.size() - 2)), list.size() - 4)
+                : divide(sum(list), list.size());
     }
 }

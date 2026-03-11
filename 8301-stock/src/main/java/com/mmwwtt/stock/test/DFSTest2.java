@@ -60,7 +60,7 @@ public class DFSTest2 {
         if (level > 5) {
             return;
         }
-        Set<String> strategySet = parentWin.getStrategyCodeSet();
+        Set<String> strategySet = new HashSet<>(parentWin.getStrategyCodeSet());
         // 胜率   (股票code  符合策略的详情id列表) (下标)
        List<Triple<StrategyWin, Map<String, Set<Integer>>, Integer>> triples= new ArrayList<>();
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -74,19 +74,17 @@ public class DFSTest2 {
             Map<String, Set<Integer>> l1StockToDetailIdMap = l1StrategyToStockToDetailIdSetMap.get(strategy.getStrategyCode());
             curStockToDetailIdSetMap.forEach((stock, detailIdSet) ->
                     detailIdSet.retainAll(l1StockToDetailIdMap.getOrDefault(stock, Collections.emptySet())));
-            Set<String> curStrategyCodeSet = new HashSet<>();
-            curStrategyCodeSet.add(strategy.getStrategyCode());
-            curStrategyCodeSet.addAll(strategySet);
-            StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
-            triples.add(Triple.of(win, stockToDetailIdSetMap, i));
+            strategySet.add(strategy.getStrategyCode());
+            StrategyWin win = saveStrategyWin(strategySet, curStockToDetailIdSetMap);
             if (isNotByFiveMax(win, parentWin, level)) {
                 continue;
             }
+            triples.add(Triple.of(win, stockToDetailIdSetMap, i));
             strategyWinService.save(win);
             log.info("策略：{} 开始计算并保存完成", win.getStrategyCode());
         }
-        triples.sort(Comparator.comparing(Triple::getLeft, Comparator.comparing(StrategyWin::getFiveMaxPercRate)));
-        for (int i = 0; i < 30; i++) {
+        triples.sort(Comparator.comparing(Triple<StrategyWin, Map<String, Set<Integer>>, Integer>::getLeft, Comparator.comparing(StrategyWin::getFiveMaxPercRate)).reversed());
+        for (int i = 0; i < 5; i++) {
             if(triples.size() >i ) {
                 Triple<StrategyWin, Map<String, Set<Integer>>, Integer> triple = triples.get(i);
                 buildByLevel(level + 1, triple.getMiddle(), triple.getLeft(), triple.getRight());
@@ -99,8 +97,7 @@ public class DFSTest2 {
         StrategyWin win = new StrategyWin(strategyCodeSet);
         win.setStrategyCodeSet(strategyCodeSet);
         stockToDetailIdSetMap.forEach((stock, detailIdSet) ->
-                detailIdSet.forEach(detailId ->
-                        win.addToResult(idToDetailMap.get(detailId))));
+                detailIdSet.forEach(detailId -> win.addToResult(idToDetailMap.get(detailId))));
         win.fillData();
         return win;
     }
