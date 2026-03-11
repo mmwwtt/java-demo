@@ -269,7 +269,7 @@ public class StrategyWin {
      * @return
      */
     private BigDecimal average(List<BigDecimal> list) {
-        return list.size() < 100
+        return list.size() < 100 && list.size() > 20
                 ? divide(sum(list.subList(2, list.size() - 2)), list.size() - 4)
                 : divide(sum(list), list.size());
     }
