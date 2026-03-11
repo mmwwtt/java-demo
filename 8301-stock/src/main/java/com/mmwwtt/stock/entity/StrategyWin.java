@@ -85,6 +85,16 @@ public class StrategyWin {
     private BigDecimal tenMaxPercRate;
 
     /**
+     * 预测的5天内最低价 的平均涨幅(回调)
+     */
+    private BigDecimal fiveMinPercRate;
+
+    /**
+     * 预测的10天内最低价 的平均涨幅(回调)
+     */
+    private BigDecimal tenMinPercRate;
+
+    /**
      * 策略层级
      */
     private Integer level;
@@ -113,11 +123,15 @@ public class StrategyWin {
     private List<BigDecimal> fivePercRateList = new ArrayList<>();
     @TableField(exist = false)
     private List<BigDecimal> fiveMaxPercRateList = new ArrayList<>();
+    @TableField(exist = false)
+    private List<BigDecimal> fiveMinPercRateList = new ArrayList<>();
 
     @TableField(exist = false)
     private List<BigDecimal> tenPercRateList = new ArrayList<>();
     @TableField(exist = false)
     private List<BigDecimal> tenMaxPercRateList = new ArrayList<>();
+    @TableField(exist = false)
+    private List<BigDecimal> tenMinPercRateList = new ArrayList<>();
 
     @TableField(exist = false)
     private Map<String, List<StockDetail>> dateToDetailListMap = new ConcurrentHashMap<>();
@@ -149,8 +163,10 @@ public class StrategyWin {
             List<BigDecimal> curFourPertList = new ArrayList<>();
             List<BigDecimal> curFivePertList = new ArrayList<>();
             List<BigDecimal> curFiveMaxPertList = new ArrayList<>();
+            List<BigDecimal> curFiveMinPertList = new ArrayList<>();
             List<BigDecimal> curTenPertList = new ArrayList<>();
             List<BigDecimal> curTenMaxPertList = new ArrayList<>();
+            List<BigDecimal> curTenMinPertList = new ArrayList<>();
             for (StockDetail detail : details) {
                 if (Objects.nonNull(detail.getNext1())) {
                     BigDecimal onPert = divide(subtract(detail.getNext1().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
@@ -173,12 +189,14 @@ public class StrategyWin {
                 if (Objects.nonNull(detail.getNext5())) {
                     curFivePertList.add(divide(subtract(detail.getNext5().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
                     curFiveMaxPertList.add(detail.getNext5MaxPricePert());
+                    curFiveMinPertList.add(detail.getNext5MinPricePert());
                 }
 
 
                 if (Objects.nonNull(detail.getNext10())) {
                     curTenPertList.add(divide(subtract(detail.getNext10().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
                     curTenMaxPertList.add(detail.getNext10MaxPricePert());
+                    curTenMinPertList.add(detail.getNext10MinPricePert());
                 }
             }
 
@@ -202,12 +220,14 @@ public class StrategyWin {
             if (CollectionUtils.isNotEmpty(curFivePertList)) {
                 fivePercRateList.add(divide(sum(curFivePertList), curFivePertList.size()));
                 fiveMaxPercRateList.add(divide(sum(curFiveMaxPertList), curFiveMaxPertList.size()));
+                fiveMinPercRateList.add(divide(sum(curFiveMinPertList), curFiveMinPertList.size()));
             }
 
 
             if (CollectionUtils.isNotEmpty(curTenPertList)) {
                 tenPercRateList.add(divide(sum(curTenPertList), curTenPertList.size()));
                 tenMaxPercRateList.add(divide(sum(curTenMaxPertList), curTenMaxPertList.size()));
+                tenMinPercRateList.add(divide(sum(curTenMinPertList), curTenMinPertList.size()));
             }
 
         });
@@ -218,8 +238,10 @@ public class StrategyWin {
         fourPercRate = average(fourPercRateList);
         fivePercRate = average(fivePercRateList);
         fiveMaxPercRate = average(fiveMaxPercRateList);
+        fiveMinPercRate = average(fiveMinPercRateList);
         tenPercRate = average(tenPercRateList);
         tenMaxPercRate = average(tenMaxPercRateList);
+        tenMinPercRate = average(tenMinPercRateList);
         cnt = onePercRateList.size();
 
         if (cnt < 100 && !dateToDetailListMap.isEmpty()) {

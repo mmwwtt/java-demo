@@ -117,7 +117,7 @@ public class StockDetail {
     private BigDecimal allLen;
 
     /**
-     * 5日线
+     * 5日均线
      */
     private BigDecimal fiveDayLine;
 
@@ -393,6 +393,11 @@ public class StockDetail {
      */
     private BigDecimal next5MaxPricePert;
 
+    /**
+     * 当天到5天内最低的涨幅(回调)
+     */
+    private BigDecimal next5MinPricePert;
+
 
     /**
      * 日后第10个交易日细节
@@ -409,6 +414,11 @@ public class StockDetail {
      * 当天到10天内最高的涨幅
      */
     private BigDecimal next10MaxPricePert;
+
+    /**
+     * 当天到10天内最低的涨幅(回调)
+     */
+    private BigDecimal next10MinPricePert;
 
     /**
      * 前1天交易日细节
@@ -703,12 +713,14 @@ public class StockDetail {
                 cur.setNext5PricePert(divide(subtract(list.get(i - 5).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
                 List<BigDecimal> highPriceList = list.subList(i - 5, i).stream().map(StockDetail::getHighPrice).toList();
                 cur.setNext5MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setNext5MinPricePert(divide(subtract(min(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
             }
 
             if (i - 10 >= 0) {
                 cur.setNext10PricePert(divide(subtract(list.get(i - 10).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
                 List<BigDecimal> highPriceList = list.subList(i - 10, i).stream().map(StockDetail::getHighPrice).toList();
                 cur.setNext10MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setNext10MinPricePert(divide(subtract(min(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
             }
 
             calcIsUp(list, i, 5, cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveHigh, cur::setFiveLow,
