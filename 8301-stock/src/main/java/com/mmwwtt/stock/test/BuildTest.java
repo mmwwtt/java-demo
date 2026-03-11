@@ -44,6 +44,8 @@ public class BuildTest {
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
+    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
+
     @PostConstruct
     public void init() {
         String sql = "   five_max_perc_rate > 0.17";

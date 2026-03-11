@@ -5,6 +5,7 @@ import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +20,11 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 /**
- * 深度优先遍历各种策略
- * 区间60向上 区间40_20_30 下影线长度_08_09   是100%胜率
- * l1 cnt限值不能大于50
- * <p>
- * 收益口径说明：
- * - fiveMaxPercRate（5日最高）= 若在接下来5日内的最高价卖出，理论涨幅；实盘很难卖在最高，通常达不到。
- * - fivePercRate（5日收盘）= 持有5日、按第5日收盘价卖出，更接近实盘，可用 buildStrateResultByFiveClose 按此口径选策略。
- * <p>
- * 过拟合说明：buildStrateResultAll 在全历史上做交集，条件越多样本越少，fiveMax 越容易“凑”出好看数字。
- * 缓解：① 提高 cnt 下限、拒绝胜率过高 ② 同时要求 fivePercRate 达标 ③ 限制层数 ④ 用 buildStrateResultAllAntiOverfit
+ * 贪心DFS：每层遍历后只选 fiveMaxPercRate 最高的组合继续向下，其余抛弃
  */
 @Slf4j
 @SpringBootTest
-public class DFSTest {
+public class DFSTest2 {
 
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
@@ -54,9 +46,8 @@ public class DFSTest {
             Map<String, Set<Integer>> stockCodeToDateSetMap = l1StrategyToStockToDetailIdSetMap.get(strategyWin.getStrategyCode());
             int finalI = i;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                Set<String> strategySet = new HashSet<>();
-                strategySet.add(strategyWin.getStrategyCode());
-                buildByLevel(2, stockCodeToDateSetMap, strategySet, strategyWin, finalI);
+                strategyWin.getStrategyCodeSet().add(strategyWin.getStrategyCode());
+                buildByLevel(2, stockCodeToDateSetMap, strategyWin, finalI);
             }, cpuThreadPool);
             futures.add(future);
         }
@@ -65,10 +56,13 @@ public class DFSTest {
     }
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
-                              Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
+                              StrategyWin parentWin, Integer curIdx) {
         if (level > 5) {
             return;
         }
+        Set<String> strategySet = parentWin.getStrategyCodeSet();
+        // 胜率   (股票code  符合策略的详情id列表) (下标)
+       List<Triple<StrategyWin, Map<String, Set<Integer>>, Integer>> triples= new ArrayList<>();
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
             StrategyWin strategy = l1StrategyList.get(i);
             if (strategySet.contains(strategy.getStrategyCode())) {
@@ -84,18 +78,26 @@ public class DFSTest {
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
+            triples.add(Triple.of(win, stockToDetailIdSetMap, i));
             if (isNotByFiveMax(win, parentWin, level)) {
                 continue;
             }
             strategyWinService.save(win);
             log.info("策略：{} 开始计算并保存完成", win.getStrategyCode());
-            buildByLevel(level + 1, curStockToDetailIdSetMap, curStrategyCodeSet, win, i);
+        }
+        triples.sort(Comparator.comparing(Triple::getLeft, Comparator.comparing(StrategyWin::getFiveMaxPercRate)));
+        for (int i = 0; i < 30; i++) {
+            if(triples.size() >i ) {
+                Triple<StrategyWin, Map<String, Set<Integer>>, Integer> triple = triples.get(i);
+                buildByLevel(level + 1, triple.getMiddle(), triple.getLeft(), triple.getRight());
+            }
         }
     }
 
 
     private StrategyWin saveStrategyWin(Set<String> strategyCodeSet, Map<String, Set<Integer>> stockToDetailIdSetMap) {
         StrategyWin win = new StrategyWin(strategyCodeSet);
+        win.setStrategyCodeSet(strategyCodeSet);
         stockToDetailIdSetMap.forEach((stock, detailIdSet) ->
                 detailIdSet.forEach(detailId ->
                         win.addToResult(idToDetailMap.get(detailId))));
@@ -120,4 +122,3 @@ public class DFSTest {
         return false;
     }
 }
-

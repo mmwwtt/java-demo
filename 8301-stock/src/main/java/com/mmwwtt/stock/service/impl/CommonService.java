@@ -64,9 +64,7 @@ public class CommonService {
             l1StrategyToStockToDetailIdSetMap.put(strategy, codeToDetailMap);
         });
 
-        l1StrategyList = strategyWinService.getL1StrategyWin().stream()
-                .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
-                .toList();
+        l1StrategyList = strategyWinService.getL1StrategyWin();
 
         stockCodePartList = Lists.partition(stockService.list().stream().map(Stock::getCode).toList(), 50);
 
