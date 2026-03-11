@@ -110,39 +110,39 @@ public class CalcCommonService {
     /**
      * 验证预测的股票结果
      */
-    public Map<StrategyWin, List<StockDetail>> verifyPredictRes(String curDate, List<StrategyWin> strategyWinList) throws InterruptedException, ExecutionException {
-                Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
-                Map<StrategyWin, List<StockDetail>> strategyToStockMap = new ConcurrentHashMap<>();
-                Map<String, StockDetail> codeToDetailMap = CommonService.idToDetailMap.values().stream()
-                        .filter(item -> Objects.equals(item.getDealDate(), curDate))
-                        .collect(Collectors.toMap(StockDetail::getStockCode, item -> item));
+    public List<StockDetail> verifyPredictRes(String curDate, List<StrategyWin> strategyWinList) throws InterruptedException, ExecutionException {
+        Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
+        Map<String, StockDetail> codeToDetailMap = CommonService.idToDetailMap.values().stream()
+                .filter(item -> Objects.equals(item.getDealDate(), curDate))
+                .collect(Collectors.toMap(StockDetail::getStockCode, item -> item));
+        List<StockDetail> resList = Collections.synchronizedList(new ArrayList<>());
 
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
+        //策略
+        log.info("开始计算");
 
-                List<CompletableFuture<Void>> futures = new ArrayList<>();
-                Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
-                //策略
-                log.info("开始计算");
-
-                for (StrategyWin strategyWin : strategyWinList) {
-                    List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
-                            .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
+        for (StrategyWin strategyWin : strategyWinList) {
+            List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
+                    .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
                         StockDetail stockDetail = codeToDetailMap.get(stockCode);
                         if (stockCodeSet.contains(stockCode) || Objects.isNull(stockDetail)
-                                || Objects.isNull(stockDetail.getT1()) || Objects.isNull(stockDetail.getNext1())
-                                || Objects.isNull(stockDetail.getT2()) || Objects.isNull(stockDetail.getT3())
-                                || Objects.isNull(stockDetail.getT4()) || Objects.isNull(stockDetail.getT5())
+                                || Objects.isNull(stockDetail.getNext5MaxPricePert())
+                                || Objects.isNull(stockDetail.getT5())
                                 || Objects.isNull(stockDetail.getT5().getSixtyDayLine())
                                 || moreThan(stockDetail.getPricePert(), 0.097)
-                                || (!stockDetail.getFiveIsUp()&& !stockDetail.getTenIsUp())) {
+                                || (!stockDetail.getFiveIsUp() && !stockDetail.getTenIsUp())) {
                             continue;
                         }
                         boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
                         if (res) {
-                            strategyToStockMap.computeIfAbsent(strategyWin, k -> Collections.synchronizedList(new ArrayList<>())).add(stockDetail);
+                            stockCodeSet.add(stockCode);
+                            resList.add(stockDetail);
                         }
+
                     }
                 }, ioThreadPool);
                 futures.add(future);
@@ -150,7 +150,7 @@ public class CalcCommonService {
         }
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-        return strategyToStockMap;
+        return resList;
     }
 
 

@@ -168,7 +168,7 @@ public class CommonUtils {
     }
 
     public static BigDecimal sum(List<BigDecimal> list) {
-        BigDecimal res = new BigDecimal("0");
+        BigDecimal res = BigDecimal.ZERO;
         for (BigDecimal bigDecimal : list) {
             res = res.add(bigDecimal);
         }

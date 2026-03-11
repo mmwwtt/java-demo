@@ -11,6 +11,7 @@ import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.predictDateList;
@@ -48,7 +48,7 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        String sql = "   five_max_perc_rate > 0.17";
+        String sql = "   five_max_perc_rate > 0.15 and  five_max_perc_rate < 0.17";
         winList = strategyWinService.getStrategyWin(sql);
         winList.sort(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed());
     }
@@ -82,8 +82,6 @@ public class BuildTest {
     @Test
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
-        // 股票上涨预测策略 v2：低吸/刚启动型，避免追涨（原策略0.47胜率说明易追高）
-        // 思路：超卖反弹 + 刚金叉 + 低位 + 缩量回调 或 温和放量突破
         List<StrategyEnum> strategyEnums = List.of(
                 new StrategyEnum("riseStrategy", "上涨预测_低吸型", (StockDetail d) -> {
                     return true;
@@ -185,30 +183,20 @@ public class BuildTest {
     }
 
     public void verifyPredictResByFiveMaxDetail() throws InterruptedException, ExecutionException {
-        Map<String, Map<StrategyWin, List<StockDetail>>> dateResMap = new HashMap<>();
-        BigDecimal cnt = BigDecimal.ZERO;
-        int dayCnt = 0;
+        List<BigDecimal> dateAvgList = new ArrayList<>();
         for (String date : predictDateList) {
-            log.info("\n\n日期：" + date);
-            Map<StrategyWin, List<StockDetail>> resMap = calcCommonService.verifyPredictRes(date, winList);
-            dateResMap.put(date, resMap);
-            int all = 0;
-            AtomicReference<BigDecimal> count = new AtomicReference<>(BigDecimal.ZERO);
-            for (Map.Entry<StrategyWin, List<StockDetail>> entry : resMap.entrySet()) {
-                List<StockDetail> details = entry.getValue();
-                all += details.size();
-                details.stream().filter(Objects::nonNull)
-                        .filter(item -> Objects.nonNull(item.getNext5MaxPricePert()))
-                        .forEach(item -> count.set(add(count.get(), item.getNext5MaxPricePert())));
-            }
-            BigDecimal res = divide(count.get(), all);
-            if (res.compareTo(BigDecimal.ZERO) == 0) {
+            log.info("日期：" + date);
+            List<StockDetail> resList = calcCommonService.verifyPredictRes(date, winList);
+            if(CollectionUtils.isEmpty(resList)) {
                 continue;
             }
-            dayCnt++;
-            log.info(res.toString());
-            cnt = add(cnt, res);
+            BigDecimal dateAvg = divide(sum(resList.stream().map(StockDetail::getNext5MaxPricePert).toList()), resList.size());
+            if (dateAvg.compareTo(BigDecimal.ZERO) == 0) {
+                continue;
+            }
+            dateAvgList.add(dateAvg);
+            log.info("{}\n", dateAvg);
         }
-        log.info("平均5日最高涨幅 {}", divide(cnt, dayCnt).toString());
+        log.info("平均5日最高涨幅 {}", divide(sum(dateAvgList), dateAvgList.size()));
     }
 }
