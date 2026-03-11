@@ -54,7 +54,7 @@ public class DFSTest {
             Map<String, Set<Integer>> stockCodeToDateSetMap = l1StrategyToStockToDetailIdSetMap.get(strategyWin.getStrategyCode());
             int finalI = i;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                Set<String> strategySet = new HashSet<>();
+                LinkedHashSet<String> strategySet = new LinkedHashSet<>();
                 strategySet.add(strategyWin.getStrategyCode());
                 buildByLevel(2, stockCodeToDateSetMap, strategySet, strategyWin, finalI);
             }, cpuThreadPool);
@@ -65,8 +65,8 @@ public class DFSTest {
     }
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
-                              Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 5) {
+                              LinkedHashSet<String> strategySet, StrategyWin parentWin, Integer curIdx) {
+        if (level > 4) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -80,7 +80,7 @@ public class DFSTest {
             Map<String, Set<Integer>> l1StockToDetailIdMap = l1StrategyToStockToDetailIdSetMap.get(strategy.getStrategyCode());
             curStockToDetailIdSetMap.forEach((stock, detailIdSet) ->
                     detailIdSet.retainAll(l1StockToDetailIdMap.getOrDefault(stock, Collections.emptySet())));
-            Set<String> curStrategyCodeSet = new HashSet<>();
+            LinkedHashSet<String> curStrategyCodeSet = new LinkedHashSet<>();
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
@@ -88,17 +88,16 @@ public class DFSTest {
                 continue;
             }
             strategyWinService.save(win);
-            log.info("策略：{} 开始计算并保存完成", win.getStrategyCode());
+            //log.info("策略：{} 开始计算并保存完成", win.getStrategyCode());
             buildByLevel(level + 1, curStockToDetailIdSetMap, curStrategyCodeSet, win, i);
         }
     }
 
 
-    private StrategyWin saveStrategyWin(Set<String> strategyCodeSet, Map<String, Set<Integer>> stockToDetailIdSetMap) {
+    private StrategyWin saveStrategyWin(LinkedHashSet<String> strategyCodeSet, Map<String, Set<Integer>> stockToDetailIdSetMap) {
         StrategyWin win = new StrategyWin(strategyCodeSet);
         stockToDetailIdSetMap.forEach((stock, detailIdSet) ->
-                detailIdSet.forEach(detailId ->
-                        win.addToResult(idToDetailMap.get(detailId))));
+                detailIdSet.forEach(detailId -> win.addToResult(idToDetailMap.get(detailId))));
         win.fillData();
         return win;
     }
@@ -110,7 +109,7 @@ public class DFSTest {
         if (lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
                 || Objects.equals(win.getCnt(), parentWin.getCnt())
                 || (win.getCnt() > 50 && lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.1)))
-                || (win.getCnt() < 50 && lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.05)))
+                || (win.getCnt() < 50 && lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.1)))
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
                 || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))

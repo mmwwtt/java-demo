@@ -123,7 +123,7 @@ public class StrategyWin {
     private Map<String, List<StockDetail>> dateToDetailListMap = new ConcurrentHashMap<>();
 
     @TableField(exist = false)
-    private Set<String> strategyCodeSet = new HashSet<>();
+    private LinkedHashSet<String> strategyCodeSet = new LinkedHashSet<>();
 
     /**
      * 将结果累加到数据中
@@ -155,36 +155,30 @@ public class StrategyWin {
                 if (Objects.nonNull(detail.getNext1())) {
                     BigDecimal onPert = divide(subtract(detail.getNext1().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
                     curOnePertList.add(onPert);
-
                 }
                 if (Objects.nonNull(detail.getNext2())) {
                     curTwoPertList.add(divide(subtract(detail.getNext2().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
-
                 }
 
                 if (Objects.nonNull(detail.getNext3())) {
                     curThreePertList.add(divide(subtract(detail.getNext3().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
-
                 }
 
 
                 if (Objects.nonNull(detail.getNext4())) {
                     curFourPertList.add(divide(subtract(detail.getNext4().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
-
                 }
 
 
                 if (Objects.nonNull(detail.getNext5())) {
                     curFivePertList.add(divide(subtract(detail.getNext5().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
                     curFiveMaxPertList.add(detail.getNext5MaxPricePert());
-
                 }
 
 
                 if (Objects.nonNull(detail.getNext10())) {
                     curTenPertList.add(divide(subtract(detail.getNext10().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
                     curTenMaxPertList.add(detail.getNext10MaxPricePert());
-
                 }
             }
 
@@ -193,18 +187,15 @@ public class StrategyWin {
             }
             if (CollectionUtils.isNotEmpty(curTwoPertList)) {
                 twoPercRateList.add(divide(sum(curTwoPertList), curTwoPertList.size()));
-
             }
 
             if (CollectionUtils.isNotEmpty(curThreePertList)) {
                 threePercRateList.add(divide(sum(curThreePertList), curThreePertList.size()));
-
             }
 
 
             if (CollectionUtils.isNotEmpty(curFourPertList)) {
                 fourPercRateList.add(divide(sum(curFourPertList), curFourPertList.size()));
-
             }
 
 
@@ -230,7 +221,7 @@ public class StrategyWin {
         tenPercRate = average(tenPercRateList);
         tenMaxPercRate = average(tenMaxPercRateList);
         cnt = onePercRateList.size();
-        // 按日聚合后 oneCnt=交易日数；dateCnt 用 dateToDetailListMap 现算，避免 dateToCntMap 未维护为空
+
         if (cnt < 100 && !dateToDetailListMap.isEmpty()) {
             dateCnt = dateToDetailListMap.entrySet().stream()
                     .sorted(Comparator.comparing(e -> e.getValue().size(), Comparator.reverseOrder()))
@@ -248,12 +239,11 @@ public class StrategyWin {
     }
 
     public StrategyWin(String strategyCode) {
-        this(Set.of(strategyCode));
+        this(new LinkedHashSet<>(Set.of(strategyCode)));
     }
 
-    public StrategyWin(Set<String> strategyCodeSet) {
+    public StrategyWin(LinkedHashSet<String> strategyCodeSet) {
         List<String> list = new ArrayList<>(strategyCodeSet);
-        Collections.sort(list);
         String name = list.stream()
                 .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())
                 .collect(Collectors.joining(" "));

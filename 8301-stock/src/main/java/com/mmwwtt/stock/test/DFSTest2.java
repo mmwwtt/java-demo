@@ -60,7 +60,7 @@ public class DFSTest2 {
         if (level > 5) {
             return;
         }
-        Set<String> strategySet = new HashSet<>(parentWin.getStrategyCodeSet());
+        LinkedHashSet<String> strategySet = new LinkedHashSet<>(parentWin.getStrategyCodeSet());
         // 胜率   (股票code  符合策略的详情id列表) (下标)
        List<Triple<StrategyWin, Map<String, Set<Integer>>, Integer>> triples= new ArrayList<>();
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -93,7 +93,7 @@ public class DFSTest2 {
     }
 
 
-    private StrategyWin saveStrategyWin(Set<String> strategyCodeSet, Map<String, Set<Integer>> stockToDetailIdSetMap) {
+    private StrategyWin saveStrategyWin(LinkedHashSet<String> strategyCodeSet, Map<String, Set<Integer>> stockToDetailIdSetMap) {
         StrategyWin win = new StrategyWin(strategyCodeSet);
         win.setStrategyCodeSet(strategyCodeSet);
         stockToDetailIdSetMap.forEach((stock, detailIdSet) ->
