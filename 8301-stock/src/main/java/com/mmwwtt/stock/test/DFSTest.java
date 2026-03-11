@@ -106,7 +106,6 @@ public class DFSTest {
             return true;
         }
         if (lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
-                || Objects.equals(win.getCnt(), parentWin.getCnt())
                 || lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.02))
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
