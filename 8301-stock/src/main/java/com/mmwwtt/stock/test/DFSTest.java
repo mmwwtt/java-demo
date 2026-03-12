@@ -83,42 +83,6 @@ public class DFSTest {
         flushWinBatch();
     }
 
-    @Test
-    @DisplayName("抗过拟合DFS深度遍历")
-    public void buildStrateResultAllAntiOverfit() throws ExecutionException, InterruptedException {
-        winBatch.clear();
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-
-        // 筛选第一层策略时同时考虑fivePercRate和fiveMaxPercRate
-        List<StrategyWin> l1WinList = l1StrategyList.stream()
-                .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04") &&
-                        moreThan(item.getFivePercRate(), MIN_FIVE_PERC_RATE.toString()) &&
-                        item.getCnt() >= ANTI_OVERFIT_CNT_THRESHOLD)
-                .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
-
-        log.info("抗过拟合模式下，第一层策略数量: {}", l1WinList.size());
-
-        for (int i = 0; i < l1WinList.size(); i++) {
-            StrategyWin strategyWin = l1WinList.get(i);
-            Map<String, Set<Integer>> stockCodeToDateSetMap = l1StrategyToStockToDetailIdSetMap.get(strategyWin.getStrategyCode());
-
-            // 只使用训练集数据进行策略搜索
-            Map<String, Set<Integer>> trainDataMap = filterTrainData(stockCodeToDateSetMap);
-            if (trainDataMap.isEmpty()) {
-                continue;
-            }
-
-            int finalI = i;
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                LinkedHashSet<String> strategySet = new LinkedHashSet<>();
-                strategySet.add(strategyWin.getStrategyCode());
-                buildByLevelAntiOverfit(2, trainDataMap, strategySet, strategyWin, finalI);
-            }, fixedThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
-        flushWinBatch();
-    }
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               LinkedHashSet<String> strategySet, StrategyWin parentWin, Integer curIdx) {
@@ -153,64 +117,7 @@ public class DFSTest {
         }
     }
 
-    private void buildByLevelAntiOverfit(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
-                                         LinkedHashSet<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 3) { // 限制更少的层数，减少过拟合风险
-            return;
-        }
-        for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
-            StrategyWin strategy = l1StrategyList.get(i);
-            if (strategySet.contains(strategy.getStrategyCode())) {
-                continue;
-            }
 
-            Map<String, Set<Integer>> curStockToDetailIdSetMap = copyStockToDetailIdMap(stockToDetailIdSetMap);
-            Map<String, Set<Integer>> l1StockToDetailIdMap = l1StrategyToStockToDetailIdSetMap.get(strategy.getStrategyCode());
-            curStockToDetailIdSetMap.forEach((stock, detailIdSet) ->
-                    detailIdSet.retainAll(l1StockToDetailIdMap.getOrDefault(stock, Collections.emptySet())));
-
-            int totalCnt = curStockToDetailIdSetMap.values().stream().mapToInt(Set::size).sum();
-            if (totalCnt < ANTI_OVERFIT_CNT_THRESHOLD) { // 更高的样本量要求
-                continue;
-            }
-
-            LinkedHashSet<String> curStrategyCodeSet = new LinkedHashSet<>();
-            curStrategyCodeSet.add(strategy.getStrategyCode());
-            curStrategyCodeSet.addAll(strategySet);
-
-            // 分别在训练集和测试集上评估策略
-            StrategyWin trainWin = saveStrategyWin(curStrategyCodeSet, curStockToDetailIdSetMap);
-
-            // 从原数据中提取测试集数据
-            Map<String, Set<Integer>> testDataMap = new HashMap<>();
-            Map<String, Set<Integer>> originalMap = l1StrategyToStockToDetailIdSetMap.get(strategy.getStrategyCode());
-            originalMap.forEach((stock, detailIdSet) -> {
-                Set<Integer> testDetailIds = new HashSet<>();
-                for (Integer detailId : detailIdSet) {
-                    if (!curStockToDetailIdSetMap.getOrDefault(stock, Collections.emptySet()).contains(detailId)) {
-                        testDetailIds.add(detailId);
-                    }
-                }
-                if (!testDetailIds.isEmpty()) {
-                    testDataMap.put(stock, testDetailIds);
-                }
-            });
-
-            StrategyWin testWin = saveStrategyWin(curStrategyCodeSet, testDataMap);
-
-            if (isNotByFiveMaxAntiOverfit(trainWin, testWin, parentWin, level)) {
-                continue;
-            }
-
-            // 保存策略时记录训练集和测试集的表现
-            trainWin.setStrategyName(trainWin.getStrategyName() + "(Train)");
-            testWin.setStrategyName(testWin.getStrategyName() + "(Test)");
-            addToWinBatch(trainWin);
-            addToWinBatch(testWin);
-
-            buildByLevelAntiOverfit(level + 1, curStockToDetailIdSetMap, curStrategyCodeSet, trainWin, i);
-        }
-    }
 
     /**
      * 轻量复制 Map，避免 MapStruct DeepClone 开销
@@ -258,66 +165,6 @@ public class DFSTest {
         return false;
     }
 
-    private boolean isNotByFiveMaxAntiOverfit(StrategyWin trainWin, StrategyWin testWin, StrategyWin parentWin, Integer level) {
-        // 训练集样本量检查
-        if (trainWin.getCnt() < ANTI_OVERFIT_CNT_THRESHOLD) {
-            return true;
-        }
 
-        // 同时检查fiveMaxPercRate和fivePercRate
-        if (lessThan(trainWin.getFiveMaxPercRate(), "0.05") ||
-                lessThan(trainWin.getFivePercRate(), MIN_FIVE_PERC_RATE.toString())) {
-            return true;
-        }
 
-        // 拒绝胜率过高的策略（可能过拟合）
-        if (moreThan(trainWin.getFiveMaxPercRate(), MAX_WIN_RATE.toString())) {
-            return true;
-        }
-
-        // 训练集和测试集表现差异不能太大（泛化能力检查）
-        if (testWin.getCnt() > 0) {
-            BigDecimal performanceDiff = subtract(trainWin.getFivePercRate(), testWin.getFivePercRate()).abs();
-            if (moreThan(performanceDiff.toString(), "0.02")) { // 差异超过2%则认为过拟合
-                return true;
-            }
-        }
-
-        // 其他条件检查
-        if (lessAndEqualsThan(trainWin.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
-                || lessThan(trainWin.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.10)) // 提高收益要求
-                || (level == 2 && lessThan(trainWin.getFiveMaxPercRate(), "0.09"))
-                || (level == 3 && lessThan(trainWin.getFiveMaxPercRate(), "0.11"))
-        ) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 过滤训练集数据（使用指定年份之前的数据）
-     */
-    private Map<String, Set<Integer>> filterTrainData(Map<String, Set<Integer>> source) {
-        Map<String, Set<Integer>> trainData = new HashMap<>();
-        source.forEach((stock, detailIdSet) -> {
-            Set<Integer> trainDetailIds = new HashSet<>();
-            for (Integer detailId : detailIdSet) {
-                StockDetail detail = idToDetailMap.get(detailId);
-                if (detail != null) {
-                    try {
-                        LocalDate dealDate = LocalDate.parse(detail.getDealDate());
-                        if (dealDate.getYear() < TRAIN_TEST_SPLIT_YEAR) {
-                            trainDetailIds.add(detailId);
-                        }
-                    } catch (Exception e) {
-                        log.error("解析日期失败: {}", detail.getDealDate(), e);
-                    }
-                }
-            }
-            if (!trainDetailIds.isEmpty()) {
-                trainData.put(stock, trainDetailIds);
-            }
-        });
-        return trainData;
-    }
 }

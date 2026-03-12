@@ -159,13 +159,6 @@ CREATE TABLE stock_strategy_win_t
     five_min_perc_rate    DECIMAL(8, 4) COMMENT '5天内最低价 百分比叠加后的结果',
     ten_max_perc_rate     DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
     ten_min_perc_rate     DECIMAL(8, 4) COMMENT '10天内最低价 百分比叠加后的结果',
-    five_win_rate         DECIMAL(8, 4) COMMENT '5天收益胜率',
-    five_median_perc_rate DECIMAL(8, 4) COMMENT '5天收益中位数',
-    five_max_drawdown     DECIMAL(8, 4) COMMENT '5天收益最大回撤',
-    ten_win_rate          DECIMAL(8, 4) COMMENT '10天收益胜率',
-    ten_median_perc_rate  DECIMAL(8, 4) COMMENT '10天收益中位数',
-    ten_max_drawdown      DECIMAL(8, 4) COMMENT '10天收益最大回撤',
-    sharpe_ratio          DECIMAL(8, 4) COMMENT '夏普比率',
     level                 INT(4) comment '条件层数',
     date_cnt              VARCHAR(2000) COMMENT '日期统计'
 ) COMMENT '策略胜率表';

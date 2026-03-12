@@ -96,41 +96,7 @@ public class StrategyWin {
      * 日期统计
      */
     private String dateCnt;
-    
-    /**
-     * 5天收益胜率（盈利的交易次数占总交易次数的比例）
-     */
-    private BigDecimal fiveWinRate;
-    
-    /**
-     * 5天收益中位数
-     */
-    private BigDecimal fiveMedianPercRate;
-    
-    /**
-     * 5天收益最大回撤
-     */
-    private BigDecimal fiveMaxDrawdown;
-    
-    /**
-     * 10天收益胜率
-     */
-    private BigDecimal tenWinRate;
-    
-    /**
-     * 10天收益中位数
-     */
-    private BigDecimal tenMedianPercRate;
-    
-    /**
-     * 10天收益最大回撤
-     */
-    private BigDecimal tenMaxDrawdown;
-    
-    /**
-     * 夏普比率（假设无风险利率为2%）
-     */
-    private BigDecimal sharpeRatio;
+
 
     /**
      * 临时属性
@@ -190,8 +156,6 @@ public class StrategyWin {
      * 填充数据
      */
     public void fillData() {
-        List<BigDecimal> allFivePercRates = new ArrayList<>();
-        List<BigDecimal> allTenPercRates = new ArrayList<>();
         
         dateToDetailListMap.forEach((date, details) -> {
             List<BigDecimal> curOnePertList = new ArrayList<>();
@@ -226,7 +190,6 @@ public class StrategyWin {
                 if (Objects.nonNull(detail.getNext5())) {
                     BigDecimal fivePert = divide(subtract(detail.getNext5().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
                     curFivePertList.add(fivePert);
-                    allFivePercRates.add(fivePert);
                     curFiveMaxPertList.add(detail.getNext5MaxPricePert());
                     curFiveMinPertList.add(detail.getNext5MinPricePert());
                 }
@@ -235,7 +198,6 @@ public class StrategyWin {
                 if (Objects.nonNull(detail.getNext10())) {
                     BigDecimal tenPert = divide(subtract(detail.getNext10().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
                     curTenPertList.add(tenPert);
-                    allTenPercRates.add(tenPert);
                     curTenMaxPertList.add(detail.getNext10MaxPricePert());
                     curTenMinPertList.add(detail.getNext10MinPricePert());
                 }
@@ -284,9 +246,6 @@ public class StrategyWin {
         tenMaxPercRate = average(tenMaxPercRateList);
         tenMinPercRate = average(tenMinPercRateList);
         cnt = onePercRateList.size();
-        
-        // 计算胜率、中位数、最大回撤等指标
-        calculateAdditionalMetrics(allFivePercRates, allTenPercRates);
 
         if (cnt < 100 && !dateToDetailListMap.isEmpty()) {
             dateCnt = dateToDetailListMap.entrySet().stream()
@@ -295,113 +254,7 @@ public class StrategyWin {
                     .collect(Collectors.joining(" \n"));
         }
     }
-    
-    /**
-     * 计算额外的统计指标
-     */
-    private void calculateAdditionalMetrics(List<BigDecimal> fivePercRates, List<BigDecimal> tenPercRates) {
-        // 计算5天收益指标
-        if (CollectionUtils.isNotEmpty(fivePercRates)) {
-            // 胜率
-            long profitableTrades = fivePercRates.stream().filter(rate -> rate.compareTo(BigDecimal.ZERO) > 0).count();
-            fiveWinRate = divide(new BigDecimal(profitableTrades), new BigDecimal(fivePercRates.size()));
-            
-            // 中位数
-            List<BigDecimal> sortedFiveRates = new ArrayList<>(fivePercRates);
-            Collections.sort(sortedFiveRates);
-            int midIndex = sortedFiveRates.size() / 2;
-            if (sortedFiveRates.size() % 2 == 0) {
-                fiveMedianPercRate = divide(add(sortedFiveRates.get(midIndex - 1), sortedFiveRates.get(midIndex)), new BigDecimal(2));
-            } else {
-                fiveMedianPercRate = sortedFiveRates.get(midIndex);
-            }
-            
-            // 最大回撤
-            fiveMaxDrawdown = calculateMaxDrawdown(sortedFiveRates);
-        }
-        
-        // 计算10天收益指标
-        if (CollectionUtils.isNotEmpty(tenPercRates)) {
-            // 胜率
-            long profitableTrades = tenPercRates.stream().filter(rate -> rate.compareTo(BigDecimal.ZERO) > 0).count();
-            tenWinRate = divide(new BigDecimal(profitableTrades), new BigDecimal(tenPercRates.size()));
-            
-            // 中位数
-            List<BigDecimal> sortedTenRates = new ArrayList<>(tenPercRates);
-            Collections.sort(sortedTenRates);
-            int midIndex = sortedTenRates.size() / 2;
-            if (sortedTenRates.size() % 2 == 0) {
-                tenMedianPercRate = divide(add(sortedTenRates.get(midIndex - 1), sortedTenRates.get(midIndex)), new BigDecimal(2));
-            } else {
-                tenMedianPercRate = sortedTenRates.get(midIndex);
-            }
-            
-            // 最大回撤
-            tenMaxDrawdown = calculateMaxDrawdown(sortedTenRates);
-        }
-        
-        // 计算夏普比率（简化版，使用5天收益率）
-        if (CollectionUtils.isNotEmpty(fivePercRates)) {
-            BigDecimal avgReturn = fivePercRate;
-            BigDecimal stdDev = calculateStandardDeviation(fivePercRates);
-            BigDecimal riskFreeRate = divide(new BigDecimal("0.02"), new BigDecimal("252")); // 假设年化无风险利率为2%，转换为日利率
-            
-            if (stdDev.compareTo(BigDecimal.ZERO) > 0) {
-                sharpeRatio = divide(subtract(avgReturn, riskFreeRate), stdDev);
-            }
-        }
-    }
-    
-    /**
-     * 计算最大回撤
-     */
-    private BigDecimal calculateMaxDrawdown(List<BigDecimal> returns) {
-        if (returns.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-        
-        BigDecimal maxDrawdown = BigDecimal.ZERO;
-        BigDecimal peak = returns.get(0);
-        
-        for (BigDecimal ret : returns) {
-            // 更新峰值
-            if (ret.compareTo(peak) > 0) {
-                peak = ret;
-            }
-            
-            // 计算当前回撤
-            BigDecimal drawdown = divide(subtract(peak, ret), peak);
-            
-            // 更新最大回撤
-            if (drawdown.compareTo(maxDrawdown) > 0) {
-                maxDrawdown = drawdown;
-            }
-        }
-        
-        return maxDrawdown;
-    }
-    
-    /**
-     * 计算标准差
-     */
-    private BigDecimal calculateStandardDeviation(List<BigDecimal> returns) {
-        if (returns.size() <= 1) {
-            return BigDecimal.ZERO;
-        }
-        
-        BigDecimal mean = divide(sum(returns), new BigDecimal(returns.size()));
-        BigDecimal varianceSum = BigDecimal.ZERO;
-        
-        for (BigDecimal ret : returns) {
-            BigDecimal diff = subtract(ret, mean);
-            varianceSum = add(varianceSum, multiply(diff, diff));
-        }
-        
-        BigDecimal variance = divide(varianceSum, new BigDecimal(returns.size() - 1));
-        
-        // 简化版开平方，使用BigDecimal的sqrt方法（需要Java 9+）
-        return variance.sqrt(MathContext.DECIMAL128);
-    }
+
 
     public static StrategyWin createByStrategyName(StrategyEnum strategyEnum) {
         StrategyWin strategyWin = new StrategyWin();
@@ -428,8 +281,6 @@ public class StrategyWin {
 
     /**
      * 求平均值  去掉首尾各2个
-     *
-     * @return
      */
     private BigDecimal average(List<BigDecimal> list) {
         return list.size() < 150 && list.size() > 50
