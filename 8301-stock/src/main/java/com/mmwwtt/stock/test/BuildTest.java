@@ -183,20 +183,27 @@ public class BuildTest {
     }
 
     public void verifyPredictResByFiveMaxDetail() throws InterruptedException, ExecutionException {
-        List<BigDecimal> dateAvgList = new ArrayList<>();
+        List<BigDecimal> fiveMaxDateAvgList = new ArrayList<>();
+        List<BigDecimal> fiveDateAvgList = new ArrayList<>();
         for (String date : predictDateList) {
             log.info("日期：" + date);
             List<StockDetail> resList = calcCommonService.verifyPredictRes(date, winList);
             if(CollectionUtils.isEmpty(resList)) {
                 continue;
             }
-            BigDecimal dateAvg = divide(sum(resList.stream().map(StockDetail::getNext5MaxPricePert).toList()), resList.size());
-            if (dateAvg.compareTo(BigDecimal.ZERO) == 0) {
+            BigDecimal fiveMaxDateAvg = divide(sum(resList.stream().map(StockDetail::getNext5MaxPricePert).toList()), resList.size());
+            BigDecimal fiveDateAvg = divide(sum(resList.stream()
+                            .map(item-> divide(subtract(item.getNext5().getEndPrice(),item.getEndPrice()), item.getEndPrice()))
+                            .toList()),
+                    resList.size());
+            if (fiveMaxDateAvg.compareTo(BigDecimal.ZERO) == 0) {
                 continue;
             }
-            dateAvgList.add(dateAvg);
-            log.info("{}\n", dateAvg);
+            fiveMaxDateAvgList.add(fiveMaxDateAvg);
+            fiveDateAvgList.add(fiveDateAvg);
+            log.info("{}\n", fiveMaxDateAvg);
         }
-        log.info("平均5日最高涨幅 {}", divide(sum(dateAvgList), dateAvgList.size()));
+        log.info("平均5日最高涨幅 {}", divide(sum(fiveMaxDateAvgList), fiveMaxDateAvgList.size()));
+        log.info("平均5日涨幅 {}", divide(sum(fiveDateAvgList), fiveDateAvgList.size()));
     }
 }

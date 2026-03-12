@@ -64,8 +64,8 @@ public class StrategyEnum {
                 new StrategyEnum("20032", "macd_负1_0", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "-1", "0")),
                 new StrategyEnum("20033", "macd_0_1", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "0", "1")),
                 new StrategyEnum("20034", "macd_1_2", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "1", "2")),
-                new StrategyEnum("20035", "macd_2_10", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "2", "10")),
-                new StrategyEnum("20036", "macd_大于10", (StockDetail t0) -> moreThan(t0.getMacd(), "10")),
+                new StrategyEnum("20035", "macd_2_5", (StockDetail t0) -> isInRangeNotEquals(t0.getMacd(), "2", "5")),
+                new StrategyEnum("20036", "macd_大于5", (StockDetail t0) -> moreThan(t0.getMacd(), "5")),
 
 
                 new StrategyEnum("20040", "WR威廉指标_上穿负80_脱离超卖区", (StockDetail t0) -> lessThan(t0.getWr(), "-80")
@@ -157,8 +157,7 @@ public class StrategyEnum {
 
                 new StrategyEnum("21100", "下影线长度_00_03", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0", "0.03")),
                 new StrategyEnum("21102", "下影线长度_03_06", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0.03", "0.06")),
-                new StrategyEnum("21104", "下影线长度_06_09", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0.06", "0.09")),
-                new StrategyEnum("21106", "下影线长度_09_12", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0.09", "0.12")),
+                new StrategyEnum("21104", "下影线长度_06_12", (StockDetail t0) -> isInRangeNotEquals(t0.getLowShadowLen(), "0.06", "0.12")),
                 new StrategyEnum("21107", "下影线长度大于_12", (StockDetail t0) -> moreThan(t0.getLowShadowLen(), "0.12")),
 
 

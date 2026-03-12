@@ -1,7 +1,5 @@
 package com.mmwwtt.stock.test;
 
-import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
@@ -34,17 +30,21 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 @SpringBootTest
 public class DFSTest {
 
+    private static final int CNT_THRESHOLD = 100;
+    private static final int BATCH_SAVE_SIZE = 50;
+
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
-    private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
+    private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(2);
 
-    private final VoConvert voConvert = VoConvert.INSTANCE;
-    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
+    /** 收集待保存的 StrategyWin，批量写入减少 DB 往返 */
+    private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
     @Test
     @DisplayName("DFS深度遍历")
     public void buildStrateResultAll() throws ExecutionException, InterruptedException {
+        winBatch.clear();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StrategyWin> l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
@@ -57,16 +57,16 @@ public class DFSTest {
                 LinkedHashSet<String> strategySet = new LinkedHashSet<>();
                 strategySet.add(strategyWin.getStrategyCode());
                 buildByLevel(2, stockCodeToDateSetMap, strategySet, strategyWin, finalI);
-            }, cpuThreadPool);
+            }, fixedThreadPool);
             futures.add(future);
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        flushWinBatch();
     }
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               LinkedHashSet<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 5) {
+        if (level > 4) {
             return;
         }
         for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
@@ -75,11 +75,16 @@ public class DFSTest {
                 continue;
             }
 
-            Map<String, Set<Integer>> curStockToDetailIdSetMap = voConvert.convertToMap(stockToDetailIdSetMap);
-
+            Map<String, Set<Integer>> curStockToDetailIdSetMap = copyStockToDetailIdMap(stockToDetailIdSetMap);
             Map<String, Set<Integer>> l1StockToDetailIdMap = l1StrategyToStockToDetailIdSetMap.get(strategy.getStrategyCode());
             curStockToDetailIdSetMap.forEach((stock, detailIdSet) ->
                     detailIdSet.retainAll(l1StockToDetailIdMap.getOrDefault(stock, Collections.emptySet())));
+
+            int totalCnt = curStockToDetailIdSetMap.values().stream().mapToInt(Set::size).sum();
+            if (totalCnt < CNT_THRESHOLD) {
+                continue;
+            }
+
             LinkedHashSet<String> curStrategyCodeSet = new LinkedHashSet<>();
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
@@ -87,11 +92,31 @@ public class DFSTest {
             if (isNotByFiveMax(win, parentWin, level)) {
                 continue;
             }
-            strategyWinService.save(win);
+            addToWinBatch(win);
             buildByLevel(level + 1, curStockToDetailIdSetMap, curStrategyCodeSet, win, i);
         }
     }
 
+    /** 轻量复制 Map，避免 MapStruct DeepClone 开销 */
+    private Map<String, Set<Integer>> copyStockToDetailIdMap(Map<String, Set<Integer>> source) {
+        Map<String, Set<Integer>> copy = new HashMap<>(source.size());
+        source.forEach((k, v) -> copy.put(k, new HashSet<>(v)));
+        return copy;
+    }
+
+    private void addToWinBatch(StrategyWin win) {
+        winBatch.add(win);
+        if (winBatch.size() >= BATCH_SAVE_SIZE) {
+            flushWinBatch();
+        }
+    }
+
+    private void flushWinBatch() {
+        if (winBatch.isEmpty()) return;
+        List<StrategyWin> toSave = new ArrayList<>(winBatch);
+        winBatch.clear();
+        strategyWinService.saveBatch(toSave);
+    }
 
     private StrategyWin saveStrategyWin(LinkedHashSet<String> strategyCodeSet, Map<String, Set<Integer>> stockToDetailIdSetMap) {
         StrategyWin win = new StrategyWin(strategyCodeSet);
@@ -102,15 +127,14 @@ public class DFSTest {
     }
 
     private boolean isNotByFiveMax(StrategyWin win, StrategyWin parentWin, Integer level) {
-        if (win.getCnt() < 100 || lessThan(win.getFiveMaxPercRate(), "0.05")) {
+        if (win.getCnt() < CNT_THRESHOLD || lessThan(win.getFiveMaxPercRate(), "0.05")) {
             return true;
         }
         if (lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
-                || lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.02))
+                || lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.05))
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
                 || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))
-                || (level == 5 && lessThan(win.getFiveMaxPercRate(), "0.11"))
         ) {
             return true;
         }
