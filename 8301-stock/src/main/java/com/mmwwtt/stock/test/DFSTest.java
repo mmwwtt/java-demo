@@ -25,7 +25,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 @SpringBootTest
 public class DFSTest {
 
-    private static final int CNT_THRESHOLD = 50;
+    private static final int CNT_THRESHOLD = 30;
     private static final int BATCH_SAVE_SIZE = 50;
 
     @Autowired
@@ -46,7 +46,7 @@ public class DFSTest {
         l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
                 .filter(item -> item.getStrategyName().startsWith("T0")
-                        //|| item.getStrategyName().startsWith("T1")
+                        || item.getStrategyName().startsWith("T1")
                         //|| item.getStrategyName().startsWith("T2")
                         //|| item.getStrategyName().startsWith("T3")
                 )
