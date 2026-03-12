@@ -38,12 +38,12 @@ public class DFSTest {
      */
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
+    private static  List<StrategyWin> l1WinList;
     @Test
     @DisplayName("DFS深度遍历")
     public void buildStrateResultAll() throws ExecutionException, InterruptedException {
         winBatch.clear();
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<StrategyWin> l1WinList = l1StrategyList.stream()
+        l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
                 .filter(item -> item.getStrategyName().startsWith("T0")
                         //|| item.getStrategyName().startsWith("T1")
@@ -51,6 +51,7 @@ public class DFSTest {
                         //|| item.getStrategyName().startsWith("T3")
                 )
                 .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int i = 0; i < l1WinList.size(); i++) {
             StrategyWin strategyWin = l1WinList.get(i);
             Map<String, Set<Integer>> stockCodeToDateSetMap = l1StrategyToStockToDetailIdSetMap.get(strategyWin.getStrategyCode());
@@ -72,8 +73,8 @@ public class DFSTest {
         if (level > 4) {
             return;
         }
-        for (int i = curIdx + 1; i < l1StrategyList.size(); i++) {
-            StrategyWin strategy = l1StrategyList.get(i);
+        for (int i = curIdx + 1; i < l1WinList.size(); i++) {
+            StrategyWin strategy = l1WinList.get(i);
             if (strategySet.contains(strategy.getStrategyCode())) {
                 continue;
             }
