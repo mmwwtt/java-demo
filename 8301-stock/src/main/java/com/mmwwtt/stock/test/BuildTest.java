@@ -48,7 +48,7 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        String sql = "   five_max_perc_rate > 0.12";
+        String sql = "   five_max_perc_rate > 0.10";
         winList = strategyWinService.getStrategyWin(sql);
         winList.sort(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed());
     }
@@ -85,6 +85,19 @@ public class BuildTest {
         List<StrategyEnum> strategyEnums = List.of(
                 new StrategyEnum("riseStrategy", "上涨预测_低吸型", (StockDetail d) -> {
                     return true;
+                }),
+                new StrategyEnum("pullback5ma", "五日线上方回调至五日线下", (StockDetail t0) -> {
+                    StockDetail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
+                    if (t1 == null || t2 == null || t3 == null || t4 == null) return false;
+                    if (t0.getFiveDayLine() == null || t1.getFiveDayLine() == null) return false;
+                    // 前4日收盘价都在各自五日线之上
+                    boolean prevAbove = moreThan(t1.getEndPrice(), t1.getFiveDayLine())
+                            && moreThan(t2.getEndPrice(), t2.getFiveDayLine())
+                            && moreThan(t3.getEndPrice(), t3.getFiveDayLine())
+                            && moreThan(t4.getEndPrice(), t4.getFiveDayLine());
+                    // 今日收盘回调到五日线之下
+                    boolean todayBelow = lessThan(t0.getEndPrice(), t0.getFiveDayLine());
+                    return prevAbove && todayBelow;
                 })
         );
 
