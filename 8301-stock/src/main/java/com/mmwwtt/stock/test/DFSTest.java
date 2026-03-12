@@ -25,7 +25,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 @SpringBootTest
 public class DFSTest {
 
-    private static final int CNT_THRESHOLD = 100;
+    private static final int CNT_THRESHOLD = 50;
     private static final int BATCH_SAVE_SIZE = 50;
 
     @Autowired
@@ -70,7 +70,7 @@ public class DFSTest {
 
     private void buildByLevel(Integer level, Map<String, Set<Integer>> stockToDetailIdSetMap,
                               LinkedHashSet<String> strategySet, StrategyWin parentWin, Integer curIdx) {
-        if (level > 4) {
+        if (level > 7) {
             return;
         }
         for (int i = curIdx + 1; i < l1WinList.size(); i++) {
@@ -139,7 +139,7 @@ public class DFSTest {
             return true;
         }
         if (lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
-                || lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.05))
+                || lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.01))
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
                 || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))
