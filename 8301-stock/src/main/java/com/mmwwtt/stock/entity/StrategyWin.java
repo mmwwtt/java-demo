@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -76,6 +75,11 @@ public class StrategyWin {
     private BigDecimal fiveMinPercRate;
 
     /**
+     * 5天平均最低涨幅
+     */
+    private BigDecimal fiveMaxMiddlePercRate;
+
+    /**
      * 10天平均涨幅
      */
     private BigDecimal tenPercRate;
@@ -138,6 +142,8 @@ public class StrategyWin {
 
     @TableField(exist = false)
     private LinkedHashSet<String> strategyCodeSet = new LinkedHashSet<>();
+
+
 
     /**
      * 将结果累加到数据中
@@ -242,6 +248,7 @@ public class StrategyWin {
         fivePercRate = average(fivePercRateList);
         fiveMaxPercRate = average(fiveMaxPercRateList);
         fiveMinPercRate = average(fiveMinPercRateList);
+        fiveMaxMiddlePercRate = getMiddle(fiveMaxPercRateList);
         tenPercRate = average(tenPercRateList);
         tenMaxPercRate = average(tenMaxPercRateList);
         tenMinPercRate = average(tenMinPercRateList);
@@ -288,5 +295,15 @@ public class StrategyWin {
                         .limit(list.size() - 5).skip(5).toList()),
                 list.size() - 10)
                 : divide(sum(list), list.size());
+    }
+
+    private BigDecimal getMiddle(List<BigDecimal> list) {
+        if(CollectionUtils.isEmpty(list)) {
+            return BigDecimal.ZERO;
+        }
+        List<BigDecimal> sortList = list.stream()
+                .sorted(Comparator.comparing(BigDecimal::doubleValue))
+                .toList();
+        return sortList.get(sortList.size()/2);
     }
 }

@@ -20,30 +20,13 @@ import java.util.concurrent.Executors;
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
 
-/**
- * 深度优先遍历各种策略
- * 区间60向上 区间40_20_30 下影线长度_08_09   是100%胜率
- * l1 cnt限值不能大于50
- * <p>
- * 收益口径说明：
- * - fiveMaxPercRate（5日最高）= 若在接下来5日内的最高价卖出，理论涨幅；实盘很难卖在最高，通常达不到。
- * - fivePercRate（5日收盘）= 持有5日、按第5日收盘价卖出，更接近实盘，可用 buildStrateResultByFiveClose 按此口径选策略。
- * <p>
- * 过拟合说明：buildStrateResultAll 在全历史上做交集，条件越多样本越少，fiveMax 越容易“凑”出好看数字。
- * 缓解：① 提高 cnt 下限、拒绝胜率过高 ② 同时要求 fivePercRate 达标 ③ 限制层数 ④ 用 buildStrateResultAllAntiOverfit
- */
+
 @Slf4j
 @SpringBootTest
 public class DFSTest {
 
     private static final int CNT_THRESHOLD = 100;
     private static final int BATCH_SAVE_SIZE = 50;
-
-    // 防止过拟合的参数
-    private static final int ANTI_OVERFIT_CNT_THRESHOLD = 150; // 更高的样本量要求
-    private static final BigDecimal MIN_FIVE_PERC_RATE = new BigDecimal("0.03"); // 5日收盘价涨幅下限
-    private static final BigDecimal MAX_WIN_RATE = new BigDecimal("0.95"); // 胜率上限，拒绝过于完美的策略
-    private static final int TRAIN_TEST_SPLIT_YEAR = 2023; // 训练集和测试集的分割年份
 
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
@@ -63,7 +46,7 @@ public class DFSTest {
         List<StrategyWin> l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
                 .filter(item -> item.getStrategyName().startsWith("T0")
-                        || item.getStrategyName().startsWith("T1")
+                        //|| item.getStrategyName().startsWith("T1")
                         //|| item.getStrategyName().startsWith("T2")
                         //|| item.getStrategyName().startsWith("T3")
                 )
