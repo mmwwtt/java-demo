@@ -96,7 +96,7 @@ public class CommonService {
 
 
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        List<StrategyEnum> values = StrategyEnum.strategy2_4DayList;
+        List<StrategyEnum> values = StrategyEnum.dayForStrategyList;
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<String> part : stockCodePartList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {

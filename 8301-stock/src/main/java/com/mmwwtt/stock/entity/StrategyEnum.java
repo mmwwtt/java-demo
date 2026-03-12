@@ -21,12 +21,12 @@ public class StrategyEnum {
     private String name;
     private Function<StockDetail, Boolean> runFunc;
 
-    public static final List<StrategyEnum> base2StrategyList = new ArrayList<>();
-    public static final List<StrategyEnum> strategy2_4DayList = new ArrayList<>();
+    public static final List<StrategyEnum> baseStrategyList = new ArrayList<>();
+    public static final List<StrategyEnum> dayForStrategyList = new ArrayList<>();
     public static final Map<String, StrategyEnum> codeToEnumMap = new HashMap<>();
 
     static {
-         base2StrategyList.addAll(
+         baseStrategyList.addAll(
         Arrays.asList(
                 new StrategyEnum("20004", "二连红",
                         (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed()),
@@ -241,7 +241,7 @@ public class StrategyEnum {
     }
 
     static {
-        List<StrategyEnum> t0List = base2StrategyList.stream().map(item -> {
+        List<StrategyEnum> t0List = baseStrategyList.stream().map(item -> {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
             cur.setCode("0" + item.getCode());
             cur.setName("T0-" + item.getName());
@@ -249,7 +249,7 @@ public class StrategyEnum {
             return cur;
         }).toList();
 
-        List<StrategyEnum> t1List = base2StrategyList.stream().map(item -> {
+        List<StrategyEnum> t1List = baseStrategyList.stream().map(item -> {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
             cur.setCode("1" + item.getCode());
             cur.setName("T1-" + item.getName());
@@ -257,7 +257,7 @@ public class StrategyEnum {
             return cur;
         }).toList();
 
-        List<StrategyEnum> t2List = base2StrategyList.stream().map(item -> {
+        List<StrategyEnum> t2List = baseStrategyList.stream().map(item -> {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
             cur.setCode("2" + item.getCode());
             cur.setName("T2-" + item.getName());
@@ -265,7 +265,7 @@ public class StrategyEnum {
             return cur;
         }).toList();
 
-        List<StrategyEnum> t3List = base2StrategyList.stream().map(item -> {
+        List<StrategyEnum> t3List = baseStrategyList.stream().map(item -> {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
             cur.setCode("3" + item.getCode());
             cur.setName("T3-" + item.getName());
@@ -273,11 +273,11 @@ public class StrategyEnum {
             return cur;
         }).toList();
 
-        strategy2_4DayList.addAll(t0List);
-        strategy2_4DayList.addAll(t1List);
-        strategy2_4DayList.addAll(t2List);
-        strategy2_4DayList.addAll(t3List);
-        for (StrategyEnum strategyEnum : strategy2_4DayList) {
+        dayForStrategyList.addAll(t0List);
+        dayForStrategyList.addAll(t1List);
+        dayForStrategyList.addAll(t2List);
+        dayForStrategyList.addAll(t3List);
+        for (StrategyEnum strategyEnum : dayForStrategyList) {
             codeToEnumMap.put(strategyEnum.getCode(), strategyEnum);
         }
     }

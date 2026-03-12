@@ -23,6 +23,8 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 @TableName(value = "stock_strategy_win_t")
 @NoArgsConstructor
 public class StrategyWin {
+
+    private Long strategyWinId;
     /**
      * 策略编码
      */
