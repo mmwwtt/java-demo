@@ -25,13 +25,13 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 @SpringBootTest
 public class DFSTest {
 
-    private static final int CNT_THRESHOLD = 30;
+    private static final int CNT_THRESHOLD = 80;
     private static final int BATCH_SAVE_SIZE = 50;
 
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
-    private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(2);
+    private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
 
     /**
      * 收集待保存的 StrategyWin，批量写入减少 DB 往返
