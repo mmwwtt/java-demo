@@ -12,12 +12,6 @@ spring:
       maximum-pool-size: 100   # 太小容易被打满
       connection-timeout: 30000
 
-logging:
-  level:
-    org:
-      springframework:
-        boot:
-          autoconfigure: INFO
 mybatis-plus:
   mapper-locations: classpath:dao/*.xml
   configuration:

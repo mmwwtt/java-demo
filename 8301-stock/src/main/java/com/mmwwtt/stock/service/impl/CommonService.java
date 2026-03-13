@@ -36,8 +36,8 @@ public class CommonService {
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
     public static Map<String, Map<String, Set<Integer>>> l1StrategyToStockToDetailIdSetMap;
-    public static Map<Integer, StockDetail> idToDetailMap = new HashMap<>(1048576);
-    public static Map<String, List<StockDetail>> codeToDetailMap = new HashMap<>(4096);
+    public static Map<Integer, StockDetail> idToDetailMap = new ConcurrentHashMap<>(1048576);
+    public static Map<String, List<StockDetail>> codeToDetailMap = new ConcurrentHashMap<>(4096);
     public static Map<String, String> stockCodeToNameMap;
     public static List<StrategyWin> l1StrategyList;
     public static List<List<String>> stockCodePartList;

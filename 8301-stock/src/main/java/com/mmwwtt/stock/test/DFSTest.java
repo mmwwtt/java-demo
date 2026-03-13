@@ -31,7 +31,7 @@ public class DFSTest {
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
-    private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
+    private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(32);
 
     /**
      * 收集待保存的 StrategyWin，批量写入减少 DB 往返

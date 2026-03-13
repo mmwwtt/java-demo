@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 @Data
 @TableName(value = "stock_strategy_win_t")
 @NoArgsConstructor
+@Slf4j
 public class StrategyWin {
 
     private Long strategyWinId;
@@ -106,6 +108,8 @@ public class StrategyWin {
      * 临时属性
      */
     @TableField(exist = false)
+    private List<StockDetail> list = Collections.synchronizedList(new ArrayList<>());
+    @TableField(exist = false)
     private List<BigDecimal> onePercRateList = new ArrayList<>();
 
     @TableField(exist = false)
@@ -138,9 +142,6 @@ public class StrategyWin {
     private List<BigDecimal> tenDailyPercRateList = new ArrayList<>();
 
     @TableField(exist = false)
-    private Map<String, List<StockDetail>> dateToDetailListMap = new ConcurrentHashMap<>();
-
-    @TableField(exist = false)
     private LinkedHashSet<String> strategyCodeSet = new LinkedHashSet<>();
 
 
@@ -148,13 +149,12 @@ public class StrategyWin {
     /**
      * 将结果累加到数据中
      */
-    public synchronized void addToResult(StockDetail stockDetail) {
-        if (Objects.isNull(stockDetail)) {
+    public void addToResult(StockDetail stockDetail) {
+        if(Objects.isNull(stockDetail)) {
+            log.info("不存在的详情");
             return;
         }
-
-        dateToDetailListMap.computeIfAbsent(stockDetail.getDealDate(), 
-                k -> Collections.synchronizedList(new ArrayList<>())).add(stockDetail);
+        list.add(stockDetail);
     }
 
 
@@ -162,7 +162,8 @@ public class StrategyWin {
      * 填充数据
      */
     public void fillData() {
-        
+        Map<String, List<StockDetail>> dateToDetailListMap  = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
+
         dateToDetailListMap.forEach((date, details) -> {
             List<BigDecimal> curOnePertList = new ArrayList<>();
             List<BigDecimal> curTwoPertList = new ArrayList<>();
