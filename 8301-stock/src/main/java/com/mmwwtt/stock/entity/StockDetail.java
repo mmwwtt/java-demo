@@ -712,15 +712,17 @@ public class StockDetail {
             if (i - 5 >= 0) {
                 cur.setNext5PricePert(divide(subtract(list.get(i - 5).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
                 List<BigDecimal> highPriceList = list.subList(i - 5, i).stream().map(StockDetail::getHighPrice).toList();
+                List<BigDecimal> lowPriceList = list.subList(i - 5, i).stream().map(StockDetail::getLowPrice).toList();
                 cur.setNext5MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
-                cur.setNext5MinPricePert(divide(subtract(min(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setNext5MinPricePert(divide(subtract(min(lowPriceList), cur.getEndPrice()), cur.getEndPrice()));
             }
 
             if (i - 10 >= 0) {
                 cur.setNext10PricePert(divide(subtract(list.get(i - 10).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
                 List<BigDecimal> highPriceList = list.subList(i - 10, i).stream().map(StockDetail::getHighPrice).toList();
+                List<BigDecimal> lowPriceList = list.subList(i - 10, i).stream().map(StockDetail::getLowPrice).toList();
                 cur.setNext10MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
-                cur.setNext10MinPricePert(divide(subtract(min(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setNext10MinPricePert(divide(subtract(min(lowPriceList), cur.getEndPrice()), cur.getEndPrice()));
             }
 
             calcIsUp(list, i, 5, cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveHigh, cur::setFiveLow,
