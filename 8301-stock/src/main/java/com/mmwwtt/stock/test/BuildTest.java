@@ -48,7 +48,8 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        String sql = "five_max_perc_rate>0.11 and five_max_middle_perc_rate>0.10";
+        String sql = "five_max_perc_rate>0.11 and five_max_middle_perc_rate>0.09 " +
+                "and five_min_perc_rate > -0.1";
         winList = strategyWinService.getStrategyWin(sql)
                 .stream()
                 .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed())
