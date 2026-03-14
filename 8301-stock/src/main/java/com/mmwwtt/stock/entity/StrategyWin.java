@@ -205,36 +205,27 @@ public class StrategyWin {
             List<BigDecimal> curTenMaxPertList = new ArrayList<>();
             List<BigDecimal> curTenMinPertList = new ArrayList<>();
             for (StockDetail detail : details) {
+                BigDecimal endPrice = detail.getEndPrice();
                 if (Objects.nonNull(detail.getNext1())) {
-                    BigDecimal onPert = divide(subtract(detail.getNext1().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
-                    curOnePertList.add(onPert);
+                    curOnePertList.add(divide(subtract(detail.getNext1().getEndPrice(), endPrice), endPrice));
                 }
                 if (Objects.nonNull(detail.getNext2())) {
-                    curTwoPertList.add(divide(subtract(detail.getNext2().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+                    curTwoPertList.add(divide(subtract(detail.getNext2().getEndPrice(), endPrice), endPrice));
                 }
-
                 if (Objects.nonNull(detail.getNext3())) {
-                    curThreePertList.add(divide(subtract(detail.getNext3().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+                    curThreePertList.add(divide(subtract(detail.getNext3().getEndPrice(), endPrice), endPrice));
                 }
-
-
                 if (Objects.nonNull(detail.getNext4())) {
-                    curFourPertList.add(divide(subtract(detail.getNext4().getEndPrice(), detail.getEndPrice()), detail.getEndPrice()));
+                    curFourPertList.add(divide(subtract(detail.getNext4().getEndPrice(), endPrice), endPrice));
                 }
-
-
                 if (Objects.nonNull(detail.getNext5())) {
-                    BigDecimal fivePert = divide(subtract(detail.getNext5().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
-                    curFivePertList.add(fivePert);
+                    curFivePertList.add(divide(subtract(detail.getNext5().getEndPrice(), endPrice), endPrice));
                     if (Objects.nonNull(detail.getNext5MinPricePert())) {
                         curFiveMinPertList.add(detail.getNext5MinPricePert());
                     }
                 }
-
-
                 if (Objects.nonNull(detail.getNext10())) {
-                    BigDecimal tenPert = divide(subtract(detail.getNext10().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
-                    curTenPertList.add(tenPert);
+                    curTenPertList.add(divide(subtract(detail.getNext10().getEndPrice(), endPrice), endPrice));
                     curTenMaxPertList.add(detail.getNext10MaxPricePert());
                     curTenMinPertList.add(detail.getNext10MinPricePert());
                 }

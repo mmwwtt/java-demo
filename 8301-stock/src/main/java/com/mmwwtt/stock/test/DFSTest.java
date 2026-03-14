@@ -8,8 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
@@ -37,6 +38,14 @@ public class DFSTest {
 
     private static List<StrategyWin> l1WinList;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1048576);
+    /** 每线程复用，避免每次 getMd5 都调用 MessageDigest.getInstance("MD5") */
+    private static final ThreadLocal<MessageDigest> MD5 = ThreadLocal.withInitial(() -> {
+        try {
+            return MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    });
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
@@ -94,7 +103,8 @@ public class DFSTest {
             if (curDetailIds == null) continue;
             int[] curRetainAllDetailIds = retainAll(parentDetailIds, curDetailIds);
             String md5 = getMd5(curRetainAllDetailIds);
-            if (md5ToLevelMap.containsKey(md5) && md5ToLevelMap.get(md5) > level) {
+            Integer existingLevel = md5ToLevelMap.get(md5);
+            if (existingLevel != null && existingLevel > level) {
                 continue;
             }
             md5ToLevelMap.put(md5, level);
@@ -197,25 +207,14 @@ public class DFSTest {
         return Arrays.copyOfRange(tmpArr, 0, arrIdx);
     }
 
-    public String getMd5(int[] intArray) {
-        try {
-            // 1. 将数组转换为字符串
-            // 注意：Arrays.toString() 会产生 "[1, 2, 3]" 这种格式
-            String str = java.util.Arrays.toString(intArray);
-
-            // 2. 计算字符串的 MD5
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(str.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-
-            BigInteger bigInt = new BigInteger(1, digest);
-            String hashText = bigInt.toString(16);
-            while (hashText.length() < 32) {
-                hashText = "0" + hashText;
-            }
-            return hashText;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
+    private static String getMd5(int[] intArray) {
+        MessageDigest md = MD5.get();
+        md.reset();
+        byte[] digest = md.digest(Arrays.toString(intArray).getBytes(StandardCharsets.UTF_8));
+        StringBuilder sb = new StringBuilder(32);
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b & 0xff));
         }
+        return sb.toString();
     }
 }
