@@ -68,8 +68,7 @@ public class DFSTest {
         AtomicInteger task3Num = new AtomicInteger();
         AtomicInteger task4Num = new AtomicInteger();
 
-        //多线程执行任务
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        // 用原子计数代替 futures 列表，避免主循环对百万级列表做 stream，越跑越慢
         while (true) {
             List<DfsTask> taskList = new ArrayList<>();
             taskQueue.drainTo(taskList, taskQueue.size());
@@ -89,50 +88,61 @@ public class DFSTest {
                         size4List.add(task);
                     }
                 });
-                size1List.forEach(task ->
-                        futures.add(CompletableFuture.runAsync(() -> {
-                            buildByLevel(task);
-                            task1Num.getAndDecrement();
-                        }, cpuThreadPool)));
-                ListUtils.partition(size2List, 10).forEach(partTaskList ->
-                        futures.add(CompletableFuture.runAsync(() -> {
-                            partTaskList.forEach(this::buildByLevel);
-                            task2Num.getAndDecrement();
-                        }, cpuThreadPool)));
-                ListUtils.partition(size3List, 100).forEach(partTaskList ->
-                        futures.add(CompletableFuture.runAsync(() -> {
-                            partTaskList.forEach(this::buildByLevel);
-                            task3Num.getAndDecrement();
-                        }, cpuThreadPool)));
-                ListUtils.partition(size4List, 1000).forEach(partTaskList ->
-                        futures.add(CompletableFuture.runAsync(() -> {
-                            partTaskList.forEach(this::buildByLevel);
-                            task4Num.getAndDecrement();
-                        }, cpuThreadPool)));
+                int n1 = size1List.size();
+                int n2 = (size2List.size() + 9) / 10;
+                int n3 = (size3List.size() + 99) / 100;
+                int n4 = (size4List.size() + 999) / 1000;
+                task1Num.addAndGet(n1);
+                task2Num.addAndGet(n2);
+                task3Num.addAndGet(n3);
+                task4Num.addAndGet(n4);
 
-                task1Num.addAndGet(size1List.size());
-                task2Num.addAndGet(size2List.size() % 10 == 0 ? size2List.size() / 10 : size2List.size() / 10 + 1);
-                task3Num.addAndGet(size3List.size() % 100 == 0 ? size3List.size() / 100 : size3List.size() / 100 + 1);
-                task4Num.addAndGet(size4List.size() % 1000 == 0 ? size4List.size() / 1000 : size4List.size() / 1000 + 1);
+                size1List.forEach(task ->
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                buildByLevel(task);
+                            } finally {
+                                task1Num.decrementAndGet();
+                            }
+                        }, cpuThreadPool));
+                ListUtils.partition(size2List, 10).forEach(partTaskList ->
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                partTaskList.forEach(this::buildByLevel);
+                            } finally {
+                                task2Num.decrementAndGet();
+                            }
+                        }, cpuThreadPool));
+                ListUtils.partition(size3List, 100).forEach(partTaskList ->
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                partTaskList.forEach(this::buildByLevel);
+                            } finally {
+                                task3Num.decrementAndGet();
+                            }
+                        }, cpuThreadPool));
+                ListUtils.partition(size4List, 1000).forEach(partTaskList ->
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                partTaskList.forEach(this::buildByLevel);
+                            } finally {
+                                task4Num.decrementAndGet();
+                            }
+                        }, cpuThreadPool));
             }
-            long notDownTaskNum = futures.stream().filter(item -> !item.isDone()).count();
+
+            int pendingCount = task1Num.get() + task2Num.get() + task3Num.get() + task4Num.get();
             log.info("队列任务数{}， 剩余任务数{} 类型1数量{}  类型2数量{} 类型3数量{} 类型4数量{}",
-                    taskQueue.size(), notDownTaskNum,
+                    taskQueue.size(), pendingCount,
                     task1Num.get(), task2Num.get(), task3Num.get(), task4Num.get());
+
             if (taskQueue.size() < 2000) {
-                if (taskQueue.isEmpty()) {
-                    boolean isRun = futures.stream().anyMatch(f -> !f.isDone());
-                    if (!isRun) {
-                        break;
-                    }
-                }
-                if (notDownTaskNum > 30) {
-                    Thread.sleep(20000);
+                if (taskQueue.isEmpty() && pendingCount == 0) {
+                    break;
                 }
                 Thread.sleep(20000);
             }
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
         flushWinBatch();
     }
 
