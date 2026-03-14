@@ -29,9 +29,6 @@ public class StrategyResultServiceImpl extends ServiceImpl<StrategyResultDAO, St
     @Override
     public List<StrategyResult> getStrategyResult(StrategyResult strategyResult) {
         QueryWrapper<StrategyResult> wrapper = new QueryWrapper<>();
-        if (StringUtils.isNotEmpty(strategyResult.getStockCode())) {
-            wrapper.eq("stock_code", strategyResult.getStockCode());
-        }
         if (StringUtils.isNotEmpty(strategyResult.getStrategyCode())) {
             wrapper.eq("strategy_code", strategyResult.getStrategyCode());
         }

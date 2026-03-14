@@ -645,6 +645,8 @@ public class StockDetail {
     private Integer volumePriceDivergence;
 
 
+
+
     /**
      * 在拉取数据的时候就进行计算  并保存到数据库中，避免之后重复计算
      */

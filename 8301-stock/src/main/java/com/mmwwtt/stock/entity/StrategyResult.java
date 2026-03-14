@@ -9,6 +9,8 @@ import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -30,11 +32,6 @@ public class StrategyResult {
      */
     private String strategyCode;
 
-    /**
-     * 股票编码
-     */
-    private String stockCode;
-
 
     /**
      * 预测对的列表
@@ -48,12 +45,12 @@ public class StrategyResult {
      */
     private Integer level;
 
-    public StrategyResult(Integer level, String strategyCode, String stockCode, Set<Integer> stockDetailIdSet) {
+    public StrategyResult(Integer level, String strategyCode, List<Integer> stockDetailIds) {
         this.level = level;
         this.strategyCode = strategyCode;
-        this.stockCode = stockCode;
-        JSONArray array = new JSONArray(stockDetailIdSet.size());
-        array.addAll(stockDetailIdSet);
+        stockDetailIds.sort(Comparator.comparing(Integer::intValue));
+        JSONArray array = new JSONArray(stockDetailIds.size());
+        array.addAll(stockDetailIds);
         this.stockDetailIdList = array;
     }
 }

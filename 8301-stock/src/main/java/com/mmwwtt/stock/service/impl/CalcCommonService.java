@@ -44,8 +44,6 @@ public class CalcCommonService {
         Map<String, StockDetail> codeToDetailMap = stockDetailService.getCodeToCurDetailMap(curDate);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        //策略
-        log.info("开始计算");
         Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
         for (StrategyWin strategyWin : strategyWinList) {
             List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
@@ -72,7 +70,7 @@ public class CalcCommonService {
                                     .add(stockCode + "_" + name + " " + pert);
                         }
                     }
-                }, cpuThreadPool);
+                }, ioThreadPool);
                 futures.add(future);
             }
         }
@@ -119,8 +117,6 @@ public class CalcCommonService {
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
-        //策略
-        log.info("开始计算");
 
         for (StrategyWin strategyWin : strategyWinList) {
             List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
