@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
@@ -38,14 +37,6 @@ public class DFSTest {
 
     private static List<StrategyWin> l1WinList;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1048576);
-    /** 每线程复用，避免每次 getMd5 都调用 MessageDigest.getInstance("MD5") */
-    private static final ThreadLocal<MessageDigest> MD5 = ThreadLocal.withInitial(() -> {
-        try {
-            return MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    });
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
@@ -208,13 +199,17 @@ public class DFSTest {
     }
 
     private static String getMd5(int[] intArray) {
-        MessageDigest md = MD5.get();
-        md.reset();
-        byte[] digest = md.digest(Arrays.toString(intArray).getBytes(StandardCharsets.UTF_8));
-        StringBuilder sb = new StringBuilder(32);
-        for (byte b : digest) {
-            sb.append(String.format("%02x", b & 0xff));
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.reset();
+            byte[] digest = md.digest(Arrays.toString(intArray).getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(32);
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b & 0xff));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return sb.toString();
     }
 }
