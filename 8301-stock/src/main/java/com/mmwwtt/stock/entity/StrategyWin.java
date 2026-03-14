@@ -171,7 +171,7 @@ public class StrategyWin {
      */
     public void fillData1() {
         strategyCodeSet.add(strategyCode);
-        if(Objects.nonNull(parentWinStrategyCodeSet)) {
+        if (Objects.nonNull(parentWinStrategyCodeSet)) {
             strategyCodeSet.addAll(parentWinStrategyCodeSet);
         }
 
