@@ -11,10 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
@@ -38,7 +35,7 @@ public class DFSTest {
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
     private static List<StrategyWin> l1WinList;
-    private static Set<String> md5Set = Collections.synchronizedSet(new HashSet<>());
+    private static Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>();
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -49,17 +46,17 @@ public class DFSTest {
                 .filter(item -> item.getStrategyName().startsWith("T0")
                         || item.getStrategyName().startsWith("T1")
                         || item.getStrategyName().startsWith("T2")
- //                       || item.getStrategyName().startsWith("T3")
+                        || item.getStrategyName().startsWith("T3")
                 )
+                .peek(item -> item.getStrategyCodeSet().add(item.getStrategyCode()))
                 .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
+
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int i = 0; i < l1WinList.size(); i++) {
             StrategyWin strategyWin = l1WinList.get(i);
             int finalI = i;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                Set<String> strategySet = new HashSet<>();
-                strategySet.add(strategyWin.getStrategyCode());
-                buildByLevel(2, strategyToDetailsMap.get(strategyWin.getStrategyCode()), strategySet, strategyWin, finalI);
+                buildByLevel(strategyToDetailsMap.get(strategyWin.getStrategyCode()), strategyWin, finalI);
             }, fixedThreadPool);
             futures.add(future);
         }
@@ -68,32 +65,32 @@ public class DFSTest {
     }
 
 
-    private void buildByLevel(Integer level, int[] parentDetailIds,
-                              Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
+    private void buildByLevel(int[] parentDetailIds, StrategyWin parentWin, Integer curIdx) {
+        int level = parentWin.getStrategyCodeSet().size() + 1;
         if (level > 7) {
             return;
         }
         for (int i = curIdx + 1; i < l1WinList.size(); i++) {
             StrategyWin strategy = l1WinList.get(i);
-            if (strategySet.contains(strategy.getStrategyCode())) {
+            if (parentWin.getStrategyCodeSet().contains(strategy.getStrategyCode())) {
                 continue;
             }
+
             int[] curRetainAllDetailIds = retainAll(parentDetailIds, strategyToDetailsMap.get(strategy.getStrategyCode()));
             String md5 = getMd5(curRetainAllDetailIds);
-            if (md5Set.contains(md5)) {
+            if (md5ToLevelMap.containsKey(md5) && md5ToLevelMap.get(md5) > level) {
                 continue;
             }
-            md5Set.add(md5);
-            Set<String> curStrategyCodeSet = new HashSet<>();
-            curStrategyCodeSet.add(strategy.getStrategyCode());
-            curStrategyCodeSet.addAll(strategySet);
-            StrategyWin win = calcStrategyWin(curStrategyCodeSet, curRetainAllDetailIds);
-            if (isNotByFiveMax(win, parentWin, level)) {
+            md5ToLevelMap.put(md5, level);
+
+            StrategyWin win = calcStrategyWin(parentWin, strategy.getStrategyCode(), curRetainAllDetailIds);
+
+            if (isNotByFiveMaxAvg(win)) {
                 continue;
             }
             win.fillData2();
             addToWinBatch(win);
-            buildByLevel(level + 1, curRetainAllDetailIds, curStrategyCodeSet, win, i);
+            buildByLevel(curRetainAllDetailIds, win, i);
         }
     }
 
@@ -112,26 +109,46 @@ public class DFSTest {
         strategyWinService.saveBatch(toSave);
     }
 
-    private StrategyWin calcStrategyWin(Set<String> strategyCodeSet, int[] details) {
-        StrategyWin win = new StrategyWin(strategyCodeSet);
+    private StrategyWin calcStrategyWin(StrategyWin parentWin, String curStrategyCode, int[] details) {
+        Set<String> curSet = new HashSet<>();
+        curSet.add(curStrategyCode);
+        curSet.addAll(parentWin.getStrategyCodeSet());
+
+        StrategyWin win = new StrategyWin(curSet);
         for (int detail : details) {
             win.addToResult(idToDetailMap.get(detail));
         }
         win.fillData1();
+        win.setParentWin(parentWin);
         return win;
     }
 
-    private boolean isNotByFiveMax(StrategyWin win, StrategyWin parentWin, Integer level) {
+    private boolean isNotByFiveMaxAvg(StrategyWin win) {
         if (win.getCnt() < CNT_THRESHOLD || lessThan(win.getFiveMaxPercRate(), "0.05")) {
             return true;
         }
-        return lessAndEqualsThan(win.getFiveMaxPercRate(), parentWin.getFiveMaxPercRate())
-                || lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.01))
+        int level = win.getStrategyCodeSet().size();
+        return lessThan(win.getFiveMaxPercRate(), multiply(win.getParentWin().getFiveMaxPercRate(), 1.01))
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
                 || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))
                 || (level == 5 && lessThan(win.getFiveMaxPercRate(), "0.11"))
-                || (level == 6 && lessThan(win.getFiveMaxPercRate(), "0.115"));
+                || (level == 6 && lessThan(win.getFiveMaxPercRate(), "0.115"))
+                || (level == 7 && lessThan(win.getFiveMaxPercRate(), "0.12"));
+    }
+
+    private boolean isNotByFiveMaxMiddle(StrategyWin win) {
+        if (win.getCnt() < CNT_THRESHOLD || lessThan(win.getFiveMaxMiddlePercRate(), "0.05")) {
+            return true;
+        }
+        int level = win.getStrategyCodeSet().size();
+        return lessThan(win.getFiveMaxMiddlePercRate(), multiply(win.getParentWin().getFiveMaxMiddlePercRate(), 1.01))
+                || (level == 2 && lessThan(win.getFiveMaxMiddlePercRate(), "0.08"))
+                || (level == 3 && lessThan(win.getFiveMaxMiddlePercRate(), "0.09"))
+                || (level == 4 && lessThan(win.getFiveMaxMiddlePercRate(), "0.10"))
+                || (level == 5 && lessThan(win.getFiveMaxMiddlePercRate(), "0.11"))
+                || (level == 6 && lessThan(win.getFiveMaxMiddlePercRate(), "0.115"))
+                || (level == 7 && lessThan(win.getFiveMaxMiddlePercRate(), "0.12"));
     }
 
     /**

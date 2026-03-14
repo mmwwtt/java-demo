@@ -9,7 +9,6 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -27,7 +26,7 @@ public class StrategyWin {
 
     private Long strategyWinId;
     /**
-     * 策略编码
+     * 策略编码  组合编码
      */
     private String strategyCode;
 
@@ -127,7 +126,7 @@ public class StrategyWin {
     private List<BigDecimal> fiveMaxPercRateList = new ArrayList<>();
     @TableField(exist = false)
     private List<BigDecimal> fiveMinPercRateList = new ArrayList<>();
-    
+
     @TableField(exist = false)
     private List<BigDecimal> fiveDailyPercRateList = new ArrayList<>();
 
@@ -137,59 +136,50 @@ public class StrategyWin {
     private List<BigDecimal> tenMaxPercRateList = new ArrayList<>();
     @TableField(exist = false)
     private List<BigDecimal> tenMinPercRateList = new ArrayList<>();
-    
+
     @TableField(exist = false)
     private List<BigDecimal> tenDailyPercRateList = new ArrayList<>();
 
     @TableField(exist = false)
     private Set<String> strategyCodeSet = new HashSet<>();
 
-
-
+    @TableField(exist = false)
+    private StrategyWin parentWin;
     /**
      * 将结果累加到数据中
      */
     public void addToResult(StockDetail stockDetail) {
-        if(Objects.isNull(stockDetail)) {
+        if (Objects.isNull(stockDetail)) {
             log.info("不存在的详情");
             return;
         }
         list.add(stockDetail);
     }
+
     /**
      * 填充数据
      */
     public void fillData1() {
-        Map<String, List<StockDetail>> dateToDetailListMap = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
-
-        dateToDetailListMap.forEach((date, details) -> {
-            List<BigDecimal> curFiveMaxPertList = new ArrayList<>();
-            for (StockDetail detail : details) {
-                if (Objects.nonNull(detail.getNext5())) {
-                    curFiveMaxPertList.add(detail.getNext5MaxPricePert());
-                }
-            }
-            if (CollectionUtils.isNotEmpty(curFiveMaxPertList)) {
-                fiveMaxPercRateList.add(divide(sum(curFiveMaxPertList), curFiveMaxPertList.size()));
-            }
-
+        Map<String, List<BigDecimal>> dateToFiveMaxPertMap = new HashMap<>();
+        list.forEach(stockDetail -> {
+            dateToFiveMaxPertMap.computeIfAbsent(stockDetail.getDealDate(), k -> new ArrayList<>())
+                    .add(stockDetail.getNext5MaxPricePert());
         });
 
+        dateToFiveMaxPertMap.forEach((date, fiveMaxPerts) -> {
+            if (CollectionUtils.isNotEmpty(fiveMaxPerts)) {
+                fiveMaxPercRateList.add(divide(sum(fiveMaxPerts), fiveMaxPerts.size()));
+            }
+        });
         fiveMaxPercRate = average(fiveMaxPercRateList);
         cnt = fiveMaxPercRateList.size();
-//        if (fiveMaxPercRateList.size() < 100 && !dateToDetailListMap.isEmpty()) {
-//            dateCnt = dateToDetailListMap.entrySet().stream()
-//                    .sorted(Comparator.comparing(e -> e.getValue().size(), Comparator.reverseOrder()))
-//                    .map(e -> String.format("%s_%d", e.getKey(), e.getValue().size()))
-//                    .collect(Collectors.joining(" \n"));
-//        }
     }
 
     /**
      * 填充数据
      */
     public void fillData2() {
-        Map<String, List<StockDetail>> dateToDetailListMap  = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
+        Map<String, List<StockDetail>> dateToDetailListMap = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
 
         dateToDetailListMap.forEach((date, details) -> {
             List<BigDecimal> curOnePertList = new ArrayList<>();
@@ -315,12 +305,12 @@ public class StrategyWin {
     }
 
     private BigDecimal getMiddle(List<BigDecimal> list) {
-        if(CollectionUtils.isEmpty(list)) {
+        if (CollectionUtils.isEmpty(list)) {
             return BigDecimal.ZERO;
         }
         List<BigDecimal> sortList = list.stream()
                 .sorted(Comparator.comparing(BigDecimal::doubleValue))
                 .toList();
-        return sortList.get(sortList.size()/2);
+        return sortList.get(sortList.size() / 2);
     }
 }
