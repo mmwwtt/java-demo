@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -36,6 +38,7 @@ public class DFSTest {
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
     private static List<StrategyWin> l1WinList;
+    private static Set<String> md5Set = Collections.synchronizedSet(new HashSet<>());
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -44,9 +47,9 @@ public class DFSTest {
         l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
                 .filter(item -> item.getStrategyName().startsWith("T0")
-                                || item.getStrategyName().startsWith("T1")
-                                || item.getStrategyName().startsWith("T2")
-                      || item.getStrategyName().startsWith("T3")
+                        || item.getStrategyName().startsWith("T1")
+                        || item.getStrategyName().startsWith("T2")
+ //                       || item.getStrategyName().startsWith("T3")
                 )
                 .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -76,6 +79,11 @@ public class DFSTest {
                 continue;
             }
             int[] curRetainAllDetailIds = retainAll(parentDetailIds, strategyToDetailsMap.get(strategy.getStrategyCode()));
+            String md5 = getMd5(curRetainAllDetailIds);
+            if (md5Set.contains(md5)) {
+                continue;
+            }
+            md5Set.add(md5);
             Set<String> curStrategyCodeSet = new HashSet<>();
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
@@ -154,5 +162,29 @@ public class DFSTest {
             }
         }
         return Arrays.copyOfRange(tmpArr, 0, arrIdx);
+    }
+
+    public String getMd5(int[] intArray) {
+        try {
+
+
+            // 1. 将数组转换为字符串
+            // 注意：Arrays.toString() 会产生 "[1, 2, 3]" 这种格式
+            String str = java.util.Arrays.toString(intArray);
+
+            // 2. 计算字符串的 MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(str.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+            BigInteger bigInt = new BigInteger(1, digest);
+            String hashText = bigInt.toString(16);
+            while (hashText.length() < 32) {
+                hashText = "0" + hashText;
+            }
+            return hashText;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }
