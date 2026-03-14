@@ -115,14 +115,19 @@ public class DFSTest {
                 task3Num.addAndGet(size3List.size() % 100 == 0 ? size3List.size() / 100 : size3List.size() / 100 + 1);
                 task4Num.addAndGet(size4List.size() % 1000 == 0 ? size4List.size() / 1000 : size4List.size() / 1000 + 1);
             }
-            log.info("队列任务数{}， 线程池任务数{} 类型1数量{}  类型2数量{} 类型3数量{} 类型4数量{}",
-                    taskQueue.size(), futures.size(), task1Num.get(), task2Num.get(), task3Num.get(), task4Num.get());
+            long notDownTaskNum = futures.stream().filter(item -> !item.isDone()).count();
+            log.info("队列任务数{}， 剩余任务数{} 类型1数量{}  类型2数量{} 类型3数量{} 类型4数量{}",
+                    taskQueue.size(), notDownTaskNum,
+                    task1Num.get(), task2Num.get(), task3Num.get(), task4Num.get());
             if (taskQueue.size() < 2000) {
                 if (taskQueue.isEmpty()) {
                     boolean isRun = futures.stream().anyMatch(f -> !f.isDone());
                     if (!isRun) {
                         break;
                     }
+                }
+                if (notDownTaskNum > 30) {
+                    Thread.sleep(20000);
                 }
                 Thread.sleep(20000);
             }
