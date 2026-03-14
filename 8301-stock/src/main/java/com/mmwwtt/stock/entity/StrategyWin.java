@@ -142,7 +142,7 @@ public class StrategyWin {
     private List<BigDecimal> tenDailyPercRateList = new ArrayList<>();
 
     @TableField(exist = false)
-    private LinkedHashSet<String> strategyCodeSet = new LinkedHashSet<>();
+    private Set<String> strategyCodeSet = new HashSet<>();
 
 
 
@@ -177,12 +177,12 @@ public class StrategyWin {
 
         fiveMaxPercRate = average(fiveMaxPercRateList);
         cnt = fiveMaxPercRateList.size();
-        if (fiveMaxPercRateList.size() < 100 && !dateToDetailListMap.isEmpty()) {
-            dateCnt = dateToDetailListMap.entrySet().stream()
-                    .sorted(Comparator.comparing(e -> e.getValue().size(), Comparator.reverseOrder()))
-                    .map(e -> String.format("%s_%d", e.getKey(), e.getValue().size()))
-                    .collect(Collectors.joining(" \n"));
-        }
+//        if (fiveMaxPercRateList.size() < 100 && !dateToDetailListMap.isEmpty()) {
+//            dateCnt = dateToDetailListMap.entrySet().stream()
+//                    .sorted(Comparator.comparing(e -> e.getValue().size(), Comparator.reverseOrder()))
+//                    .map(e -> String.format("%s_%d", e.getKey(), e.getValue().size()))
+//                    .collect(Collectors.joining(" \n"));
+//        }
     }
 
     /**
@@ -289,10 +289,10 @@ public class StrategyWin {
     }
 
     public StrategyWin(String strategyCode) {
-        this(new LinkedHashSet<>(Set.of(strategyCode)));
+        this(Set.of(strategyCode));
     }
 
-    public StrategyWin(LinkedHashSet<String> strategyCodeSet) {
+    public StrategyWin(Set<String> strategyCodeSet) {
         List<String> list = new ArrayList<>(strategyCodeSet);
         String name = list.stream()
                 .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())

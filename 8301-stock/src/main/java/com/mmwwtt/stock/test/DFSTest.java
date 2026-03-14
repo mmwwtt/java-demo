@@ -3,7 +3,6 @@ package com.mmwwtt.stock.test;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 @SpringBootTest
 public class DFSTest {
 
-    private static final int CNT_THRESHOLD = 120;
+    private static final int CNT_THRESHOLD = 80;
     private static final int BATCH_SAVE_SIZE = 50;
 
     @Autowired
@@ -45,9 +44,9 @@ public class DFSTest {
         l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
                 .filter(item -> item.getStrategyName().startsWith("T0")
-                        //      || item.getStrategyName().startsWith("T1")
-                        //|| item.getStrategyName().startsWith("T2")
-                        //|| item.getStrategyName().startsWith("T3")
+                              || item.getStrategyName().startsWith("T1")
+                        || item.getStrategyName().startsWith("T2")
+  //                      || item.getStrategyName().startsWith("T3")
                 )
                 .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -55,7 +54,7 @@ public class DFSTest {
             StrategyWin strategyWin = l1WinList.get(i);
             int finalI = i;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                LinkedHashSet<String> strategySet = new LinkedHashSet<>();
+                Set<String> strategySet = new HashSet<>();
                 strategySet.add(strategyWin.getStrategyCode());
                 buildByLevel(2, strategyToDetailsMap.get(strategyWin.getStrategyCode()), strategySet, strategyWin, finalI);
             }, fixedThreadPool);
@@ -67,7 +66,7 @@ public class DFSTest {
 
 
     private void buildByLevel(Integer level, int[] parentDetailIds,
-                              LinkedHashSet<String> strategySet, StrategyWin parentWin, Integer curIdx) {
+                              Set<String> strategySet, StrategyWin parentWin, Integer curIdx) {
         if (level > 7) {
             return;
         }
@@ -77,7 +76,7 @@ public class DFSTest {
                 continue;
             }
             int[] curRetainAllDetailIds = retainAll(parentDetailIds, strategyToDetailsMap.get(strategy.getStrategyCode()));
-            LinkedHashSet<String> curStrategyCodeSet = new LinkedHashSet<>();
+            Set<String> curStrategyCodeSet = new HashSet<>();
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
             StrategyWin win = calcStrategyWin(curStrategyCodeSet, curRetainAllDetailIds);
@@ -105,7 +104,7 @@ public class DFSTest {
         strategyWinService.saveBatch(toSave);
     }
 
-    private StrategyWin calcStrategyWin(LinkedHashSet<String> strategyCodeSet, int[] details) {
+    private StrategyWin calcStrategyWin(Set<String> strategyCodeSet, int[] details) {
         StrategyWin win = new StrategyWin(strategyCodeSet);
         for (int detail : details) {
             win.addToResult(idToDetailMap.get(detail));
@@ -130,30 +129,28 @@ public class DFSTest {
      * 前提：两个list 都要升序,且无重复
      */
     private int[] retainAll(int[] list1, int[] list2) {
-        int[] resArr = new int[Math.min(list1.length, list2.length)];
-
-        if (resArr.length ==0) {
-            return resArr;
+        int[] tmpArr = new int[Math.min(list1.length, list2.length)];
+        if (tmpArr.length == 0) {
+            return new int[0];
         }
-        int arrIdx = 0;
         int j = 0;
+        int arrIdx = 0;
         for (int num1 : list1) {
             while (num1 > list2[j]) {
                 j++;
                 if (j >= list2.length) {
-                    return resArr;
+                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
                 }
             }
-            if (num1==list2[j]) {
-                resArr[arrIdx] = num1;
+            if (num1 == list2[j]) {
+                tmpArr[arrIdx] = num1;
                 j++;
                 arrIdx++;
                 if (j >= list2.length) {
-                    return resArr;
+                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
                 }
             }
         }
-        return resArr;
+        return Arrays.copyOfRange(tmpArr, 0, arrIdx);
     }
-
 }
