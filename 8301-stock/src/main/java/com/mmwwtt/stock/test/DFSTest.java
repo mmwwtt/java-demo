@@ -1,9 +1,12 @@
 package com.mmwwtt.stock.test;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import com.mmwwtt.stock.vo.DfsTask;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +32,7 @@ public class DFSTest {
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
-    private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(64);
+    private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
     /**
      * 收集待保存的 StrategyWin，批量写入减少 DB 往返
@@ -55,8 +58,13 @@ public class DFSTest {
 
 
     public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws ExecutionException, InterruptedException {
+        QueryWrapper<StrategyWin> wrapper = new QueryWrapper<>();
+        wrapper.apply("level!=1");
+        strategyWinService.remove(wrapper);
         winBatch.clear();
         md5ToLevelMap.clear();
+        taskQueue.clear();
+
         l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
                 .filter(item -> item.getStrategyName().startsWith("T0")
@@ -76,24 +84,40 @@ public class DFSTest {
             taskQueue.add(new DfsTask(detailIds, strategyWin, i, isNotFunc));
         }
 
-        int isEmptyQueueFlag = 0;
+        //多线程执行任务
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         while (true) {
-            if (taskQueue.isEmpty()) {
-                isEmptyQueueFlag++;
-                if (isEmptyQueueFlag >= 10) {
-                    break;
-                }
-                Thread.sleep(1000);
-                continue;
-            }
             List<DfsTask> taskList = new ArrayList<>();
             taskQueue.drainTo(taskList, 500);
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() ->
-                    taskList.forEach(this::buildByLevel), fixedThreadPool);
-            futures.add(future);
+            if (!taskList.isEmpty()) {
+                List<DfsTask> size1List = new ArrayList<>();
+                List<DfsTask> size2List = new ArrayList<>();
+                List<DfsTask> size3List = new ArrayList<>();
+                taskList.forEach(task -> {
+                    if (task.getParentDetailIds().length > 100000) {
+                        size1List.add(task);
+                    } else if (task.getParentDetailIds().length > 10000) {
+                        size2List.add(task);
+                    } else {
+                        size3List.add(task);
+                    }
+                });
+                size1List.forEach(task ->
+                        futures.add(CompletableFuture.runAsync(() -> buildByLevel(task), ioThreadPool)));
+                ListUtils.partition(size2List, 10).forEach(partTaskList ->
+                        futures.add(CompletableFuture.runAsync(() -> partTaskList.forEach(this::buildByLevel), ioThreadPool)));
+                ListUtils.partition(size3List, 100).forEach(partTaskList ->
+                        futures.add(CompletableFuture.runAsync(() -> partTaskList.forEach(this::buildByLevel), ioThreadPool)));
+            }
+            log.info("队列任务数{}， 线程池任务数{}", taskQueue.size(), futures.size());
+            if (taskQueue.isEmpty()) {
+                if (futures.isEmpty()) {
+                    break;
+                }
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+                futures.clear();
+            }
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
         flushWinBatch();
     }
 
