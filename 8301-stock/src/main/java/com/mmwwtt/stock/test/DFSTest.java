@@ -23,7 +23,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 public class DFSTest {
 
     private static final int CNT_THRESHOLD = 80;
-    private static final int BATCH_SAVE_SIZE = 50;
+    private static final int BATCH_SAVE_SIZE = 1000;
 
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
@@ -36,7 +36,7 @@ public class DFSTest {
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
     private static List<StrategyWin> l1WinList;
-    private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>();
+    private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1048576);
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
