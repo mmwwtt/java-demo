@@ -123,6 +123,13 @@ public class DFSTest {
                 || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"));
     }
 
+    /**
+     * 取两个 list的交集
+     * 前提：两个list 都要升序
+     * @param list1
+     * @param list2
+     * @return
+     */
     private List<Integer> retainAll(List<Integer> list1, List<Integer> list2) {
         List<Integer> list = new ArrayList<>();
 
