@@ -1,6 +1,5 @@
 package com.mmwwtt.stock.test;
 
-import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -9,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -126,9 +123,6 @@ public class DFSTest {
     /**
      * 取两个 list的交集
      * 前提：两个list 都要升序
-     * @param list1
-     * @param list2
-     * @return
      */
     private List<Integer> retainAll(List<Integer> list1, List<Integer> list2) {
         List<Integer> list = new ArrayList<>();
