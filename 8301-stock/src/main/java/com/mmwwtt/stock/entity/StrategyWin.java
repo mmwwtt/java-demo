@@ -76,7 +76,7 @@ public class StrategyWin {
     private BigDecimal fiveMinPercRate;
 
     /**
-     * 5天平均最低涨幅
+     * 5天最大涨幅的中位数
      */
     private BigDecimal fiveMaxMiddlePercRate;
 
@@ -161,6 +161,18 @@ public class StrategyWin {
      * 填充数据
      */
     public void fillData1() {
+        strategyCodeSet.add(strategyCode);
+        if(Objects.nonNull(parentWin)) {
+            strategyCodeSet.addAll(parentWin.getStrategyCodeSet());
+        }
+
+        this.level = strategyCodeSet.size();
+        this.strategyCode = String.join(" ", strategyCodeSet);
+        this.strategyName = strategyCodeSet.stream()
+                .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())
+                .collect(Collectors.joining(" "));
+
+
         Map<String, List<BigDecimal>> dateToFiveMaxPertMap = new HashMap<>();
         list.stream().filter(item -> Objects.nonNull(item.getNext5MaxPricePert()))
                 .forEach(stockDetail ->
@@ -214,7 +226,9 @@ public class StrategyWin {
                 if (Objects.nonNull(detail.getNext5())) {
                     BigDecimal fivePert = divide(subtract(detail.getNext5().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
                     curFivePertList.add(fivePert);
-                    curFiveMinPertList.add(detail.getNext5MinPricePert());
+                    if (Objects.nonNull(detail.getNext5MinPricePert())) {
+                        curFiveMinPertList.add(detail.getNext5MinPricePert());
+                    }
                 }
 
 
@@ -245,6 +259,8 @@ public class StrategyWin {
 
             if (CollectionUtils.isNotEmpty(curFivePertList)) {
                 fivePercRateList.add(divide(sum(curFivePertList), curFivePertList.size()));
+            }
+            if (CollectionUtils.isNotEmpty(curFiveMinPertList)) {
                 fiveMinPercRateList.add(divide(sum(curFiveMinPertList), curFiveMinPertList.size()));
             }
 
@@ -280,22 +296,17 @@ public class StrategyWin {
     }
 
     public StrategyWin(String strategyCode) {
-        this(Set.of(strategyCode));
+        this.strategyCode = strategyCode;
     }
 
-    public StrategyWin(Set<String> strategyCodeSet) {
-        List<String> list = new ArrayList<>(strategyCodeSet);
-        String name = list.stream()
-                .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())
-                .collect(Collectors.joining(" "));
-
-        this.strategyCode = String.join(" ", list);
-        this.strategyName = name;
-        this.level = strategyCodeSet.size();
+    public StrategyWin(String strategyCode, StrategyWin parentWin) {
+        this.strategyCode = strategyCode;
+        this.parentWin = parentWin;
     }
+
 
     /**
-     * 求平均值  去掉首尾各2个
+     * 求平均值；当 50 < size < 150 时去掉首尾各5个再平均
      */
     private BigDecimal average(List<BigDecimal> list) {
         return list.size() < 150 && list.size() > 50
