@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
@@ -35,11 +36,22 @@ public class DFSTest {
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
     private static List<StrategyWin> l1WinList;
-    private static Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>();
+    private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>();
 
     @Test
-    @DisplayName("DFS深度遍历")
-    public void buildStrateResultAll() throws ExecutionException, InterruptedException {
+    @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
+    public void DFS1() throws ExecutionException, InterruptedException {
+        DfsMain(this::isNotByFiveMaxAvg);
+    }
+
+    @Test
+    @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
+    public void DFS2() throws ExecutionException, InterruptedException {
+        DfsMain(this::isNotByFiveMaxMiddle);
+    }
+
+
+    public void DfsMain(Function<StrategyWin,Boolean> isNotFunc) throws ExecutionException, InterruptedException {
         winBatch.clear();
         l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
@@ -55,9 +67,9 @@ public class DFSTest {
         for (int i = 0; i < l1WinList.size(); i++) {
             StrategyWin strategyWin = l1WinList.get(i);
             int finalI = i;
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                buildByLevel(strategyToDetailsMap.get(strategyWin.getStrategyCode()), strategyWin, finalI);
-            }, fixedThreadPool);
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() ->
+                    buildByLevel(strategyToDetailsMap.get(strategyWin.getStrategyCode()),
+                            strategyWin, finalI, isNotFunc), fixedThreadPool);
             futures.add(future);
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
@@ -65,7 +77,8 @@ public class DFSTest {
     }
 
 
-    private void buildByLevel(int[] parentDetailIds, StrategyWin parentWin, Integer curIdx) {
+    private void buildByLevel(int[] parentDetailIds, StrategyWin parentWin, Integer curIdx,
+                              Function<StrategyWin,Boolean> isNotFunc) {
         int level = parentWin.getStrategyCodeSet().size() + 1;
         if (level > 7) {
             return;
@@ -85,12 +98,12 @@ public class DFSTest {
 
             StrategyWin win = calcStrategyWin(parentWin, strategy.getStrategyCode(), curRetainAllDetailIds);
 
-            if (isNotByFiveMaxAvg(win)) {
+            if (isNotFunc.apply(win)) {
                 continue;
             }
             win.fillData2();
             addToWinBatch(win);
-            buildByLevel(curRetainAllDetailIds, win, i);
+            buildByLevel(curRetainAllDetailIds, win, i, isNotFunc);
         }
     }
 
@@ -183,8 +196,6 @@ public class DFSTest {
 
     public String getMd5(int[] intArray) {
         try {
-
-
             // 1. 将数组转换为字符串
             // 注意：Arrays.toString() 会产生 "[1, 2, 3]" 这种格式
             String str = java.util.Arrays.toString(intArray);

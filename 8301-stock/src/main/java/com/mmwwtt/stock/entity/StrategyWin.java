@@ -145,6 +145,7 @@ public class StrategyWin {
 
     @TableField(exist = false)
     private StrategyWin parentWin;
+
     /**
      * 将结果累加到数据中
      */
@@ -161,10 +162,10 @@ public class StrategyWin {
      */
     public void fillData1() {
         Map<String, List<BigDecimal>> dateToFiveMaxPertMap = new HashMap<>();
-        list.forEach(stockDetail -> {
-            dateToFiveMaxPertMap.computeIfAbsent(stockDetail.getDealDate(), k -> new ArrayList<>())
-                    .add(stockDetail.getNext5MaxPricePert());
-        });
+        list.stream().filter(item -> Objects.nonNull(item.getNext5MaxPricePert()))
+                .forEach(stockDetail ->
+                        dateToFiveMaxPertMap.computeIfAbsent(stockDetail.getDealDate(), k -> new ArrayList<>())
+                                .add(stockDetail.getNext5MaxPricePert()));
 
         dateToFiveMaxPertMap.forEach((date, fiveMaxPerts) -> {
             if (CollectionUtils.isNotEmpty(fiveMaxPerts)) {
