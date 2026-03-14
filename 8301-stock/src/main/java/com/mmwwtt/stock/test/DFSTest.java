@@ -253,7 +253,7 @@ public class DFSTest {
             }
             taskQueue.add(new DfsTask(strategyWin.getStrategyCodeSet(),
                     strategyWin.getFiveMaxPercRate(),
-                    strategyWin.getDetails(), i, isNotFunc));
+                    detailIds, i, isNotFunc));
         }
     }
 
