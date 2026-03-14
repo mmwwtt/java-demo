@@ -156,12 +156,39 @@ public class StrategyWin {
         }
         list.add(stockDetail);
     }
+    /**
+     * 填充数据
+     */
+    public void fillData1() {
+        Map<String, List<StockDetail>> dateToDetailListMap = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
 
+        dateToDetailListMap.forEach((date, details) -> {
+            List<BigDecimal> curFiveMaxPertList = new ArrayList<>();
+            for (StockDetail detail : details) {
+                if (Objects.nonNull(detail.getNext5())) {
+                    curFiveMaxPertList.add(detail.getNext5MaxPricePert());
+                }
+            }
+            if (CollectionUtils.isNotEmpty(curFiveMaxPertList)) {
+                fiveMaxPercRateList.add(divide(sum(curFiveMaxPertList), curFiveMaxPertList.size()));
+            }
+
+        });
+
+        fiveMaxPercRate = average(fiveMaxPercRateList);
+        cnt = fiveMaxPercRateList.size();
+        if (fiveMaxPercRateList.size() < 100 && !dateToDetailListMap.isEmpty()) {
+            dateCnt = dateToDetailListMap.entrySet().stream()
+                    .sorted(Comparator.comparing(e -> e.getValue().size(), Comparator.reverseOrder()))
+                    .map(e -> String.format("%s_%d", e.getKey(), e.getValue().size()))
+                    .collect(Collectors.joining(" \n"));
+        }
+    }
 
     /**
      * 填充数据
      */
-    public void fillData() {
+    public void fillData2() {
         Map<String, List<StockDetail>> dateToDetailListMap  = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
 
         dateToDetailListMap.forEach((date, details) -> {
@@ -170,7 +197,6 @@ public class StrategyWin {
             List<BigDecimal> curThreePertList = new ArrayList<>();
             List<BigDecimal> curFourPertList = new ArrayList<>();
             List<BigDecimal> curFivePertList = new ArrayList<>();
-            List<BigDecimal> curFiveMaxPertList = new ArrayList<>();
             List<BigDecimal> curFiveMinPertList = new ArrayList<>();
             List<BigDecimal> curTenPertList = new ArrayList<>();
             List<BigDecimal> curTenMaxPertList = new ArrayList<>();
@@ -197,7 +223,6 @@ public class StrategyWin {
                 if (Objects.nonNull(detail.getNext5())) {
                     BigDecimal fivePert = divide(subtract(detail.getNext5().getEndPrice(), detail.getEndPrice()), detail.getEndPrice());
                     curFivePertList.add(fivePert);
-                    curFiveMaxPertList.add(detail.getNext5MaxPricePert());
                     curFiveMinPertList.add(detail.getNext5MinPricePert());
                 }
 
@@ -229,7 +254,6 @@ public class StrategyWin {
 
             if (CollectionUtils.isNotEmpty(curFivePertList)) {
                 fivePercRateList.add(divide(sum(curFivePertList), curFivePertList.size()));
-                fiveMaxPercRateList.add(divide(sum(curFiveMaxPertList), curFiveMaxPertList.size()));
                 fiveMinPercRateList.add(divide(sum(curFiveMinPertList), curFiveMinPertList.size()));
             }
 
@@ -253,14 +277,6 @@ public class StrategyWin {
         tenPercRate = average(tenPercRateList);
         tenMaxPercRate = average(tenMaxPercRateList);
         tenMinPercRate = average(tenMinPercRateList);
-        cnt = onePercRateList.size();
-
-        if (cnt < 100 && !dateToDetailListMap.isEmpty()) {
-            dateCnt = dateToDetailListMap.entrySet().stream()
-                    .sorted(Comparator.comparing(e -> e.getValue().size(), Comparator.reverseOrder()))
-                    .map(e -> String.format("%s_%d", e.getKey(), e.getValue().size()))
-                    .collect(Collectors.joining(" \n"));
-        }
     }
 
 

@@ -169,7 +169,8 @@ public class BuildTest {
             StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyEnum);
             strategyWin.setLevel(0);
             list.forEach(strategyWin::addToResult);
-            strategyWin.fillData();
+            strategyWin.fillData1();
+            strategyWin.fillData2();
             strategyWinService.save(strategyWin);
         });
         log.info("结束计算");

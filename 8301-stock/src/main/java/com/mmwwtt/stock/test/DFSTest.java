@@ -3,6 +3,7 @@ package com.mmwwtt.stock.test;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 @SpringBootTest
 public class DFSTest {
 
-    private static final int CNT_THRESHOLD = 80;
+    private static final int CNT_THRESHOLD = 120;
     private static final int BATCH_SAVE_SIZE = 50;
 
     @Autowired
@@ -35,7 +36,8 @@ public class DFSTest {
      */
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
-    private static  List<StrategyWin> l1WinList;
+    private static List<StrategyWin> l1WinList;
+
     @Test
     @DisplayName("DFS深度遍历")
     public void buildStrateResultAll() throws ExecutionException, InterruptedException {
@@ -43,7 +45,7 @@ public class DFSTest {
         l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
                 .filter(item -> item.getStrategyName().startsWith("T0")
-                        || item.getStrategyName().startsWith("T1")
+                        //      || item.getStrategyName().startsWith("T1")
                         //|| item.getStrategyName().startsWith("T2")
                         //|| item.getStrategyName().startsWith("T3")
                 )
@@ -64,7 +66,7 @@ public class DFSTest {
     }
 
 
-    private void buildByLevel(Integer level, List<Integer> parentDetailIds,
+    private void buildByLevel(Integer level, int[] parentDetailIds,
                               LinkedHashSet<String> strategySet, StrategyWin parentWin, Integer curIdx) {
         if (level > 7) {
             return;
@@ -74,14 +76,15 @@ public class DFSTest {
             if (strategySet.contains(strategy.getStrategyCode())) {
                 continue;
             }
-            List<Integer> curRetainAllDetailIds = retainAll(parentDetailIds, strategyToDetailsMap.get(strategy.getStrategyCode()));
+            int[] curRetainAllDetailIds = retainAll(parentDetailIds, strategyToDetailsMap.get(strategy.getStrategyCode()));
             LinkedHashSet<String> curStrategyCodeSet = new LinkedHashSet<>();
             curStrategyCodeSet.add(strategy.getStrategyCode());
             curStrategyCodeSet.addAll(strategySet);
-            StrategyWin win = saveStrategyWin(curStrategyCodeSet, curRetainAllDetailIds);
+            StrategyWin win = calcStrategyWin(curStrategyCodeSet, curRetainAllDetailIds);
             if (isNotByFiveMax(win, parentWin, level)) {
                 continue;
             }
+            win.fillData2();
             addToWinBatch(win);
             buildByLevel(level + 1, curRetainAllDetailIds, curStrategyCodeSet, win, i);
         }
@@ -102,10 +105,12 @@ public class DFSTest {
         strategyWinService.saveBatch(toSave);
     }
 
-    private StrategyWin saveStrategyWin(LinkedHashSet<String> strategyCodeSet, List<Integer> details) {
+    private StrategyWin calcStrategyWin(LinkedHashSet<String> strategyCodeSet, int[] details) {
         StrategyWin win = new StrategyWin(strategyCodeSet);
-        details.forEach(detailId -> win.addToResult(idToDetailMap.get(detailId)));
-        win.fillData();
+        for (int detail : details) {
+            win.addToResult(idToDetailMap.get(detail));
+        }
+        win.fillData1();
         return win;
     }
 
@@ -122,24 +127,33 @@ public class DFSTest {
 
     /**
      * 取两个 list的交集
-     * 前提：两个list 都要升序
+     * 前提：两个list 都要升序,且无重复
      */
-    private List<Integer> retainAll(List<Integer> list1, List<Integer> list2) {
-        List<Integer> list = new ArrayList<>();
+    private int[] retainAll(int[] list1, int[] list2) {
+        int[] resArr = new int[Math.min(list1.length, list2.length)];
 
-        int j =0;
-        for (Integer num1 : list1) {
-            while (num1 > list2.get(j)) {
+        if (resArr.length ==0) {
+            return resArr;
+        }
+        int arrIdx = 0;
+        int j = 0;
+        for (int num1 : list1) {
+            while (num1 > list2[j]) {
                 j++;
-                if (j >= list2.size()) {
-                    return list;
+                if (j >= list2.length) {
+                    return resArr;
                 }
             }
-            if (Objects.equals(num1, list2.get(j))) {
-                list.add(num1);
+            if (num1==list2[j]) {
+                resArr[arrIdx] = num1;
+                j++;
+                arrIdx++;
+                if (j >= list2.length) {
+                    return resArr;
+                }
             }
         }
-        return list;
+        return resArr;
     }
 
 }

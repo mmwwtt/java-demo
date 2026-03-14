@@ -43,14 +43,19 @@ public class CommonService {
     public static List<String> stockCodeList;
     public static String calcEndDate;
     public static List<String> predictDateList;
-    public static Map<String, List<Integer>> strategyToDetailsMap;
+    public static Map<String, int[]> strategyToDetailsMap=new ConcurrentHashMap<>(512);
 
     @PostConstruct
     public void init() throws ExecutionException, InterruptedException {
         log.info("初始化开始");
-        strategyToDetailsMap = strategyResultService.getStrategyResult(StrategyResult.builder().level(1).build())
-                .stream().collect(Collectors.toMap(StrategyResult::getStrategyCode,
-                        item -> item.getStockDetailIdList().stream().map(id -> (Integer) id).toList()));
+        List<StrategyResult> strategyResults = strategyResultService.getStrategyResult(StrategyResult.builder().level(1).build());
+        strategyResults.forEach(item -> {
+            int[] ids = new int[item.getStockDetailIdList().size()];
+            for (int i = 0; i < item.getStockDetailIdList().size(); i++) {
+                ids[i] = item.getStockDetailIdList().getIntValue(i);
+            }
+            strategyToDetailsMap.put(item.getStrategyCode(),ids);
+        });
 
         l1StrategyList = strategyWinService.getL1StrategyWin();
         stockCodeList = stockService.list().stream().map(Stock::getCode).toList();
@@ -126,7 +131,8 @@ public class CommonService {
                 result.getStockDetailIdList().stream()
                         .map(item -> (Integer) item)
                         .forEach(item -> strategyWin.addToResult(idToDetailMap.get(item)));
-                strategyWin.fillData();
+                strategyWin.fillData1();
+                strategyWin.fillData2();
                 strategyWinService.save(strategyWin);
             }, ioThreadPool);
             futures.add(future);
