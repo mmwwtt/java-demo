@@ -44,9 +44,9 @@ public class DFSTest {
         l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
                 .filter(item -> item.getStrategyName().startsWith("T0")
-                              || item.getStrategyName().startsWith("T1")
-                        || item.getStrategyName().startsWith("T2")
-  //                      || item.getStrategyName().startsWith("T3")
+                                || item.getStrategyName().startsWith("T1")
+                                || item.getStrategyName().startsWith("T2")
+//                      || item.getStrategyName().startsWith("T3")
                 )
                 .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -121,7 +121,8 @@ public class DFSTest {
                 || lessThan(win.getFiveMaxPercRate(), multiply(parentWin.getFiveMaxPercRate(), 1.01))
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
-                || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"));
+                || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))
+                || (level == 5 && lessThan(win.getFiveMaxPercRate(), "0.11"));
     }
 
     /**
