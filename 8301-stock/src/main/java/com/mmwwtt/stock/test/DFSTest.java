@@ -163,7 +163,7 @@ public class DFSTest {
             win.fillData2();
             addToWinBatch(win);
             taskQueue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
-                    win.getParentDetails(), i, dfsTask.getIsNotFunc()));
+                    win.getDetails(), i, dfsTask.getIsNotFunc()));
         }
     }
 
