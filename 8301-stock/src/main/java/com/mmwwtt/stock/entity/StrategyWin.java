@@ -144,7 +144,16 @@ public class StrategyWin {
     private Set<String> strategyCodeSet = new HashSet<>();
 
     @TableField(exist = false)
-    private StrategyWin parentWin;
+    private Set<String> parentWinStrategyCodeSet;
+
+    @TableField(exist = false)
+    private BigDecimal parentFiveMaxPercRate;
+
+    @TableField(exist = false)
+    private int[] details;
+
+    @TableField(exist = false)
+    private int[] parentDetails;
 
     /**
      * 将结果累加到数据中
@@ -162,8 +171,8 @@ public class StrategyWin {
      */
     public void fillData1() {
         strategyCodeSet.add(strategyCode);
-        if(Objects.nonNull(parentWin)) {
-            strategyCodeSet.addAll(parentWin.getStrategyCodeSet());
+        if(Objects.nonNull(parentWinStrategyCodeSet)) {
+            strategyCodeSet.addAll(parentWinStrategyCodeSet);
         }
 
         this.level = strategyCodeSet.size();
@@ -290,9 +299,13 @@ public class StrategyWin {
         this.strategyCode = strategyCode;
     }
 
-    public StrategyWin(String strategyCode, StrategyWin parentWin) {
+    public StrategyWin(String strategyCode, Set<String> parentWinStrategyCodeSet,
+                       BigDecimal parentFiveMaxPercRate, int[] parentDetails, int[] details) {
         this.strategyCode = strategyCode;
-        this.parentWin = parentWin;
+        this.parentWinStrategyCodeSet = parentWinStrategyCodeSet;
+        this.parentFiveMaxPercRate = parentFiveMaxPercRate;
+        this.parentDetails = parentDetails;
+        this.details = details;
     }
 
 

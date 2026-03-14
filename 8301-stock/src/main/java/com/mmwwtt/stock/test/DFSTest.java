@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
@@ -34,6 +35,8 @@ public class DFSTest {
     private StrategyWinServiceImpl strategyWinService;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
+
+    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     /**
      * 收集待保存的 StrategyWin，批量写入减少 DB 往返
@@ -76,11 +79,11 @@ public class DFSTest {
                 List<DfsTask> size3List = new ArrayList<>();
                 List<DfsTask> size4List = new ArrayList<>();
                 taskList.forEach(task -> {
-                    if (task.getParentDetailIds().length > 300000) {
+                    if (task.getParentDetails().length > 300000) {
                         size1List.add(task);
-                    } else if (task.getParentDetailIds().length > 30000) {
+                    } else if (task.getParentDetails().length > 30000) {
                         size2List.add(task);
-                    } else if (task.getParentDetailIds().length > 3000) {
+                    } else if (task.getParentDetails().length > 3000) {
                         size3List.add(task);
                     } else {
                         size4List.add(task);
@@ -90,22 +93,22 @@ public class DFSTest {
                         futures.add(CompletableFuture.runAsync(() -> {
                             buildByLevel(task);
                             task1Num.getAndDecrement();
-                        }, ioThreadPool)));
+                        }, cpuThreadPool)));
                 ListUtils.partition(size2List, 10).forEach(partTaskList ->
                         futures.add(CompletableFuture.runAsync(() -> {
                             partTaskList.forEach(this::buildByLevel);
                             task2Num.getAndDecrement();
-                        }, ioThreadPool)));
+                        }, cpuThreadPool)));
                 ListUtils.partition(size3List, 100).forEach(partTaskList ->
                         futures.add(CompletableFuture.runAsync(() -> {
                             partTaskList.forEach(this::buildByLevel);
                             task3Num.getAndDecrement();
-                        }, ioThreadPool)));
+                        }, cpuThreadPool)));
                 ListUtils.partition(size4List, 1000).forEach(partTaskList ->
                         futures.add(CompletableFuture.runAsync(() -> {
                             partTaskList.forEach(this::buildByLevel);
                             task4Num.getAndDecrement();
-                        }, ioThreadPool)));
+                        }, cpuThreadPool)));
 
                 task1Num.addAndGet(size1List.size());
                 task2Num.addAndGet(size2List.size() % 10 == 0 ? size2List.size() / 10 : size2List.size() / 10 + 1);
@@ -130,20 +133,20 @@ public class DFSTest {
 
 
     private void buildByLevel(DfsTask dfsTask) {
-        int level = dfsTask.getParentWin().getStrategyCodeSet().size() + 1;
+        int level = dfsTask.getParentStrategyCodeSet().size() + 1;
         if (level > 7) {
             return;
         }
         for (int i = dfsTask.getCurIdx() + 1; i < l1WinList.size(); i++) {
             StrategyWin strategy = l1WinList.get(i);
-            if (dfsTask.getParentWin().getStrategyCodeSet().contains(strategy.getStrategyCode())) {
+            if (dfsTask.getParentStrategyCodeSet().contains(strategy.getStrategyCode())) {
                 continue;
             }
             int[] curDetailIds = strategyToDetailsMap.get(strategy.getStrategyCode());
             if (curDetailIds == null) {
                 continue;
             }
-            int[] curRetainAllDetailIds = retainAll(dfsTask.getParentDetailIds(), curDetailIds);
+            int[] curRetainAllDetailIds = retainAll(dfsTask.getParentDetails(), curDetailIds);
             String md5 = getMd5(curRetainAllDetailIds);
             Integer existingLevel = md5ToLevelMap.get(md5);
             if (existingLevel != null && existingLevel > level) {
@@ -151,14 +154,16 @@ public class DFSTest {
             }
             md5ToLevelMap.put(md5, level);
 
-            StrategyWin win = calcStrategyWin(dfsTask.getParentWin(), strategy.getStrategyCode(), curRetainAllDetailIds);
+            StrategyWin win = calcStrategyWin(dfsTask.getParentStrategyCodeSet(), dfsTask.getParentFiveMaxPercRate(),
+                    dfsTask.getParentDetails(), strategy.getStrategyCode(), curRetainAllDetailIds);
 
             if (dfsTask.getIsNotFunc().apply(win)) {
                 continue;
             }
             win.fillData2();
             addToWinBatch(win);
-            taskQueue.add(new DfsTask(curRetainAllDetailIds, win, i, dfsTask.getIsNotFunc()));
+            taskQueue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
+                    win.getParentDetails(), i, dfsTask.getIsNotFunc()));
         }
     }
 
@@ -182,8 +187,11 @@ public class DFSTest {
         strategyWinService.saveBatch(toSave);
     }
 
-    private StrategyWin calcStrategyWin(StrategyWin parentWin, String curStrategyCode, int[] details) {
-        StrategyWin win = new StrategyWin(curStrategyCode, parentWin);
+    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet,
+                                        BigDecimal parentFiveMaxPercRate,
+                                        int[] parentDetails, String curStrategyCode, int[] details) {
+        StrategyWin win = new StrategyWin(curStrategyCode, parentWinStrategyCodeSet,
+                parentFiveMaxPercRate, parentDetails, details);
         for (int detail : details) {
             win.addToResult(idToDetailMap.get(detail));
         }
@@ -196,7 +204,7 @@ public class DFSTest {
             return true;
         }
         int level = win.getStrategyCodeSet().size();
-        return lessThan(win.getFiveMaxPercRate(), multiply(win.getParentWin().getFiveMaxPercRate(), 1.01))
+        return lessThan(win.getFiveMaxPercRate(), multiply(win.getParentFiveMaxPercRate(), 1.01))
                 || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
                 || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))
@@ -210,7 +218,7 @@ public class DFSTest {
             return true;
         }
         int level = win.getStrategyCodeSet().size();
-        return lessThan(win.getFiveMaxMiddlePercRate(), multiply(win.getParentWin().getFiveMaxMiddlePercRate(), 1.02))
+        return lessThan(win.getFiveMaxMiddlePercRate(), multiply(win.getParentFiveMaxPercRate(), 1.02))
                 || (level == 2 && lessThan(win.getFiveMaxMiddlePercRate(), "0.08"))
                 || (level == 3 && lessThan(win.getFiveMaxMiddlePercRate(), "0.09"))
                 || (level == 4 && lessThan(win.getFiveMaxMiddlePercRate(), "0.10"))
@@ -243,7 +251,9 @@ public class DFSTest {
             if (detailIds == null) {
                 continue;
             }
-            taskQueue.add(new DfsTask(detailIds, strategyWin, i, isNotFunc));
+            taskQueue.add(new DfsTask(strategyWin.getStrategyCodeSet(),
+                    strategyWin.getFiveMaxPercRate(),
+                    strategyWin.getDetails(), i, isNotFunc));
         }
     }
 
