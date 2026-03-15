@@ -117,8 +117,7 @@ public class DFSTest {
             }
             win.fillData2();
             addToWinBatch(win);
-            // 未达到核心线程数则提交到线程池，否则在当前线程递归
-            if (taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+            if (curDetailIds.length> 1000 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = i;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
