@@ -51,7 +51,7 @@ public class GlobalThreadPool {
                 if (cpuThreadPool == null) {
                     cpuThreadPool = new ThreadPoolExecutor(
                             CORE_POOL_SIZE,
-                            MAXIMUM_POOL_SIZE,
+                            CORE_POOL_SIZE * 2,
                             KEEP_ALIVE_TIME,
                             UNIT,
                             WORK_QUEUE,
@@ -63,6 +63,7 @@ public class GlobalThreadPool {
         }
         return cpuThreadPool;
     }
+
 
     // 获取线程池实例的静态方法，用双重校验的单例模式
     public static ThreadPoolExecutor getMiddleThreadPool2() {
@@ -142,5 +143,13 @@ public class GlobalThreadPool {
             }
         }
         return ioThreadPool;
+    }
+
+    /**
+     * 判断线程池是否有空闲线程
+     */
+    public static boolean haveActiveThread(ThreadPoolExecutor executor) {
+        return executor.getActiveCount() < executor.getPoolSize()
+                || executor.getPoolSize() < executor.getMaximumPoolSize();
     }
 }

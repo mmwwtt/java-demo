@@ -1,6 +1,7 @@
 package com.mmwwtt.stock.test;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +15,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
+import static com.mmwwtt.stock.common.GlobalThreadPool.haveActiveThread;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 
@@ -30,7 +33,8 @@ public class DFSTest {
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
-    private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(32);
+    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
+
 
     /**
      * 收集待保存的 StrategyWin，批量写入减少 DB 往返
@@ -39,6 +43,7 @@ public class DFSTest {
 
     private static List<StrategyWin> l1WinList;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1048576);
+    private AtomicInteger taskCnt = new AtomicInteger(0);
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
@@ -61,11 +66,19 @@ public class DFSTest {
             int[] detailIds = strategyToDetailsMap.get(strategyWin.getStrategyCode());
             if (detailIds == null) continue;
             int finalI = i;
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() ->
-                    buildByLevel(detailIds, strategyWin, finalI, isNotFunc), fixedThreadPool);
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                try {
+                    taskCnt.incrementAndGet();
+                    buildByLevel(detailIds, strategyWin, finalI, isNotFunc);
+                } finally {
+                    taskCnt.decrementAndGet();
+                }
+            }, cpuThreadPool);
             futures.add(future);
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        while (taskCnt.get() != 0) {
+            Thread.sleep(10000);
+        }
         flushWinBatch();
     }
 
@@ -99,7 +112,19 @@ public class DFSTest {
             }
             win.fillData2();
             addToWinBatch(win);
-            buildByLevel(curRetainAllDetailIds, win, i, isNotFunc);
+            if (haveActiveThread(cpuThreadPool)) {
+                int finalI = i;
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        taskCnt.incrementAndGet();
+                        buildByLevel(curRetainAllDetailIds, win, finalI, isNotFunc);
+                    } finally {
+                        taskCnt.decrementAndGet();
+                    }
+                }, cpuThreadPool);
+            } else {
+                buildByLevel(curRetainAllDetailIds, win, i, isNotFunc);
+            }
         }
     }
 
