@@ -81,15 +81,15 @@ public class DFSTest {
             buildByLevel(task);
         }
         while(!task3Queue.isEmpty()&& dfsTask.getParentDetails().length> 30000) {
-            DfsTask task = task4Queue.poll();
+            DfsTask task = task3Queue.poll();
             buildByLevel(task);
         }
         while(!task2Queue.isEmpty()&& dfsTask.getParentDetails().length> 300000) {
-            DfsTask task = task4Queue.poll();
+            DfsTask task = task2Queue.poll();
             buildByLevel(task);
         }
         while(!task1Queue.isEmpty()) {
-            DfsTask task = task4Queue.poll();
+            DfsTask task = task1Queue.poll();
             buildByLevel(task);
         }
 
