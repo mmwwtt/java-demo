@@ -252,18 +252,15 @@ public class DFSTest {
                 input[i * 4 + 3] = (byte) (arr[i]);
             }
 
-            // 2. 计算 MD5
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] digest = md.digest(input);
 
-            // 3. 转为 32位字符串
             StringBuilder sb = new StringBuilder();
             for (byte b : digest) {
                 sb.append(String.format("%02x", b));
             }
             String fullMD5 = sb.toString();
 
-            // 4. 截取前 8 位 (最短建议不要少于 8 位)
             return fullMD5.substring(0, 8);
         } catch (Exception e) {
             throw new RuntimeException(e);
