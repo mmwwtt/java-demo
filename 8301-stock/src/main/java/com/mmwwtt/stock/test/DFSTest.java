@@ -59,36 +59,38 @@ public class DFSTest {
     }
 
 
-    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) {
+    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws ExecutionException, InterruptedException {
         dfsInit(isNotFunc);
-
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         // 用原子计数代替 futures 列表，避免主循环对百万级列表做 stream，越跑越慢
         while (!task1Queue.isEmpty()) {
-            CompletableFuture.runAsync(() -> {
+            futures.add(CompletableFuture.runAsync(() -> {
                 DfsTask peek = task1Queue.poll();
                 if (peek != null) {
                     buildByLevel(peek);
                 }
-            }, cpuThreadPool);
+            }, cpuThreadPool));
         }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
         flushWinBatch();
     }
 
 
     private void buildByLevel(DfsTask dfsTask) {
-        while(!task4Queue.isEmpty() && dfsTask.getParentDetails().length> 3000) {
+        while (!task4Queue.isEmpty() && dfsTask.getParentDetails().length > 3000) {
             DfsTask task = task4Queue.poll();
             buildByLevel(task);
         }
-        while(!task3Queue.isEmpty()&& dfsTask.getParentDetails().length> 30000) {
+        while (!task3Queue.isEmpty() && dfsTask.getParentDetails().length > 30000) {
             DfsTask task = task3Queue.poll();
             buildByLevel(task);
         }
-        while(!task2Queue.isEmpty()&& dfsTask.getParentDetails().length> 300000) {
+        while (!task2Queue.isEmpty() && dfsTask.getParentDetails().length > 300000) {
             DfsTask task = task2Queue.poll();
             buildByLevel(task);
         }
-        while(!task1Queue.isEmpty()) {
+        while (!task1Queue.isEmpty()) {
             DfsTask task = task1Queue.poll();
             buildByLevel(task);
         }
@@ -140,19 +142,19 @@ public class DFSTest {
                         win.getDetails(), i, dfsTask.getIsNotFunc()));
             }
         }
-        while(!task4Queue.isEmpty() && dfsTask.getParentDetails().length> 3000) {
+        while (!task4Queue.isEmpty() && dfsTask.getParentDetails().length > 3000) {
             DfsTask task = task4Queue.poll();
             buildByLevel(task);
         }
-        while(!task3Queue.isEmpty()&& dfsTask.getParentDetails().length> 30000) {
+        while (!task3Queue.isEmpty() && dfsTask.getParentDetails().length > 30000) {
             DfsTask task = task3Queue.poll();
             buildByLevel(task);
         }
-        while(!task2Queue.isEmpty()&& dfsTask.getParentDetails().length> 300000) {
+        while (!task2Queue.isEmpty() && dfsTask.getParentDetails().length > 300000) {
             DfsTask task = task2Queue.poll();
             buildByLevel(task);
         }
-        while(!task1Queue.isEmpty()) {
+        while (!task1Queue.isEmpty()) {
             DfsTask task = task1Queue.poll();
             buildByLevel(task);
         }
