@@ -14,12 +14,14 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.common.GlobalThreadPool.haveActiveThread;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 
@@ -65,9 +67,9 @@ public class DFSTest {
             int[] detailIds = strategyToDetailsMap.get(strategyWin.getStrategyCode());
             if (detailIds == null) continue;
             int finalI = i;
+            taskCnt.incrementAndGet();
             CompletableFuture.runAsync(() -> {
                 try {
-                    taskCnt.incrementAndGet();
                     buildByLevel(detailIds, strategyWin, finalI, isNotFunc);
                 } finally {
                     taskCnt.decrementAndGet();
@@ -111,19 +113,7 @@ public class DFSTest {
             }
             win.fillData2();
             addToWinBatch(win);
-            if (haveActiveThread(cpuThreadPool)) {
-                int finalI = i;
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        taskCnt.incrementAndGet();
-                        buildByLevel(curRetainAllDetailIds, win, finalI, isNotFunc);
-                    } finally {
-                        taskCnt.decrementAndGet();
-                    }
-                }, cpuThreadPool);
-            } else {
-                buildByLevel(curRetainAllDetailIds, win, i, isNotFunc);
-            }
+            buildByLevel(curRetainAllDetailIds, win, i, isNotFunc);
         }
     }
 
