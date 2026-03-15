@@ -143,23 +143,4 @@ public class GlobalThreadPool {
         }
         return ioThreadPool;
     }
-
-    public static ThreadPoolExecutor getPriorityThreadPool() {
-        if (priorityThreadPool == null) {
-            synchronized (GlobalThreadPool.class) {
-                if (priorityThreadPool == null) {
-                    priorityThreadPool = new ThreadPoolExecutor(
-                            CPU_CORE_SIZE +1,
-                            CPU_CORE_SIZE * 7,
-                            KEEP_ALIVE_TIME,
-                            UNIT,
-                            new PriorityBlockingQueue<>(),
-                            new ThreadPoolExecutor.AbortPolicy()
-                    );
-                    priorityThreadPool.allowCoreThreadTimeOut(true);
-                }
-            }
-        }
-        return priorityThreadPool;
-    }
 }

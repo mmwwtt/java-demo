@@ -41,9 +41,9 @@ public class DFSTest {
 
     private static List<StrategyWin> l1WinList;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1048576);
-    private static final BlockingQueue<DfsTask> task1Queue = new LinkedBlockingQueue<>(50);
-    private static final BlockingQueue<DfsTask> task2Queue = new LinkedBlockingQueue<>(5000);
-    private static final BlockingQueue<DfsTask> task3Queue = new LinkedBlockingQueue<>(50000);
+    private static final BlockingQueue<DfsTask> task1Queue = new LinkedBlockingQueue<>(5000);
+    private static final BlockingQueue<DfsTask> task2Queue = new LinkedBlockingQueue<>(50000);
+    private static final BlockingQueue<DfsTask> task3Queue = new LinkedBlockingQueue<>(500000);
     private static final BlockingQueue<DfsTask> task4Queue = new LinkedBlockingQueue<>(500000);
 
     @Test
@@ -62,17 +62,20 @@ public class DFSTest {
     public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws ExecutionException, InterruptedException {
         dfsInit(isNotFunc);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        // 用原子计数代替 futures 列表，避免主循环对百万级列表做 stream，越跑越慢
-        while (!task1Queue.isEmpty()) {
-            futures.add(CompletableFuture.runAsync(() -> {
-                DfsTask peek = task1Queue.poll();
-                if (peek != null) {
-                    buildByLevel(peek);
-                }
-            }, cpuThreadPool));
+        boolean haveTaskRun = false;
+        while (!task1Queue.isEmpty() || haveTaskRun) {
+            if (task1Queue.isEmpty()) {
+                Thread.sleep(10000);
+            } else {
+                futures.add(CompletableFuture.runAsync(() -> {
+                    DfsTask peek = task1Queue.poll();
+                    if (peek != null) {
+                        buildByLevel(peek);
+                    }
+                }, cpuThreadPool));
+            }
+            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
         flushWinBatch();
     }
 
