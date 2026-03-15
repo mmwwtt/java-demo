@@ -78,6 +78,7 @@ public class DFSTest {
         }
         while (taskCnt.get() != 0) {
             Thread.sleep(10000);
+            log.info("任务数 taskCnt:{}", taskCnt.get());
         }
         flushWinBatch();
     }
