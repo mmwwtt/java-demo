@@ -44,6 +44,8 @@ public class GlobalThreadPool {
 
     private static volatile ThreadPoolExecutor priorityThreadPool;
 
+    private static volatile PreemptivePriorityExecutor preemptivePriorityExecutor;
+
     // 获取线程池实例的静态方法，用双重校验的单例模式
     public static ThreadPoolExecutor getCpuThreadPool() {
         if (cpuThreadPool == null) {
@@ -161,5 +163,20 @@ public class GlobalThreadPool {
             }
         }
         return priorityThreadPool;
+    }
+
+    /**
+     * 抢占式优先级执行器：高优先级任务入队时会中断当前低优先级任务，让其重新入队后先跑高优先级。
+     * 任务需能响应线程中断才能被抢占。
+     */
+    public static PreemptivePriorityExecutor getPreemptivePriorityExecutor() {
+        if (preemptivePriorityExecutor == null) {
+            synchronized (GlobalThreadPool.class) {
+                if (preemptivePriorityExecutor == null) {
+                    preemptivePriorityExecutor = new PreemptivePriorityExecutor(MAXIMUM_POOL_SIZE);
+                }
+            }
+        }
+        return preemptivePriorityExecutor;
     }
 }

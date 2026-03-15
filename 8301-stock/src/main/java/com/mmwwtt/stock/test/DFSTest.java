@@ -46,7 +46,10 @@ public class DFSTest {
 
     private static List<StrategyWin> l1WinList;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1048576);
-    private static final BlockingQueue<DfsTask> taskQueue = new LinkedBlockingQueue<>(1048576);
+    private static final BlockingQueue<DfsTask> task1Queue = new LinkedBlockingQueue<>(50);
+    private static final BlockingQueue<DfsTask> task2Queue = new LinkedBlockingQueue<>(5000);
+    private static final BlockingQueue<DfsTask> task3Queue = new LinkedBlockingQueue<>(50000);
+    private static final BlockingQueue<DfsTask> task4Queue = new LinkedBlockingQueue<>(500000);
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
@@ -61,98 +64,46 @@ public class DFSTest {
     }
 
 
-    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws ExecutionException, InterruptedException {
+    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) {
         dfsInit(isNotFunc);
-        AtomicInteger task1Num = new AtomicInteger();
-        AtomicInteger task2Num = new AtomicInteger();
-        AtomicInteger task3Num = new AtomicInteger();
-        AtomicInteger task4Num = new AtomicInteger();
 
         // 用原子计数代替 futures 列表，避免主循环对百万级列表做 stream，越跑越慢
-        while (true) {
-            List<DfsTask> taskList = new ArrayList<>();
-            taskQueue.drainTo(taskList, taskQueue.size());
-            if (!taskList.isEmpty()) {
-                List<DfsTask> size1List = new ArrayList<>();
-                List<DfsTask> size2List = new ArrayList<>();
-                List<DfsTask> size3List = new ArrayList<>();
-                List<DfsTask> size4List = new ArrayList<>();
-                taskList.forEach(task -> {
-                    if (task.getParentDetails().length > 300000) {
-                        size1List.add(task);
-                    } else if (task.getParentDetails().length > 30000) {
-                        size2List.add(task);
-                    } else if (task.getParentDetails().length > 3000) {
-                        size3List.add(task);
-                    } else {
-                        size4List.add(task);
-                    }
-                });
-                int n1 = size1List.size();
-                int n2 = (size2List.size() + 9) / 10;
-                int n3 = (size3List.size() + 99) / 100;
-                int n4 = (size4List.size() + 999) / 1000;
-                task1Num.addAndGet(n1);
-                task2Num.addAndGet(n2);
-                task3Num.addAndGet(n3);
-                task4Num.addAndGet(n4);
-
-                ListUtils.partition(size4List, 1000).forEach(partTaskList ->
-                        PriorityFuture.runAsync(1, () -> {
-                            try {
-                                partTaskList.forEach(this::buildByLevel);
-                            } finally {
-                                task4Num.decrementAndGet();
-                            }
-                        }));
-                ListUtils.partition(size3List, 100).forEach(partTaskList ->
-                        PriorityFuture.runAsync(2, () -> {
-                            try {
-                                partTaskList.forEach(this::buildByLevel);
-                            } finally {
-                                task3Num.decrementAndGet();
-                            }
-                        }));
-                ListUtils.partition(size2List, 10).forEach(partTaskList ->
-                        PriorityFuture.runAsync(3, () -> {
-                            try {
-                                partTaskList.forEach(this::buildByLevel);
-                            } finally {
-                                task2Num.decrementAndGet();
-                            }
-                        }));
-
-                size1List.forEach(task ->
-                        PriorityFuture.runAsync(4, () -> {
-                            try {
-                                buildByLevel(task);
-                            } finally {
-                                task1Num.decrementAndGet();
-                            }
-                        }));
-            }
-
-            int pendingCount = task1Num.get() + task2Num.get() + task3Num.get() + task4Num.get();
-            log.info("队列任务数{}， 剩余任务数{} 类型1数量{}  类型2数量{} 类型3数量{} 类型4数量{}",
-                    taskQueue.size(), pendingCount,
-                    task1Num.get(), task2Num.get(), task3Num.get(), task4Num.get());
-
-            if (taskQueue.size() < 1000) {
-                if (taskQueue.isEmpty() && pendingCount == 0) {
-                    break;
+        while (!task1Queue.isEmpty()) {
+            CompletableFuture.runAsync(() -> {
+                DfsTask peek = task1Queue.poll();
+                if (peek != null) {
+                    buildByLevel(peek);
                 }
-                Thread.sleep(10000);
-            }
+            }, cpuThreadPool);
         }
         flushWinBatch();
     }
 
 
     private void buildByLevel(DfsTask dfsTask) {
+        while(!task4Queue.isEmpty() && dfsTask.getParentDetails().length> 3000) {
+            DfsTask task = task4Queue.poll();
+            buildByLevel(task);
+        }
+        while(!task3Queue.isEmpty()&& dfsTask.getParentDetails().length> 30000) {
+            DfsTask task = task4Queue.poll();
+            buildByLevel(task);
+        }
+        while(!task2Queue.isEmpty()&& dfsTask.getParentDetails().length> 300000) {
+            DfsTask task = task4Queue.poll();
+            buildByLevel(task);
+        }
+        while(!task1Queue.isEmpty()) {
+            DfsTask task = task4Queue.poll();
+            buildByLevel(task);
+        }
+
         int level = dfsTask.getParentStrategyCodeSet().size() + 1;
         if (level > 7) {
             return;
         }
+
+
         for (int i = dfsTask.getCurIdx() + 1; i < l1WinList.size(); i++) {
             StrategyWin strategy = l1WinList.get(i);
             if (dfsTask.getParentStrategyCodeSet().contains(strategy.getStrategyCode())) {
@@ -178,8 +129,21 @@ public class DFSTest {
             }
             win.fillData2();
             addToWinBatch(win);
-            taskQueue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
-                    win.getDetails(), i, dfsTask.getIsNotFunc()));
+            if (curDetailIds.length > 300000) {
+                task1Queue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
+                        win.getDetails(), i, dfsTask.getIsNotFunc()));
+            } else if (curDetailIds.length > 30000) {
+
+                task2Queue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
+                        win.getDetails(), i, dfsTask.getIsNotFunc()));
+            } else if (curDetailIds.length > 3000) {
+
+                task3Queue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
+                        win.getDetails(), i, dfsTask.getIsNotFunc()));
+            } else {
+                task4Queue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
+                        win.getDetails(), i, dfsTask.getIsNotFunc()));
+            }
         }
     }
 
