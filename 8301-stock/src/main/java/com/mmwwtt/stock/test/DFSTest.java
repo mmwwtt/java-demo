@@ -76,28 +76,59 @@ public class DFSTest {
             }
             haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
         }
+
+        futures = new ArrayList<>();
+        haveTaskRun = false;
+        while (!task2Queue.isEmpty() || haveTaskRun) {
+            if (task2Queue.isEmpty()) {
+                Thread.sleep(10000);
+            } else {
+                futures.add(CompletableFuture.runAsync(() -> {
+                    DfsTask peek = task2Queue.poll();
+                    if (peek != null) {
+                        buildByLevel(peek);
+                    }
+                }, cpuThreadPool));
+            }
+            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
+        }
+
+        futures = new ArrayList<>();
+        haveTaskRun= false;
+        while (!task2Queue.isEmpty() || haveTaskRun) {
+            if (task2Queue.isEmpty()) {
+                Thread.sleep(10000);
+            } else {
+                futures.add(CompletableFuture.runAsync(() -> {
+                    DfsTask peek = task2Queue.poll();
+                    if (peek != null) {
+                        buildByLevel(peek);
+                    }
+                }, cpuThreadPool));
+            }
+            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
+        }
+
+        futures = new ArrayList<>();
+        haveTaskRun = false;
+        while (!task3Queue.isEmpty() || haveTaskRun) {
+            if (task3Queue.isEmpty()) {
+                Thread.sleep(10000);
+            } else {
+                futures.add(CompletableFuture.runAsync(() -> {
+                    DfsTask peek = task3Queue.poll();
+                    if (peek != null) {
+                        buildByLevel(peek);
+                    }
+                }, cpuThreadPool));
+            }
+            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
+        }
         flushWinBatch();
     }
 
 
     private void buildByLevel(DfsTask dfsTask) {
-        while (!task4Queue.isEmpty() && dfsTask.getParentDetails().length > 3000) {
-            DfsTask task = task4Queue.poll();
-            buildByLevel(task);
-        }
-        while (!task3Queue.isEmpty() && dfsTask.getParentDetails().length > 30000) {
-            DfsTask task = task3Queue.poll();
-            buildByLevel(task);
-        }
-        while (!task2Queue.isEmpty() && dfsTask.getParentDetails().length > 300000) {
-            DfsTask task = task2Queue.poll();
-            buildByLevel(task);
-        }
-        while (!task1Queue.isEmpty()) {
-            DfsTask task = task1Queue.poll();
-            buildByLevel(task);
-        }
-
         int level = dfsTask.getParentStrategyCodeSet().size() + 1;
         if (level > 7) {
             return;
@@ -144,22 +175,23 @@ public class DFSTest {
                 task4Queue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
                         win.getDetails(), i, dfsTask.getIsNotFunc()));
             }
-        }
-        while (!task4Queue.isEmpty() && dfsTask.getParentDetails().length > 3000) {
-            DfsTask task = task4Queue.poll();
-            buildByLevel(task);
-        }
-        while (!task3Queue.isEmpty() && dfsTask.getParentDetails().length > 30000) {
-            DfsTask task = task3Queue.poll();
-            buildByLevel(task);
-        }
-        while (!task2Queue.isEmpty() && dfsTask.getParentDetails().length > 300000) {
-            DfsTask task = task2Queue.poll();
-            buildByLevel(task);
-        }
-        while (!task1Queue.isEmpty()) {
-            DfsTask task = task1Queue.poll();
-            buildByLevel(task);
+
+            while (!task4Queue.isEmpty() && dfsTask.getParentDetails().length > 3000) {
+                DfsTask task = task4Queue.poll();
+                buildByLevel(task);
+            }
+            while (!task3Queue.isEmpty() && dfsTask.getParentDetails().length > 30000) {
+                DfsTask task = task3Queue.poll();
+                buildByLevel(task);
+            }
+            while (!task2Queue.isEmpty() && dfsTask.getParentDetails().length > 300000) {
+                DfsTask task = task2Queue.poll();
+                buildByLevel(task);
+            }
+            while (!task1Queue.isEmpty()) {
+                DfsTask task = task1Queue.poll();
+                buildByLevel(task);
+            }
         }
     }
 
