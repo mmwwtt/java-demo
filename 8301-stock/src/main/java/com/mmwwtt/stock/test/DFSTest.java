@@ -43,7 +43,7 @@ public class DFSTest {
 
     private static List<StrategyWin> l1WinList;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1048576);
-    private AtomicInteger taskCnt = new AtomicInteger(0);
+    private final AtomicInteger taskCnt = new AtomicInteger(0);
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
@@ -103,7 +103,7 @@ public class DFSTest {
             }
             md5ToLevelMap.put(md5, level);
 
-            StrategyWin win = calcStrategyWin(parentWin.getParentWinStrategyCodeSet(), parentWin.getParentFiveMaxPercRate(),
+            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), parentWin.getFiveMaxPercRate(),
                     strategy.getStrategyCode(), curRetainAllDetailIds);
 
             if (isNotFunc.apply(win)) {
