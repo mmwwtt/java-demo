@@ -1,5 +1,6 @@
 package com.mmwwtt.stock.test;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -52,19 +53,8 @@ public class DFSTest {
     }
 
 
-    public void DfsMain(Function<StrategyWin,Boolean> isNotFunc) throws ExecutionException, InterruptedException {
-        winBatch.clear();
-        md5ToLevelMap.clear();
-        l1WinList = l1StrategyList.stream()
-                .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
-                .filter(item -> item.getStrategyName().startsWith("T0")
-                        || item.getStrategyName().startsWith("T1")
-                        || item.getStrategyName().startsWith("T2")
-                        || item.getStrategyName().startsWith("T3")
-                )
-                .peek(item -> item.getStrategyCodeSet().add(item.getStrategyCode()))
-                .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
-
+    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws ExecutionException, InterruptedException {
+        dfsInit();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int i = 0; i < l1WinList.size(); i++) {
             StrategyWin strategyWin = l1WinList.get(i);
@@ -81,7 +71,7 @@ public class DFSTest {
 
 
     private void buildByLevel(int[] parentDetailIds, StrategyWin parentWin, Integer curIdx,
-                              Function<StrategyWin,Boolean> isNotFunc) {
+                              Function<StrategyWin, Boolean> isNotFunc) {
         int level = parentWin.getStrategyCodeSet().size() + 1;
         if (level > 7) {
             return;
@@ -102,7 +92,7 @@ public class DFSTest {
             md5ToLevelMap.put(md5, level);
 
             StrategyWin win = calcStrategyWin(parentWin.getParentWinStrategyCodeSet(), parentWin.getParentFiveMaxPercRate(),
-                     strategy.getStrategyCode(), curRetainAllDetailIds);
+                    strategy.getStrategyCode(), curRetainAllDetailIds);
 
             if (isNotFunc.apply(win)) {
                 continue;
@@ -113,6 +103,22 @@ public class DFSTest {
         }
     }
 
+    private void dfsInit() {
+        QueryWrapper<StrategyWin> wrapper = new QueryWrapper<>();
+        wrapper.apply("level!=1");
+        strategyWinService.remove(wrapper);
+        winBatch.clear();
+        md5ToLevelMap.clear();
+        l1WinList = l1StrategyList.stream()
+                .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
+                .filter(item -> item.getStrategyName().startsWith("T0")
+                        || item.getStrategyName().startsWith("T1")
+                        || item.getStrategyName().startsWith("T2")
+                        || item.getStrategyName().startsWith("T3")
+                )
+                .peek(item -> item.getStrategyCodeSet().add(item.getStrategyCode()))
+                .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
+    }
 
     private void addToWinBatch(StrategyWin win) {
         synchronized (winBatch) {
