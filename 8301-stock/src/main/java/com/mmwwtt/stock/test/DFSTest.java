@@ -52,7 +52,7 @@ public class DFSTest {
     private static final BloomFilter<String> bloomFilter = BloomFilter.create(
             Funnels.stringFunnel(Charsets.UTF_8),           // 数据类型转换器（Funnel）
             40000000, //期望插入大小
-            0.001  //误判概率
+            0.01  //误判概率
     );
 
     @Test
