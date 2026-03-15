@@ -97,20 +97,12 @@ public class DFSTest {
                 task3Num.addAndGet(n3);
                 task4Num.addAndGet(n4);
 
-                size1List.forEach(task ->
-                        PriorityFuture.runAsync(4, () -> {
-                            try {
-                                buildByLevel(task);
-                            } finally {
-                                task1Num.decrementAndGet();
-                            }
-                        }));
-                ListUtils.partition(size2List, 10).forEach(partTaskList ->
-                        PriorityFuture.runAsync(3, () -> {
+                ListUtils.partition(size4List, 1000).forEach(partTaskList ->
+                        PriorityFuture.runAsync(1, () -> {
                             try {
                                 partTaskList.forEach(this::buildByLevel);
                             } finally {
-                                task2Num.decrementAndGet();
+                                task4Num.decrementAndGet();
                             }
                         }));
                 ListUtils.partition(size3List, 100).forEach(partTaskList ->
@@ -121,12 +113,21 @@ public class DFSTest {
                                 task3Num.decrementAndGet();
                             }
                         }));
-                ListUtils.partition(size4List, 1000).forEach(partTaskList ->
-                        PriorityFuture.runAsync(1, () -> {
+                ListUtils.partition(size2List, 10).forEach(partTaskList ->
+                        PriorityFuture.runAsync(3, () -> {
                             try {
                                 partTaskList.forEach(this::buildByLevel);
                             } finally {
-                                task4Num.decrementAndGet();
+                                task2Num.decrementAndGet();
+                            }
+                        }));
+
+                size1List.forEach(task ->
+                        PriorityFuture.runAsync(4, () -> {
+                            try {
+                                buildByLevel(task);
+                            } finally {
+                                task1Num.decrementAndGet();
                             }
                         }));
             }
@@ -136,11 +137,11 @@ public class DFSTest {
                     taskQueue.size(), pendingCount,
                     task1Num.get(), task2Num.get(), task3Num.get(), task4Num.get());
 
-            if (taskQueue.size() < 2000) {
+            if (taskQueue.size() < 1000) {
                 if (taskQueue.isEmpty() && pendingCount == 0) {
                     break;
                 }
-                Thread.sleep(20000);
+                Thread.sleep(10000);
             }
         }
         flushWinBatch();

@@ -9,6 +9,8 @@ import java.util.concurrent.Executor;
 /**
  * CompletableFuture + 优先级队列：通过带优先级的线程池提交任务，数字越小越先被调度。
  * 内部使用 {@link GlobalThreadPool#getPriorityThreadPool()}，队列为 PriorityBlockingQueue。
+ * 注意：不能把优先级线程池直接传给 CompletableFuture.runAsync，否则 CF 会再包装成 AsyncRun 导致 ClassCastException，
+ * 因此这里由本类直接 execute(PriorityRunnable)，在任务内完成 CompletableFuture。
  */
 public final class PriorityFuture {
 
@@ -25,7 +27,16 @@ public final class PriorityFuture {
      * @return CompletableFuture&lt;Void&gt;
      */
     public static CompletableFuture<Void> runAsync(int priority, Runnable task) {
-        return CompletableFuture.runAsync(new PriorityRunnable(priority, task), PRIORITY_EXECUTOR);
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        PRIORITY_EXECUTOR.execute(new PriorityRunnable(priority, () -> {
+            try {
+                task.run();
+                future.complete(null);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        }));
+        return future;
     }
 
     /**
@@ -36,20 +47,30 @@ public final class PriorityFuture {
      * @return CompletableFuture&lt;T&gt;
      */
     public static <T> CompletableFuture<T> supplyAsync(int priority, Callable<T> task) {
-        Executor exec = r -> PRIORITY_EXECUTOR.execute(new PriorityRunnable(priority, r));
-        return CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<T> future = new CompletableFuture<>();
+        PRIORITY_EXECUTOR.execute(new PriorityRunnable(priority, () -> {
             try {
-                return task.call();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                future.complete(task.call());
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
             }
-        }, exec);
+        }));
+        return future;
     }
 
     /**
      * 若需指定自定义的优先级线程池（队列已是 PriorityBlockingQueue），可用此重载。
      */
     public static CompletableFuture<Void> runAsync(int priority, Runnable task, Executor executor) {
-        return CompletableFuture.runAsync(new PriorityRunnable(priority, task), executor);
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        executor.execute(new PriorityRunnable(priority, () -> {
+            try {
+                task.run();
+                future.complete(null);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        }));
+        return future;
     }
 }
