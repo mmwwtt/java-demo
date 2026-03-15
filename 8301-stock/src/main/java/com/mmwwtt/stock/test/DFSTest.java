@@ -60,13 +60,12 @@ public class DFSTest {
 
     public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws ExecutionException, InterruptedException {
         dfsInit();
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (int i = 0; i < l1WinList.size(); i++) {
             StrategyWin strategyWin = l1WinList.get(i);
             int[] detailIds = strategyToDetailsMap.get(strategyWin.getStrategyCode());
             if (detailIds == null) continue;
             int finalI = i;
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            CompletableFuture.runAsync(() -> {
                 try {
                     taskCnt.incrementAndGet();
                     buildByLevel(detailIds, strategyWin, finalI, isNotFunc);
@@ -74,7 +73,6 @@ public class DFSTest {
                     taskCnt.decrementAndGet();
                 }
             }, cpuThreadPool);
-            futures.add(future);
         }
         while (taskCnt.get() != 0) {
             Thread.sleep(10000);
