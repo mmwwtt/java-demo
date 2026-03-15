@@ -152,9 +152,6 @@ public class StrategyWin {
     @TableField(exist = false)
     private int[] details;
 
-    @TableField(exist = false)
-    private int[] parentDetails;
-
     /**
      * 将结果累加到数据中
      */
@@ -300,11 +297,10 @@ public class StrategyWin {
     }
 
     public StrategyWin(String strategyCode, Set<String> parentWinStrategyCodeSet,
-                       BigDecimal parentFiveMaxPercRate, int[] parentDetails, int[] details) {
+                       BigDecimal parentFiveMaxPercRate, int[] details) {
         this.strategyCode = strategyCode;
         this.parentWinStrategyCodeSet = parentWinStrategyCodeSet;
         this.parentFiveMaxPercRate = parentFiveMaxPercRate;
-        this.parentDetails = parentDetails;
         this.details = details;
     }
 
