@@ -42,6 +42,7 @@ public class GlobalThreadPool {
 
     private static volatile ThreadPoolExecutor middleThreadPool4;
 
+    private static volatile ThreadPoolExecutor priorityThreadPool;
 
     // 获取线程池实例的静态方法，用双重校验的单例模式
     public static ThreadPoolExecutor getCpuThreadPool() {
@@ -141,5 +142,24 @@ public class GlobalThreadPool {
             }
         }
         return ioThreadPool;
+    }
+
+    public static ThreadPoolExecutor getPriorityThreadPool() {
+        if (priorityThreadPool == null) {
+            synchronized (GlobalThreadPool.class) {
+                if (priorityThreadPool == null) {
+                    priorityThreadPool = new ThreadPoolExecutor(
+                            CPU_CORE_SIZE +1,
+                            CPU_CORE_SIZE * 7,
+                            KEEP_ALIVE_TIME,
+                            UNIT,
+                            new PriorityBlockingQueue<>(),
+                            new ThreadPoolExecutor.AbortPolicy()
+                    );
+                    priorityThreadPool.allowCoreThreadTimeOut(true);
+                }
+            }
+        }
+        return priorityThreadPool;
     }
 }

@@ -2,6 +2,7 @@ package com.mmwwtt.stock.test;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.stock.common.GlobalThreadPool;
+import com.mmwwtt.stock.common.PriorityFuture;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import com.mmwwtt.stock.vo.DfsTask;
@@ -46,7 +47,6 @@ public class DFSTest {
     private static List<StrategyWin> l1WinList;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1048576);
     private static final BlockingQueue<DfsTask> taskQueue = new LinkedBlockingQueue<>(1048576);
-
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
@@ -98,37 +98,37 @@ public class DFSTest {
                 task4Num.addAndGet(n4);
 
                 size1List.forEach(task ->
-                        CompletableFuture.runAsync(() -> {
+                        PriorityFuture.runAsync(4, () -> {
                             try {
                                 buildByLevel(task);
                             } finally {
                                 task1Num.decrementAndGet();
                             }
-                        }, cpuThreadPool));
+                        }));
                 ListUtils.partition(size2List, 10).forEach(partTaskList ->
-                        CompletableFuture.runAsync(() -> {
+                        PriorityFuture.runAsync(3, () -> {
                             try {
                                 partTaskList.forEach(this::buildByLevel);
                             } finally {
                                 task2Num.decrementAndGet();
                             }
-                        }, cpuThreadPool));
+                        }));
                 ListUtils.partition(size3List, 100).forEach(partTaskList ->
-                        CompletableFuture.runAsync(() -> {
+                        PriorityFuture.runAsync(2, () -> {
                             try {
                                 partTaskList.forEach(this::buildByLevel);
                             } finally {
                                 task3Num.decrementAndGet();
                             }
-                        }, cpuThreadPool));
+                        }));
                 ListUtils.partition(size4List, 1000).forEach(partTaskList ->
-                        CompletableFuture.runAsync(() -> {
+                        PriorityFuture.runAsync(1, () -> {
                             try {
                                 partTaskList.forEach(this::buildByLevel);
                             } finally {
                                 task4Num.decrementAndGet();
                             }
-                        }, cpuThreadPool));
+                        }));
             }
 
             int pendingCount = task1Num.get() + task2Num.get() + task3Num.get() + task4Num.get();
@@ -163,11 +163,11 @@ public class DFSTest {
             }
             int[] curRetainAllDetailIds = retainAll(dfsTask.getParentDetails(), curDetailIds);
             String md5 = getMd5(curRetainAllDetailIds);
-            Integer existingLevel = md5ToLevelMap.get(md5);
-            if (existingLevel != null && existingLevel > level) {
+            // 单次 compute 替代 get+put，减少争用与重复查找
+            Integer storedLevel = md5ToLevelMap.compute(md5, (k, v) -> (v != null && v > level) ? v : level);
+            if (storedLevel > level) {
                 continue;
             }
-            md5ToLevelMap.put(md5, level);
 
             StrategyWin win = calcStrategyWin(dfsTask.getParentStrategyCodeSet(), dfsTask.getParentFiveMaxPercRate(),
                     dfsTask.getParentDetails(), strategy.getStrategyCode(), curRetainAllDetailIds);
