@@ -6,6 +6,7 @@ import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import com.mmwwtt.stock.vo.DfsTask;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +17,19 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
 
-
+/**
+ * DFS 优先级版：task1 为最上层任务，执行时产生 1、2、3、4 子任务；
+ * 子任务按 4→3→2→1 的优先级处理（task4 最先处理，task1 最后），避免小任务堆积。
+ */
 @Slf4j
 @SpringBootTest
-public class DFSTest {
+public class DFSTest2 {
 
     private static final int CNT_THRESHOLD = 80;
     private static final int BATCH_SAVE_SIZE = 1000;
@@ -34,9 +39,6 @@ public class DFSTest {
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
-    /**
-     * 收集待保存的 StrategyWin，批量写入减少 DB 往返
-     */
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
     private static List<StrategyWin> l1WinList;
@@ -47,90 +49,66 @@ public class DFSTest {
     private static final BlockingQueue<DfsTask> task4Queue = new LinkedBlockingQueue<>(500000);
 
     @Test
-    @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
-    public void DFS1() throws ExecutionException, InterruptedException {
+    @DisplayName("DFS2 - 五日最大涨幅平均值（优先级先执行）")
+    public void DFS1() throws Exception {
         DfsMain(this::isNotByFiveMaxAvg);
     }
 
     @Test
-    @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
-    public void DFS2() throws ExecutionException, InterruptedException {
+    @DisplayName("DFS2 - 五日最大涨幅中位数（优先级先执行）")
+    public void DFS2() throws Exception {
         DfsMain(this::isNotByFiveMaxMiddle);
     }
 
-
-    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws ExecutionException, InterruptedException {
+    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws InterruptedException {
         dfsInit(isNotFunc);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        boolean haveTaskRun = false;
-        while (!task1Queue.isEmpty() || haveTaskRun) {
-            if (task1Queue.isEmpty()) {
-                Thread.sleep(10000);
-            } else {
-                futures.add(CompletableFuture.runAsync(() -> {
-                    DfsTask peek = task1Queue.poll();
-                    if (peek != null) {
-                        buildByLevel(peek);
-                    }
-                }, cpuThreadPool));
-            }
-            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
-        }
+        AtomicInteger pending = new AtomicInteger(0);
 
-        futures = new ArrayList<>();
-        while (!task2Queue.isEmpty() || haveTaskRun) {
-            if (task2Queue.isEmpty()) {
+        while (true) {
+            if (pending.get() > 32) {
                 Thread.sleep(10000);
-            } else {
-                futures.add(CompletableFuture.runAsync(() -> {
-                    DfsTask peek = task2Queue.poll();
-                    if (peek != null) {
-                        buildByLevel(peek);
-                    }
-                }, cpuThreadPool));
             }
-            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
-        }
-
-        futures = new ArrayList<>();
-        while (!task3Queue.isEmpty() || haveTaskRun) {
-            if (task3Queue.isEmpty()) {
-                Thread.sleep(10000);
-            } else {
-                futures.add(CompletableFuture.runAsync(() -> {
-                    DfsTask peek = task3Queue.poll();
-                    if (peek != null) {
-                        buildByLevel(peek);
-                    }
-                }, cpuThreadPool));
+            List<DfsTask> list = new ArrayList<>();
+            // 子任务按 4→3→2→1 优先级取（task4 先处理）
+            if (!task4Queue.isEmpty()) {
+                task4Queue.drainTo(list, 100);
+            } else if (!task3Queue.isEmpty()) {
+                task3Queue.drainTo(list, 50);
+            } else if (!task2Queue.isEmpty()) {
+                task2Queue.drainTo(list, 20);
+            } else if (!task1Queue.isEmpty()) {
+                task1Queue.drainTo(list, 2);
             }
-            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
-        }
-
-        futures = new ArrayList<>();
-        while (!task4Queue.isEmpty() || haveTaskRun) {
-            if (task4Queue.isEmpty()) {
-                Thread.sleep(10000);
-            } else {
-                futures.add(CompletableFuture.runAsync(() -> {
-                    DfsTask peek = task4Queue.poll();
-                    if (peek != null) {
-                        buildByLevel(peek);
+            if (CollectionUtils.isNotEmpty(list)) {
+                pending.incrementAndGet();
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        list.forEach(this::buildByLevel);
+                    } finally {
+                        pending.decrementAndGet();
                     }
-                }, cpuThreadPool));
+                }, cpuThreadPool);
+            } else {
+                if (pending.get() == 0) {
+                    break;
+                }
+                Thread.sleep(5000);
             }
-            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
+            log.info("任务堆积数：{}", pending.get());
         }
         flushWinBatch();
     }
 
-
+    /**
+     * 先按 4→3→2→1 执行已有子任务（阻塞当前任务不继续产生），再展开当前节点；
+     * 每产生一个子任务入队后再次 drain，避免子任务堆积。
+     */
     private void buildByLevel(DfsTask dfsTask) {
+
         int level = dfsTask.getParentStrategyCodeSet().size() + 1;
         if (level > 7) {
             return;
         }
-
 
         for (int i = dfsTask.getCurIdx() + 1; i < l1WinList.size(); i++) {
             StrategyWin strategy = l1WinList.get(i);
@@ -143,7 +121,6 @@ public class DFSTest {
             }
             int[] curRetainAllDetailIds = retainAll(dfsTask.getParentDetails(), curDetailIds);
             String md5 = getMd5(curRetainAllDetailIds);
-            // 单次 compute 替代 get+put，减少争用与重复查找
             Integer storedLevel = md5ToLevelMap.compute(md5, (k, v) -> (v != null && v > level) ? v : level);
             if (storedLevel > level) {
                 continue;
@@ -157,41 +134,30 @@ public class DFSTest {
             }
             win.fillData2();
             addToWinBatch(win);
-            if (curDetailIds.length > 300000) {
+
+            if (win.getDetails().length > 300000) {
                 task1Queue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
                         win.getDetails(), i, dfsTask.getIsNotFunc()));
-            } else if (curDetailIds.length > 30000) {
-
+            } else if (win.getDetails().length > 30000) {
                 task2Queue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
                         win.getDetails(), i, dfsTask.getIsNotFunc()));
-            } else if (curDetailIds.length > 3000) {
-
+            } else if (win.getDetails().length > 3000) {
                 task3Queue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
                         win.getDetails(), i, dfsTask.getIsNotFunc()));
             } else {
                 task4Queue.add(new DfsTask(win.getStrategyCodeSet(), win.getFiveMaxPercRate(),
                         win.getDetails(), i, dfsTask.getIsNotFunc()));
             }
-        }
-        while (!task4Queue.isEmpty() && dfsTask.getParentDetails().length > 3000) {
-            DfsTask task = task4Queue.poll();
-            buildByLevel(task);
-        }
-        while (!task3Queue.isEmpty() && dfsTask.getParentDetails().length > 30000) {
-            DfsTask task = task3Queue.poll();
-            buildByLevel(task);
-        }
-        while (!task2Queue.isEmpty() && dfsTask.getParentDetails().length > 300000) {
-            DfsTask task = task2Queue.poll();
-            buildByLevel(task);
-        }
-        while (!task1Queue.isEmpty()) {
-            DfsTask task = task1Queue.poll();
-            buildByLevel(task);
+            drainByPriority();
         }
     }
 
-
+    private void drainByPriority() {
+        DfsTask t;
+        while ((t = task4Queue.poll()) != null) buildByLevel(t);
+        while ((t = task3Queue.poll()) != null) buildByLevel(t);
+        while ((t = task2Queue.poll()) != null) buildByLevel(t);
+    }
     private void addToWinBatch(StrategyWin win) {
         synchronized (winBatch) {
             winBatch.add(win);
@@ -257,6 +223,10 @@ public class DFSTest {
         strategyWinService.remove(wrapper);
         winBatch.clear();
         md5ToLevelMap.clear();
+        task1Queue.clear();
+        task2Queue.clear();
+        task3Queue.clear();
+        task4Queue.clear();
 
         l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
@@ -274,16 +244,22 @@ public class DFSTest {
             if (detailIds == null) {
                 continue;
             }
-            task1Queue.add(new DfsTask(strategyWin.getStrategyCodeSet(),
+            BlockingQueue<DfsTask> curQueue = null;
+            if (detailIds.length > 300000) {
+                curQueue = task1Queue;
+            } else if (detailIds.length > 30000) {
+                curQueue = task2Queue;
+            } else if (detailIds.length > 3000) {
+                curQueue = task3Queue;
+            } else {
+                curQueue = task4Queue;
+            }
+            curQueue.add(new DfsTask(strategyWin.getStrategyCodeSet(),
                     strategyWin.getFiveMaxPercRate(),
                     detailIds, i, isNotFunc));
         }
     }
 
-    /**
-     * 取两个 list的交集
-     * 前提：两个list 都要升序,且无重复
-     */
     private int[] retainAll(int[] list1, int[] list2) {
         int[] tmpArr = new int[Math.min(list1.length, list2.length)];
         if (tmpArr.length == 0) {
