@@ -78,7 +78,6 @@ public class DFSTest {
         }
 
         futures = new ArrayList<>();
-        haveTaskRun = false;
         while (!task2Queue.isEmpty() || haveTaskRun) {
             if (task2Queue.isEmpty()) {
                 Thread.sleep(10000);
@@ -94,29 +93,27 @@ public class DFSTest {
         }
 
         futures = new ArrayList<>();
-        haveTaskRun= false;
-        while (!task2Queue.isEmpty() || haveTaskRun) {
-            if (task2Queue.isEmpty()) {
-                Thread.sleep(10000);
-            } else {
-                futures.add(CompletableFuture.runAsync(() -> {
-                    DfsTask peek = task2Queue.poll();
-                    if (peek != null) {
-                        buildByLevel(peek);
-                    }
-                }, cpuThreadPool));
-            }
-            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
-        }
-
-        futures = new ArrayList<>();
-        haveTaskRun = false;
         while (!task3Queue.isEmpty() || haveTaskRun) {
             if (task3Queue.isEmpty()) {
                 Thread.sleep(10000);
             } else {
                 futures.add(CompletableFuture.runAsync(() -> {
                     DfsTask peek = task3Queue.poll();
+                    if (peek != null) {
+                        buildByLevel(peek);
+                    }
+                }, cpuThreadPool));
+            }
+            haveTaskRun = futures.stream().anyMatch(item -> !item.isDone());
+        }
+
+        futures = new ArrayList<>();
+        while (!task4Queue.isEmpty() || haveTaskRun) {
+            if (task4Queue.isEmpty()) {
+                Thread.sleep(10000);
+            } else {
+                futures.add(CompletableFuture.runAsync(() -> {
+                    DfsTask peek = task4Queue.poll();
                     if (peek != null) {
                         buildByLevel(peek);
                     }
