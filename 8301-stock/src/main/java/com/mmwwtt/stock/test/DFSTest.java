@@ -1,9 +1,6 @@
 package com.mmwwtt.stock.test;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.common.base.Charsets;
-import com.google.common.hash.BloomFilter;
-import com.google.common.hash.Funnels;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
@@ -46,14 +43,8 @@ public class DFSTest {
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
     private static List<StrategyWin> l1WinList;
-    private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1000000);
+    private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(4000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
-
-    private static final BloomFilter<String> bloomFilter = BloomFilter.create(
-            Funnels.stringFunnel(Charsets.UTF_8),           // 数据类型转换器（Funnel）
-            40000000, //期望插入大小
-            0.01  //误判概率
-    );
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
@@ -112,20 +103,10 @@ public class DFSTest {
             }
             int[] curRetainAllDetailIds = retainAll(parentDetailIds, curDetailIds);
 
-            //先布隆初步过滤，不存在的直接计算win (不存在的一定不存在)
-            //在布隆中存在则，去md5中找(存在的有概率不存在，接受了(小概率))
-            //md5中不存在则表示已经被策略抛弃-continue
-            //md5中存在且level比当前小/等于表示之前已经有该情况，且策略更少-contine
-            //md5中存在且level比当前大到了该情况，用的策略比之前少-继续执行
             String md5Key = getMd5Key(curRetainAllDetailIds);
-            boolean bloomHave = bloomFilter.mightContain(md5Key);
-            if (bloomHave) {
-                Integer newLevel = md5ToLevelMap.get(md5Key);
-                if (newLevel == null || newLevel < level) {
-                    continue;
-                }
-            } else {
-                bloomFilter.put(md5Key);
+            Integer newLevel = md5ToLevelMap.merge(md5Key, level, Math::max);
+            if (newLevel > level) {
+                continue;
             }
 
             StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), parentWin.getFiveMaxPercRate(),
@@ -134,7 +115,6 @@ public class DFSTest {
             if (isNotFunc.apply(win)) {
                 continue;
             }
-            md5ToLevelMap.put(md5Key, level);
             win.fillData2();
             addToWinBatch(win);
             if (curDetailIds.length > 1000 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
