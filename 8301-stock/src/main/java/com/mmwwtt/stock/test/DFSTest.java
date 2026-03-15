@@ -140,6 +140,22 @@ public class DFSTest {
                         win.getDetails(), i, dfsTask.getIsNotFunc()));
             }
         }
+        while(!task4Queue.isEmpty() && dfsTask.getParentDetails().length> 3000) {
+            DfsTask task = task4Queue.poll();
+            buildByLevel(task);
+        }
+        while(!task3Queue.isEmpty()&& dfsTask.getParentDetails().length> 30000) {
+            DfsTask task = task3Queue.poll();
+            buildByLevel(task);
+        }
+        while(!task2Queue.isEmpty()&& dfsTask.getParentDetails().length> 300000) {
+            DfsTask task = task2Queue.poll();
+            buildByLevel(task);
+        }
+        while(!task1Queue.isEmpty()) {
+            DfsTask task = task1Queue.poll();
+            buildByLevel(task);
+        }
     }
 
 
