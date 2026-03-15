@@ -65,7 +65,9 @@ public class DFSTest {
         for (int i = 0; i < l1WinList.size(); i++) {
             StrategyWin strategyWin = l1WinList.get(i);
             int[] detailIds = strategyToDetailsMap.get(strategyWin.getStrategyCode());
-            if (detailIds == null) continue;
+            if (detailIds == null) {
+                continue;
+            }
             int finalI = i;
             taskCnt.incrementAndGet();
             CompletableFuture.runAsync(() -> {
@@ -96,7 +98,9 @@ public class DFSTest {
                 continue;
             }
             int[] curDetailIds = strategyToDetailsMap.get(strategy.getStrategyCode());
-            if (curDetailIds == null) continue;
+            if (curDetailIds == null) {
+                continue;
+            }
             int[] curRetainAllDetailIds = retainAll(parentDetailIds, curDetailIds);
             String md5 = getMd5(curRetainAllDetailIds);
             Integer existingLevel = md5ToLevelMap.get(md5);
@@ -113,7 +117,20 @@ public class DFSTest {
             }
             win.fillData2();
             addToWinBatch(win);
-            buildByLevel(curRetainAllDetailIds, win, i, isNotFunc);
+            // 未达到核心线程数则提交到线程池，否则在当前线程递归
+            if (taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+                int finalI = i;
+                taskCnt.incrementAndGet();
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        buildByLevel(curRetainAllDetailIds, win, finalI, isNotFunc);
+                    } finally {
+                        taskCnt.decrementAndGet();
+                    }
+                }, cpuThreadPool);
+            } else {
+                buildByLevel(curRetainAllDetailIds, win, i, isNotFunc);
+            }
         }
     }
 
@@ -153,8 +170,7 @@ public class DFSTest {
         strategyWinService.saveBatch(toSave);
     }
 
-    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet,
-                                        BigDecimal parentFiveMaxPercRate,
+    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet, BigDecimal parentFiveMaxPercRate,
                                         String curStrategyCode, int[] details) {
         StrategyWin win = new StrategyWin(curStrategyCode, parentWinStrategyCodeSet,
                 parentFiveMaxPercRate, details);
