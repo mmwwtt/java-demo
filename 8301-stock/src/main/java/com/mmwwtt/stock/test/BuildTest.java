@@ -48,9 +48,10 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        String sql = "five_max_middle_perc_rate>0.12 ";
+        String sql = "five_max_middle_perc_rate>0.135 ";
         winList = strategyWinService.getStrategyWin(sql)
                 .stream()
+                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
                 .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed())
                 .toList();
     }
@@ -64,7 +65,7 @@ public class BuildTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260310", winList, false, 1.2);
+        calcCommonService.predict("20260313", winList, false, 1.2);
     }
 
     @Test
@@ -203,12 +204,12 @@ public class BuildTest {
         List<BigDecimal> fiveDateAvgList = new ArrayList<>();
         Map<String, List<StockDetail>> dataToDetailsMap = new ConcurrentHashMap<>();
 
-        codeToDetailMap.entrySet().parallelStream().forEach(entry -> {
+        codeToDetailMap.entrySet().forEach(entry -> {
             for (StockDetail detail : entry.getValue()) {
                 if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
                     break;
                 }
-                if (Objects.isNull(detail.getNext5())
+                if (Objects.isNull(detail.getNext5MaxPricePert())
                         || Objects.isNull(detail.getT10())
                         || Objects.isNull(detail.getT10().getSixtyDayLine())
                         || moreThan(detail.getPricePert(), "0.097")) {
