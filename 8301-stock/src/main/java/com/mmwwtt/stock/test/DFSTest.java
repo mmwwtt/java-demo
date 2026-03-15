@@ -44,8 +44,7 @@ public class DFSTest {
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
     private static List<StrategyWin> l1WinList;
-    /** 用 128 位紧凑 key 替代 String，几十万 key 时显著省内存、减哈希成本 */
-    private static final Map<Md5Key, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1 << 20);
+    private static final Map<Md5Key, Integer> md5ToLevelMap = new ConcurrentHashMap<>(40000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
 
     @Test
