@@ -174,22 +174,33 @@ public class StrategyWin {
 
         this.level = strategyCodeSet.size();
         this.strategyCode = String.join(" ", strategyCodeSet);
-        this.strategyName = strategyCodeSet.stream()
-                .map(item -> StrategyEnum.codeToEnumMap.get(item).getName())
-                .collect(Collectors.joining(" "));
+        // 单遍遍历 + StringBuilder，避免 stream + 中间 List
+        StringBuilder sb = new StringBuilder(32 * strategyCodeSet.size());
+        for (String code : strategyCodeSet) {
+            if (!sb.isEmpty()) {
+                sb.append(' ');
+            }
+            StrategyEnum e = StrategyEnum.codeToEnumMap.get(code);
+            sb.append(e != null ? e.getName() : code);
+        }
+        this.strategyName = sb.toString();
 
+        // 单遍 for 替代 stream+filter+forEach，减少迭代器与 lambda 开销
+        Map<String, List<BigDecimal>> dateToFiveMaxPertMap = new HashMap<>(Math.max(16, list.size() >> 2));
+        for (StockDetail stockDetail : list) {
+            BigDecimal pert = stockDetail.getNext5MaxPricePert();
+            if (pert == null) {
+                continue;
+            }
+            dateToFiveMaxPertMap.computeIfAbsent(stockDetail.getDealDate(), k -> new ArrayList<>()).add(pert);
+        }
 
-        Map<String, List<BigDecimal>> dateToFiveMaxPertMap = new HashMap<>();
-        list.stream().filter(item -> Objects.nonNull(item.getNext5MaxPricePert()))
-                .forEach(stockDetail ->
-                        dateToFiveMaxPertMap.computeIfAbsent(stockDetail.getDealDate(), k -> new ArrayList<>())
-                                .add(stockDetail.getNext5MaxPricePert()));
-
-        dateToFiveMaxPertMap.forEach((date, fiveMaxPerts) -> {
-            if (CollectionUtils.isNotEmpty(fiveMaxPerts)) {
+        fiveMaxPercRateList = new ArrayList<>(dateToFiveMaxPertMap.size());
+        for (List<BigDecimal> fiveMaxPerts : dateToFiveMaxPertMap.values()) {
+            if (!fiveMaxPerts.isEmpty()) {
                 fiveMaxPercRateList.add(divide(sum(fiveMaxPerts), fiveMaxPerts.size()));
             }
-        });
+        }
         fiveMaxPercRate = average(fiveMaxPercRateList);
         cnt = fiveMaxPercRateList.size();
     }
