@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.predictDateList;
+import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 @SpringBootTest
 @Slf4j
@@ -48,8 +48,7 @@ public class BuildTest {
 
     @PostConstruct
     public void init() {
-        String sql = "five_max_perc_rate>0.11 and five_max_middle_perc_rate>0.09 " +
-                "and five_min_perc_rate > -0.1";
+        String sql = "five_max_middle_perc_rate>0.12 ";
         winList = strategyWinService.getStrategyWin(sql)
                 .stream()
                 .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed())
@@ -141,7 +140,7 @@ public class BuildTest {
         for (List<String> part : CommonService.stockCodePartList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (String stockCode : part) {
-                    List<StockDetail> stockDetails = CommonService.codeToDetailMap.get(stockCode);
+                    List<StockDetail> stockDetails = codeToDetailMap.get(stockCode);
                     if (stockDetails.size() < 60) {
                         return;
                     }
@@ -202,15 +201,41 @@ public class BuildTest {
     public void verifyPredictResByFiveMaxDetail() throws InterruptedException, ExecutionException {
         List<BigDecimal> fiveMaxDateAvgList = new ArrayList<>();
         List<BigDecimal> fiveDateAvgList = new ArrayList<>();
+        Map<String, List<StockDetail>> dataToDetailsMap = new ConcurrentHashMap<>();
+
+        codeToDetailMap.entrySet().parallelStream().forEach(entry -> {
+            for (StockDetail detail : entry.getValue()) {
+                if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
+                    break;
+                }
+                if (Objects.isNull(detail.getNext5())
+                        || Objects.isNull(detail.getT10())
+                        || Objects.isNull(detail.getT10().getSixtyDayLine())
+                        || moreThan(detail.getPricePert(), "0.097")) {
+                    continue;
+                }
+                for (StrategyWin strategyWin : winList) {
+                    List<StrategyEnum> strategyEnums = strategyWin.getStrategyCodeSet().stream()
+                            .map(StrategyEnum.codeToEnumMap::get).toList();
+                    boolean res = strategyEnums.stream()
+                            .allMatch(strategyEnum -> strategyEnum.getRunFunc().apply(detail));
+                    if (res) {
+                        dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(detail);
+                        break;
+                    }
+                }
+            }
+        });
+
         for (String date : predictDateList) {
             log.info("日期：" + date);
-            List<StockDetail> resList = calcCommonService.verifyPredictRes(date, winList);
-            if(CollectionUtils.isEmpty(resList)) {
+            List<StockDetail> resList = dataToDetailsMap.getOrDefault(date, Collections.emptyList());
+            if (CollectionUtils.isEmpty(resList)) {
                 continue;
             }
             BigDecimal fiveMaxDateAvg = divide(sum(resList.stream().map(StockDetail::getNext5MaxPricePert).toList()), resList.size());
             BigDecimal fiveDateAvg = divide(sum(resList.stream()
-                            .map(item-> divide(subtract(item.getNext5().getEndPrice(),item.getEndPrice()), item.getEndPrice()))
+                            .map(item -> divide(subtract(item.getNext5().getEndPrice(), item.getEndPrice()), item.getEndPrice()))
                             .toList()),
                     resList.size());
             if (fiveMaxDateAvg.compareTo(BigDecimal.ZERO) == 0) {
