@@ -2,12 +2,10 @@ package com.mmwwtt.stock.test;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.common.PriorityFuture;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import com.mmwwtt.stock.vo.DfsTask;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.ListUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -34,8 +31,6 @@ public class DFSTest {
 
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
-
-    private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
@@ -213,7 +208,6 @@ public class DFSTest {
         strategyWinService.remove(wrapper);
         winBatch.clear();
         md5ToLevelMap.clear();
-        taskQueue.clear();
 
         l1WinList = l1StrategyList.stream()
                 .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
@@ -231,7 +225,7 @@ public class DFSTest {
             if (detailIds == null) {
                 continue;
             }
-            taskQueue.add(new DfsTask(strategyWin.getStrategyCodeSet(),
+            task1Queue.add(new DfsTask(strategyWin.getStrategyCodeSet(),
                     strategyWin.getFiveMaxPercRate(),
                     detailIds, i, isNotFunc));
         }
