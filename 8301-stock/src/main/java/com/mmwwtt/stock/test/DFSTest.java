@@ -84,6 +84,7 @@ public class DFSTest {
             log.info("任务数 taskCnt:{}", taskCnt.get());
         }
         flushWinBatch();
+        log.info("md5Map数量 ： {}", md5ToLevelMap.size());
     }
 
 
@@ -103,8 +104,8 @@ public class DFSTest {
                 continue;
             }
             int[] curRetainAllDetailIds = retainAll(parentDetailIds, curDetailIds);
+
             Md5Key md5Key = getMd5Key(curRetainAllDetailIds);
-            // 原子 merge 只保留最大 level；紧凑 key 省内存、无 String 分配
             Integer newLevel = md5ToLevelMap.merge(md5Key, level, Math::max);
             if (newLevel > level) {
                 continue;
@@ -116,6 +117,7 @@ public class DFSTest {
             if (isNotFunc.apply(win)) {
                 continue;
             }
+
             win.fillData2();
             addToWinBatch(win);
             if (curDetailIds.length > 1000 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
