@@ -44,7 +44,8 @@ public class DFSTest {
     private final List<StrategyWin> winBatch = Collections.synchronizedList(new ArrayList<>());
 
     private static List<StrategyWin> l1WinList;
-    private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1048576);
+    /** 用 128 位紧凑 key 替代 String，几十万 key 时显著省内存、减哈希成本 */
+    private static final Map<Md5Key, Integer> md5ToLevelMap = new ConcurrentHashMap<>(1 << 20);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
 
     @Test
@@ -102,9 +103,9 @@ public class DFSTest {
                 continue;
             }
             int[] curRetainAllDetailIds = retainAll(parentDetailIds, curDetailIds);
-            String md5 = getMd5(curRetainAllDetailIds);
-            // 原子 merge 只保留最大 level，避免 get+put 两次碰撞；若已有更高 level 则跳过
-            Integer newLevel = md5ToLevelMap.merge(md5, level, Math::min);
+            Md5Key md5Key = getMd5Key(curRetainAllDetailIds);
+            // 原子 merge 只保留最大 level；紧凑 key 省内存、无 String 分配
+            Integer newLevel = md5ToLevelMap.merge(md5Key, level, Math::max);
             if (newLevel > level) {
                 continue;
             }
@@ -238,18 +239,47 @@ public class DFSTest {
         return Arrays.copyOfRange(tmpArr, 0, arrIdx);
     }
 
-    private static String getMd5(int[] intArray) {
+    /** 返回 128 位紧凑 key，用于 md5ToLevelMap，不分配 String，适合几十万 key 的大 map */
+    private static Md5Key getMd5Key(int[] intArray) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.reset();
             byte[] digest = md.digest(Arrays.toString(intArray).getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(32);
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b & 0xff));
-            }
-            return sb.toString();
+            return new Md5Key(digest);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /** MD5 的 128 位用两个 long 存储，替代 32 字符 String，大幅省内存与哈希成本 */
+    private static final class Md5Key {
+        private final long high;
+        private final long low;
+
+        Md5Key(byte[] digest) {
+            this.high = bytesToLong(digest, 0);
+            this.low = bytesToLong(digest, 8);
+        }
+
+        private static long bytesToLong(byte[] b, int off) {
+            long v = 0;
+            for (int i = 0; i < 8; i++) {
+                v = (v << 8) | (b[off + i] & 0xff);
+            }
+            return v;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Md5Key)) return false;
+            Md5Key that = (Md5Key) o;
+            return high == that.high && low == that.low;
+        }
+
+        @Override
+        public int hashCode() {
+            return Long.hashCode(high) * 31 + Long.hashCode(low);
         }
     }
 }
