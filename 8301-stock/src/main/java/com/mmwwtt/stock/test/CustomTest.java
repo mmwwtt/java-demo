@@ -5,19 +5,15 @@ import com.mmwwtt.stock.common.StockGuiUtils;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyEnum;
 import com.mmwwtt.stock.entity.StrategyWin;
-import com.mmwwtt.stock.service.impl.CalcCommonService;
 import com.mmwwtt.stock.service.impl.CommonService;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,61 +21,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.*;
+import static com.mmwwtt.stock.service.impl.CommonService.codeToDetailMap;
 
+/**
+ * 自定义策略测试
+ */
 @SpringBootTest
 @Slf4j
-public class BuildTest {
+public class CustomTest {
 
     @Resource
     private StrategyWinServiceImpl strategyWinService;
 
-    @Resource
-    private CommonService commonService;
-
-    @Resource
-    private CalcCommonService calcCommonService;
-
-    private static List<StrategyWin> winList;
-
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
-
-    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
-
-    @PostConstruct
-    public void init() {
-        String sql = "five_max_middle_perc_rate>0.135 ";
-        winList = strategyWinService.getStrategyWin(sql)
-                .stream()
-                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
-                .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed())
-                .toList();
-    }
-
-    @Test
-    @DisplayName("生成level1策略结果")
-    public void getL1Strategy() throws InterruptedException, ExecutionException {
-        commonService.buildStrateResultLevel1();
-    }
-
-    @Test
-    @DisplayName("根据策略预测")
-    public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260313", winList, false, 1.2);
-    }
-
-    @Test
-    @DisplayName("验证策略预测-5max")
-    public void verifyPredictResByFiveMax() throws ExecutionException, InterruptedException {
-        verifyPredictResByFiveMaxDetail();
-    }
-
-
-    @Test
-    @DisplayName("根据策略绘制蜡烛图")
-    public void startCalc3() throws ExecutionException, InterruptedException {
-        buildImg("11034 11078 01035", false);
-    }
 
 
     @Test
@@ -133,6 +87,13 @@ public class BuildTest {
         });
         log.info("绘制完成");
     }
+
+    @Test
+    @DisplayName("根据策略绘制蜡烛图")
+    public void startCalc3() throws ExecutionException, InterruptedException {
+        buildImg("11034 11078 01035", false);
+    }
+
 
     public Map<StrategyEnum, List<StockDetail>> calcByStrategy(List<StrategyEnum> strategyList) throws ExecutionException, InterruptedException {
         Map<StrategyEnum, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
@@ -197,56 +158,5 @@ public class BuildTest {
             }
         });
         log.info("绘制完成");
-    }
-
-    public void verifyPredictResByFiveMaxDetail() throws InterruptedException, ExecutionException {
-        List<BigDecimal> fiveMaxDateAvgList = new ArrayList<>();
-        List<BigDecimal> fiveDateAvgList = new ArrayList<>();
-        Map<String, List<StockDetail>> dataToDetailsMap = new ConcurrentHashMap<>();
-
-        codeToDetailMap.entrySet().forEach(entry -> {
-            for (StockDetail detail : entry.getValue()) {
-                if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
-                    break;
-                }
-                if (Objects.isNull(detail.getNext5MaxPricePert())
-                        || Objects.isNull(detail.getT10())
-                        || Objects.isNull(detail.getT10().getSixtyDayLine())
-                        || moreThan(detail.getPricePert(), "0.097")) {
-                    continue;
-                }
-                for (StrategyWin strategyWin : winList) {
-                    List<StrategyEnum> strategyEnums = strategyWin.getStrategyCodeSet().stream()
-                            .map(StrategyEnum.codeToEnumMap::get).toList();
-                    boolean res = strategyEnums.stream()
-                            .allMatch(strategyEnum -> strategyEnum.getRunFunc().apply(detail));
-                    if (res) {
-                        dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(detail);
-                        break;
-                    }
-                }
-            }
-        });
-
-        for (String date : predictDateList) {
-            log.info("日期：" + date);
-            List<StockDetail> resList = dataToDetailsMap.getOrDefault(date, Collections.emptyList());
-            if (CollectionUtils.isEmpty(resList)) {
-                continue;
-            }
-            BigDecimal fiveMaxDateAvg = divide(sum(resList.stream().map(StockDetail::getNext5MaxPricePert).toList()), resList.size());
-            BigDecimal fiveDateAvg = divide(sum(resList.stream()
-                            .map(item -> divide(subtract(item.getNext5().getEndPrice(), item.getEndPrice()), item.getEndPrice()))
-                            .toList()),
-                    resList.size());
-            if (fiveMaxDateAvg.compareTo(BigDecimal.ZERO) == 0) {
-                continue;
-            }
-            fiveMaxDateAvgList.add(fiveMaxDateAvg);
-            fiveDateAvgList.add(fiveDateAvg);
-            log.info("{}\n", fiveMaxDateAvg);
-        }
-        log.info("平均5日最高涨幅 {}", divide(sum(fiveMaxDateAvgList), fiveMaxDateAvgList.size()));
-        log.info("平均5日涨幅 {}", divide(sum(fiveDateAvgList), fiveDateAvgList.size()));
     }
 }

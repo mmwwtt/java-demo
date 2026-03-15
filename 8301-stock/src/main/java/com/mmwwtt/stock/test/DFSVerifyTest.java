@@ -1,0 +1,112 @@
+package com.mmwwtt.stock.test;
+
+import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StrategyEnum;
+import com.mmwwtt.stock.entity.StrategyWin;
+import com.mmwwtt.stock.service.impl.CalcCommonService;
+import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+
+import static com.mmwwtt.stock.common.CommonUtils.*;
+import static com.mmwwtt.stock.service.impl.CommonService.*;
+
+/**
+ * DFS结果验证
+ */
+@SpringBootTest
+@Slf4j
+public class DFSVerifyTest {
+
+    @Resource
+    private StrategyWinServiceImpl strategyWinService;
+
+    @Resource
+    private CalcCommonService calcCommonService;
+
+    private static List<StrategyWin> winList;
+
+    @PostConstruct
+    public void init() {
+        String sql = "five_max_middle_perc_rate>0.135 ";
+        winList = strategyWinService.getStrategyWin(sql)
+                .stream()
+                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
+                .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed())
+                .toList();
+    }
+
+    @Test
+    @DisplayName("根据策略预测")
+    public void predict() throws InterruptedException, ExecutionException {
+        calcCommonService.predict("20260313", winList, false, 1.2);
+    }
+
+    @Test
+    @DisplayName("验证策略预测-5max")
+    public void verifyPredictResByFiveMax() {
+        verifyPredictResByFiveMaxDetail();
+    }
+
+
+    public void verifyPredictResByFiveMaxDetail() {
+        List<BigDecimal> fiveMaxDateAvgList = new ArrayList<>();
+        List<BigDecimal> fiveDateAvgList = new ArrayList<>();
+        Map<String, List<StockDetail>> dataToDetailsMap = new ConcurrentHashMap<>();
+
+        codeToDetailMap.entrySet().parallelStream().forEach(entry -> {
+            for (StockDetail detail : entry.getValue()) {
+                if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
+                    break;
+                }
+                if (Objects.isNull(detail.getNext5MaxPricePert())
+                        || Objects.isNull(detail.getT10())
+                        || Objects.isNull(detail.getT10().getSixtyDayLine())
+                        || moreThan(detail.getPricePert(), "0.097")) {
+                    continue;
+                }
+                for (StrategyWin strategyWin : winList) {
+                    List<StrategyEnum> strategyEnums = strategyWin.getStrategyCodeSet().stream()
+                            .map(StrategyEnum.codeToEnumMap::get).toList();
+                    boolean res = strategyEnums.stream()
+                            .allMatch(strategyEnum -> strategyEnum.getRunFunc().apply(detail));
+                    if (res) {
+                        dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(detail);
+                        break;
+                    }
+                }
+            }
+        });
+
+        for (String date : predictDateList) {
+            log.info("日期：" + date);
+            List<StockDetail> resList = dataToDetailsMap.getOrDefault(date, Collections.emptyList());
+            if (CollectionUtils.isEmpty(resList)) {
+                continue;
+            }
+            BigDecimal fiveMaxDateAvg = divide(sum(resList.stream().map(StockDetail::getNext5MaxPricePert).toList()), resList.size());
+            BigDecimal fiveDateAvg = divide(sum(resList.stream()
+                            .map(item -> divide(subtract(item.getNext5().getEndPrice(), item.getEndPrice()), item.getEndPrice()))
+                            .toList()),
+                    resList.size());
+            if (fiveMaxDateAvg.compareTo(BigDecimal.ZERO) == 0) {
+                continue;
+            }
+            fiveMaxDateAvgList.add(fiveMaxDateAvg);
+            fiveDateAvgList.add(fiveDateAvg);
+            log.info("{}\n", fiveMaxDateAvg);
+        }
+        log.info("平均5日最高涨幅 {}", divide(sum(fiveMaxDateAvgList), fiveMaxDateAvgList.size()));
+        log.info("平均5日涨幅 {}", divide(sum(fiveDateAvgList), fiveDateAvgList.size()));
+    }
+}

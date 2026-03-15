@@ -3,7 +3,9 @@ package com.mmwwtt.stock.test;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.StrategyWin;
+import com.mmwwtt.stock.service.impl.CommonService;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +36,9 @@ public class DFSTest {
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
+    @Resource
+    private CommonService commonService;
+
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
 
@@ -45,6 +50,13 @@ public class DFSTest {
     private static List<StrategyWin> l1WinList;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(4000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
+
+
+    @Test
+    @DisplayName("生成level1策略结果")
+    public void getL1Strategy() throws InterruptedException, ExecutionException {
+        commonService.buildStrateResultLevel1();
+    }
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
