@@ -103,11 +103,11 @@ public class DFSTest {
             }
             int[] curRetainAllDetailIds = retainAll(parentDetailIds, curDetailIds);
             String md5 = getMd5(curRetainAllDetailIds);
-            Integer existingLevel = md5ToLevelMap.get(md5);
-            if (existingLevel != null && existingLevel > level) {
+            // 原子 merge 只保留最大 level，避免 get+put 两次碰撞；若已有更高 level 则跳过
+            Integer newLevel = md5ToLevelMap.merge(md5, level, Math::min);
+            if (newLevel > level) {
                 continue;
             }
-            md5ToLevelMap.put(md5, level);
 
             StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), parentWin.getFiveMaxPercRate(),
                     strategy.getStrategyCode(), curRetainAllDetailIds);
@@ -117,7 +117,7 @@ public class DFSTest {
             }
             win.fillData2();
             addToWinBatch(win);
-            if (curDetailIds.length> 1000 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+            if (curDetailIds.length > 1000 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = i;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {

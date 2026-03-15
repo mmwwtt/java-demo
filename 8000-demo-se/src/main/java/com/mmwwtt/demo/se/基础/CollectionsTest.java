@@ -359,7 +359,10 @@ public class CollectionsTest {
         map2.putIfAbsent("hello", new ArrayList<>());
         map2.computeIfPresent("hello", (k, v) -> { v.add(1); return v; });
 
-
+        /**
+         * key不存在则直接插入，key存在则通过函数判断 是否更新
+         */
+        map1.merge("hello", 1,  Math::max);
     }
 
     @Test
