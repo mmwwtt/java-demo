@@ -225,7 +225,14 @@ public class StrategyWin {
         StringBuilder unionName = new StringBuilder(32 * strategyCodeSet.size());
         StringBuilder unionCode = new StringBuilder(32 * strategyCodeSet.size());
         for (String code : strategyCodeSet) {
-            unionName.append(StrategyEnum.codeToEnumMap.get(code).getName()).append(' ');
+            if(!unionName.isEmpty()) {
+                unionName.append(' ');
+            }
+            unionName.append(StrategyEnum.codeToEnumMap.get(code).getName());
+
+            if(!unionCode.isEmpty()) {
+                unionCode.append(' ');
+            }
             unionCode.append(code).append(' ');
         }
         this.strategyName = unionName.toString();

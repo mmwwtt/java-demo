@@ -49,7 +49,7 @@ public class DFSTest {
     private static List<StrategyWin> l1WinList;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(4000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
-
+    private static int LEVEL_LIMIT;
 
     @Test
     @DisplayName("生成level1策略结果")
@@ -60,18 +60,19 @@ public class DFSTest {
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
     public void DFS1() throws InterruptedException {
-        DfsMain(this::filterBy5MaxAvg);
+        DfsMain(this::filterBy5MaxAvg, 4);
     }
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void DFS2() throws InterruptedException {
-        DfsMain(this::filterBy5MaxMiddle);
+        DfsMain(this::filterBy5MaxMiddle, 4);
     }
 
 
-    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws InterruptedException {
+    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc, int levelLimit) throws InterruptedException {
         dfsInit();
+        LEVEL_LIMIT = levelLimit;
         for (int i = 0; i < l1WinList.size(); i++) {
             StrategyWin strategyWin = l1WinList.get(i);
             int[] detailIds = strategyToDetailsMap.get(strategyWin.getStrategyCode());
@@ -100,7 +101,7 @@ public class DFSTest {
     private void buildByLevel(int[] parentDetailIds, StrategyWin parentWin, Integer curIdx,
                               Function<StrategyWin, Boolean> isNotFunc) {
         int level = parentWin.getStrategyCodeSet().size() + 1;
-        if (level > 7) {
+        if (level > LEVEL_LIMIT) {
             return;
         }
         for (int i = curIdx + 1; i < l1WinList.size(); i++) {
@@ -145,13 +146,14 @@ public class DFSTest {
     }
 
     private void dfsInit() {
+        log.info("dfs 初始化");
         QueryWrapper<StrategyWin> wrapper = new QueryWrapper<>();
         wrapper.apply("level!=1");
         strategyWinService.remove(wrapper);
         winBatch.clear();
         md5ToLevelMap.clear();
         l1WinList = l1StrategyList.stream()
-                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.04))
+                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
                 .filter(item -> item.getStrategyName().startsWith("T0")
                         || item.getStrategyName().startsWith("T1")
                         || item.getStrategyName().startsWith("T2")
@@ -159,6 +161,7 @@ public class DFSTest {
                 )
                 .peek(item -> item.getStrategyCodeSet().add(item.getStrategyCode()))
                 .sorted(Comparator.comparing(StrategyWin::getRise5MaxMiddle).reversed()).toList();
+        log.info("dfs 初始化结束");
     }
 
     private void addToWinBatch(StrategyWin win) {
@@ -173,7 +176,8 @@ public class DFSTest {
     private void flushWinBatch() {
         List<StrategyWin> toSave;
         synchronized (winBatch) {
-            if (winBatch.isEmpty()) return;
+            if (winBatch.isEmpty())
+                return;
             toSave = new ArrayList<>(winBatch);
             winBatch.clear();
         }
@@ -206,17 +210,17 @@ public class DFSTest {
     }
 
     private boolean filterBy5MaxMiddle(StrategyWin win) {
-        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), 0.05)) {
+        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), 0.025)) {
             return true;
         }
         int level = win.getStrategyCodeSet().size();
         return lessThan(win.getRise5MaxMiddle(), multiply(win.getParentLowLimit(), 1.02))
-                || (level == 2 && lessThan(win.getRise5MaxMiddle(), 0.08))
-                || (level == 3 && lessThan(win.getRise5MaxMiddle(), 0.09))
-                || (level == 4 && lessThan(win.getRise5MaxMiddle(), 0.10))
-                || (level == 5 && lessThan(win.getRise5MaxMiddle(), 0.11))
-                || (level == 6 && lessThan(win.getRise5MaxMiddle(), 0.115))
-                || (level == 7 && lessThan(win.getRise5MaxMiddle(), 0.12));
+                || (level == 2 && lessThan(win.getRise5MaxMiddle(), 0.04))
+                || (level == 3 && lessThan(win.getRise5MaxMiddle(), 0.05))
+                || (level == 4 && lessThan(win.getRise5MaxMiddle(), 0.06))
+                || (level == 5 && lessThan(win.getRise5MaxMiddle(), 0.07))
+                || (level == 6 && lessThan(win.getRise5MaxMiddle(), 0.08))
+                || (level == 7 && lessThan(win.getRise5MaxMiddle(), 0.09));
     }
 
     /**
