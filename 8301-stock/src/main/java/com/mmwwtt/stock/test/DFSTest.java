@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -217,9 +217,8 @@ public class DFSTest {
         private final String code;
         private final String desc;
         private final Function<StockDetail, Double> detailGetter;
-        private final Function<Double,StrategyWin> winSetter;
+        private final BiConsumer<StrategyWin,Double> winSetter;
         private final Function<StrategyWin, Boolean> func;
-
     }
 
 
