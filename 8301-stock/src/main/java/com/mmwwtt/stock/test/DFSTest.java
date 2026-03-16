@@ -59,13 +59,13 @@ public class DFSTest {
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
-    public void DFS1() throws ExecutionException, InterruptedException {
+    public void DFS1() throws InterruptedException {
         DfsMain(this::filterBy5MaxAvg);
     }
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
-    public void DFS2() throws ExecutionException, InterruptedException {
+    public void DFS2() throws InterruptedException {
         DfsMain(this::filterBy5MaxMiddle);
     }
 

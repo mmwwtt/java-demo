@@ -39,9 +39,7 @@ public class CustomTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         List<StrategyEnum> strategyEnums = List.of(
-                new StrategyEnum("riseStrategy", "上涨预测_低吸型", (StockDetail d) -> {
-                    return true;
-                }),
+                new StrategyEnum("riseStrategy", "上涨预测_低吸型", (StockDetail d) -> true),
                 new StrategyEnum("pullback5ma", "五日线上方回调至五日线下", (StockDetail t0) -> {
                     StockDetail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
                     if (t1 == null || t2 == null || t3 == null || t4 == null) return false;
@@ -63,13 +61,11 @@ public class CustomTest {
     @Test
     @DisplayName("根据策略绘制蜡烛图-自定义")
     public void startCalc5() throws ExecutionException, InterruptedException {
-        StrategyEnum strategyEnumDemo = new StrategyEnum("testCode", "testName", (StockDetail t0) -> {
-            return t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed() && t0.getT3().getIsRed() && t0.getT4().getIsRed()
-                    && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
-                    && lessThan(t0.getT1().getDealQuantity(), t0.getT2().getDealQuantity())
-                    && lessThan(t0.getT2().getDealQuantity(), t0.getT3().getDealQuantity())
-                    && lessThan(t0.getT3().getDealQuantity(), t0.getT4().getDealQuantity());
-        });
+        StrategyEnum strategyEnumDemo = new StrategyEnum("testCode", "testName", (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed() && t0.getT3().getIsRed() && t0.getT4().getIsRed()
+                && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
+                && lessThan(t0.getT1().getDealQuantity(), t0.getT2().getDealQuantity())
+                && lessThan(t0.getT2().getDealQuantity(), t0.getT3().getDealQuantity())
+                && lessThan(t0.getT3().getDealQuantity(), t0.getT4().getDealQuantity()));
 
         log.info("开始查找符合条件的数据");
         Map<StrategyEnum, List<StockDetail>> resMap = calcByStrategy(List.of(strategyEnumDemo));

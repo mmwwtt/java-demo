@@ -17,7 +17,7 @@ public class LoggingInterceptor implements ClientHttpRequestInterceptor {
     @Override
     public ClientHttpResponse intercept(HttpRequest request,
                                         byte[] body,
-                                        ClientHttpRequestExecution execution) throws IOException, IOException {
+                                        ClientHttpRequestExecution execution) throws IOException {
 
         // ========== 请求 ==========
         log.info("======================== 请求开始 ========================");

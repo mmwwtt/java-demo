@@ -88,7 +88,7 @@ public class DFSVerifyTest {
         });
 
         for (String date : predictDateList) {
-            log.info("日期：" + date);
+            log.info("日期：{}", date);
             List<StockDetail> resList = dataToDetailsMap.getOrDefault(date, Collections.emptyList());
             if (CollectionUtils.isEmpty(resList)) {
                 continue;

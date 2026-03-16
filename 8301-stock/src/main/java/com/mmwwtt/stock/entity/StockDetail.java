@@ -666,8 +666,6 @@ public class StockDetail {
 
     /**
      * 在拉取数据的时候就进行计算  并保存到数据库中，避免之后重复计算
-     *
-     * @param list
      */
     public static void calc(List<StockDetail> list) {
         for (int i = list.size() - 1; i >= 0; i--) {

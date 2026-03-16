@@ -6,13 +6,16 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.*;
 import com.mmwwtt.stock.vo.StockDetailQueryVO;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.moreThan;
@@ -21,17 +24,17 @@ import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 @Slf4j
 public class CommonService {
 
-    @Autowired
+    @Resource
     private StockServiceImpl stockService;
 
-    @Autowired
+    @Resource
     private StockDetailServiceImpl stockDetailService;
 
-    @Autowired
+    @Resource
     private StrategyResultServiceImpl strategyResultService;
 
 
-    @Autowired
+    @Resource
     private StrategyWinServiceImpl strategyWinService;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();

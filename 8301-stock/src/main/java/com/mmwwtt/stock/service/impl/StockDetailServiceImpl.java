@@ -10,13 +10,10 @@ import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.service.StockDetailService;
 import com.mmwwtt.stock.service.StockService;
 import com.mmwwtt.stock.vo.StockDetailQueryVO;
-import com.mmwwtt.stock.vo.StockDetailVO;
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -117,7 +114,7 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
     }
 
     @Override
-    public Map<String, StockDetail> getCodeToCurDetailMap(String curDate) throws ExecutionException, InterruptedException {
+    public Map<String, StockDetail> getCodeToCurDetailMap(String curDate) {
         Map<String, StockDetail> codeToDetailMap = new ConcurrentHashMap<>();
         log.info("开始查询数据");
         for (List<String> part : CommonService.stockCodePartList) {

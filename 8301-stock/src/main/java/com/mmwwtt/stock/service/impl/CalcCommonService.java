@@ -4,8 +4,8 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyEnum;
 import com.mmwwtt.stock.entity.StrategyWin;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -27,7 +27,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.stockCodeToNameMap;
 @Slf4j
 public class CalcCommonService {
 
-    @Autowired
+    @Resource
     private StockDetailServiceImpl stockDetailService;
 
 

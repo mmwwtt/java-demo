@@ -12,7 +12,6 @@ public interface StockService {
 
     /**
      * 获得所有股票列表
-     * @return
      */
     List<List<Stock>> getStockPart();
 }

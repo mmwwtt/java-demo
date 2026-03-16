@@ -61,9 +61,9 @@ public class StockGuiUtils {
         double volH = (IMG_H - 2 * MARGIN - GAP) * 0.25;
 
         /* 最大最小 */
-        double maxPrice = list.stream().mapToDouble(d -> d.getHighPrice().doubleValue()).max().orElse(0);
-        double minPrice = list.stream().mapToDouble(d -> d.getLowPrice().doubleValue()).min().orElse(0);
-        double maxVol = list.stream().mapToDouble(d -> d.getDealQuantity().doubleValue()).max().orElse(0);
+        double maxPrice = list.stream().mapToDouble(StockDetail::getHighPrice).max().orElse(0);
+        double minPrice = list.stream().mapToDouble(StockDetail::getLowPrice).min().orElse(0);
+        double maxVol = list.stream().mapToDouble(StockDetail::getDealQuantity).max().orElse(0);
         double priceRange = Math.max(maxPrice - minPrice, 1e-10);
         double candleW = (IMG_W - 2 * MARGIN) / (double) list.size();
 
@@ -78,11 +78,11 @@ public class StockGuiUtils {
             if(i==11) {
                 x +=10;
             }
-            double open = d.getStartPrice().doubleValue();
-            double close = d.getEndPrice().doubleValue();
-            double high = d.getHighPrice().doubleValue();
-            double low = d.getLowPrice().doubleValue();
-            double vol = d.getDealQuantity().doubleValue();
+            double open = d.getStartPrice();
+            double close = d.getEndPrice();
+            double high = d.getHighPrice();
+            double low = d.getLowPrice();
+            double vol = d.getDealQuantity();
             boolean up = close >= open;
 
             Color color = up ? Color.decode("#FFBFBF") : Color.decode("#CBFFCF");
