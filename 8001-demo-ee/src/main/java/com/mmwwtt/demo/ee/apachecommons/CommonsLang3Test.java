@@ -75,10 +75,14 @@ public class CommonsLang3Test {
         Supplier<byte[]> supplier1 = str::getBytes;
         byte[] supplierRes1 =  supplier1.get();
 
+        //时候get方法引用
+        Function<String, byte[]> function0 = String::getBytes;
+        byte[] funRes0= function0.apply(str);
         Function<String, Boolean> function1 = StringUtils::isBlank;
         Boolean funRes1= function1.apply(str);
         Function<String, Integer> function2 = str::indexOf;
         Integer funRes2 = function2.apply("h");
+
 
 
         BiFunction<String,Character, Integer> biFunction1 = StringUtils::indexOf;

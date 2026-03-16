@@ -132,7 +132,7 @@ public class StrategyWin {
      * 临时属性
      */
     @TableField(exist = false)
-    private List<StockDetail> list = Collections.synchronizedList(new ArrayList<>());
+    private List<StockDetail> list = Collections.synchronizedList(new ArrayList<>(50000));
     @TableField(exist = false)
     private List<Double> rise1Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
