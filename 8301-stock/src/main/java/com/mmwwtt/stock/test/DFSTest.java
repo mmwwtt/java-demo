@@ -66,7 +66,7 @@ public class DFSTest {
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void DFS2() throws InterruptedException {
-        DfsMain(this::filterBy5MaxMiddle, 4);
+        DfsMain(this::filterBy5MaxMiddle, 7);
     }
 
 
@@ -129,7 +129,7 @@ public class DFSTest {
             }
             win.fillData2();
             addToWinBatch(win);
-            if (curDetailIds.length > 1000 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+            if (level<LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = i;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
@@ -215,11 +215,11 @@ public class DFSTest {
         }
         int level = win.getStrategyCodeSet().size();
         return lessThan(win.getRise5MaxMiddle(), multiply(win.getParentLowLimit(), 1.02))
-                || (level == 2 && lessThan(win.getRise5MaxMiddle(), 0.07))
-                || (level == 3 && lessThan(win.getRise5MaxMiddle(), 0.08))
-                || (level == 4 && lessThan(win.getRise5MaxMiddle(), 0.09))
-                || (level == 5 && lessThan(win.getRise5MaxMiddle(), 0.10))
-                || (level == 6 && lessThan(win.getRise5MaxMiddle(), 0.115))
+                || (level == 2 && lessThan(win.getRise5MaxMiddle(), 0.075))
+                || (level == 3 && lessThan(win.getRise5MaxMiddle(), 0.085))
+                || (level == 4 && lessThan(win.getRise5MaxMiddle(), 0.095))
+                || (level == 5 && lessThan(win.getRise5MaxMiddle(), 0.105))
+                || (level == 6 && lessThan(win.getRise5MaxMiddle(), 0.11))
                 || (level == 7 && lessThan(win.getRise5MaxMiddle(), 0.12));
     }
 
