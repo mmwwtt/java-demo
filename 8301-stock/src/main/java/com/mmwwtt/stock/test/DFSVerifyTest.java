@@ -37,7 +37,7 @@ public class DFSVerifyTest {
 
     @PostConstruct
     public void init() {
-        String sql = "rise5_max_middle>0.15 ";
+        String sql = "rise5_max_middle>0.14  and rise5_max_middle<15 ";
         winList = strategyWinService.getStrategyWin(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
@@ -88,7 +88,6 @@ public class DFSVerifyTest {
         });
 
         for (String date : predictDateList) {
-            log.info("日期：{}", date);
             List<StockDetail> resList = dataToDetailsMap.getOrDefault(date, Collections.emptyList());
             if (CollectionUtils.isEmpty(resList)) {
                 continue;
@@ -101,9 +100,9 @@ public class DFSVerifyTest {
             double fiveMaxDateAvg = getAverage(next5Maxs);
             fiveMaxDateAvgList.add(fiveMaxDateAvg);
             fiveDateAvgList.add(getAverage(next5s));
-            log.info("{}\n", String.format("%.3f", fiveMaxDateAvg));
+            log.info("日期：{}    涨幅：{}%\n", date, String.format("%.3f", fiveMaxDateAvg * 100));
         }
-        log.info("平均5日最高涨幅 {}", String.format("%.3f", getAverage(fiveMaxDateAvgList)));
-        log.info("平均5日涨幅 {}", String.format("%.3f", getAverage(fiveDateAvgList)));
+        log.info("平均5日最高涨幅 {}%", String.format("%.3f", getAverage(fiveMaxDateAvgList) * 100));
+        log.info("平均5日涨幅 {}%", String.format("%.3f", getAverage(fiveDateAvgList) * 100));
     }
 }
