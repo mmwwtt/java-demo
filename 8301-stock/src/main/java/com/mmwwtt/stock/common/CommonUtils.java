@@ -5,9 +5,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 import static com.mmwwtt.stock.common.Constants.TOLERANCE;
 
@@ -280,25 +278,66 @@ public class CommonUtils {
         return divide(sum(list), list.length);
     }
 
+
     /**
-     * 计算中位数
+     * 计算中位数，O(n) 平均时间复杂度，基于 QuickSelect 算法
+     * 与 getMiddle 语义一致：奇数取中间，偶数取高位中位数
      */
     public static double getMiddle(List<Double> list) {
         if (CollectionUtils.isEmpty(list)) {
             return 0;
         }
-        List<Double> sortList = list.stream()
-                .sorted(Comparator.comparing(Double::doubleValue))
-                .toList();
-        return sortList.get(sortList.size() / 2);
+        double[] arr = list.stream().mapToDouble(d -> d == null ? 0 : d).toArray();
+        return getMiddle(arr);
     }
 
-    public static double getMiddle(double[] list) {
-        if (Objects.isNull(list) || list.length == 0) {
+    /**
+     * 计算中位数，O(n) 平均时间复杂度，基于 QuickSelect 算法
+     * 不修改原数组
+     */
+    public static double getMiddle(double[] arr) {
+        if (arr == null || arr.length == 0) {
             return 0;
         }
-        Arrays.sort(list);
-        return list[list.length / 2];
+        double[] copy = Arrays.copyOf(arr, arr.length);
+        int k = copy.length / 2;
+        return quickSelect(copy, 0, copy.length - 1, k);
+    }
+
+    /**
+     * QuickSelect：在 arr[left..right] 中找第 k 小元素（0-indexed）
+     */
+    private static double quickSelect(double[] arr, int left, int right, int k) {
+        if (left == right) {
+            return arr[left];
+        }
+        int pivotIdx = partition(arr, left, right);
+        if (k == pivotIdx) {
+            return arr[k];
+        }
+        if (k < pivotIdx) {
+            return quickSelect(arr, left, pivotIdx - 1, k);
+        }
+        return quickSelect(arr, pivotIdx + 1, right, k);
+    }
+
+    private static int partition(double[] arr, int left, int right) {
+        double pivot = arr[right];
+        int i = left;
+        for (int j = left; j < right; j++) {
+            if (arr[j] <= pivot) {
+                swap(arr, i, j);
+                i++;
+            }
+        }
+        swap(arr, i, right);
+        return i;
+    }
+
+    private static void swap(double[] arr, int i, int j) {
+        double tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
     }
 
     /**
