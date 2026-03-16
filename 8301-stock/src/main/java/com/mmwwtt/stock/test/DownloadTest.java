@@ -91,16 +91,15 @@ public class DownloadTest {
     }
 
 
-
     @Test
     @DisplayName("从0开始构建数据")
-    public void start()   {
+    public void start() throws ExecutionException, InterruptedException {
         try {
             dataDownLoadInit();
-            dataDownLoad();
             dataDetailDownLoad();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -131,8 +130,6 @@ public class DownloadTest {
     @DisplayName("下载前的初始化  清空stock表和详情表")
     public void dataDownLoadInit() {
         log.info("开始清空表 start\n\n\n");
-        QueryWrapper<Stock> stockWrapper = new QueryWrapper<>();
-        stockService.remove(stockWrapper);
 
         QueryWrapper<StockDetail> stockDetailWrapper = new QueryWrapper<>();
         stockDetailService.remove(stockDetailWrapper);
@@ -149,6 +146,9 @@ public class DownloadTest {
     @Test
     @DisplayName("调接口获取数据")
     public void dataDownLoad() {
+        QueryWrapper<Stock> stockWrapper = new QueryWrapper<>();
+        stockService.remove(stockWrapper);
+
         log.info("下载数据");
         RestTemplate restTemplate = createRestTemplate();
         restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
@@ -207,7 +207,12 @@ public class DownloadTest {
                     stockDetails.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
-                    stockDetailService.saveOrUpdateBatch(stockDetails);
+                    try {
+                        stockDetailService.saveOrUpdateBatch(stockDetails);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw new RuntimeException(e);
+                    }
                 }
             }, ioThreadPool);
             futures.add(future);
@@ -225,7 +230,8 @@ public class DownloadTest {
                 return res.getBody();
             } catch (Exception e) {
                 //打印除限流外的错误
-                if (!e.getMessage().startsWith("429")) {
+                if (!e.getMessage().startsWith("429")
+                        && !e.getMessage().startsWith("I/O error on GET")) {
                     log.info("调接口时发生错误{}", e.getMessage());
                     return null;
                 }
