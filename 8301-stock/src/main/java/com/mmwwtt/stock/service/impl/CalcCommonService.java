@@ -55,7 +55,7 @@ public class CalcCommonService {
                         if (stockCodeSet.contains(stockCode)
                                 || Objects.isNull(stockDetail) || Objects.isNull(stockDetail.getT5())
                                 || Objects.isNull(stockDetail.getT5().getSixtyDayLine())
-                                || moreThan(stockDetail.getPricePert(), "0.097")) {
+                                || moreThan(stockDetail.getPricePert(), 0.097)) {
                             continue;
                         }
                         if (isOnTime) {
@@ -65,7 +65,7 @@ public class CalcCommonService {
                         if (res) {
                             stockCodeSet.add(stockCode);
                             String name = stockCodeToNameMap.getOrDefault(stockCode, "");
-                            double pert = stockDetail.getPricePert() != null ? stockDetail.getPricePert().doubleValue() : 0;
+                            double pert = stockDetail.getPricePert() != null ? stockDetail.getPricePert() : 0;
                             strategyToStockMap.computeIfAbsent(strategyWin, k -> Collections.synchronizedList(new ArrayList<>()))
                                     .add(stockCode + "_" + name + " " + pert);
                         }

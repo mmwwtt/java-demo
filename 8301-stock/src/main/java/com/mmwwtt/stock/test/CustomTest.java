@@ -108,7 +108,7 @@ public class CustomTest {
                     for (StrategyEnum strategy : strategyList) {
                         for (int i = 0; i < stockDetails.size() - 60; i++) {
                             StockDetail stockDetail = stockDetails.get(i);
-                            if (moreThan(stockDetail.getPricePert(), "0.097")
+                            if (moreThan(stockDetail.getPricePert(), 0.097)
                                     || Objects.isNull(stockDetail.getNext1())
                                     || Objects.isNull(stockDetail.getT10())
                                     || Objects.isNull(stockDetail.getT10().getSixtyDayLine())

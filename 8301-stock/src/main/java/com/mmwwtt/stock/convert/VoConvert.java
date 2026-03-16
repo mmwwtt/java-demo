@@ -10,7 +10,6 @@ import org.mapstruct.*;
 import org.mapstruct.control.DeepClone;
 import org.mapstruct.factory.Mappers;
 
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,13 +67,6 @@ public interface VoConvert {
     default void convertBigDecimal(@MappingTarget StockDetail stockDetail) {
         stockDetail.setPricePert(divide(subtract(stockDetail.getEndPrice(), stockDetail.getLastPrice()), stockDetail.getLastPrice()));
         stockDetail.setDealDate(stockDetail.getDealDate().replaceAll("-", ""));
-        stockDetail.setStartPrice(stockDetail.getStartPrice().setScale(4, RoundingMode.HALF_UP));
-        stockDetail.setHighPrice(stockDetail.getHighPrice().setScale(4, RoundingMode.HALF_UP));
-        stockDetail.setLowPrice(stockDetail.getLowPrice().setScale(4, RoundingMode.HALF_UP));
-        stockDetail.setEndPrice(stockDetail.getEndPrice().setScale(4, RoundingMode.HALF_UP));
-        stockDetail.setDealQuantity(stockDetail.getDealQuantity().setScale(4, RoundingMode.HALF_UP));
-        stockDetail.setDealPrice(stockDetail.getDealPrice().setScale(4, RoundingMode.HALF_UP));
-        stockDetail.setLastPrice(stockDetail.getLastPrice().setScale(4, RoundingMode.HALF_UP));
     }
 
     Map<String, Set<Integer>> convertToMap(Map<String, Set<Integer>> map);

@@ -1,9 +1,11 @@
 package com.mmwwtt.stock.common;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,61 +17,33 @@ public class CommonUtils {
         return Math.abs(num1 - num2) < TOLERANCE;
     }
 
-    public static Boolean isEquals(BigDecimal num1, BigDecimal num2) {
-        return num1.compareTo(num2) ==0;
+
+    public static double subtract(double num1, double num2) {
+        return num1 - num2;
     }
 
-    public static BigDecimal subtract(Object num1, Object num2) {
-        BigDecimal tmp1 = toBigDecimal(num1);
-        BigDecimal tmp2 = toBigDecimal(num2);
-        if (tmp1 == null || tmp2 == null) {
-            return null;
-        }
-        return tmp1.subtract(tmp2);
+    public static double add(double num1, double num2) {
+        return num1 + num2;
     }
 
-    public static BigDecimal add(Object num1, Object num2) {
-        BigDecimal tmp1 = Objects.isNull(num1) ? BigDecimal.ZERO : toBigDecimal(num1);
-        BigDecimal tmp2 = Objects.isNull(num2) ? BigDecimal.ZERO : toBigDecimal(num2);
-        if (tmp1 == null || tmp2 == null) {
-            return null;
-        }
-        return tmp1.add(tmp2);
-    }
-
-    public static BigDecimal multiply(Object num1, Object num2) {
-        BigDecimal tmp1 = toBigDecimal(num1);
-        BigDecimal tmp2 = toBigDecimal(num2);
-        if (tmp1 == null || tmp2 == null) {
-            return null;
-        }
-        return tmp1.multiply(tmp2);
+    public static double multiply(double num1, double num2) {
+        return num1 * num2;
     }
 
 
-    public static BigDecimal divide(Object num1, Object num2) {
-        BigDecimal tmp1 = toBigDecimal(num1);
-        BigDecimal tmp2 = toBigDecimal(num2);
-        if (tmp1 == null || tmp2 == null) {
-            return null;
+    public static double divide(double num1, double num2) {
+        if (num2 == 0) {
+            return 0;
         }
-        if (tmp2.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-        return tmp1.divide(tmp2, 4, RoundingMode.HALF_UP);
+        return num1 / num2;
     }
 
-    public static Boolean moreThan(Object num1, Object num2) {
-        BigDecimal tmp1 = toBigDecimal(num1);
-        BigDecimal tmp2 = toBigDecimal(num2);
-        if (tmp1 == null || tmp2 == null) {
-            return false;
-        }
-        return tmp1.compareTo(tmp2) > 0;
+    public static Boolean moreThan(double num1, double num2) {
+        return num1 > num2 + TOLERANCE;
     }
 
-    public static Boolean moreThan(Object... nums) {
-        Object obj = nums[0];
+    public static Boolean moreThan(double... nums) {
+        double obj = nums[0];
         for (int i = 1; i < nums.length; i++) {
             if (!moreThan(obj, nums[i])) {
                 return false;
@@ -79,98 +53,64 @@ public class CommonUtils {
         return true;
     }
 
+    public static Boolean lessThan(double num1, double num2) {
+        return num1 + TOLERANCE < num2;
+    }
+
 
     /**
      * num  是否在 范围中
      */
-    public static Boolean isInRange(Object num, Object leftRange, Object rightRange) {
-        BigDecimal tmp = toBigDecimal(num);
-        BigDecimal left = toBigDecimal(leftRange);
-        BigDecimal right = toBigDecimal(rightRange);
-        if (tmp == null || left == null || right == null) {
-            return false;
-        }
-        return left.compareTo(tmp) <= 0 && tmp.compareTo(right) <= 0;
-    }
-
-    public static Boolean isInRangeNotEquals(Object num, Object leftRange, Object rightRange) {
-        BigDecimal tmp = toBigDecimal(num);
-        BigDecimal left = toBigDecimal(leftRange);
-        BigDecimal right = toBigDecimal(rightRange);
-        if (tmp == null || left == null || right == null) {
-            return false;
-        }
-        return left.compareTo(tmp) < 0 && tmp.compareTo(right) < 0;
+    public static Boolean isInRange(double num, double leftRange, double rightRange) {
+        return moreThan(num, leftRange) && lessThan(num, rightRange);
     }
 
 
-    public static Boolean bigDecimalEquals(Object num1, Object num2) {
-        BigDecimal tmp1 = toBigDecimal(num1);
-        BigDecimal tmp2 = toBigDecimal(num2);
-        if (tmp1 == null || tmp2 == null) {
-            return false;
-        }
-        return tmp1.compareTo(tmp2) == 0;
-    }
-
-    public static Boolean lessThan(Object num1, Object num2) {
-        BigDecimal tmp1 = toBigDecimal(num1);
-        BigDecimal tmp2 = toBigDecimal(num2);
-        if (tmp1 == null || tmp2 == null) {
-            return false;
-        }
-        return tmp1.compareTo(tmp2) < 0;
-    }
-    public static Boolean lessAndEqualsThan(Object num1, Object num2) {
-        BigDecimal tmp1 = toBigDecimal(num1);
-        BigDecimal tmp2 = toBigDecimal(num2);
-        if (tmp1 == null || tmp2 == null) {
-            return false;
-        }
-        return tmp1.compareTo(tmp2) <= 0;
-    }
-
-    public static BigDecimal max(Object... nums) {
-        List<BigDecimal> list = Arrays.stream(nums).map(CommonUtils::toBigDecimal).toList();
-        return max(list);
-    }
-
-    public static BigDecimal max(List<BigDecimal> list) {
-        BigDecimal res = list.get(0);
-        for (int i = 1; i < list.size(); i++) {
-            res = res.max(list.get(i));
+    public static double max(double... nums) {
+        double res = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            res = Math.max(res, nums[i]);
         }
         return res;
     }
 
-    public static BigDecimal min(BigDecimal... nums) {
-        List<BigDecimal> list = Arrays.stream(nums).map(CommonUtils::toBigDecimal).toList();
-        return min(list);
+    public static double max(List<Double> list) {
+        double res = list.get(0);
+        for (int i = 1; i < list.size(); i++) {
+            res = Math.max(res, list.get(i));
+        }
+        return res;
     }
 
-    public static BigDecimal min(List<BigDecimal> list) {
-        BigDecimal res = list.get(0);
+    public static double min(double... nums) {
+        double res = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            res = Math.min(res, nums[i]);
+        }
+        return res;
+    }
+
+    public static double min(List<Double> list) {
+        double res = list.get(0);
         for (int i = 1; i < list.size(); i++) {
-            res = res.min(list.get(i));
+            res = Math.min(res, list.get(i));
         }
         return res;
     }
 
 
-    public static BigDecimal sum(Object... nums) {
-        List<BigDecimal> list = Arrays.stream(nums).map(CommonUtils::toBigDecimal).toList();
-        return sum(list);
+    public static double sum(double... nums) {
+        double res = 0;
+        for (double num : nums) {
+            res += num;
+        }
+        return res;
     }
 
-    public static BigDecimal sumAbs(Object... nums) {
-        List<BigDecimal> list = Arrays.stream(nums).map(item -> toBigDecimal(item).abs()).toList();
-        return sum(list);
-    }
-
-    public static BigDecimal sum(List<BigDecimal> list) {
-        BigDecimal res = BigDecimal.ZERO;
-        for (BigDecimal bigDecimal : list) {
-            res = res.add(bigDecimal);
+    public static double sum(List<Double> list) {
+        double res = 0;
+        for (double num : list) {
+            res += num;
         }
         return res;
     }
@@ -202,5 +142,45 @@ public class CommonUtils {
     public static String getDateStr() {
         return LocalDateTime.now()
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+    }
+
+
+    /**
+     * 计算品均值
+     */
+    public static double getAverage(List<Double> list) {
+        return divide(sum(list), list.size());
+    }
+
+    public static double getAverage(double[] list) {
+        return divide(sum(list), list.length);
+    }
+
+    /**
+     * 计算中位数
+     */
+    public static double getMiddle(List<Double> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return 0;
+        }
+        List<Double> sortList = list.stream()
+                .sorted(Comparator.comparing(Double::doubleValue))
+                .toList();
+        return sortList.get(sortList.size() / 2);
+    }
+
+    public static double getMiddle(double[] list) {
+        if (Objects.isNull(list) || list.length == 0) {
+            return 0;
+        }
+        Arrays.sort(list);
+        return list[list.length / 2];
+    }
+
+    /**
+     * 计算涨幅 第一个比第二个涨了多少
+     */
+    public static double getRise(double price1, double price2) {
+        return divide(subtract(price1, price2), price2);
     }
 }

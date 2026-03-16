@@ -44,7 +44,7 @@ public class CommonService {
     public static List<String> stockCodeList;
     public static String calcEndDate;
     public static List<String> predictDateList;
-    public static Map<String, int[]> strategyToDetailsMap=new ConcurrentHashMap<>(512);
+    public static Map<String, int[]> strategyToDetailsMap = new ConcurrentHashMap<>(512);
 
     @PostConstruct
     public void init() throws ExecutionException, InterruptedException {
@@ -55,7 +55,7 @@ public class CommonService {
             for (int i = 0; i < item.getStockDetailIdList().size(); i++) {
                 ids[i] = item.getStockDetailIdList().getIntValue(i);
             }
-            strategyToDetailsMap.put(item.getStrategyCode(),ids);
+            strategyToDetailsMap.put(item.getStrategyCode(), ids);
         });
 
         l1StrategyList = strategyWinService.getL1StrategyWin();
@@ -108,7 +108,7 @@ public class CommonService {
                         if (Objects.isNull(detail.getNext1())
                                 || Objects.isNull(detail.getT10())
                                 || Objects.isNull(detail.getT10().getSixtyDayLine())
-                                || moreThan(detail.getPricePert(), "0.097")
+                                || moreThan(detail.getPricePert(), 0.097)
                                 || detail.getDealDate().compareTo("202505") < 0
                                 || detail.getDealDate().compareTo(calcEndDate) > 0) {
                             continue;

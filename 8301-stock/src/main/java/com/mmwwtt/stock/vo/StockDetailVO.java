@@ -2,8 +2,6 @@ package com.mmwwtt.stock.vo;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
 public class StockDetailVO {
     /**
@@ -14,37 +12,37 @@ public class StockDetailVO {
     /**
      * 开盘价
      */
-    private BigDecimal o;
+    private double o;
 
     /**
      * 最高价
      */
-    private BigDecimal h;
+    private double h;
 
     /**
      * 最低价
      */
-    private BigDecimal l;
+    private double l;
 
     /**
      * 收盘价
      */
-    private BigDecimal c;
+    private double c;
 
     /**
      * 成交量
      */
-    private BigDecimal v;
+    private double v;
 
     /**
      * 成交额
      */
-    private BigDecimal a;
+    private double a;
 
     /**
      * 前收盘价
      */
-    private BigDecimal pc;
+    private double pc;
 
     /**
      * 1停牌；  0不停牌

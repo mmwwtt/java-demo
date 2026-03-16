@@ -13,7 +13,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -60,8 +59,8 @@ public class DFSVerifyTest {
 
 
     public void verifyPredictResByFiveMaxDetail() {
-        List<BigDecimal> fiveMaxDateAvgList = new ArrayList<>();
-        List<BigDecimal> fiveDateAvgList = new ArrayList<>();
+        List<Double> fiveMaxDateAvgList = new ArrayList<>();
+        List<Double> fiveDateAvgList = new ArrayList<>();
         Map<String, List<StockDetail>> dataToDetailsMap = new ConcurrentHashMap<>();
 
         codeToDetailMap.entrySet().parallelStream().forEach(entry -> {
@@ -72,7 +71,7 @@ public class DFSVerifyTest {
                 if (Objects.isNull(detail.getNext5MaxPricePert())
                         || Objects.isNull(detail.getT10())
                         || Objects.isNull(detail.getT10().getSixtyDayLine())
-                        || moreThan(detail.getPricePert(), "0.097")) {
+                        || moreThan(detail.getPricePert(), 0.097)) {
                     continue;
                 }
                 for (StrategyWin strategyWin : winList) {
@@ -94,12 +93,12 @@ public class DFSVerifyTest {
             if (CollectionUtils.isEmpty(resList)) {
                 continue;
             }
-            BigDecimal fiveMaxDateAvg = divide(sum(resList.stream().map(StockDetail::getNext5MaxPricePert).toList()), resList.size());
-            BigDecimal fiveDateAvg = divide(sum(resList.stream()
+            double fiveMaxDateAvg = divide(sum(resList.stream().map(StockDetail::getNext5MaxPricePert).toList()), resList.size());
+            double fiveDateAvg = divide(sum(resList.stream()
                             .map(item -> divide(subtract(item.getNext5().getEndPrice(), item.getEndPrice()), item.getEndPrice()))
                             .toList()),
                     resList.size());
-            if (fiveMaxDateAvg.compareTo(BigDecimal.ZERO) == 0) {
+            if (isEquals(fiveMaxDateAvg,0)) {
                 continue;
             }
             fiveMaxDateAvgList.add(fiveMaxDateAvg);

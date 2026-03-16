@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -27,42 +25,42 @@ public class StockDetailQueryVO {
     /**
      * 开盘价
      */
-    private BigDecimal startPrice;
+    private double startPrice;
 
     /**
      * 最高价
      */
-    private BigDecimal highPrice;
+    private double highPrice;
 
     /**
      * 最低价
      */
-    private BigDecimal lowPrice;
+    private double lowPrice;
 
     /**
      * 收盘价
      */
-    private BigDecimal endPrice;
+    private double endPrice;
 
     /**
      * 成交量
      */
-    private BigDecimal dealQuantity;
+    private double dealQuantity;
 
     /**
      * 成交额
      */
-    private BigDecimal dealPrice;
+    private double dealPrice;
 
     /**
      * 前收盘价
      */
-    private BigDecimal lastPrice;
+    private double lastPrice;
 
     /**
      * 涨跌幅
      */
-    private BigDecimal pricePert;
+    private double pricePert;
 
 
     // ------------- 新增：K线分析常用计算方法（适配后续判断逻辑）-------------
@@ -71,52 +69,52 @@ public class StockDetailQueryVO {
     /**
      * 上影线长度
      */
-    private BigDecimal upShadowLen;
+    private double upShadowLen;
 
     /**
      * 上影线站总长的百分比
      */
-    private BigDecimal upShadowPert;
+    private double upShadowPert;
 
     /**
      * 下影线长度
      */
-    private BigDecimal lowShadowLen;
+    private double lowShadowLen;
 
     /**
      * 下影线站总长的百分比
      */
-    private BigDecimal lowShadowPert;
+    private double lowShadowPert;
 
     /**
      * 实体长度
      */
-    private BigDecimal entityLen;
+    private double entityLen;
 
     /**
      * 实体占总长的百分比
      */
-    private BigDecimal entityPert;
+    private double entityPert;
 
     /**
      * 总长(振幅)
      */
-    private BigDecimal allLen;
+    private double allLen;
 
     /**
      * 5日线
      */
-    private BigDecimal fiveDayLine;
+    private double fiveDayLine;
 
     /**
      * 5日最高
      */
-    private BigDecimal fiveHigh;
+    private double fiveHigh;
 
     /**
      * 5日最低
      */
-    private BigDecimal fiveLow;
+    private double fiveLow;
 
     /**
      * 5日均量
@@ -125,7 +123,7 @@ public class StockDetailQueryVO {
      * 大于2 为明显放量
      * 小于0.5为严重缩量
      */
-    private BigDecimal fiveDayDealQuantity;
+    private double fiveDayDealQuantity;
 
     /**
      * 5日内最高的日期
@@ -145,21 +143,21 @@ public class StockDetailQueryVO {
     /**
      * 10日线
      */
-    private BigDecimal tenDayLine;
+    private double tenDayLine;
 
     /**
      * 10日最高
      */
-    private BigDecimal tenHigh;
+    private double tenHigh;
 
     /**
      * 10日最低
      */
-    private BigDecimal tenLow;
+    private double tenLow;
     /**
      * 10日均量
      */
-    private BigDecimal tenDayDealQuantity;
+    private double tenDayDealQuantity;
 
     /**
      * 10日内最高的日期
@@ -179,17 +177,17 @@ public class StockDetailQueryVO {
     /**
      * 20日线
      */
-    private BigDecimal twentyDayLine;
+    private double twentyDayLine;
 
     /**
      * 20日最高
      */
-    private BigDecimal twentyHigh;
+    private double twentyHigh;
 
     /**
      * 20日最低
      */
-    private BigDecimal twentyLow;
+    private double twentyLow;
 
     /**
      * 20日内最高的日期
@@ -209,22 +207,22 @@ public class StockDetailQueryVO {
     /**
      * 20日均量
      */
-    private BigDecimal twentyDayDealQuantity;
+    private double twentyDayDealQuantity;
 
     /**
      * 40日线
      */
-    private BigDecimal fortyDayLine;
+    private double fortyDayLine;
 
     /**
      * 40日最高
      */
-    private BigDecimal fortyHigh;
+    private double fortyHigh;
 
     /**
      * 40日最低
      */
-    private BigDecimal fortyLow;
+    private double fortyLow;
 
     /**
      * 40日内最高的日期
@@ -244,22 +242,22 @@ public class StockDetailQueryVO {
     /**
      * 40日均量
      */
-    private BigDecimal fortyDayDealQuantity;
+    private double fortyDayDealQuantity;
 
     /**
      * 60日线
      */
-    private BigDecimal sixtyDayLine;
+    private double sixtyDayLine;
 
     /**
      * 60日最高
      */
-    private BigDecimal sixtyHigh;
+    private double sixtyHigh;
 
     /**
      * 60日最低
      */
-    private BigDecimal sixtyLow;
+    private double sixtyLow;
 
 
     /**
@@ -281,12 +279,12 @@ public class StockDetailQueryVO {
     /**
      * 60日均量
      */
-    private BigDecimal sixtyDayDealQuantity;
+    private double sixtyDayDealQuantity;
 
     /**
      * 涨跌成交比
      */
-    private BigDecimal pertDivisionQuantity;
+    private double pertDivisionQuantity;
 
     /**
      * 是否上涨
@@ -339,7 +337,7 @@ public class StockDetailQueryVO {
     /**
      * 当天到2天后的涨幅
      */
-    private BigDecimal next2PricePert;
+    private double next2PricePert;
 
     /**
      * 日后第3个交易日细节
@@ -350,7 +348,7 @@ public class StockDetailQueryVO {
     /**
      * 当天到3天后的涨幅
      */
-    private BigDecimal next3PricePert;
+    private double next3PricePert;
 
     /**
      * 日后第4个交易日细节
@@ -361,7 +359,7 @@ public class StockDetailQueryVO {
     /**
      * 当天到4天后的涨幅
      */
-    private BigDecimal next4PricePert;
+    private double next4PricePert;
 
 
     /**
@@ -373,12 +371,12 @@ public class StockDetailQueryVO {
     /**
      * 当天到5天后的涨幅
      */
-    private BigDecimal next5PricePert;
+    private double next5PricePert;
 
     /**
      * 当天到5天内最高的涨幅
      */
-    private BigDecimal next5MaxPricePert;
+    private double next5MaxPricePert;
 
 
     /**
@@ -390,12 +388,12 @@ public class StockDetailQueryVO {
     /**
      * 当天到10天后的涨幅
      */
-    private BigDecimal next10PricePert;
+    private double next10PricePert;
 
     /**
      * 当天到10天内最高的涨幅
      */
-    private BigDecimal next10MaxPricePert;
+    private double next10MaxPricePert;
 
     /**
      * 前1天交易日细节
@@ -443,7 +441,7 @@ public class StockDetailQueryVO {
      * 量比  相较5日线
      */
     @TableField(exist = false)
-    private BigDecimal quantityRatio;
+    private double quantityRatio;
 
 
     /**
@@ -495,57 +493,57 @@ public class StockDetailQueryVO {
      * −20~−80：常态区
      * −80~−100：超卖区（股价靠近区间底部）
      */
-    private BigDecimal wr;
+    private double wr;
 
 
     /**
      * MACD相关指标
      * EMA = 今日收盘价 × 2/(N+1) + 昨日EMA × (N-1)/(N+1)
      */
-    private BigDecimal ema12;
-    private BigDecimal ema26;
+    private double ema12;
+    private double ema26;
 
     /**
      * DIF = 12日EMA - 26日EMA
      */
-    private BigDecimal dif;
+    private double dif;
 
     /**
      * 今日DEA = 今日DIF × 2/10 + 昨日DEA × 8/10
      */
-    private BigDecimal dea;
+    private double dea;
 
     /**
      * MACD柱 = (DIF - DEA) × 2
      * 大于0表示  EMA26 在  EMA12 之上  做多胜率更高(趋势在上涨)   (26天中的高位)
      * 小于0表示  EMA26 在  EMA12 之下  接飞刀概率大(趋势在下跌)    (26天中的低位)
      */
-    private BigDecimal macd;
+    private double macd;
 
     /**
      * 5日中的位置
      */
-    private BigDecimal position5;
+    private double position5;
 
     /**
      * 10日中的位置
      */
-    private BigDecimal position10;
+    private double position10;
 
     /**
      * 在20日中的位置  (收盘价- 20日最低) / (20日最高- 20日最低)   大于80%是高位   小于20%是低位
      */
-    private BigDecimal position20;
+    private double position20;
 
     /**
      * 40日中的位置
      */
-    private BigDecimal position40;
+    private double position40;
 
     /**
      * 60日中的位置
      */
-    private BigDecimal position60;
+    private double position60;
 
     private Integer limit;
 

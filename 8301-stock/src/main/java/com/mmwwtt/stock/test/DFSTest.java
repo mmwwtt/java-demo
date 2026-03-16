@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -152,7 +151,7 @@ public class DFSTest {
         winBatch.clear();
         md5ToLevelMap.clear();
         l1WinList = l1StrategyList.stream()
-                .filter(item -> moreThan(item.getRise5MaxMiddle(), "0.04"))
+                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.04))
                 .filter(item -> item.getStrategyName().startsWith("T0")
                         || item.getStrategyName().startsWith("T1")
                         || item.getStrategyName().startsWith("T2")
@@ -181,7 +180,7 @@ public class DFSTest {
         strategyWinService.saveBatch(toSave);
     }
 
-    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet, BigDecimal parentFiveMaxPercRate,
+    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet, Double parentFiveMaxPercRate,
                                         String curStrategyCode, int[] details) {
         StrategyWin win = new StrategyWin(curStrategyCode, parentWinStrategyCodeSet,
                 parentFiveMaxPercRate, details);
@@ -193,31 +192,31 @@ public class DFSTest {
     }
 
     private boolean filterBy5MaxAvg(StrategyWin win) {
-        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxAvg(), "0.05")) {
+        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxAvg(), 0.05)) {
             return true;
         }
         int level = win.getStrategyCodeSet().size();
         return lessThan(win.getRise5MaxAvg(), multiply(win.getParentLowLimit(), 1.01))
-                || (level == 2 && lessThan(win.getRise5MaxAvg(), "0.08"))
-                || (level == 3 && lessThan(win.getRise5MaxAvg(), "0.09"))
-                || (level == 4 && lessThan(win.getRise5MaxAvg(), "0.10"))
-                || (level == 5 && lessThan(win.getRise5MaxAvg(), "0.11"))
-                || (level == 6 && lessThan(win.getRise5MaxAvg(), "0.115"))
-                || (level == 7 && lessThan(win.getRise5MaxAvg(), "0.12"));
+                || (level == 2 && lessThan(win.getRise5MaxAvg(), 0.08))
+                || (level == 3 && lessThan(win.getRise5MaxAvg(), 0.09))
+                || (level == 4 && lessThan(win.getRise5MaxAvg(), 0.10))
+                || (level == 5 && lessThan(win.getRise5MaxAvg(), 0.11))
+                || (level == 6 && lessThan(win.getRise5MaxAvg(), 0.115))
+                || (level == 7 && lessThan(win.getRise5MaxAvg(), 0.12));
     }
 
     private boolean filterBy5MaxMiddle(StrategyWin win) {
-        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), "0.05")) {
+        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), 0.05)) {
             return true;
         }
         int level = win.getStrategyCodeSet().size();
         return lessThan(win.getRise5MaxMiddle(), multiply(win.getParentLowLimit(), 1.02))
-                || (level == 2 && lessThan(win.getRise5MaxMiddle(), "0.08"))
-                || (level == 3 && lessThan(win.getRise5MaxMiddle(), "0.09"))
-                || (level == 4 && lessThan(win.getRise5MaxMiddle(), "0.10"))
-                || (level == 5 && lessThan(win.getRise5MaxMiddle(), "0.11"))
-                || (level == 6 && lessThan(win.getRise5MaxMiddle(), "0.115"))
-                || (level == 7 && lessThan(win.getRise5MaxMiddle(), "0.12"));
+                || (level == 2 && lessThan(win.getRise5MaxMiddle(), 0.08))
+                || (level == 3 && lessThan(win.getRise5MaxMiddle(), 0.09))
+                || (level == 4 && lessThan(win.getRise5MaxMiddle(), 0.10))
+                || (level == 5 && lessThan(win.getRise5MaxMiddle(), 0.11))
+                || (level == 6 && lessThan(win.getRise5MaxMiddle(), 0.115))
+                || (level == 7 && lessThan(win.getRise5MaxMiddle(), 0.12));
     }
 
     /**

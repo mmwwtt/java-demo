@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,83 +42,83 @@ public class StrategyWin {
     /**
      * 1日平均涨幅
      */
-    private BigDecimal rise1Avg;
+    private Double rise1Avg;
 
     /**
      * 2日平均涨幅
      */
-    private BigDecimal rise2Avg;
+    private Double rise2Avg;
 
     /**
      * 3日平均涨幅
      */
-    private BigDecimal rise3Avg;
+    private Double rise3Avg;
 
     /**
      * 4日平均涨幅
      */
-    private BigDecimal rise4Avg;
+    private Double rise4Avg;
 
     /**
      * 5日平均涨幅
      */
-    private BigDecimal rise5Avg;
+    private Double rise5Avg;
 
     /**
      * 10日平均涨幅
      */
-    private BigDecimal rise10Avg;
+    private Double rise10Avg;
 
     /**
      * 5日最大平均涨幅
      */
-    private BigDecimal rise5MaxAvg;
+    private Double rise5MaxAvg;
 
     /**
      * 10日最大平均涨幅
      */
-    private BigDecimal rise10MaxAvg;
+    private Double rise10MaxAvg;
 
 
     /**
      * 1日中位数涨幅
      */
-    private BigDecimal rise1Middle;
+    private Double rise1Middle;
 
     /**
      * 2日中位数涨幅
      */
-    private BigDecimal rise2Middle;
+    private Double rise2Middle;
 
     /**
      * 3日中位数涨幅
      */
-    private BigDecimal rise3Middle;
+    private Double rise3Middle;
 
     /**
      * 4日中位数涨幅
      */
-    private BigDecimal rise4Middle;
+    private Double rise4Middle;
 
     /**
      * 5日中位数涨幅
      */
-    private BigDecimal rise5Middle;
+    private Double rise5Middle;
 
     /**
      * 10日中位数涨幅
      */
-    private BigDecimal rise10Middle;
+    private Double rise10Middle;
 
     /**
      * 5日最大中位数涨幅
      */
-    private BigDecimal rise5MaxMiddle;
+    private Double rise5MaxMiddle;
 
     /**
      * 10日最大中位数涨幅
      */
-    private BigDecimal rise10MaxMiddle;
+    private Double rise10MaxMiddle;
 
 
     /**
@@ -135,37 +134,37 @@ public class StrategyWin {
     @TableField(exist = false)
     private List<StockDetail> list = Collections.synchronizedList(new ArrayList<>());
     @TableField(exist = false)
-    private List<BigDecimal> rise1Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise1Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise2Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise2Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise3Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise3Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise4Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise4Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise5Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise5Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise10Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise10Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise5MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise5MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise10MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise10MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise1Middles = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise1Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise2Middles = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise2Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise3Middles = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise3Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise4Middles = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise4Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise5Middles = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise5Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise10Middles = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise10Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise5MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise5MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<BigDecimal> rise10MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
+    private List<Double> rise10MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
 
 
     @TableField(exist = false)
@@ -175,7 +174,7 @@ public class StrategyWin {
     private Set<String> parentWinStrategyCodeSet;
 
     @TableField(exist = false)
-    private BigDecimal parentLowLimit;
+    private Double parentLowLimit;
 
     @TableField(exist = false)
     private int[] details;
@@ -196,16 +195,16 @@ public class StrategyWin {
      * 只计算 五日最高中位数涨幅 和五日最高平均涨幅
      */
     public void fillData1() {
-        Map<String, List<BigDecimal>> dateToFiveMaxPertMap = new HashMap<>(500);
+        Map<String, List<Double>> dateToFiveMaxPertMap = new HashMap<>(500);
         for (StockDetail stockDetail : list) {
-            BigDecimal pert = stockDetail.getNext5MaxPricePert();
+            Double pert = stockDetail.getNext5MaxPricePert();
             if (pert == null) {
                 continue;
             }
             dateToFiveMaxPertMap.computeIfAbsent(stockDetail.getDealDate(), k -> new ArrayList<>()).add(pert);
         }
 
-        for (List<BigDecimal> fiveMaxPerts : dateToFiveMaxPertMap.values()) {
+        for (List<Double> fiveMaxPerts : dateToFiveMaxPertMap.values()) {
             if (!fiveMaxPerts.isEmpty()) {
                 rise5MaxAvgs.add(getAverage(fiveMaxPerts));
                 rise5MaxMiddles.add(getMiddle(fiveMaxPerts));
@@ -238,15 +237,15 @@ public class StrategyWin {
 
         dateToDetailListMap.forEach((date, details) -> {
             //统计每日中符合策略的stock的涨幅
-            List<BigDecimal> curRise1s = new ArrayList<>(INIT_DATE_SIZE);
-            List<BigDecimal> curRise2s = new ArrayList<>(INIT_DATE_SIZE);
-            List<BigDecimal> curRise3s = new ArrayList<>(INIT_DATE_SIZE);
-            List<BigDecimal> curRise4s = new ArrayList<>(INIT_DATE_SIZE);
-            List<BigDecimal> curRise5s = new ArrayList<>(INIT_DATE_SIZE);
-            List<BigDecimal> curRise10s = new ArrayList<>(INIT_DATE_SIZE);
-            List<BigDecimal> curRise10Maxs = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise1s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise2s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise3s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise4s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise5s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise10s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise10Maxs = new ArrayList<>(INIT_DATE_SIZE);
             for (StockDetail detail : details) {
-                BigDecimal endPrice = detail.getEndPrice();
+                Double endPrice = detail.getEndPrice();
                 if (Objects.nonNull(detail.getNext1())) {
                     curRise1s.add(getRise(detail.getNext1().getEndPrice(), endPrice));
                 }
@@ -322,7 +321,7 @@ public class StrategyWin {
     }
 
     public StrategyWin(String strategyCode, Set<String> parentWinStrategyCodeSet,
-                       BigDecimal parentLowLimit, int[] details) {
+                       Double parentLowLimit, int[] details) {
         this.strategyCode = strategyCode;
         this.parentWinStrategyCodeSet = parentWinStrategyCodeSet;
         this.parentLowLimit = parentLowLimit;
@@ -331,31 +330,5 @@ public class StrategyWin {
         if (Objects.nonNull(parentWinStrategyCodeSet)) {
             strategyCodeSet.addAll(parentWinStrategyCodeSet);
         }
-    }
-
-
-    /**
-     * 求平均值；当 50 < size < 150 时去掉首尾各5个再平均
-     */
-    private BigDecimal getAverage(List<BigDecimal> list) {
-        return list.size() < 150 && list.size() > 50
-                ? divide(sum(list.stream().sorted(Comparator.comparing(BigDecimal::doubleValue))
-                        .limit(list.size() - 5).skip(5).toList()),
-                list.size() - 10)
-                : divide(sum(list), list.size());
-    }
-
-    private BigDecimal getMiddle(List<BigDecimal> list) {
-        if (CollectionUtils.isEmpty(list)) {
-            return BigDecimal.ZERO;
-        }
-        List<BigDecimal> sortList = list.stream()
-                .sorted(Comparator.comparing(BigDecimal::doubleValue))
-                .toList();
-        return sortList.get(sortList.size() / 2);
-    }
-
-    private BigDecimal getRise(BigDecimal price1, BigDecimal price2) {
-        return divide(subtract(price1, price2), price2);
     }
 }
