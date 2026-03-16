@@ -27,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -64,7 +65,18 @@ public class DownloadTest {
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
     private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = createRestTemplate();
+
+    /**
+     * 创建带超时配置的 RestTemplate
+     * 连接超时 30 秒，读取超时 60 秒（可根据需要调整）
+     */
+    private static RestTemplate createRestTemplate() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(30000);  // 连接超时 30 秒
+        factory.setReadTimeout(60000);     // 读取超时 60 秒
+        return new RestTemplate(factory);
+    }
 
     /**
      * 今天的日期
@@ -82,10 +94,14 @@ public class DownloadTest {
 
     @Test
     @DisplayName("从0开始构建数据")
-    public void start() throws ExecutionException, InterruptedException {
-        dataDownLoadInit();
-        dataDownLoad();
-        dataDetailDownLoad();
+    public void start()   {
+        try {
+            dataDownLoadInit();
+            dataDownLoad();
+            dataDetailDownLoad();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -134,7 +150,7 @@ public class DownloadTest {
     @DisplayName("调接口获取数据")
     public void dataDownLoad() {
         log.info("下载数据");
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = createRestTemplate();
         restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
         Map<String, String> map = new HashMap<>();
         map.put(LICENCE, BI_YING_LICENCE);
