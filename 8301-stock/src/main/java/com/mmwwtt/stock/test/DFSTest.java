@@ -259,7 +259,7 @@ public class DFSTest {
             for (int i = 0; i < arr.length; i++) {
                 input[i * 4] = (byte) (arr[i] >> 24);
                 input[i * 4 + 1] = (byte) (arr[i] >> 16);
-                input[i * 2 + 2] = (byte) (arr[i] >> 8);
+                input[i * 4 + 2] = (byte) (arr[i] >> 8);
                 input[i * 4 + 3] = (byte) (arr[i]);
             }
 

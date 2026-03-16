@@ -211,7 +211,7 @@ public class StrategyWin {
             }
         }
         rise5MaxAvg = getAverage(rise5MaxAvgs);
-        rise5MaxMiddle = getAverage(rise5MaxMiddles);
+        rise5MaxMiddle = getMiddle(rise5MaxMiddles);
         dateCnt = rise5MaxAvgs.size();
     }
 
