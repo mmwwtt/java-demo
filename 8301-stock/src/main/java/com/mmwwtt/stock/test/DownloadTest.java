@@ -229,7 +229,7 @@ public class DownloadTest {
                 ResponseEntity<T> res = restTemplate.exchange(url, HttpMethod.GET, null, reference, paramMap);
                 return res.getBody();
             } catch (Exception e) {
-                //打印除限流外的错误
+                //打印除限流和连接错误外的错误
                 if (!e.getMessage().startsWith("429")
                         && !e.getMessage().startsWith("I/O error on GET")) {
                     log.info("调接口时发生错误{}", e.getMessage());
