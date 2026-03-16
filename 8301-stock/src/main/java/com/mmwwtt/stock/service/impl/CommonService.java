@@ -93,11 +93,9 @@ public class CommonService {
 
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
         QueryWrapper<StrategyWin> winWrapper = new QueryWrapper<>();
-        winWrapper.apply("level!=1");
         strategyWinService.remove(winWrapper);
 
         QueryWrapper<StrategyResult> resultWrapper = new QueryWrapper<>();
-        resultWrapper.apply("level!=1");
         strategyResultService.remove(resultWrapper);
 
         List<StrategyEnum> values = StrategyEnum.dayForStrategyList;
