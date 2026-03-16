@@ -92,8 +92,19 @@ public class DownloadTest {
 
 
     @Test
+    @DisplayName("获取股票列表")
+    public void buildStockList() throws ExecutionException, InterruptedException {
+        try {
+            dataDownLoad();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Test
     @DisplayName("从0开始构建数据")
-    public void start() throws ExecutionException, InterruptedException {
+    public void buildDetail() throws ExecutionException, InterruptedException {
         try {
             dataDownLoadInit();
             dataDetailDownLoad();
