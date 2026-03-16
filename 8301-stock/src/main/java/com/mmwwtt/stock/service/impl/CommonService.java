@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.*;
+import com.mmwwtt.stock.test.DFSTest;
 import com.mmwwtt.stock.vo.StockDetailQueryVO;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -141,7 +142,7 @@ public class CommonService {
                 result.getStockDetailIdList().stream()
                         .map(item -> (Integer) item)
                         .forEach(item -> strategyWin.addToResult(idToDetailMap.get(item)));
-                strategyWin.fillData1();
+                strategyWin.fillData1(DFSTest.FilterFildEnum.RISE5_MAX_MIDDLE.getGetter());
                 strategyWin.fillData2();
                 strategyWinService.save(strategyWin);
             }, ioThreadPool);

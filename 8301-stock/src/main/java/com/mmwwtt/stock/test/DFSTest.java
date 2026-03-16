@@ -3,6 +3,7 @@ package com.mmwwtt.stock.test;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.stock.common.GlobalThreadPool;
+import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.CommonService;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -114,6 +116,7 @@ public class DFSTest {
         if (level > LEVEL_LIMIT) {
             return;
         }
+        Function<StrategyWin, Double> getter = fildEnum.getGetter();
         for (int i = curIdx + 1; i < l1WinList.size(); i++) {
             StrategyWin strategy = l1WinList.get(i);
             if (parentWin.getStrategyCodeSet().contains(strategy.getStrategyCode())) {
@@ -131,8 +134,8 @@ public class DFSTest {
                 continue;
             }
 
-            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), parentWin.getRise5MaxMiddle(),
-                    strategy.getStrategyCode(), curRetainAllDetailIds);
+            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), getter.apply(parentWin),
+                    strategy.getStrategyCode(), curRetainAllDetailIds, getter);
 
             if (fildEnum.getFunc().apply(win)) {
                 continue;
@@ -178,7 +181,8 @@ public class DFSTest {
     @Getter
     public enum FilterFildEnum implements BaseEnum {
         RISE5_MAX_MIDDLE("rise5MaxMiddle", "最大五日涨幅中位数",
-                StrategyWin::getRise5MaxMiddle,
+                StockDetail::getNext5MaxPricePert,
+                StrategyWin::setRise5MaxMiddle,
                 (StrategyWin win) -> {
                     if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), 0.025)) {
                         return true;
@@ -193,7 +197,8 @@ public class DFSTest {
                             || (level == 7 && lessThan(win.getRise5MaxMiddle(), 0.12));
                 }),
         RISE5_MAX_AVG("rise5MaxAvg", "最大五日涨幅平均数",
-                StrategyWin::getRise5MaxAvg,
+                StockDetail::getNext5MaxPricePert,
+                StrategyWin::setRise5MaxAvg,
                 (StrategyWin win) -> {
                     if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxAvg(), 0.05)) {
                         return true;
@@ -211,7 +216,8 @@ public class DFSTest {
         ;
         private final String code;
         private final String desc;
-        private final Function<StrategyWin, Double> getter;
+        private final Function<StockDetail, Double> detailGetter;
+        private final Function<Double,StrategyWin> winSetter;
         private final Function<StrategyWin, Boolean> func;
 
     }
@@ -237,14 +243,14 @@ public class DFSTest {
         strategyWinService.saveBatch(toSave);
     }
 
-    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet, Double parentFiveMaxPercRate,
-                                        String curStrategyCode, int[] details) {
+    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet, Double parentFieldValue,
+                                        String curStrategyCode, int[] details, Function<StrategyWin, Double> getter) {
         StrategyWin win = new StrategyWin(curStrategyCode, parentWinStrategyCodeSet,
-                parentFiveMaxPercRate, details);
+                parentFieldValue, details);
         for (int detail : details) {
             win.addToResult(idToDetailMap.get(detail));
         }
-        win.fillData1();
+        win.fillData1(getter);
         return win;
     }
 
