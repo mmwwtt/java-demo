@@ -215,12 +215,12 @@ public class DFSTest {
         }
         int level = win.getStrategyCodeSet().size();
         return lessThan(win.getRise5MaxMiddle(), multiply(win.getParentLowLimit(), 1.02))
-                || (level == 2 && lessThan(win.getRise5MaxMiddle(), 0.04))
-                || (level == 3 && lessThan(win.getRise5MaxMiddle(), 0.05))
-                || (level == 4 && lessThan(win.getRise5MaxMiddle(), 0.06))
-                || (level == 5 && lessThan(win.getRise5MaxMiddle(), 0.07))
-                || (level == 6 && lessThan(win.getRise5MaxMiddle(), 0.08))
-                || (level == 7 && lessThan(win.getRise5MaxMiddle(), 0.09));
+                || (level == 2 && lessThan(win.getRise5MaxMiddle(), 0.07))
+                || (level == 3 && lessThan(win.getRise5MaxMiddle(), 0.08))
+                || (level == 4 && lessThan(win.getRise5MaxMiddle(), 0.09))
+                || (level == 5 && lessThan(win.getRise5MaxMiddle(), 0.10))
+                || (level == 6 && lessThan(win.getRise5MaxMiddle(), 0.115))
+                || (level == 7 && lessThan(win.getRise5MaxMiddle(), 0.12));
     }
 
     /**

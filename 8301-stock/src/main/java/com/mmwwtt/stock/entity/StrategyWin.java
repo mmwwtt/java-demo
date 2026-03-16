@@ -233,7 +233,7 @@ public class StrategyWin {
             if(!unionCode.isEmpty()) {
                 unionCode.append(' ');
             }
-            unionCode.append(code).append(' ');
+            unionCode.append(code);
         }
         this.strategyName = unionName.toString();
         this.strategyCode = unionCode.toString();
