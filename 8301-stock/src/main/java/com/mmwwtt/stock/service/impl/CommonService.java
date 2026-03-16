@@ -1,5 +1,6 @@
 package com.mmwwtt.stock.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.*;
@@ -88,6 +89,14 @@ public class CommonService {
 
 
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
+        QueryWrapper<StrategyWin> winWrapper = new QueryWrapper<>();
+        winWrapper.apply("level!=1");
+        strategyWinService.remove(winWrapper);
+
+        QueryWrapper<StrategyResult> resultWrapper = new QueryWrapper<>();
+        resultWrapper.apply("level!=1");
+        strategyResultService.remove(resultWrapper);
+
         List<StrategyEnum> values = StrategyEnum.dayForStrategyList;
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (StrategyEnum strategy : values) {

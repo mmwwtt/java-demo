@@ -87,12 +87,12 @@ public class CalcCommonService {
 
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
-            List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
+            List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getRise5Avg).reversed()).toList();
             for (StrategyWin strategyWin : list) {
                 List<String> resStockList = strategyToStockMap.get(strategyWin);
-                String str = String.format("\n\n策略id:%d  \n历史总数：%d\n明天平均涨幅:%4f  \n5日最高平均涨幅：%4f \n策略：%s \n",
-                        strategyWin.getStrategyWinId(), strategyWin.getCnt(), strategyWin.getOnePercRate(),
-                        strategyWin.getFiveMaxPercRate(), strategyWin.getStrategyName());
+                String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高平均涨幅：%4f \n5日最高中位数涨幅：%4f \n",
+                         strategyWin.getDateCnt(),strategyWin.getStrategyName(),
+                        strategyWin.getRise5MaxAvg(),strategyWin.getRise5MaxMiddle());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {
                     fos.write((s + "\n").getBytes());

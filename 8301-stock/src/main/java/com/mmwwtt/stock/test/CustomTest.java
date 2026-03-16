@@ -4,7 +4,6 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUtils;
 import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyEnum;
-import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.CommonService;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import jakarta.annotation.Resource;
@@ -126,14 +125,14 @@ public class CustomTest {
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
 
-        strategyToCalcMap.forEach((strategyEnum, list) -> {
-            StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyEnum);
-            strategyWin.setLevel(0);
-            list.forEach(strategyWin::addToResult);
-            strategyWin.fillData1();
-            strategyWin.fillData2();
-            strategyWinService.save(strategyWin);
-        });
+//        strategyToCalcMap.forEach((strategyEnum, list) -> {
+//            StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyEnum);
+//            strategyWin.setLevel(0);
+//            list.forEach(strategyWin::addToResult);
+//            strategyWin.fillData1();
+//            strategyWin.fillData2();
+//            strategyWinService.save(strategyWin);
+//        });
         log.info("结束计算");
         return strategyToCalcMap;
     }

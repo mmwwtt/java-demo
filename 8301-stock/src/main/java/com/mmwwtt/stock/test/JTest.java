@@ -992,14 +992,14 @@ public class JTest {
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
 
-        strategyToCalcMap.forEach((strategyEnum, list) -> {
-            StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyEnum);
-            strategyWin.setLevel(0);
-            list.forEach(strategyWin::addToResult);
-            strategyWin.fillData1();
-            strategyWin.fillData2();
-            strategyWinService.save(strategyWin);
-        });
+//        strategyToCalcMap.forEach((strategyEnum, list) -> {
+//            StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyEnum);
+//            strategyWin.setLevel(0);
+//            list.forEach(strategyWin::addToResult);
+//            strategyWin.fillData1();
+//            strategyWin.fillData2();
+//            strategyWinService.save(strategyWin);
+//        });
         log.info("结束计算");
         return strategyToCalcMap;
     }

@@ -61,17 +61,17 @@ public class DFSTest {
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
     public void DFS1() throws ExecutionException, InterruptedException {
-        DfsMain(this::isNotByFiveMaxAvg);
+        DfsMain(this::filterBy5MaxAvg);
     }
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void DFS2() throws ExecutionException, InterruptedException {
-        DfsMain(this::isNotByFiveMaxMiddle);
+        DfsMain(this::filterBy5MaxMiddle);
     }
 
 
-    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws ExecutionException, InterruptedException {
+    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc) throws InterruptedException {
         dfsInit();
         for (int i = 0; i < l1WinList.size(); i++) {
             StrategyWin strategyWin = l1WinList.get(i);
@@ -121,7 +121,7 @@ public class DFSTest {
                 continue;
             }
 
-            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), parentWin.getFiveMaxPercRate(),
+            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), parentWin.getRise5MaxMiddle(),
                     strategy.getStrategyCode(), curRetainAllDetailIds);
 
             if (isNotFunc.apply(win)) {
@@ -152,14 +152,14 @@ public class DFSTest {
         winBatch.clear();
         md5ToLevelMap.clear();
         l1WinList = l1StrategyList.stream()
-                .filter(item -> moreThan(item.getFiveMaxPercRate(), "0.04"))
+                .filter(item -> moreThan(item.getRise5MaxMiddle(), "0.04"))
                 .filter(item -> item.getStrategyName().startsWith("T0")
                         || item.getStrategyName().startsWith("T1")
                         || item.getStrategyName().startsWith("T2")
                         || item.getStrategyName().startsWith("T3")
                 )
                 .peek(item -> item.getStrategyCodeSet().add(item.getStrategyCode()))
-                .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed()).toList();
+                .sorted(Comparator.comparing(StrategyWin::getRise5MaxMiddle).reversed()).toList();
     }
 
     private void addToWinBatch(StrategyWin win) {
@@ -192,32 +192,32 @@ public class DFSTest {
         return win;
     }
 
-    private boolean isNotByFiveMaxAvg(StrategyWin win) {
-        if (win.getCnt() < CNT_THRESHOLD || lessThan(win.getFiveMaxPercRate(), "0.05")) {
+    private boolean filterBy5MaxAvg(StrategyWin win) {
+        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxAvg(), "0.05")) {
             return true;
         }
         int level = win.getStrategyCodeSet().size();
-        return lessThan(win.getFiveMaxPercRate(), multiply(win.getParentFiveMaxPercRate(), 1.01))
-                || (level == 2 && lessThan(win.getFiveMaxPercRate(), "0.08"))
-                || (level == 3 && lessThan(win.getFiveMaxPercRate(), "0.09"))
-                || (level == 4 && lessThan(win.getFiveMaxPercRate(), "0.10"))
-                || (level == 5 && lessThan(win.getFiveMaxPercRate(), "0.11"))
-                || (level == 6 && lessThan(win.getFiveMaxPercRate(), "0.115"))
-                || (level == 7 && lessThan(win.getFiveMaxPercRate(), "0.12"));
+        return lessThan(win.getRise5MaxAvg(), multiply(win.getParentLowLimit(), 1.01))
+                || (level == 2 && lessThan(win.getRise5MaxAvg(), "0.08"))
+                || (level == 3 && lessThan(win.getRise5MaxAvg(), "0.09"))
+                || (level == 4 && lessThan(win.getRise5MaxAvg(), "0.10"))
+                || (level == 5 && lessThan(win.getRise5MaxAvg(), "0.11"))
+                || (level == 6 && lessThan(win.getRise5MaxAvg(), "0.115"))
+                || (level == 7 && lessThan(win.getRise5MaxAvg(), "0.12"));
     }
 
-    private boolean isNotByFiveMaxMiddle(StrategyWin win) {
-        if (win.getCnt() < CNT_THRESHOLD || lessThan(win.getFiveMaxMiddlePercRate(), "0.05")) {
+    private boolean filterBy5MaxMiddle(StrategyWin win) {
+        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), "0.05")) {
             return true;
         }
         int level = win.getStrategyCodeSet().size();
-        return lessThan(win.getFiveMaxMiddlePercRate(), multiply(win.getParentFiveMaxPercRate(), 1.02))
-                || (level == 2 && lessThan(win.getFiveMaxMiddlePercRate(), "0.08"))
-                || (level == 3 && lessThan(win.getFiveMaxMiddlePercRate(), "0.09"))
-                || (level == 4 && lessThan(win.getFiveMaxMiddlePercRate(), "0.10"))
-                || (level == 5 && lessThan(win.getFiveMaxMiddlePercRate(), "0.11"))
-                || (level == 6 && lessThan(win.getFiveMaxMiddlePercRate(), "0.115"))
-                || (level == 7 && lessThan(win.getFiveMaxMiddlePercRate(), "0.12"));
+        return lessThan(win.getRise5MaxMiddle(), multiply(win.getParentLowLimit(), 1.02))
+                || (level == 2 && lessThan(win.getRise5MaxMiddle(), "0.08"))
+                || (level == 3 && lessThan(win.getRise5MaxMiddle(), "0.09"))
+                || (level == 4 && lessThan(win.getRise5MaxMiddle(), "0.10"))
+                || (level == 5 && lessThan(win.getRise5MaxMiddle(), "0.11"))
+                || (level == 6 && lessThan(win.getRise5MaxMiddle(), "0.115"))
+                || (level == 7 && lessThan(win.getRise5MaxMiddle(), "0.12"));
     }
 
     /**

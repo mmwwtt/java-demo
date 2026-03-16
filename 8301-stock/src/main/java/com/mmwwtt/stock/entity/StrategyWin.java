@@ -36,109 +36,137 @@ public class StrategyWin {
     private String strategyName;
 
     /**
-     * 样本量
+     * 有符合数据的日期天数
      */
-    private Integer cnt;
+    private Integer dateCnt;
 
     /**
-     * 1天平均涨幅
+     * 1日平均涨幅
      */
-    private BigDecimal onePercRate;
+    private BigDecimal rise1Avg;
 
     /**
-     * 2天平均涨幅
+     * 2日平均涨幅
      */
-    private BigDecimal twoPercRate;
+    private BigDecimal rise2Avg;
 
     /**
-     * 3天平均涨幅
+     * 3日平均涨幅
      */
-    private BigDecimal threePercRate;
+    private BigDecimal rise3Avg;
 
     /**
-     * 4天平均涨幅
+     * 4日平均涨幅
      */
-    private BigDecimal fourPercRate;
+    private BigDecimal rise4Avg;
 
     /**
-     * 5天平均涨幅
+     * 5日平均涨幅
      */
-    private BigDecimal fivePercRate;
+    private BigDecimal rise5Avg;
 
     /**
-     * 5天平均最高涨幅
+     * 10日平均涨幅
      */
-    private BigDecimal fiveMaxPercRate;
+    private BigDecimal rise10Avg;
 
     /**
-     * 5天平均最低涨幅
+     * 5日最大平均涨幅
      */
-    private BigDecimal fiveMinPercRate;
+    private BigDecimal rise5MaxAvg;
 
     /**
-     * 5天最大涨幅的中位数
+     * 10日最大平均涨幅
      */
-    private BigDecimal fiveMaxMiddlePercRate;
+    private BigDecimal rise10MaxAvg;
+
 
     /**
-     * 10天平均涨幅
+     * 1日中位数涨幅
      */
-    private BigDecimal tenPercRate;
+    private BigDecimal rise1Middle;
 
     /**
-     * 10天平均最高涨幅
+     * 2日中位数涨幅
      */
-    private BigDecimal tenMaxPercRate;
+    private BigDecimal rise2Middle;
 
     /**
-     * 10天平均最低涨幅
+     * 3日中位数涨幅
      */
-    private BigDecimal tenMinPercRate;
+    private BigDecimal rise3Middle;
 
+    /**
+     * 4日中位数涨幅
+     */
+    private BigDecimal rise4Middle;
+
+    /**
+     * 5日中位数涨幅
+     */
+    private BigDecimal rise5Middle;
+
+    /**
+     * 10日中位数涨幅
+     */
+    private BigDecimal rise10Middle;
+
+    /**
+     * 5日最大中位数涨幅
+     */
+    private BigDecimal rise5MaxMiddle;
+
+    /**
+     * 10日最大中位数涨幅
+     */
+    private BigDecimal rise10MaxMiddle;
+
+
+    /**
+     * 策略层数
+     */
     private Integer level;
 
-    /**
-     * 日期统计
-     */
-    private String dateCnt;
 
-
+    private static int INIT_DATE_SIZE = 500;
     /**
      * 临时属性
      */
     @TableField(exist = false)
     private List<StockDetail> list = Collections.synchronizedList(new ArrayList<>());
     @TableField(exist = false)
-    private List<BigDecimal> onePercRateList = new ArrayList<>();
+    private List<BigDecimal> rise1Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise2Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise3Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise4Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise5Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise10Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise5MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise10MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise1Middles = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise2Middles = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise3Middles = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise4Middles = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise5Middles = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise10Middles = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise5MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
+    private List<BigDecimal> rise10MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
 
-    @TableField(exist = false)
-    private List<BigDecimal> twoPercRateList = new ArrayList<>();
-
-    @TableField(exist = false)
-    private List<BigDecimal> threePercRateList = new ArrayList<>();
-
-    @TableField(exist = false)
-    private List<BigDecimal> fourPercRateList = new ArrayList<>();
-
-    @TableField(exist = false)
-    private List<BigDecimal> fivePercRateList = new ArrayList<>();
-    @TableField(exist = false)
-    private List<BigDecimal> fiveMaxPercRateList = new ArrayList<>();
-    @TableField(exist = false)
-    private List<BigDecimal> fiveMinPercRateList = new ArrayList<>();
-
-    @TableField(exist = false)
-    private List<BigDecimal> fiveDailyPercRateList = new ArrayList<>();
-
-    @TableField(exist = false)
-    private List<BigDecimal> tenPercRateList = new ArrayList<>();
-    @TableField(exist = false)
-    private List<BigDecimal> tenMaxPercRateList = new ArrayList<>();
-    @TableField(exist = false)
-    private List<BigDecimal> tenMinPercRateList = new ArrayList<>();
-
-    @TableField(exist = false)
-    private List<BigDecimal> tenDailyPercRateList = new ArrayList<>();
 
     @TableField(exist = false)
     private Set<String> strategyCodeSet = new HashSet<>();
@@ -147,7 +175,7 @@ public class StrategyWin {
     private Set<String> parentWinStrategyCodeSet;
 
     @TableField(exist = false)
-    private BigDecimal parentFiveMaxPercRate;
+    private BigDecimal parentLowLimit;
 
     @TableField(exist = false)
     private int[] details;
@@ -165,28 +193,10 @@ public class StrategyWin {
 
     /**
      * 填充数据
+     * 只计算 五日最高中位数涨幅 和五日最高平均涨幅
      */
     public void fillData1() {
-        strategyCodeSet.add(strategyCode);
-        if (Objects.nonNull(parentWinStrategyCodeSet)) {
-            strategyCodeSet.addAll(parentWinStrategyCodeSet);
-        }
-
-        this.level = strategyCodeSet.size();
-        this.strategyCode = String.join(" ", strategyCodeSet);
-        // 单遍遍历 + StringBuilder，避免 stream + 中间 List
-        StringBuilder sb = new StringBuilder(32 * strategyCodeSet.size());
-        for (String code : strategyCodeSet) {
-            if (!sb.isEmpty()) {
-                sb.append(' ');
-            }
-            StrategyEnum e = StrategyEnum.codeToEnumMap.get(code);
-            sb.append(e != null ? e.getName() : code);
-        }
-        this.strategyName = sb.toString();
-
-        // 单遍 for 替代 stream+filter+forEach，减少迭代器与 lambda 开销
-        Map<String, List<BigDecimal>> dateToFiveMaxPertMap = new HashMap<>(Math.max(16, list.size() >> 2));
+        Map<String, List<BigDecimal>> dateToFiveMaxPertMap = new HashMap<>(500);
         for (StockDetail stockDetail : list) {
             BigDecimal pert = stockDetail.getNext5MaxPricePert();
             if (pert == null) {
@@ -195,131 +205,139 @@ public class StrategyWin {
             dateToFiveMaxPertMap.computeIfAbsent(stockDetail.getDealDate(), k -> new ArrayList<>()).add(pert);
         }
 
-        fiveMaxPercRateList = new ArrayList<>(dateToFiveMaxPertMap.size());
         for (List<BigDecimal> fiveMaxPerts : dateToFiveMaxPertMap.values()) {
             if (!fiveMaxPerts.isEmpty()) {
-                fiveMaxPercRateList.add(divide(sum(fiveMaxPerts), fiveMaxPerts.size()));
+                rise5MaxAvgs.add(getAverage(fiveMaxPerts));
+                rise5MaxMiddles.add(getMiddle(fiveMaxPerts));
             }
         }
-        fiveMaxPercRate = average(fiveMaxPercRateList);
-        cnt = fiveMaxPercRateList.size();
+        rise5MaxAvg = getAverage(rise5MaxAvgs);
+        rise5MaxMiddle = getAverage(rise5MaxMiddles);
+        dateCnt = rise5MaxAvgs.size();
     }
 
     /**
      * 填充数据
      */
     public void fillData2() {
+
+        //填充策略名称和层级
+        this.level = strategyCodeSet.size();
+        StringBuilder unionName = new StringBuilder(32 * strategyCodeSet.size());
+        StringBuilder unionCode = new StringBuilder(32 * strategyCodeSet.size());
+        for (String code : strategyCodeSet) {
+            unionName.append(StrategyEnum.codeToEnumMap.get(code)).append(' ');
+            unionCode.append(code).append(' ');
+        }
+        this.strategyName = unionName.toString();
+        this.strategyCode = unionCode.toString();
+
+
+        //填充其他相关数据
         Map<String, List<StockDetail>> dateToDetailListMap = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
 
         dateToDetailListMap.forEach((date, details) -> {
-            List<BigDecimal> curOnePertList = new ArrayList<>();
-            List<BigDecimal> curTwoPertList = new ArrayList<>();
-            List<BigDecimal> curThreePertList = new ArrayList<>();
-            List<BigDecimal> curFourPertList = new ArrayList<>();
-            List<BigDecimal> curFivePertList = new ArrayList<>();
-            List<BigDecimal> curFiveMinPertList = new ArrayList<>();
-            List<BigDecimal> curTenPertList = new ArrayList<>();
-            List<BigDecimal> curTenMaxPertList = new ArrayList<>();
-            List<BigDecimal> curTenMinPertList = new ArrayList<>();
+            //统计每日中符合策略的stock的涨幅
+            List<BigDecimal> curRise1s = new ArrayList<>(INIT_DATE_SIZE);
+            List<BigDecimal> curRise2s = new ArrayList<>(INIT_DATE_SIZE);
+            List<BigDecimal> curRise3s = new ArrayList<>(INIT_DATE_SIZE);
+            List<BigDecimal> curRise4s = new ArrayList<>(INIT_DATE_SIZE);
+            List<BigDecimal> curRise5s = new ArrayList<>(INIT_DATE_SIZE);
+            List<BigDecimal> curRise10s = new ArrayList<>(INIT_DATE_SIZE);
+            List<BigDecimal> curRise10Maxs = new ArrayList<>(INIT_DATE_SIZE);
             for (StockDetail detail : details) {
                 BigDecimal endPrice = detail.getEndPrice();
                 if (Objects.nonNull(detail.getNext1())) {
-                    curOnePertList.add(divide(subtract(detail.getNext1().getEndPrice(), endPrice), endPrice));
+                    curRise1s.add(getRise(detail.getNext1().getEndPrice(), endPrice));
                 }
                 if (Objects.nonNull(detail.getNext2())) {
-                    curTwoPertList.add(divide(subtract(detail.getNext2().getEndPrice(), endPrice), endPrice));
+                    curRise2s.add(getRise(detail.getNext2().getEndPrice(), endPrice));
                 }
                 if (Objects.nonNull(detail.getNext3())) {
-                    curThreePertList.add(divide(subtract(detail.getNext3().getEndPrice(), endPrice), endPrice));
+                    curRise3s.add(getRise(detail.getNext3().getEndPrice(), endPrice));
                 }
                 if (Objects.nonNull(detail.getNext4())) {
-                    curFourPertList.add(divide(subtract(detail.getNext4().getEndPrice(), endPrice), endPrice));
+                    curRise4s.add(getRise(detail.getNext4().getEndPrice(), endPrice));
                 }
                 if (Objects.nonNull(detail.getNext5())) {
-                    curFivePertList.add(divide(subtract(detail.getNext5().getEndPrice(), endPrice), endPrice));
-                    if (Objects.nonNull(detail.getNext5MinPricePert())) {
-                        curFiveMinPertList.add(detail.getNext5MinPricePert());
-                    }
+                    curRise5s.add(getRise(detail.getNext5().getEndPrice(), endPrice));
                 }
                 if (Objects.nonNull(detail.getNext10())) {
-                    curTenPertList.add(divide(subtract(detail.getNext10().getEndPrice(), endPrice), endPrice));
-                    curTenMaxPertList.add(detail.getNext10MaxPricePert());
-                    curTenMinPertList.add(detail.getNext10MinPricePert());
+                    curRise10s.add(getRise(detail.getNext10().getEndPrice(), endPrice));
+                    curRise10Maxs.add(detail.getNext10MaxPricePert());
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(curOnePertList)) {
-                onePercRateList.add(divide(sum(curOnePertList), curOnePertList.size()));
+            //算出每日中符合策略的stock的   平均  和中位数
+            if (CollectionUtils.isNotEmpty(curRise1s)) {
+                rise1Avgs.add(getAverage(curRise1s));
+                rise1Middles.add(getMiddle(curRise1s));
             }
-            if (CollectionUtils.isNotEmpty(curTwoPertList)) {
-                twoPercRateList.add(divide(sum(curTwoPertList), curTwoPertList.size()));
+            if (CollectionUtils.isNotEmpty(curRise2s)) {
+                rise2Avgs.add(getAverage(curRise2s));
+                rise2Middles.add(getMiddle(curRise2s));
             }
-
-            if (CollectionUtils.isNotEmpty(curThreePertList)) {
-                threePercRateList.add(divide(sum(curThreePertList), curThreePertList.size()));
+            if (CollectionUtils.isNotEmpty(curRise3s)) {
+                rise3Avgs.add(getAverage(curRise3s));
+                rise3Middles.add(getMiddle(curRise3s));
             }
-
-
-            if (CollectionUtils.isNotEmpty(curFourPertList)) {
-                fourPercRateList.add(divide(sum(curFourPertList), curFourPertList.size()));
+            if (CollectionUtils.isNotEmpty(curRise4s)) {
+                rise4Avgs.add(getAverage(curRise4s));
+                rise4Middles.add(getMiddle(curRise4s));
             }
-
-
-            if (CollectionUtils.isNotEmpty(curFivePertList)) {
-                fivePercRateList.add(divide(sum(curFivePertList), curFivePertList.size()));
+            if (CollectionUtils.isNotEmpty(curRise5s)) {
+                rise5Avgs.add(getAverage(curRise5s));
+                rise5Middles.add(getMiddle(curRise5s));
             }
-            if (CollectionUtils.isNotEmpty(curFiveMinPertList)) {
-                fiveMinPercRateList.add(divide(sum(curFiveMinPertList), curFiveMinPertList.size()));
+            if (CollectionUtils.isNotEmpty(curRise10s)) {
+                rise10Avgs.add(getAverage(curRise10s));
+                rise10Middles.add(getMiddle(curRise10s));
             }
-
-
-            if (CollectionUtils.isNotEmpty(curTenPertList)) {
-                tenPercRateList.add(divide(sum(curTenPertList), curTenPertList.size()));
-                tenMaxPercRateList.add(divide(sum(curTenMaxPertList), curTenMaxPertList.size()));
-                tenMinPercRateList.add(divide(sum(curTenMinPertList), curTenMinPertList.size()));
+            if (CollectionUtils.isNotEmpty(curRise10Maxs)) {
+                rise10MaxAvgs.add(getAverage(curRise10Maxs));
+                rise10MaxMiddles.add(getMiddle(curRise10Maxs));
             }
 
         });
-
-        onePercRate = average(onePercRateList);
-        twoPercRate = average(twoPercRateList);
-        threePercRate = average(threePercRateList);
-        fourPercRate = average(fourPercRateList);
-        fivePercRate = average(fivePercRateList);
-        fiveMaxPercRate = average(fiveMaxPercRateList);
-        fiveMinPercRate = average(fiveMinPercRateList);
-        fiveMaxMiddlePercRate = getMiddle(fiveMaxPercRateList);
-        tenPercRate = average(tenPercRateList);
-        tenMaxPercRate = average(tenMaxPercRateList);
-        tenMinPercRate = average(tenMinPercRateList);
-    }
-
-
-    public static StrategyWin createByStrategyName(StrategyEnum strategyEnum) {
-        StrategyWin strategyWin = new StrategyWin();
-        strategyWin.setStrategyName(strategyEnum.getName());
-        strategyWin.setStrategyCode(strategyEnum.getCode());
-        return strategyWin;
-
+        //算出策略的存在符合数据的日期的   平均  和中位数
+        rise1Avg = getAverage(rise1Avgs);
+        rise1Middle = getAverage(rise1Middles);
+        rise2Avg = getAverage(rise2Avgs);
+        rise2Middle = getAverage(rise2Middles);
+        rise3Avg = getAverage(rise3Avgs);
+        rise3Middle = getAverage(rise3Middles);
+        rise4Avg = getAverage(rise4Avgs);
+        rise4Middle = getAverage(rise4Middles);
+        rise5Avg = getAverage(rise5Avgs);
+        rise5Middle = getAverage(rise5Middles);
+        rise10Avg = getAverage(rise10Avgs);
+        rise10Middle = getAverage(rise10Middles);
+        rise10MaxAvg = getAverage(rise10MaxAvgs);
+        rise10MaxMiddle = getAverage(rise10MaxMiddles);
     }
 
     public StrategyWin(String strategyCode) {
-        this.strategyCode = strategyCode;
+        this(strategyCode, null, null, null);
+
     }
 
     public StrategyWin(String strategyCode, Set<String> parentWinStrategyCodeSet,
-                       BigDecimal parentFiveMaxPercRate, int[] details) {
+                       BigDecimal parentLowLimit, int[] details) {
         this.strategyCode = strategyCode;
         this.parentWinStrategyCodeSet = parentWinStrategyCodeSet;
-        this.parentFiveMaxPercRate = parentFiveMaxPercRate;
+        this.parentLowLimit = parentLowLimit;
         this.details = details;
+        strategyCodeSet.add(strategyCode);
+        if (Objects.nonNull(parentWinStrategyCodeSet)) {
+            strategyCodeSet.addAll(parentWinStrategyCodeSet);
+        }
     }
 
 
     /**
      * 求平均值；当 50 < size < 150 时去掉首尾各5个再平均
      */
-    private BigDecimal average(List<BigDecimal> list) {
+    private BigDecimal getAverage(List<BigDecimal> list) {
         return list.size() < 150 && list.size() > 50
                 ? divide(sum(list.stream().sorted(Comparator.comparing(BigDecimal::doubleValue))
                         .limit(list.size() - 5).skip(5).toList()),
@@ -335,5 +353,9 @@ public class StrategyWin {
                 .sorted(Comparator.comparing(BigDecimal::doubleValue))
                 .toList();
         return sortList.get(sortList.size() / 2);
+    }
+
+    private BigDecimal getRise(BigDecimal price1, BigDecimal price2) {
+        return divide(subtract(price1, price2), price2);
     }
 }

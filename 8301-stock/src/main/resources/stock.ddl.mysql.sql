@@ -143,21 +143,25 @@ create index strategy_code on stock_strategy_result_t (strategy_code);
 DROP TABLE IF EXISTS stock_strategy_win_t;
 CREATE TABLE stock_strategy_win_t
 (
-    strategy_win_id           INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    strategy_code             VARCHAR(200) COMMENT '策略编码',
-    strategy_name             VARCHAR(200) COMMENT '策略名称',
-    cnt                       INT(8) COMMENT '总数',
-    one_perc_rate             DECIMAL(8, 4) COMMENT '1天后的平均涨幅',
-    two_perc_rate             DECIMAL(8, 4) COMMENT '2天后百分比叠加后的结果',
-    three_perc_rate           DECIMAL(8, 4) COMMENT '3天后百分比叠加后的结果',
-    four_perc_rate            DECIMAL(8, 4) COMMENT '4天后百分比叠加后的结果',
-    five_perc_rate            DECIMAL(8, 4) COMMENT '5天后百分比叠加后的结果',
-    ten_perc_rate             DECIMAL(8, 4) COMMENT '10天后百分比叠加后的结果',
-    five_max_perc_rate        DECIMAL(8, 4) COMMENT '5天内最高价 百分比叠加后的结果',
-    five_min_perc_rate        DECIMAL(8, 4) COMMENT '5天内最低价 百分比叠加后的结果',
-    five_max_middle_perc_rate DECIMAL(8, 4) COMMENT '最高涨幅中位数',
-    ten_max_perc_rate         DECIMAL(8, 4) COMMENT '10天内最高价 百分比叠加后的结果',
-    ten_min_perc_rate         DECIMAL(8, 4) COMMENT '10天内最低价 百分比叠加后的结果',
-    level                     INT(4) comment '条件层数',
-    date_cnt                  VARCHAR(2000) COMMENT '日期统计'
-) COMMENT '策略胜率表';
+    strategy_win_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_code     VARCHAR(200) COMMENT '策略编码',
+    strategy_name     VARCHAR(200) COMMENT '策略名称',
+    date_cnt          INT(8) COMMENT '有符合数据的日期天数',
+    rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',
+    rise2_avg         DECIMAL(8, 4) COMMENT '2日平均涨幅',
+    rise3_avg         DECIMAL(8, 4) COMMENT '3日平均涨幅',
+    rise4_avg         DECIMAL(8, 4) COMMENT '4日平均涨幅',
+    rise5_avg         DECIMAL(8, 4) COMMENT '5日平均涨幅',
+    rise10_avg        DECIMAL(8, 4) COMMENT '10日平均涨幅',
+    rise5_max_avg     DECIMAL(8, 4) COMMENT '5日最大平均涨幅',
+    rise10_max_avg    DECIMAL(8, 4) COMMENT '10日最大平均涨幅',
+    rise1_middle      DECIMAL(8, 4) COMMENT '1日中位数涨幅',
+    rise2_middle      DECIMAL(8, 4) COMMENT '2日中位数涨幅',
+    rise3_middle      DECIMAL(8, 4) COMMENT '3日中位数涨幅',
+    rise4_middle      DECIMAL(8, 4) COMMENT '4日中位数涨幅',
+    rise5_middle      DECIMAL(8, 4) COMMENT '5日中位数涨幅',
+    rise10_middle     DECIMAL(8, 4) COMMENT '10日中位数涨幅',
+    rise5_max_middle  DECIMAL(8, 4) COMMENT '5日最大中位数涨幅',
+    rise10_max_middle DECIMAL(8, 4) COMMENT '10日最大中位数涨幅',
+    level             INT(4) comment '策略层数'
+) COMMENT '策略结果表';

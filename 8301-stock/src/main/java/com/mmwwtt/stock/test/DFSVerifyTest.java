@@ -38,11 +38,11 @@ public class DFSVerifyTest {
 
     @PostConstruct
     public void init() {
-        String sql = "five_max_middle_perc_rate>0.135 ";
+        String sql = "rise5_max_middle>0.135 ";
         winList = strategyWinService.getStrategyWin(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
-                .sorted(Comparator.comparing(StrategyWin::getFiveMaxPercRate).reversed())
+                .sorted(Comparator.comparing(StrategyWin::getRise5MaxMiddle).reversed())
                 .toList();
     }
 
