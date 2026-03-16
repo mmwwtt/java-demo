@@ -207,12 +207,7 @@ public class DownloadTest {
                     stockDetails.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
                     stockDetails.forEach(item -> item.calc());
                     StockDetail.calc(stockDetails);
-                    try {
-                        stockDetailService.saveOrUpdateBatch(stockDetails);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        throw new RuntimeException(e);
-                    }
+                    stockDetailService.saveOrUpdateBatch(stockDetails);
                 }
             }, ioThreadPool);
             futures.add(future);
