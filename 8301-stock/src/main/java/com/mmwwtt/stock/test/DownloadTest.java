@@ -8,17 +8,21 @@ import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StrategyResult;
+import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
 import com.mmwwtt.stock.service.impl.StockDetailServiceImpl;
 import com.mmwwtt.stock.service.impl.StockServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyResultServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
 import com.mmwwtt.stock.vo.StockDetailVO;
 import com.mmwwtt.stock.vo.StockVO;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -42,11 +46,17 @@ import static com.mmwwtt.stock.common.Constants.*;
 @Slf4j
 public class DownloadTest {
 
-    @Autowired
+    @Resource
     private StockServiceImpl stockService;
 
-    @Autowired
+    @Resource
     private StockDetailServiceImpl stockDetailService;
+
+    @Resource
+    private StrategyResultServiceImpl strategyResultService;
+
+    @Resource
+    private StrategyWinServiceImpl strategyWinService;
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
@@ -69,9 +79,11 @@ public class DownloadTest {
     }
 
 
+
     @Test
     @DisplayName("从0开始构建数据")
     public void start() throws ExecutionException, InterruptedException {
+        dataDownLoadInit();
         dataDownLoad();
         dataDetailDownLoad();
     }
@@ -99,6 +111,24 @@ public class DownloadTest {
         log.info("获取单个代码的数据结束：{}", JSONObject.toJSONString(stockDetailVOs));
     }
 
+    @Test
+    @DisplayName("下载前的初始化  清空stock表和详情表")
+    public void dataDownLoadInit() {
+        log.info("开始清空表 start\n\n\n");
+        QueryWrapper<Stock> stockWrapper = new QueryWrapper<>();
+        stockService.remove(stockWrapper);
+
+        QueryWrapper<StockDetail> stockDetailWrapper = new QueryWrapper<>();
+        stockDetailService.remove(stockDetailWrapper);
+
+        QueryWrapper<StrategyWin> winWrapper = new QueryWrapper<>();
+        strategyWinService.remove(winWrapper);
+
+        QueryWrapper<StrategyResult> resultWrapper = new QueryWrapper<>();
+        strategyResultService.remove(resultWrapper);
+        log.info("开始清空表 end\n\n\n");
+    }
+
 
     @Test
     @DisplayName("调接口获取数据")
@@ -123,7 +153,7 @@ public class DownloadTest {
     @DisplayName("调接口获取每日详细数据-全量")
     public void dataDetailDownLoad() throws InterruptedException, ExecutionException {
         log.info("下载股票详细数据");
-        List<Stock> stockList = stockService.  getAllStock();
+        List<Stock> stockList = stockService.getAllStock();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         for (List<Stock> part : parts) {

@@ -902,8 +902,8 @@ public class StockDetail {
                 lowDate = cur1.getDealDate();
             }
         }
-        setDayLine.accept(divide(sumEndPrice, dayNum));
-        setDayDealQuantity.accept(divide(sumDealQuantity, dayNum));
+        setDayLine.accept(divide(sumEndPrice, dayNum.doubleValue()));
+        setDayDealQuantity.accept(divide(sumDealQuantity, dayNum.doubleValue()));
         setHigh.accept(dayHigh);
         setLow.accept(dayLow);
 

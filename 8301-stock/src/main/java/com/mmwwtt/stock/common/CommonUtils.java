@@ -13,6 +13,9 @@ import static com.mmwwtt.stock.common.Constants.TOLERANCE;
 
 public class CommonUtils {
 
+    /**
+     * double  double
+     */
     public static boolean isEquals(double num1, double num2) {
         return Math.abs(num1 - num2) < TOLERANCE;
     }
@@ -37,6 +40,127 @@ public class CommonUtils {
         }
         return num1 / num2;
     }
+
+
+    /**
+     * Double  Double
+     */
+    public static Double subtract(Double num1, Double num2) {
+        if (num1 == null || num2 == null) {
+            return null;
+        }
+        return num1 - num2;
+    }
+
+    public static Double add(Double num1, Double num2) {
+        if (num1 == null || num2 == null) {
+            return null;
+        }
+        return num1 + num2;
+    }
+
+    public static Double multiply(Double num1, Double num2) {
+        if (num1 == null || num2 == null) {
+            return null;
+        }
+        return num1 * num2;
+    }
+
+
+    public static Double divide(Double num1, Double num2) {
+        if (num1 == null || num2 == null) {
+            return null;
+        }
+        if (num2 == 0) {
+            return 0.0;
+        }
+        return divide(num1.doubleValue(), num2.doubleValue());
+    }
+
+
+    /**
+     * double  Double
+     */
+    public static Double subtract(double num1, Double num2) {
+        if (num2 == null) {
+            return null;
+        }
+        return num1 - num2;
+    }
+
+    public static Double add(double num1, Double num2) {
+        if (num2 == null) {
+            return null;
+        }
+        return num1 + num2;
+    }
+
+    public static Double multiply(double num1, Double num2) {
+        if (num2 == null) {
+            return null;
+        }
+        return num1 * num2;
+    }
+
+
+    public static Double divide(double num1, Double num2) {
+        if (num2 == null) {
+            return null;
+        }
+        return divide(num1, num2.doubleValue());
+    }
+
+
+    /**
+     * Double  double
+     */
+    public static Double subtract(Double num1, double num2) {
+        if (num1 == null) {
+            return null;
+        }
+        return num1 - num2;
+    }
+
+    public static Double add(Double num1, double num2) {
+        if (num1 == null) {
+            return null;
+        }
+        return num1 + num2;
+    }
+
+    public static Double multiply(Double num1, double num2) {
+        if (num1 == null) {
+            return null;
+        }
+        return num1 * num2;
+    }
+
+
+    public static Double divide(Double num1, double num2) {
+        if (num1 == null) {
+            return null;
+        }
+        return divide(num1.doubleValue(), num2);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static Boolean moreThan(double num1, double num2) {
         return num1 > num2 + TOLERANCE;
