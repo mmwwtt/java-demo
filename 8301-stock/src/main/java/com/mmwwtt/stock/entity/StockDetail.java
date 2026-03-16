@@ -764,7 +764,7 @@ public class StockDetail {
                     }
                 }
                 double avgUp = divide(upSum, 14);
-                double avgDown = divide(downSum, 14);
+                double avgDown = divide(Math.abs(downSum), 14);
                 if (isEquals(avgDown, 0)) {
                     cur.setRsi(moreThan(avgUp, 0) ? 100.0 : 50.0);
                 } else {
@@ -781,9 +781,9 @@ public class StockDetail {
                     StockDetail prev = list.get(j + 1);
                     if (d == null || prev == null)
                         continue;
-                    double hl = subtract(d.getHighPrice(), d.getLowPrice());
-                    double hc = subtract(d.getHighPrice(), prev.getEndPrice());
-                    double lc = subtract(d.getLowPrice(), prev.getEndPrice());
+                    double hl =  Math.abs(subtract(d.getHighPrice(), d.getLowPrice()));
+                    double hc =  Math.abs(subtract(d.getHighPrice(), prev.getEndPrice()));
+                    double lc =  Math.abs(subtract(d.getLowPrice(), prev.getEndPrice()));
                     double tr = max(hl, hc, lc);
                     atrSum = sum(atrSum, tr);
                 }
