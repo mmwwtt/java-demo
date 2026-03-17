@@ -2,24 +2,25 @@ package com.mmwwtt.stock.service.impl;
 
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
+import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
+import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.vo.DetailQueryVO;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
+
+import static com.mmwwtt.stock.enums.StrategyEnum.baseStrategys;
 
 @Service
 @Slf4j
@@ -50,6 +51,12 @@ public class CommonService {
     public static List<String> predictDateList;
 
     public static int INIT_DATE_SIZE = 500;
+
+
+    public static final List<StrategyEnum> strategyL1Enums = new ArrayList<>();
+    public static final Map<String, StrategyEnum> l1CodeToEnumMap = new HashMap<>();
+
+
     @PostConstruct
     public void init() throws ExecutionException, InterruptedException {
         log.info("初始化开始");
@@ -88,6 +95,23 @@ public class CommonService {
                 .stream().skip(15)
                 .map(Detail::getDealDate).findFirst().orElse("20260201");
         stockCodeToNameMap = stockService.list().stream().collect(Collectors.toMap(Stock::getCode, Stock::getName));
+
+
+        //填充L1层的基础策略枚举
+        List<Integer> tList = List.of(0, 1, 2, 3);
+        tList.forEach(t -> {
+            List<StrategyEnum> enums = baseStrategys.stream().map(item -> {
+                StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
+                cur.setCode(0 + item.getCode());
+                cur.setDesc("T0-" + item.getDesc());
+                cur.setFilterFunc(item.getFilterFunc());
+                return cur;
+            }).toList();
+            strategyL1Enums.addAll(enums);
+        });
+        for (StrategyEnum strategyEnum : strategyL1Enums) {
+            l1CodeToEnumMap.put(strategyEnum.getCode(), strategyEnum);
+        }
         log.info("初始化结束");
     }
 }

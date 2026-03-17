@@ -6,7 +6,5 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface StockDAO extends BaseMapper<Stock> {
-//    List<User> queryList(@Param("query") UserQuery query);
-//    Page<User> queryPage(@Param("query") UserQuery query);
 }
 

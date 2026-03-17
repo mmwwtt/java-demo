@@ -98,8 +98,7 @@ public class StrategyTmp {
             dayValues.add(isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues));
         }
         //再计算总体的平均数/中位数
-        double resValue = isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues);
-        filterFildEnum.getWinSetter().accept(this, resValue);
+        pert = isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues);
         dateCnt = dateToValuesMap.size();
     }
 

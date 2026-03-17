@@ -1,10 +1,10 @@
 package com.mmwwtt.stock.test;
 
 import com.mmwwtt.stock.entity.Detail;
+import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.enums.StrategyEnum;
-import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.CalcCommonService;
-import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -28,27 +28,27 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 public class DFSVerifyTest {
 
     @Resource
-    private StrategyTmpServiceImpl strategyWinService;
+    private StrategyServiceImpl strategyService;
 
     @Resource
     private CalcCommonService calcCommonService;
 
-    private static List<StrategyWin> winList;
+    private static List<Strategy> strategies;
 
     @PostConstruct
     public void init() {
         String sql = "rise5_max_middle>0.14  and rise5_max_middle<15 ";
-        winList = strategyWinService.getStrategyWin(sql)
+        strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
-                .sorted(Comparator.comparing(StrategyWin::getRise5MaxMiddle).reversed())
+                .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
                 .toList();
     }
 
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260315", winList, false, 1.2);
+        calcCommonService.predict("20260315", strategies, false, 1.2);
     }
 
     @Test
@@ -74,9 +74,9 @@ public class DFSVerifyTest {
                         || moreThan(detail.getPricePert(), 0.097)) {
                     continue;
                 }
-                for (StrategyWin strategyWin : winList) {
+                for (Strategy strategyWin : strategies) {
                     List<StrategyEnum> strategyEnums = strategyWin.getStrategyCodeSet().stream()
-                            .map(StrategyEnum.codeToEnumMap::get).toList();
+                            .map(l1CodeToEnumMap::get).toList();
                     boolean res = strategyEnums.stream()
                             .allMatch(strategyEnum -> strategyEnum.getFilterFunc().apply(detail));
                     if (res) {

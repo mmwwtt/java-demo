@@ -1,6 +1,5 @@
 package com.mmwwtt.stock.enums;
 
-import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.Detail;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,15 +16,13 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 public class StrategyEnum {
 
     private String code;
-    private String name;
+    private String desc;
     private Function<Detail, Boolean> filterFunc;
 
-    public static final List<StrategyEnum> baseStrategyList = new ArrayList<>();
-    public static final List<StrategyEnum> dayForStrategyList = new ArrayList<>();
-    public static final Map<String, StrategyEnum> codeToEnumMap = new HashMap<>();
+    public static List<StrategyEnum> baseStrategys;
 
     static {
-        baseStrategyList.addAll(Arrays.asList(
+        baseStrategys = Arrays.asList(
                 new StrategyEnum("20004", "二连红",
                         (Detail t0) -> t0.getIsRed() && t0.getT1().getIsRed()),
                 new StrategyEnum("20005", "三连红", (Detail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed()),
@@ -235,48 +232,6 @@ public class StrategyEnum {
                         && isInRange(divide(t0.getAtr14(), t0.getLastPrice()), 0.01, 0.03)),
                 new StrategyEnum("21272", "ATR14_高波动_大于3pct", (Detail t0) -> t0.getAtr14() != null && t0.getLastPrice() != null
                         && moreThan(divide(t0.getAtr14(), t0.getLastPrice()), 0.03))
-        ));
-    }
-
-    static {
-        List<StrategyEnum> t0List = baseStrategyList.stream().map(item -> {
-            StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
-            cur.setCode(0 + item.getCode());
-            cur.setName("T0-" + item.getName());
-            cur.setFilterFunc(item.getFilterFunc());
-            return cur;
-        }).toList();
-
-        List<StrategyEnum> t1List = baseStrategyList.stream().map(item -> {
-            StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
-            cur.setCode(1 + item.getCode());
-            cur.setName("T1-" + item.getName());
-            cur.setFilterFunc((Detail t0) -> item.getFilterFunc().apply(t0.getT1()));
-            return cur;
-        }).toList();
-
-        List<StrategyEnum> t2List = baseStrategyList.stream().map(item -> {
-            StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
-            cur.setCode("2" + item.getCode());
-            cur.setName("T2-" + item.getName());
-            cur.setFilterFunc((Detail t0) -> item.getFilterFunc().apply(t0.getT2()));
-            return cur;
-        }).toList();
-
-        List<StrategyEnum> t3List = baseStrategyList.stream().map(item -> {
-            StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
-            cur.setCode("3" + item.getCode());
-            cur.setName("T3-" + item.getName());
-            cur.setFilterFunc((Detail t0) -> item.getFilterFunc().apply(t0.getT3()));
-            return cur;
-        }).toList();
-
-        dayForStrategyList.addAll(t0List);
-        dayForStrategyList.addAll(t1List);
-        dayForStrategyList.addAll(t2List);
-        dayForStrategyList.addAll(t3List);
-        for (StrategyEnum strategyEnum : dayForStrategyList) {
-            codeToEnumMap.put(strategyEnum.getCode(), strategyEnum);
-        }
+        );
     }
 }

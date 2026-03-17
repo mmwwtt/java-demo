@@ -173,10 +173,10 @@ public class DFSTest {
         strategyTmpService.remove(new QueryWrapper<>());
         strategyL1s = CommonService.strategyL1s.stream()
                 .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
-                .filter(item -> item.getStrategyName().startsWith("T0")
-                        || item.getStrategyName().startsWith("T1")
-                        || item.getStrategyName().startsWith("T2")
-                        || item.getStrategyName().startsWith("T3")
+                .filter(item -> item.getDesc().startsWith("T0")
+                        || item.getDesc().startsWith("T1")
+                        || item.getDesc().startsWith("T2")
+                        || item.getDesc().startsWith("T3")
                 )
                 .sorted(Comparator.comparing(StrategyL1::getRise5MaxMiddle).reversed()).toList();
         log.info("dfs 初始化结束");
@@ -194,7 +194,7 @@ public class DFSTest {
                 strategyIdToDetailIdsMap.put(strategyTmp.getStrategyId(), Collections.synchronizedList(new ArrayList<>(500)));
                 strategyTmp.setStrategyCodeSet(Arrays.stream(strategyTmp.getStrategyCode().split(" ")).collect(Collectors.toSet()));
                 strategyTmp.getStrategyCodeSet().forEach(strategyCode ->
-                        strategyTmp.getFilterFuncs().add(StrategyEnum.codeToEnumMap.get(strategyCode).getFilterFunc()));
+                        strategyTmp.getFilterFuncs().add(l1CodeToEnumMap.get(strategyCode).getFilterFunc()));
                 List<Detail> details = strategyIdToDetailIdsMap.get(strategyTmp.getStrategyId());
                 codeToDetailMap.values().forEach(detailList -> detailList.forEach(detail -> {
                     boolean isTrue = strategyTmp.getFilterFuncs().stream().allMatch(func -> func.apply(detail));
@@ -243,9 +243,8 @@ public class DFSTest {
         QueryWrapper<StrategyTmp> resultWrapper = new QueryWrapper<>();
         strategyTmpService.remove(resultWrapper);
 
-        List<StrategyEnum> values = StrategyEnum.dayForStrategyList;
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (StrategyEnum strategy : values) {
+        for (StrategyEnum strategy : strategyL1Enums) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 List<Detail> resDetails = new ArrayList<>();
                 for (String stockCode : stockCodeList) {

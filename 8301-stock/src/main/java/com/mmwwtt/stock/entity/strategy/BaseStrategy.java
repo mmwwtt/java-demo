@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.INIT_DATE_SIZE;
+import static com.mmwwtt.stock.service.impl.CommonService.l1CodeToEnumMap;
 
 @Slf4j
 @Data
@@ -39,9 +40,9 @@ public class BaseStrategy {
     protected String strategyCode;
 
     /**
-     * 策略名称
+     * 策略描述
      */
-    protected String strategyName;
+    protected String desc;
 
 
     /**
@@ -205,8 +206,8 @@ public class BaseStrategy {
      * DFS完成后进行全部的数据填充
      */
     public void fillOtherData() {
-        strategyName = Arrays.stream(strategyCode.split(" "))
-                .map(strategyCode -> StrategyEnum.codeToEnumMap.get(strategyCode).getName())
+        desc = Arrays.stream(strategyCode.split(" "))
+                .map(strategyCode -> l1CodeToEnumMap.get(strategyCode).getDesc())
                 .collect(Collectors.joining(" "));
 
         //填充其他相关数据

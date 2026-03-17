@@ -2,8 +2,7 @@ package com.mmwwtt.stock.service.impl;
 
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.Detail;
-import com.mmwwtt.stock.enums.StrategyEnum;
-import com.mmwwtt.stock.entity.StrategyWin;
+import com.mmwwtt.stock.entity.strategy.Strategy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,8 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.stockCodePartList;
-import static com.mmwwtt.stock.service.impl.CommonService.stockCodeToNameMap;
+import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 @Service
 @Slf4j
@@ -38,16 +36,15 @@ public class CalcCommonService {
     /**
      * 预测明日股票
      */
-    public void predict(String curDate, List<StrategyWin> strategyWinList, boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
-        Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
-        Map<StrategyWin, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
+    public void predict(String curDate, List<Strategy> strategys, boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
+        Map<Strategy, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         Map<String, Detail> codeToDetailMap = stockDetailService.getCodeToCurDetailMap(curDate);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
-        for (StrategyWin strategyWin : strategyWinList) {
-            List<Function<Detail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
-                    .map(item -> codeToEnumMap.get(item).getFilterFunc()).toList();
+        for (Strategy strategy : strategys) {
+            List<Function<Detail, Boolean>> functionList = Arrays.stream(strategy.getStrategyCode().split(" "))
+                    .map(item -> l1CodeToEnumMap.get(item).getFilterFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
@@ -66,7 +63,7 @@ public class CalcCommonService {
                             stockCodeSet.add(stockCode);
                             String name = stockCodeToNameMap.getOrDefault(stockCode, "");
                             double pert = detail.getPricePert() != null ? detail.getPricePert() : 0;
-                            strategyToStockMap.computeIfAbsent(strategyWin, k -> Collections.synchronizedList(new ArrayList<>()))
+                            strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>()))
                                     .add(stockCode + "_" + name + " " + pert);
                         }
                     }
@@ -87,12 +84,13 @@ public class CalcCommonService {
 
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
-            List<StrategyWin> list = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(StrategyWin::getRise5Avg).reversed()).toList();
-            for (StrategyWin strategyWin : list) {
-                List<String> resStockList = strategyToStockMap.get(strategyWin);
+            List<Strategy> resStrategies = strategyToStockMap.keySet().stream()
+                    .sorted(Comparator.comparing(Strategy::getRise5Avg).reversed()).toList();
+            for (Strategy strategy : resStrategies) {
+                List<String> resStockList = strategyToStockMap.get(strategy);
                 String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高平均涨幅：%4f \n5日最高中位数涨幅：%4f \n",
-                         strategyWin.getDateCnt(),strategyWin.getStrategyName(),
-                        strategyWin.getRise5MaxAvg(),strategyWin.getRise5MaxMiddle());
+                        strategy.getDateCnt(),strategy.getDesc(),
+                        strategy.getRise5MaxAvg(),strategy.getRise5MaxMiddle());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {
                     fos.write((s + "\n").getBytes());
@@ -108,8 +106,7 @@ public class CalcCommonService {
     /**
      * 验证预测的股票结果
      */
-    public List<Detail> verifyPredictRes(String curDate, List<StrategyWin> strategyWinList) throws InterruptedException, ExecutionException {
-        Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
+    public List<Detail> verifyPredictRes(String curDate, List<Strategy> strategys) throws InterruptedException, ExecutionException {
         Map<String, Detail> codeToDetailMap = CommonService.idToDetailMap.values().stream()
                 .filter(item -> Objects.equals(item.getDealDate(), curDate))
                 .collect(Collectors.toMap(Detail::getStockCode, item -> item));
@@ -118,9 +115,9 @@ public class CalcCommonService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
 
-        for (StrategyWin strategyWin : strategyWinList) {
-            List<Function<Detail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
-                    .map(item -> codeToEnumMap.get(item).getFilterFunc()).toList();
+        for (Strategy strategy : strategys) {
+            List<Function<Detail, Boolean>> functionList = Arrays.stream(strategy.getStrategyCode().split(" "))
+                    .map(item -> l1CodeToEnumMap.get(item).getFilterFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {

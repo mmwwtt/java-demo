@@ -21,6 +21,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.codeToDetailMap;
+import static com.mmwwtt.stock.service.impl.CommonService.l1CodeToEnumMap;
 
 /**
  * 自定义策略测试
@@ -39,20 +40,8 @@ public class CustomTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         List<StrategyEnum> strategyEnums = List.of(
-                new StrategyEnum("riseStrategy", "上涨预测_低吸型", (Detail d) -> true),
-                new StrategyEnum("pullback5ma", "五日线上方回调至五日线下", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    if (t1 == null || t2 == null || t3 == null || t4 == null) return false;
-                    if (t0.getFiveDayLine() == null || t1.getFiveDayLine() == null) return false;
-                    // 前4日收盘价都在各自五日线之上
-                    boolean prevAbove = moreThan(t1.getEndPrice(), t1.getFiveDayLine())
-                            && moreThan(t2.getEndPrice(), t2.getFiveDayLine())
-                            && moreThan(t3.getEndPrice(), t3.getFiveDayLine())
-                            && moreThan(t4.getEndPrice(), t4.getFiveDayLine());
-                    // 今日收盘回调到五日线之下
-                    boolean todayBelow = lessThan(t0.getEndPrice(), t0.getFiveDayLine());
-                    return prevAbove && todayBelow;
-                })
+
+                new StrategyEnum("riseStrategy", "上涨预测_低吸型", (Detail d) -> true)
         );
 
         calcByStrategy(strategyEnums);
@@ -135,7 +124,7 @@ public class CustomTest {
 
     private void buildImg(String strategyStr, Boolean onlyNext1IsUp) throws ExecutionException, InterruptedException {
         log.info("开始查找符合条件的数据");
-        List<StrategyEnum> list = Arrays.stream(strategyStr.split(" ")).map(StrategyEnum.codeToEnumMap::get).toList();
+        List<StrategyEnum> list = Arrays.stream(strategyStr.split(" ")).map(l1CodeToEnumMap::get).toList();
         StrategyEnum strategy = new StrategyEnum("testCode", "test_" + getTimeStr(),
                 (Detail t0) -> list.stream().allMatch(item -> item.getFilterFunc().apply(t0)));
         Map<StrategyEnum, List<Detail>> resMap = calcByStrategy(List.of(strategy));
@@ -146,7 +135,7 @@ public class CustomTest {
                     : resList.stream().limit(200).toList();
             for (Detail detail : curList) {
                 try {
-                    StockGuiUtils.genDetailImage(detail, strategyEnum.getName());
+                    StockGuiUtils.genDetailImage(detail, strategyEnum.getDesc());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
