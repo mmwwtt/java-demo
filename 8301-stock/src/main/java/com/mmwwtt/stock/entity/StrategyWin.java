@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -133,7 +134,7 @@ public class StrategyWin {
      * 临时属性
      */
     @TableField(exist = false)
-    private List<StockDetail> list = Collections.synchronizedList(new ArrayList<>(50000));
+    private List<StockDetail> details = Collections.synchronizedList(new ArrayList<>(50000));
     @TableField(exist = false)
     private List<Double> rise1Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
@@ -172,13 +173,16 @@ public class StrategyWin {
     private Set<String> strategyCodeSet = new HashSet<>();
 
     @TableField(exist = false)
+    private List<Function<StockDetail, Boolean>> filterFuncs= new ArrayList<>();
+
+    @TableField(exist = false)
     private Set<String> parentWinStrategyCodeSet;
 
     @TableField(exist = false)
     private Double parentLowLimit;
 
     @TableField(exist = false)
-    private int[] details;
+    private int[] detailIds;
 
     /**
      * 将结果累加到数据中
@@ -188,7 +192,7 @@ public class StrategyWin {
             log.info("不存在的详情");
             return;
         }
-        list.add(stockDetail);
+        details.add(stockDetail);
     }
 
     /**
@@ -199,7 +203,7 @@ public class StrategyWin {
     public void fillFilterField(DFSTest.FilterFildEnum filterFildEnum) {
         boolean isMiddleFunc = filterFildEnum.getCode().endsWith("MIDDLE");
         Map<String, List<Double>> dateToValuesMap = new HashMap<>(500);
-        for (StockDetail stockDetail : list) {
+        for (StockDetail stockDetail : details) {
             Double pert = filterFildEnum.getDetailGetter().apply(stockDetail);
             if (pert == null) {
                 continue;
@@ -245,7 +249,7 @@ public class StrategyWin {
      */
     public void fillOtherData() {
         //填充其他相关数据
-        Map<String, List<StockDetail>> dateToDetailListMap = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
+        Map<String, List<StockDetail>> dateToDetailListMap = details.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
 
         dateToDetailListMap.forEach((date, details) -> {
             //统计每日中符合策略的stock的涨幅
@@ -338,11 +342,11 @@ public class StrategyWin {
     }
 
     public StrategyWin(String strategyCode, Set<String> parentWinStrategyCodeSet,
-                       Double parentLowLimit, int[] details) {
+                       Double parentLowLimit, int[] detailIds) {
         this.strategyCode = strategyCode;
         this.parentWinStrategyCodeSet = parentWinStrategyCodeSet;
         this.parentLowLimit = parentLowLimit;
-        this.details = details;
+        this.detailIds = detailIds;
         strategyCodeSet.add(strategyCode);
         if (Objects.nonNull(parentWinStrategyCodeSet)) {
             strategyCodeSet.addAll(parentWinStrategyCodeSet);

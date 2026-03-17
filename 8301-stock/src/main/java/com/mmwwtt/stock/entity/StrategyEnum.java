@@ -17,7 +17,7 @@ public class StrategyEnum {
 
     private String code;
     private String name;
-    private Function<StockDetail, Boolean> runFunc;
+    private Function<StockDetail, Boolean> filterFunc;
 
     public static final List<StrategyEnum> baseStrategyList = new ArrayList<>();
     public static final List<StrategyEnum> dayForStrategyList = new ArrayList<>();
@@ -242,7 +242,7 @@ public class StrategyEnum {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
             cur.setCode(0 + item.getCode());
             cur.setName("T0-" + item.getName());
-            cur.setRunFunc(item.getRunFunc());
+            cur.setFilterFunc(item.getFilterFunc());
             return cur;
         }).toList();
 
@@ -250,7 +250,7 @@ public class StrategyEnum {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
             cur.setCode(1 + item.getCode());
             cur.setName("T1-" + item.getName());
-            cur.setRunFunc((StockDetail t0) -> item.getRunFunc().apply(t0.getT1()));
+            cur.setFilterFunc((StockDetail t0) -> item.getFilterFunc().apply(t0.getT1()));
             return cur;
         }).toList();
 
@@ -258,7 +258,7 @@ public class StrategyEnum {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
             cur.setCode("2" + item.getCode());
             cur.setName("T2-" + item.getName());
-            cur.setRunFunc((StockDetail t0) -> item.getRunFunc().apply(t0.getT2()));
+            cur.setFilterFunc((StockDetail t0) -> item.getFilterFunc().apply(t0.getT2()));
             return cur;
         }).toList();
 
@@ -266,7 +266,7 @@ public class StrategyEnum {
             StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
             cur.setCode("3" + item.getCode());
             cur.setName("T3-" + item.getName());
-            cur.setRunFunc((StockDetail t0) -> item.getRunFunc().apply(t0.getT3()));
+            cur.setFilterFunc((StockDetail t0) -> item.getFilterFunc().apply(t0.getT3()));
             return cur;
         }).toList();
 

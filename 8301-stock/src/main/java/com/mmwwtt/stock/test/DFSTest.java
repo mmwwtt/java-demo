@@ -28,6 +28,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
@@ -83,13 +84,39 @@ public class DFSTest {
 
     @Test
     @DisplayName("填充DFS后策略的其他字段数据， 并对策略的详情列表做交集，判断是否高度重合，并做处理")
-    public void dfsAfter() {
-        List<StrategyWin> list = strategyWinService.list(fildEnum.getWapper());
-        list.forEach(win -> {
-            List<Integer> detailIds = new ArrayList<>();
-            detailIds.forEach(detailId -> win.addToResult(idToDetailMap.get(detailId)));
-            win.fillOtherData();
+    public void dfsAfter() throws ExecutionException, InterruptedException {
+        List<StrategyWin> strategyWins = strategyWinService.list(fildEnum.getWapper());
+
+        Map<Long, List<StockDetail>> strategyIdToDetailIdsMap = new ConcurrentHashMap<>(strategyWins.size() * 2);
+
+        strategyWins.forEach(strategyWin -> {
+            strategyIdToDetailIdsMap.put(strategyWin.getStrategyWinId(), Collections.synchronizedList(new ArrayList<>(500)));
+            strategyWin.setStrategyCodeSet(Arrays.stream(strategyWin.getStrategyCode().split(" ")).collect(Collectors.toSet()));
+            strategyWin.getStrategyCodeSet().forEach(strategyCode ->
+                    strategyWin.getFilterFuncs().add(StrategyEnum.codeToEnumMap.get(strategyCode).getFilterFunc()));
         });
+
+
+        //统计每个策略符合的detail  对各种属性进行填充
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        strategyWins.forEach(strategyWin -> {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                List<StockDetail> details = strategyIdToDetailIdsMap.get(strategyWin.getStrategyWinId());
+                codeToDetailMap.values().forEach(detailList -> detailList.forEach(detail -> {
+                    boolean isTrue = strategyWin.getFilterFuncs().stream().allMatch(func -> func.apply(detail));
+                    if (isTrue) {
+                        details.add(detail);
+                    }
+                }));
+                strategyWin.setDetails(details);
+                strategyWin.fillOtherData();
+            }, cpuThreadPool);
+            futures.add(future);
+        });
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+
+        //todo 对win进行重复度判断  如果detailIds重复度达到95%则抛弃胜率低的那条
     }
 
 
@@ -304,7 +331,7 @@ public class DFSTest {
                                 || detail.getDealDate().compareTo(calcEndDate) > 0) {
                             continue;
                         }
-                        if (strategy.getRunFunc().apply(detail)) {
+                        if (strategy.getFilterFunc().apply(detail)) {
                             dateList.add(detail.getStockDetailId());
                         }
                     }

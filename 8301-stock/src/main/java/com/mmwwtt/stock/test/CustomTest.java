@@ -108,7 +108,7 @@ public class CustomTest {
                                     || Objects.isNull(stockDetail.getNext1())
                                     || Objects.isNull(stockDetail.getT10())
                                     || Objects.isNull(stockDetail.getT10().getSixtyDayLine())
-                                    || !strategy.getRunFunc().apply(stockDetail)) {
+                                    || !strategy.getFilterFunc().apply(stockDetail)) {
                                 continue;
                             }
                             strategyToCalcMap.computeIfAbsent(strategy, v -> Collections.synchronizedList(new ArrayList<>())).add(stockDetail);
@@ -137,7 +137,7 @@ public class CustomTest {
         log.info("开始查找符合条件的数据");
         List<StrategyEnum> list = Arrays.stream(strategyStr.split(" ")).map(StrategyEnum.codeToEnumMap::get).toList();
         StrategyEnum strategy = new StrategyEnum("testCode", "test_" + getTimeStr(),
-                (StockDetail t0) -> list.stream().allMatch(item -> item.getRunFunc().apply(t0)));
+                (StockDetail t0) -> list.stream().allMatch(item -> item.getFilterFunc().apply(t0)));
         Map<StrategyEnum, List<StockDetail>> resMap = calcByStrategy(List.of(strategy));
         log.info("开始绘制");
         resMap.forEach((strategyEnum, resList) -> {

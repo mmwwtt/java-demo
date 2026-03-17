@@ -47,7 +47,7 @@ public class CalcCommonService {
         Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
         for (StrategyWin strategyWin : strategyWinList) {
             List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
-                    .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
+                    .map(item -> codeToEnumMap.get(item).getFilterFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
@@ -120,7 +120,7 @@ public class CalcCommonService {
 
         for (StrategyWin strategyWin : strategyWinList) {
             List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
-                    .map(item -> codeToEnumMap.get(item).getRunFunc()).toList();
+                    .map(item -> codeToEnumMap.get(item).getFilterFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {

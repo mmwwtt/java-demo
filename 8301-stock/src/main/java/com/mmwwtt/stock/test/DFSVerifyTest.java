@@ -78,7 +78,7 @@ public class DFSVerifyTest {
                     List<StrategyEnum> strategyEnums = strategyWin.getStrategyCodeSet().stream()
                             .map(StrategyEnum.codeToEnumMap::get).toList();
                     boolean res = strategyEnums.stream()
-                            .allMatch(strategyEnum -> strategyEnum.getRunFunc().apply(detail));
+                            .allMatch(strategyEnum -> strategyEnum.getFilterFunc().apply(detail));
                     if (res) {
                         dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(detail);
                         break;
