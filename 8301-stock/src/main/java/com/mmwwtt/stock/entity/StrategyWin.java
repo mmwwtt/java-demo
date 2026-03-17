@@ -6,11 +6,12 @@ import com.mmwwtt.stock.test.DFSTest;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static com.mmwwtt.stock.common.CommonUtils.getAverage;
-import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
+import static com.mmwwtt.stock.common.CommonUtils.*;
 
 /**
  * 策略胜率
@@ -195,7 +196,7 @@ public class StrategyWin {
      * 只计算 字段的中位涨幅 和平均涨幅
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
-    public void fillData1(DFSTest.FilterFildEnum filterFildEnum) {
+    public void fillFilterField(DFSTest.FilterFildEnum filterFildEnum) {
         boolean isMiddleFunc = filterFildEnum.getCode().endsWith("MIDDLE");
         Map<String, List<Double>> dateToValuesMap = new HashMap<>(500);
         for (StockDetail stockDetail : list) {
@@ -211,122 +212,125 @@ public class StrategyWin {
             dayValues.add(isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues));
         }
         //再计算总体的平均数/中位数
-        double resValue = isMiddleFunc? getMiddle(dayValues) : getAverage(dayValues);
-        filterFildEnum.getWinSetter().accept(this,resValue);
+        double resValue = isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues);
+        filterFildEnum.getWinSetter().accept(this, resValue);
         dateCnt = dateToValuesMap.size();
     }
 
     /**
      * 填充数据
      */
-    public void fillData2() {
-
+    public void fillLevelAndName() {
         //填充策略名称和层级
         this.level = strategyCodeSet.size();
         StringBuilder unionName = new StringBuilder(32 * strategyCodeSet.size());
         StringBuilder unionCode = new StringBuilder(32 * strategyCodeSet.size());
         for (String code : strategyCodeSet) {
-            if(!unionName.isEmpty()) {
+            if (!unionName.isEmpty()) {
                 unionName.append(' ');
             }
             unionName.append(StrategyEnum.codeToEnumMap.get(code).getName());
 
-            if(!unionCode.isEmpty()) {
+            if (!unionCode.isEmpty()) {
                 unionCode.append(' ');
             }
             unionCode.append(code);
         }
         this.strategyName = unionName.toString();
         this.strategyCode = unionCode.toString();
+    }
 
-//
-//        //填充其他相关数据
-//        Map<String, List<StockDetail>> dateToDetailListMap = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
-//
-//        dateToDetailListMap.forEach((date, details) -> {
-//            //统计每日中符合策略的stock的涨幅
-//            List<Double> curRise1s = new ArrayList<>(INIT_DATE_SIZE);
-//            List<Double> curRise2s = new ArrayList<>(INIT_DATE_SIZE);
-//            List<Double> curRise3s = new ArrayList<>(INIT_DATE_SIZE);
-//            List<Double> curRise4s = new ArrayList<>(INIT_DATE_SIZE);
-//            List<Double> curRise5s = new ArrayList<>(INIT_DATE_SIZE);
-//            List<Double> curRise5Maxs = new ArrayList<>(INIT_DATE_SIZE);
-//            List<Double> curRise10s = new ArrayList<>(INIT_DATE_SIZE);
-//            List<Double> curRise10Maxs = new ArrayList<>(INIT_DATE_SIZE);
-//            for (StockDetail detail : details) {
-//                Double endPrice = detail.getEndPrice();
-//                if (Objects.nonNull(detail.getNext1())) {
-//                    curRise1s.add(getRise(detail.getNext1().getEndPrice(), endPrice));
-//                }
-//                if (Objects.nonNull(detail.getNext2())) {
-//                    curRise2s.add(getRise(detail.getNext2().getEndPrice(), endPrice));
-//                }
-//                if (Objects.nonNull(detail.getNext3())) {
-//                    curRise3s.add(getRise(detail.getNext3().getEndPrice(), endPrice));
-//                }
-//                if (Objects.nonNull(detail.getNext4())) {
-//                    curRise4s.add(getRise(detail.getNext4().getEndPrice(), endPrice));
-//                }
-//                if (Objects.nonNull(detail.getNext5())) {
-//                    curRise5s.add(getRise(detail.getNext5().getEndPrice(), endPrice));
-//                    curRise5Maxs.add(detail.getNext5MaxPricePert());
-//                }
-//                if (Objects.nonNull(detail.getNext10())) {
-//                    curRise10s.add(getRise(detail.getNext10().getEndPrice(), endPrice));
-//                    curRise10Maxs.add(detail.getNext10MaxPricePert());
-//                }
-//            }
-//
-//            //算出每日中符合策略的stock的   平均  和中位数
-//            if (CollectionUtils.isNotEmpty(curRise1s)) {
-//                rise1Avgs.add(getAverage(curRise1s));
-//                rise1Middles.add(getMiddle(curRise1s));
-//            }
-//            if (CollectionUtils.isNotEmpty(curRise2s)) {
-//                rise2Avgs.add(getAverage(curRise2s));
-//                rise2Middles.add(getMiddle(curRise2s));
-//            }
-//            if (CollectionUtils.isNotEmpty(curRise3s)) {
-//                rise3Avgs.add(getAverage(curRise3s));
-//                rise3Middles.add(getMiddle(curRise3s));
-//            }
-//            if (CollectionUtils.isNotEmpty(curRise4s)) {
-//                rise4Avgs.add(getAverage(curRise4s));
-//                rise4Middles.add(getMiddle(curRise4s));
-//            }
-//            if (CollectionUtils.isNotEmpty(curRise5s)) {
-//                rise5Avgs.add(getAverage(curRise5s));
-//                rise5Middles.add(getMiddle(curRise5s));
-//            }
-//            if (CollectionUtils.isNotEmpty(curRise5Maxs)) {
-//                rise5MaxAvgs.add(getAverage(curRise5Maxs));
-//                rise5MaxMiddles.add(getMiddle(curRise5Maxs));
-//            }
-//            if (CollectionUtils.isNotEmpty(curRise10s)) {
-//                rise10Avgs.add(getAverage(curRise10s));
-//                rise10Middles.add(getMiddle(curRise10s));
-//            }
-//            if (CollectionUtils.isNotEmpty(curRise10Maxs)) {
-//                rise10MaxAvgs.add(getAverage(curRise10Maxs));
-//                rise10MaxMiddles.add(getMiddle(curRise10Maxs));
-//            }
-//
-//        });
-//        //算出策略的存在符合数据的日期的   平均  和中位数
-//        rise1Avg = getAverage(rise1Avgs);
-//        rise1Middle = getAverage(rise1Middles);
-//        rise2Avg = getAverage(rise2Avgs);
-//        rise2Middle = getAverage(rise2Middles);
-//        rise3Avg = getAverage(rise3Avgs);
-//        rise3Middle = getAverage(rise3Middles);
-//        rise4Avg = getAverage(rise4Avgs);
-//        rise4Middle = getAverage(rise4Middles);
-//        rise5Avg = getAverage(rise5Avgs);
-//        rise5Middle = getAverage(rise5Middles);
-//        rise10Avg = getAverage(rise10Avgs);
-//        rise10Middle = getAverage(rise10Middles);
-//        rise10MaxAvg = getAverage(rise10MaxAvgs);
-//        rise10MaxMiddle = getAverage(rise10MaxMiddles);
+    /**
+     * DFS完成后进行全部的数据填充
+     */
+    public void fillOtherData() {
+        //填充其他相关数据
+        Map<String, List<StockDetail>> dateToDetailListMap = list.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
+
+        dateToDetailListMap.forEach((date, details) -> {
+            //统计每日中符合策略的stock的涨幅
+            List<Double> curRise1s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise2s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise3s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise4s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise5s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise5Maxs = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise10s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise10Maxs = new ArrayList<>(INIT_DATE_SIZE);
+            for (StockDetail detail : details) {
+                Double endPrice = detail.getEndPrice();
+                if (Objects.nonNull(detail.getNext1())) {
+                    curRise1s.add(getRise(detail.getNext1().getEndPrice(), endPrice));
+                }
+                if (Objects.nonNull(detail.getNext2())) {
+                    curRise2s.add(getRise(detail.getNext2().getEndPrice(), endPrice));
+                }
+                if (Objects.nonNull(detail.getNext3())) {
+                    curRise3s.add(getRise(detail.getNext3().getEndPrice(), endPrice));
+                }
+                if (Objects.nonNull(detail.getNext4())) {
+                    curRise4s.add(getRise(detail.getNext4().getEndPrice(), endPrice));
+                }
+                if (Objects.nonNull(detail.getNext5())) {
+                    curRise5s.add(getRise(detail.getNext5().getEndPrice(), endPrice));
+                    curRise5Maxs.add(detail.getNext5MaxPricePert());
+                }
+                if (Objects.nonNull(detail.getNext10())) {
+                    curRise10s.add(getRise(detail.getNext10().getEndPrice(), endPrice));
+                    curRise10Maxs.add(detail.getNext10MaxPricePert());
+                }
+            }
+
+            //算出每日中符合策略的stock的   平均  和中位数
+            if (CollectionUtils.isNotEmpty(curRise1s)) {
+                rise1Avgs.add(getAverage(curRise1s));
+                rise1Middles.add(getMiddle(curRise1s));
+            }
+            if (CollectionUtils.isNotEmpty(curRise2s)) {
+                rise2Avgs.add(getAverage(curRise2s));
+                rise2Middles.add(getMiddle(curRise2s));
+            }
+            if (CollectionUtils.isNotEmpty(curRise3s)) {
+                rise3Avgs.add(getAverage(curRise3s));
+                rise3Middles.add(getMiddle(curRise3s));
+            }
+            if (CollectionUtils.isNotEmpty(curRise4s)) {
+                rise4Avgs.add(getAverage(curRise4s));
+                rise4Middles.add(getMiddle(curRise4s));
+            }
+            if (CollectionUtils.isNotEmpty(curRise5s)) {
+                rise5Avgs.add(getAverage(curRise5s));
+                rise5Middles.add(getMiddle(curRise5s));
+            }
+            if (CollectionUtils.isNotEmpty(curRise5Maxs)) {
+                rise5MaxAvgs.add(getAverage(curRise5Maxs));
+                rise5MaxMiddles.add(getMiddle(curRise5Maxs));
+            }
+            if (CollectionUtils.isNotEmpty(curRise10s)) {
+                rise10Avgs.add(getAverage(curRise10s));
+                rise10Middles.add(getMiddle(curRise10s));
+            }
+            if (CollectionUtils.isNotEmpty(curRise10Maxs)) {
+                rise10MaxAvgs.add(getAverage(curRise10Maxs));
+                rise10MaxMiddles.add(getMiddle(curRise10Maxs));
+            }
+
+        });
+        //算出策略的存在符合数据的日期的   平均  和中位数
+        rise1Avg = getAverage(rise1Avgs);
+        rise1Middle = getAverage(rise1Middles);
+        rise2Avg = getAverage(rise2Avgs);
+        rise2Middle = getAverage(rise2Middles);
+        rise3Avg = getAverage(rise3Avgs);
+        rise3Middle = getAverage(rise3Middles);
+        rise4Avg = getAverage(rise4Avgs);
+        rise4Middle = getAverage(rise4Middles);
+        rise5Avg = getAverage(rise5Avgs);
+        rise5Middle = getAverage(rise5Middles);
+        rise10Avg = getAverage(rise10Avgs);
+        rise10Middle = getAverage(rise10Middles);
+        rise10MaxAvg = getAverage(rise10MaxAvgs);
+        rise10MaxMiddle = getAverage(rise10MaxMiddles);
     }
 
     public StrategyWin(String strategyCode) {

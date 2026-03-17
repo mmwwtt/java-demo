@@ -36,6 +36,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 //todo 对结果进行再处理 找出符合结果的详情列表， 判断重复度>80%的如何处理
 //todo 策略枚举不采用区间隔离，而是存在重叠当相同类型的枚举则跳过筛选
 //todo 优化验证，当同一个数据被多个策略选中时，增加该数据的权重 再计算涨幅
+//todo next5MaxPertRate 感觉这个字段不是很对
 @Slf4j
 @SpringBootTest
 public class DFSTest {
@@ -65,7 +66,7 @@ public class DFSTest {
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(4000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     private static int LEVEL_LIMIT;
-    private static FilterFildEnum fildEnum;
+    public static FilterFildEnum fildEnum;
 
     @Test
     @DisplayName("生成level1策略结果")
@@ -74,22 +75,25 @@ public class DFSTest {
     }
 
     @Test
-    @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
-    public void DFS1() throws InterruptedException {
-        fildEnum = FilterFildEnum.RISE5_MAX_AVG;
-        DfsMain(StrategyWin::getRise5MaxAvg, 4);
+    @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
+    public void dfsFor5MaxMid() throws InterruptedException {
+        fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
+        DfsMain(7);
     }
 
     @Test
-    @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
-    public void DFS2() throws InterruptedException {
-        fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
-        DfsMain(StrategyWin::getRise5MaxMiddle, 7);
+    @DisplayName("填充DFS后策略的其他字段数据， 并对策略的详情列表做交集，判断是否高度重合，并做处理")
+    public void dfsAfter() {
+        List<StrategyWin> list = strategyWinService.list(fildEnum.getWapper());
+        list.forEach(win -> {
+            List<Integer> detailIds = new ArrayList<>();
+            detailIds.forEach(detailId -> win.addToResult(idToDetailMap.get(detailId)));
+            win.fillOtherData();
+        });
     }
 
 
-    public void DfsMain(Function<StrategyWin, Double> getter,
-                        int levelLimit) throws InterruptedException {
+    public void DfsMain(int levelLimit) throws InterruptedException {
         dfsInit();
         LEVEL_LIMIT = levelLimit;
         for (int i = 0; i < l1WinList.size(); i++) {
@@ -146,7 +150,7 @@ public class DFSTest {
             if (fildEnum.getFunc().apply(win)) {
                 continue;
             }
-            win.fillData2();
+            win.fillLevelAndName();
             addToWinBatch(win);
             if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = i;
@@ -190,6 +194,7 @@ public class DFSTest {
                 StockDetail::getNext5MaxPricePert,
                 StrategyWin::setRise5MaxMiddle,
                 StrategyWin::getRise5MaxMiddle,
+                new QueryWrapper<StrategyWin>().apply("rise5_max_middle>0.14  and rise5_max_middle<0.15"),
                 (StrategyWin win) -> {
                     if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), 0.025)) {
                         return true;
@@ -207,6 +212,7 @@ public class DFSTest {
                 StockDetail::getNext5MaxPricePert,
                 StrategyWin::setRise5MaxAvg,
                 StrategyWin::getRise5MaxMiddle,
+                new QueryWrapper<StrategyWin>().apply("rise5_max_avg>0.14  and rise5_max_avg<0.15"),
                 (StrategyWin win) -> {
                     if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxAvg(), 0.05)) {
                         return true;
@@ -224,9 +230,22 @@ public class DFSTest {
         ;
         private final String code;
         private final String desc;
+
+        /**
+         * getter setter方法
+         */
         private final Function<StockDetail, Double> detailGetter;
         private final BiConsumer<StrategyWin, Double> winSetter;
         private final Function<StrategyWin, Double> winGetter;
+
+        /**
+         * 需要填充策略数据的查询sql
+         */
+        private final QueryWrapper<StrategyWin> wapper;
+
+        /**
+         * 策略过滤方法
+         */
         private final Function<StrategyWin, Boolean> func;
     }
 
@@ -258,7 +277,7 @@ public class DFSTest {
         for (int detail : details) {
             win.addToResult(idToDetailMap.get(detail));
         }
-        win.fillData1(filterFildEnum);
+        win.fillFilterField(filterFildEnum);
         return win;
     }
 
@@ -312,8 +331,8 @@ public class DFSTest {
                 result.getStockDetailIdList().stream()
                         .map(item -> (Integer) item)
                         .forEach(item -> strategyWin.addToResult(idToDetailMap.get(item)));
-                strategyWin.fillData1(fildEnum);
-                strategyWin.fillData2();
+                strategyWin.fillFilterField(fildEnum);
+                strategyWin.fillLevelAndName();
                 strategyWinService.save(strategyWin);
             }, ioThreadPool);
             futures.add(future);
