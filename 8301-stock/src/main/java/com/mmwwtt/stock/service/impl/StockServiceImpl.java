@@ -2,7 +2,6 @@ package com.mmwwtt.stock.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
 import com.mmwwtt.stock.dao.StockDAO;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.service.StockService;
@@ -26,10 +25,5 @@ public class StockServiceImpl extends ServiceImpl<StockDAO, Stock>  implements S
                         && !stock.getName().contains("ST"))
                 .toList();
         return stockList;
-    }
-
-    @Override
-    public List<List<Stock>> getStockPart() {
-        return Lists.partition(getAllStock(), 50);
     }
 }

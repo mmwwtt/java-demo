@@ -80,12 +80,6 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
         return details;
     }
 
-
-    @Override
-    public Map<String, List<Detail>> getCodeToDetailMap() throws ExecutionException, InterruptedException {
-        return getCodeToDetailMap(null);
-    }
-
     @Override
     public Map<String, List<Detail>> getCodeToDetailMap(Integer limit) throws ExecutionException, InterruptedException {
         List<Stock> stockList = stockService.getAllStock();

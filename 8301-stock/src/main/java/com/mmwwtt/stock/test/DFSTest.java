@@ -8,12 +8,10 @@ import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import com.mmwwtt.stock.enums.FilterFildEnum;
-import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.service.impl.CommonService;
-import com.mmwwtt.stock.service.impl.StrategyL1ServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +43,7 @@ public class DFSTest {
     private StrategyTmpServiceImpl strategyTmpService;
 
     @Autowired
-    private StrategyL1ServiceImpl strategyL1Service;
+    private StrategyServiceImpl strategyService;
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
@@ -60,12 +58,6 @@ public class DFSTest {
     private static int LEVEL_LIMIT;
     public static FilterFildEnum fildEnum;
     public static List<StrategyL1> strategyL1s;
-
-    @Test
-    @DisplayName("生成level1策略结果")
-    public void getL1Strategy() throws InterruptedException, ExecutionException {
-        buildStrateResultLevel1();
-    }
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
@@ -164,16 +156,17 @@ public class DFSTest {
         strategyTmpService.remove(new QueryWrapper<>());
         strategyL1s = CommonService.strategyL1s.stream()
                 .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
-                .filter(item -> item.getDesc().startsWith("T0")
-                        || item.getDesc().startsWith("T1")
-                        || item.getDesc().startsWith("T2")
-                        || item.getDesc().startsWith("T3")
+                .filter(item -> item.getName().startsWith("T0")
+                        || item.getName().startsWith("T1")
+                        || item.getName().startsWith("T2")
+                        || item.getName().startsWith("T3")
                 )
                 .sorted(Comparator.comparing(StrategyL1::getRise5MaxMiddle).reversed()).toList();
         log.info("dfs 初始化结束");
     }
 
     private void dfsAfterDetail() throws ExecutionException, InterruptedException {
+        strategyService.remove(new QueryWrapper<>());
         List<StrategyTmp> strategyTmps = strategyTmpService.getBySql("pert > 0.10");
 
         Map<Long, List<Detail>> strategyIdToDetailIdsMap = new ConcurrentHashMap<>(strategyTmps.size() * 2);
@@ -226,44 +219,4 @@ public class DFSTest {
         strategyTmpService.saveBatch(toSave);
     }
 
-
-    public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        QueryWrapper<StrategyL1> winWrapper = new QueryWrapper<>();
-        strategyL1Service.remove(winWrapper);
-
-        QueryWrapper<StrategyTmp> resultWrapper = new QueryWrapper<>();
-        strategyTmpService.remove(resultWrapper);
-
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (StrategyEnum strategy : strategyL1Enums) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                List<Integer> resDetailIds = new ArrayList<>();
-                for (String stockCode : stockCodeList) {
-                    List<Detail> details = codeToDetailMap.get(stockCode);
-                    for (Detail detail : details) {
-                        if (Objects.isNull(detail.getNext1())
-                                || Objects.isNull(detail.getT10())
-                                || Objects.isNull(detail.getT10().getSixtyDayLine())
-                                || moreThan(detail.getPricePert(), 0.097)
-                                || detail.getDealDate().compareTo("202505") < 0
-                                || detail.getDealDate().compareTo(calcEndDate) > 0) {
-                            continue;
-                        }
-                        if (strategy.getFilterFunc().apply(detail)) {
-                            resDetailIds.add(detail.getDetailId());
-                        }
-                    }
-                }
-                if (CollectionUtils.isNotEmpty(resDetailIds) && resDetailIds.size() > 10) {
-                    StrategyL1 strategyL1 = new StrategyL1(strategy.getCode(), resDetailIds);
-                    strategyL1.fillOtherData();
-                    strategyL1Service.save(strategyL1);
-                }
-            }, cpuThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("策略层级 1 计算 - 结束");
-    }
 }

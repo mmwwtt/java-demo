@@ -9,9 +9,4 @@ public interface StockService {
      * 获得所有股票列表
      */
     List<Stock> getAllStock();
-
-    /**
-     * 获得所有股票列表
-     */
-    List<List<Stock>> getStockPart();
 }

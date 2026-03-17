@@ -34,7 +34,7 @@ CREATE TABLE stock_t
 DROP TABLE IF EXISTS detail_t;
 CREATE TABLE detail_t
 (
-    detail_Id          INT(8)         NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    detail_Id                INT(8)         NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     stock_code               VARCHAR(16)    NOT NULL COMMENT '股票代码',
     deal_date                VARCHAR(16)    NOT NULL COMMENT '交易日期',
     start_price              decimal(10, 4) NOT NULL COMMENT '开盘价',
@@ -131,10 +131,10 @@ CREATE TABLE detail_t
 DROP TABLE IF EXISTS strategy_l1_t;
 CREATE TABLE strategy_l1_t
 (
-    strategy_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    strategy_code        VARCHAR(200) COMMENT '策略编码',
-    `desc`        VARCHAR(200) COMMENT '策略描述',
-    detail_ids JSON COMMENT '符合条件的详情id列表',
+    strategy_id       INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_code     VARCHAR(200) COMMENT '策略编码',
+    name            VARCHAR(200) COMMENT '策略描述',
+    detail_ids        JSON COMMENT '符合条件的详情id列表',
     rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',
     rise2_avg         DECIMAL(8, 4) COMMENT '2日平均涨幅',
     rise3_avg         DECIMAL(8, 4) COMMENT '3日平均涨幅',
@@ -158,19 +158,19 @@ DROP TABLE IF EXISTS strategy_tmp_t;
 CREATE TABLE strategy_tmp_t
 (
     strategy_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    strategy_code     VARCHAR(200) COMMENT '策略编码',
-    date_cnt          INT(8) COMMENT '有符合数据的日期天数',
-    pert                DECIMAL(8, 4) COMMENT '用于过滤判断的临时属性',
+    strategy_code VARCHAR(200) COMMENT '策略编码',
+    date_cnt      INT(8) COMMENT '有符合数据的日期天数',
+    pert          DECIMAL(8, 4) COMMENT '用于过滤判断的临时属性'
 ) COMMENT '策略中间表';
 
 
 DROP TABLE IF EXISTS strategy_t;
 CREATE TABLE strategy_t
 (
-    strategy_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    strategy_code        VARCHAR(200) COMMENT '策略编码',
-    `desc`        VARCHAR(200) COMMENT '策略描述',
-    detail_ids JSON COMMENT '符合条件的详情id列表',
+    strategy_id       INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_code     VARCHAR(200) COMMENT '策略编码',
+    name            VARCHAR(200) COMMENT '策略描述',
+    detail_ids        JSON COMMENT '符合条件的详情id列表',
     date_cnt          INT(8) COMMENT '有符合数据的日期天数',
     rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',
     rise2_avg         DECIMAL(8, 4) COMMENT '2日平均涨幅',

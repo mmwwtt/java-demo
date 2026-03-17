@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import com.mmwwtt.stock.entity.Detail;
-import com.mmwwtt.stock.enums.StrategyEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,7 +41,7 @@ public class BaseStrategy {
     /**
      * 策略描述
      */
-    protected String desc;
+    protected String name;
 
 
     /**
@@ -50,12 +49,6 @@ public class BaseStrategy {
      */
     @TableField(typeHandler = FastjsonTypeHandler.class)
     protected JSONArray detailIds;
-
-
-    /**
-     * 有符合数据的日期天数
-     */
-    protected Integer dateCnt;
 
     /**
      * 1日平均涨幅
@@ -187,26 +180,18 @@ public class BaseStrategy {
     /**
      * 策略编码
      */
+    @TableField(exist = false)
     protected Set<String> strategyCodeSet;
 
     public void fillCodeSet(){
         strategyCodeSet = Arrays.stream(strategyCode.split(" ")).collect(Collectors.toSet());
     }
 
-
-    public void addToResult(Detail detail) {
-        if (Objects.isNull(detail)) {
-            log.info("不存在的详情");
-            return;
-        }
-        details.add(detail);
-    }
-
     /**
      * DFS完成后进行全部的数据填充
      */
     public void fillOtherData() {
-        desc = Arrays.stream(strategyCode.split(" "))
+        name = Arrays.stream(strategyCode.split(" "))
                 .map(strategyCode -> l1CodeToEnumMap.get(strategyCode).getDesc())
                 .collect(Collectors.joining(" "));
 

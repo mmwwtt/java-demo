@@ -87,7 +87,7 @@ public class CalcCommonService {
             for (Strategy strategy : resStrategies) {
                 List<String> resStockList = strategyToStockMap.get(strategy);
                 String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高平均涨幅：%4f \n5日最高中位数涨幅：%4f \n",
-                        strategy.getDateCnt(),strategy.getDesc(),
+                        strategy.getDateCnt(),strategy.getName(),
                         strategy.getRise5MaxAvg(),strategy.getRise5MaxMiddle());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {

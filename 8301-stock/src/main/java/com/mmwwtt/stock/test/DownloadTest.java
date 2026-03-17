@@ -9,8 +9,8 @@ import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
-import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
+import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
 import com.mmwwtt.stock.service.impl.*;
 import com.mmwwtt.stock.vo.DetailOnTimeVO;
@@ -18,6 +18,7 @@ import com.mmwwtt.stock.vo.DetailVO;
 import com.mmwwtt.stock.vo.StockVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,11 +31,15 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 import static com.mmwwtt.stock.common.Constants.*;
+import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 /**
  * 必盈url   <a href="https://www.biyingapi.com/">...</a>
@@ -51,7 +56,7 @@ public class DownloadTest {
     private DetailServiceImpl detailService;
 
     @Resource
-    private StrategyL1ServiceImpl strategyResultService;
+    private StrategyServiceImpl strategyService;
 
     @Resource
     private StrategyTmpServiceImpl strategyTmpService;
@@ -61,6 +66,8 @@ public class DownloadTest {
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
+
+    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     private final RestTemplate restTemplate = createRestTemplate();
 
@@ -89,10 +96,12 @@ public class DownloadTest {
 
 
     @Test
-    @DisplayName("获取股票列表")
-    public void buildStockList() {
+    @DisplayName("从0开始构建数据")
+    public void buildDetail() throws ExecutionException, InterruptedException {
         try {
-            dataDownLoad();
+            downLoadInit();
+            downStock();
+            downDetail();
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -100,16 +109,16 @@ public class DownloadTest {
     }
 
     @Test
-    @DisplayName("从0开始构建数据")
-    public void buildDetail() throws ExecutionException, InterruptedException {
+    @DisplayName("单独重新生成L1曾策略")
+    public void buildL1() throws ExecutionException, InterruptedException {
         try {
-            dataDownLoadInit();
-            dataDetailDownLoad();
+            buildStrategyL1();
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
+
 
     @Test
     @DisplayName("获得数据")
@@ -136,29 +145,20 @@ public class DownloadTest {
 
     @Test
     @DisplayName("下载前的初始化  清空stock表和详情表")
-    public void dataDownLoadInit() {
+    public void downLoadInit() {
         log.info("开始清空表 start\n\n\n");
-
-        QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
-        detailService.remove(detailWrapper);
-
-        QueryWrapper<StrategyL1> l1Wrapper = new QueryWrapper<>();
-        strategyL1Service.remove(l1Wrapper);
-
-        QueryWrapper<StrategyTmp> tmpWrapper = new QueryWrapper<>();
-        strategyTmpService.remove(tmpWrapper);
-
-        QueryWrapper<StrategyL1> resultWrapper = new QueryWrapper<>();
-        strategyResultService.remove(resultWrapper);
+        stockService.remove(new QueryWrapper<>());
+        detailService.remove(new QueryWrapper<>());
+        strategyL1Service.remove(new QueryWrapper<>());
+        strategyTmpService.remove(new QueryWrapper<>());
+        strategyService.remove(new QueryWrapper<>());
         log.info("开始清空表 end\n\n\n");
     }
 
 
     @Test
     @DisplayName("调接口获取数据")
-    public void dataDownLoad() {
-        QueryWrapper<Stock> stockWrapper = new QueryWrapper<>();
-        stockService.remove(stockWrapper);
+    public void downStock() {
 
         log.info("下载数据");
         RestTemplate restTemplate = createRestTemplate();
@@ -178,7 +178,7 @@ public class DownloadTest {
 
     @Test
     @DisplayName("调接口获取每日详细数据-全量")
-    public void dataDetailDownLoad() throws InterruptedException, ExecutionException {
+    public void downDetail() throws InterruptedException, ExecutionException {
         log.info("下载股票详细数据");
         List<Stock> stockList = stockService.getAllStock();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -249,5 +249,42 @@ public class DownloadTest {
             }
         }
         return null;
+    }
+
+
+    public void buildStrategyL1() throws ExecutionException, InterruptedException {
+        strategyL1Service.remove(new QueryWrapper<>());
+
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (StrategyEnum strategy : strategyL1Enums) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                List<Integer> resDetailIds = new ArrayList<>();
+                for (String stockCode : stockCodeList) {
+                    List<Detail> details = codeToDetailMap.get(stockCode);
+                    for (Detail detail : details) {
+                        if (Objects.isNull(detail.getNext1())
+                                || Objects.isNull(detail.getT10())
+                                || Objects.isNull(detail.getT10().getSixtyDayLine())
+                                || moreThan(detail.getPricePert(), 0.097)
+                                || detail.getDealDate().compareTo("202505") < 0
+                                || detail.getDealDate().compareTo(calcEndDate) > 0) {
+                            continue;
+                        }
+                        if (strategy.getFilterFunc().apply(detail)) {
+                            resDetailIds.add(detail.getDetailId());
+                        }
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(resDetailIds) && resDetailIds.size() > 10) {
+                    StrategyL1 strategyL1 = new StrategyL1(strategy.getCode(), resDetailIds);
+                    strategyL1.fillOtherData();
+                    strategyL1Service.save(strategyL1);
+                }
+            }, cpuThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        log.info("策略层级 1 计算 - 结束");
     }
 }
