@@ -1,8 +1,10 @@
 package com.mmwwtt.stock.convert;
 
+import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StrategyEnum;
+import com.mmwwtt.stock.entity.strategy.StrategyL1;
+import com.mmwwtt.stock.entity.strategy.StrategyTmp;
+import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
 import com.mmwwtt.stock.vo.StockDetailVO;
 import com.mmwwtt.stock.vo.StockVO;
@@ -24,7 +26,7 @@ public interface VoConvert {
 
 
 
-    List<StockDetail> convertToStockDetail(List<StockDetailVO> stockDetailVO);
+    List<Detail> convertToStockDetail(List<StockDetailVO> stockDetailVO);
 
     @Mappings({
             @Mapping(target = "code", source = "stock.dm"),
@@ -47,7 +49,7 @@ public interface VoConvert {
             @Mapping(target = "dealPrice", source = "stockDetailVO.a"),
             @Mapping(target = "lastPrice", source = "stockDetailVO.pc")
     })
-    StockDetail convertToStockDetail(StockDetailVO stockDetailVO);
+    Detail convertToStockDetail(StockDetailVO stockDetailVO);
 
 
     @Mappings({
@@ -61,16 +63,18 @@ public interface VoConvert {
             @Mapping(target = "dealPrice", source = "stockDetailVO.cje"),
             @Mapping(target = "lastPrice", source = "stockDetailVO.yc")
     })
-    StockDetail convertToStockDetail(StockDetailOnTimeVO stockDetailVO);
+    Detail convertToStockDetail(StockDetailOnTimeVO stockDetailVO);
 
     @AfterMapping
-    default void convertBigDecimal(@MappingTarget StockDetail stockDetail) {
-        stockDetail.setPricePert(divide(subtract(stockDetail.getEndPrice(), stockDetail.getLastPrice()), stockDetail.getLastPrice()));
-        stockDetail.setDealDate(stockDetail.getDealDate().replaceAll("-", ""));
+    default void convertBigDecimal(@MappingTarget Detail detail) {
+        detail.setPricePert(divide(subtract(detail.getEndPrice(), detail.getLastPrice()), detail.getLastPrice()));
+        detail.setDealDate(detail.getDealDate().replaceAll("-", ""));
     }
 
     Map<String, Set<Integer>> convertToMap(Map<String, Set<Integer>> map);
     Set<Integer> convertToSet(Set<Integer> set);
 
     StrategyEnum convertTo(StrategyEnum strategyEnum);
+
+    StrategyTmp convertTo(StrategyL1 strategyL1);
 }

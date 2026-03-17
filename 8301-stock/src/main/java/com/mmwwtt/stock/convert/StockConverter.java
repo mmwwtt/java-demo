@@ -1,6 +1,6 @@
 package com.mmwwtt.stock.convert;
 
-import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.Detail;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -25,5 +25,5 @@ public interface StockConverter {
             @Mapping(target = "next5", ignore = true),
             @Mapping(target = "next10", ignore = true)
     })
-    StockDetail convertToStockDetail(StockDetail stockDetail);
+    Detail convertToStockDetail(Detail detail);
 }

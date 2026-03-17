@@ -1,8 +1,8 @@
 package com.mmwwtt.stock.service.impl;
 
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StrategyEnum;
+import com.mmwwtt.stock.entity.Detail;
+import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.entity.StrategyWin;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.stockCodeToNameMap;
 public class CalcCommonService {
 
     @Resource
-    private StockDetailServiceImpl stockDetailService;
+    private DetailServiceImpl stockDetailService;
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
@@ -41,31 +41,31 @@ public class CalcCommonService {
     public void predict(String curDate, List<StrategyWin> strategyWinList, boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
         Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
         Map<StrategyWin, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
-        Map<String, StockDetail> codeToDetailMap = stockDetailService.getCodeToCurDetailMap(curDate);
+        Map<String, Detail> codeToDetailMap = stockDetailService.getCodeToCurDetailMap(curDate);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
         for (StrategyWin strategyWin : strategyWinList) {
-            List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
+            List<Function<Detail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
                     .map(item -> codeToEnumMap.get(item).getFilterFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
-                        StockDetail stockDetail = codeToDetailMap.get(stockCode);
+                        Detail detail = codeToDetailMap.get(stockCode);
                         if (stockCodeSet.contains(stockCode)
-                                || Objects.isNull(stockDetail) || Objects.isNull(stockDetail.getT5())
-                                || Objects.isNull(stockDetail.getT5().getSixtyDayLine())
-                                || moreThan(stockDetail.getPricePert(), 0.097)) {
+                                || Objects.isNull(detail) || Objects.isNull(detail.getT5())
+                                || Objects.isNull(detail.getT5().getSixtyDayLine())
+                                || moreThan(detail.getPricePert(), 0.097)) {
                             continue;
                         }
                         if (isOnTime) {
-                            stockDetail.setDealQuantity(multiply(stockDetail.getDealQuantity(), quantityMult));
+                            detail.setDealQuantity(multiply(detail.getDealQuantity(), quantityMult));
                         }
-                        boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
+                        boolean res = functionList.stream().allMatch(item -> item.apply(detail));
                         if (res) {
                             stockCodeSet.add(stockCode);
                             String name = stockCodeToNameMap.getOrDefault(stockCode, "");
-                            double pert = stockDetail.getPricePert() != null ? stockDetail.getPricePert() : 0;
+                            double pert = detail.getPricePert() != null ? detail.getPricePert() : 0;
                             strategyToStockMap.computeIfAbsent(strategyWin, k -> Collections.synchronizedList(new ArrayList<>()))
                                     .add(stockCode + "_" + name + " " + pert);
                         }
@@ -108,35 +108,35 @@ public class CalcCommonService {
     /**
      * 验证预测的股票结果
      */
-    public List<StockDetail> verifyPredictRes(String curDate, List<StrategyWin> strategyWinList) throws InterruptedException, ExecutionException {
+    public List<Detail> verifyPredictRes(String curDate, List<StrategyWin> strategyWinList) throws InterruptedException, ExecutionException {
         Map<String, StrategyEnum> codeToEnumMap = StrategyEnum.codeToEnumMap;
-        Map<String, StockDetail> codeToDetailMap = CommonService.idToDetailMap.values().stream()
+        Map<String, Detail> codeToDetailMap = CommonService.idToDetailMap.values().stream()
                 .filter(item -> Objects.equals(item.getDealDate(), curDate))
-                .collect(Collectors.toMap(StockDetail::getStockCode, item -> item));
-        List<StockDetail> resList = Collections.synchronizedList(new ArrayList<>());
+                .collect(Collectors.toMap(Detail::getStockCode, item -> item));
+        List<Detail> resList = Collections.synchronizedList(new ArrayList<>());
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
 
         for (StrategyWin strategyWin : strategyWinList) {
-            List<Function<StockDetail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
+            List<Function<Detail, Boolean>> functionList = Arrays.stream(strategyWin.getStrategyCode().split(" "))
                     .map(item -> codeToEnumMap.get(item).getFilterFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
-                        StockDetail stockDetail = codeToDetailMap.get(stockCode);
-                        if (stockCodeSet.contains(stockCode) || Objects.isNull(stockDetail)
-                                || Objects.isNull(stockDetail.getNext5MaxPricePert())
-                                || Objects.isNull(stockDetail.getT5())
-                                || Objects.isNull(stockDetail.getT5().getSixtyDayLine())
-                                || moreThan(stockDetail.getPricePert(), 0.097)
-                                || (!stockDetail.getFiveIsUp() && !stockDetail.getTenIsUp())) {
+                        Detail detail = codeToDetailMap.get(stockCode);
+                        if (stockCodeSet.contains(stockCode) || Objects.isNull(detail)
+                                || Objects.isNull(detail.getNext5MaxPricePert())
+                                || Objects.isNull(detail.getT5())
+                                || Objects.isNull(detail.getT5().getSixtyDayLine())
+                                || moreThan(detail.getPricePert(), 0.097)
+                                || (!detail.getFiveIsUp() && !detail.getTenIsUp())) {
                             continue;
                         }
-                        boolean res = functionList.stream().allMatch(item -> item.apply(stockDetail));
+                        boolean res = functionList.stream().allMatch(item -> item.apply(detail));
                         if (res) {
                             stockCodeSet.add(stockCode);
-                            resList.add(stockDetail);
+                            resList.add(detail);
                         }
 
                     }

@@ -2,10 +2,9 @@ package com.mmwwtt.stock.service.impl;
 
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
+import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StrategyResult;
-import com.mmwwtt.stock.entity.StrategyWin;
+import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.vo.StockDetailQueryVO;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -30,51 +29,50 @@ public class CommonService {
     private StockServiceImpl stockService;
 
     @Resource
-    private StockDetailServiceImpl stockDetailService;
+    private DetailServiceImpl detailService;
 
     @Resource
-    private StrategyResultServiceImpl strategyResultService;
+    private StrategyL1ServiceImpl strategyL1Service;
 
 
     @Resource
-    private StrategyWinServiceImpl strategyWinService;
+    private StrategyTmpServiceImpl strategyWinService;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
-    public static Map<Integer, StockDetail> idToDetailMap = new ConcurrentHashMap<>(1048576);
-    public static Map<String, List<StockDetail>> codeToDetailMap = new ConcurrentHashMap<>(4096);
+    public static Map<Integer, Detail> idToDetailMap = new ConcurrentHashMap<>(1048576);
+    public static Map<String, List<Detail>> codeToDetailMap = new ConcurrentHashMap<>(4096);
     public static Map<String, String> stockCodeToNameMap;
-    public static List<StrategyWin> l1StrategyList;
+    public static List<StrategyL1> strategyL1s;
     public static List<List<String>> stockCodePartList;
     public static List<String> stockCodeList;
     public static String calcEndDate;
     public static List<String> predictDateList;
-    public static Map<String, int[]> strategyToDetailsMap = new ConcurrentHashMap<>(512);
 
+    public static int INIT_DATE_SIZE = 500;
     @PostConstruct
     public void init() throws ExecutionException, InterruptedException {
         log.info("初始化开始");
-        List<StrategyResult> strategyResults = strategyResultService.getStrategyResult(StrategyResult.builder().level(1).build());
-        strategyResults.forEach(item -> {
-            int[] ids = new int[item.getStockDetailIdList().size()];
-            for (int i = 0; i < item.getStockDetailIdList().size(); i++) {
-                ids[i] = item.getStockDetailIdList().getIntValue(i);
+        strategyL1s = strategyL1Service.list();
+        strategyL1s.forEach(item -> {
+            int[] ids = new int[item.getDetailIds().size()];
+            for (int i = 0; i < item.getDetailIds().size(); i++) {
+                ids[i] = item.getDetailIds().getIntValue(i);
             }
-            strategyToDetailsMap.put(item.getStrategyCode(), ids);
+            item.setDetailIdArr(ids);
         });
 
-        l1StrategyList = strategyWinService.getL1StrategyWin();
         stockCodeList = stockService.list().stream().map(Stock::getCode).toList();
         stockCodePartList = Lists.partition(stockCodeList, 50);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         stockCodePartList.forEach(part -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
-                List<StockDetail> stockDetails = stockDetailService.getStockDetail(new StockDetailQueryVO(stockCode));
-                stockDetails.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
-                stockDetailService.genAllStockDetail(stockDetails);
-                stockDetails.forEach(item -> idToDetailMap.put(item.getStockDetailId(), item));
-                codeToDetailMap.put(stockCode, stockDetails);
+                List<Detail> details = detailService.getStockDetail(new StockDetailQueryVO(stockCode));
+                details.sort(Comparator.comparing(Detail::getDealDate).reversed());
+                detailService.genAllStockDetail(details);
+                details.forEach(item -> idToDetailMap.put(item.getDetailId(), item));
+                codeToDetailMap.put(stockCode, details);
             }), ioThreadPool);
             futures.add(future);
         });
@@ -84,10 +82,10 @@ public class CommonService {
 
         predictDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
                 .stream().limit(15)
-                .map(StockDetail::getDealDate).toList();
+                .map(Detail::getDealDate).toList();
         calcEndDate = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
                 .stream().skip(15)
-                .map(StockDetail::getDealDate).findFirst().orElse("20260201");
+                .map(Detail::getDealDate).findFirst().orElse("20260201");
         stockCodeToNameMap = stockService.list().stream().collect(Collectors.toMap(Stock::getCode, Stock::getName));
         log.info("初始化结束");
     }

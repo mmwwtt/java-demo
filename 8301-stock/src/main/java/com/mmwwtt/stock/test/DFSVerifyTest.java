@@ -1,10 +1,10 @@
 package com.mmwwtt.stock.test;
 
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StrategyEnum;
+import com.mmwwtt.stock.entity.Detail;
+import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.CalcCommonService;
-import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 public class DFSVerifyTest {
 
     @Resource
-    private StrategyWinServiceImpl strategyWinService;
+    private StrategyTmpServiceImpl strategyWinService;
 
     @Resource
     private CalcCommonService calcCommonService;
@@ -61,10 +61,10 @@ public class DFSVerifyTest {
     public void verifyPredictResByFiveMaxDetail() {
         List<Double> fiveMaxDateAvgList = new ArrayList<>();
         List<Double> fiveDateAvgList = new ArrayList<>();
-        Map<String, List<StockDetail>> dataToDetailsMap = new ConcurrentHashMap<>();
+        Map<String, List<Detail>> dataToDetailsMap = new ConcurrentHashMap<>();
 
         codeToDetailMap.entrySet().parallelStream().forEach(entry -> {
-            for (StockDetail detail : entry.getValue()) {
+            for (Detail detail : entry.getValue()) {
                 if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
                     break;
                 }
@@ -88,11 +88,11 @@ public class DFSVerifyTest {
         });
 
         for (String date : predictDateList) {
-            List<StockDetail> resList = dataToDetailsMap.getOrDefault(date, Collections.emptyList());
+            List<Detail> resList = dataToDetailsMap.getOrDefault(date, Collections.emptyList());
             if (CollectionUtils.isEmpty(resList)) {
                 continue;
             }
-            List<Double> next5Maxs = resList.stream().map(StockDetail::getNext5MaxPricePert).toList();
+            List<Double> next5Maxs = resList.stream().map(Detail::getNext5MaxPricePert).toList();
             List<Double> next5s = resList.stream()
                     .map(item -> getRise(item.getNext5().getEndPrice(), item.getEndPrice()))
                     .toList();

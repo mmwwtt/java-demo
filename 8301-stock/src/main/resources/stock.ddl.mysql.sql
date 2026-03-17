@@ -31,10 +31,10 @@ CREATE TABLE stock_t
 ) COMMENT '股票表';
 
 
-DROP TABLE IF EXISTS stock_detail_t;
-CREATE TABLE stock_detail_t
+DROP TABLE IF EXISTS detail_t;
+CREATE TABLE detail_t
 (
-    stock_detail_Id          INT(8)         NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    detail_Id          INT(8)         NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     stock_code               VARCHAR(16)    NOT NULL COMMENT '股票代码',
     deal_date                VARCHAR(16)    NOT NULL COMMENT '交易日期',
     start_price              decimal(10, 4) NOT NULL COMMENT '开盘价',
@@ -126,26 +126,51 @@ CREATE TABLE stock_detail_t
     volatility20             decimal(10, 4) comment '20日波动率',
     volume_price_divergence  INT4 comment '量价背离信号'
 ) COMMENT '股票详情表';
-create index stock_code_deal_date on stock_detail_t (stock_code, deal_date desc);
 
 
-DROP TABLE IF EXISTS stock_strategy_result_t;
-CREATE TABLE stock_strategy_result_t
+DROP TABLE IF EXISTS strategy_l1_t;
+CREATE TABLE strategy_l1_t
 (
-    strategy_result_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code        VARCHAR(200) COMMENT '策略编码',
-    stock_detail_id_list JSON COMMENT '预测的股票详情id列表',
-    level                INT(4) comment '条件层数'
-) COMMENT '策略预测表';
-create index strategy_code on stock_strategy_result_t (strategy_code);
+    strategy_name        VARCHAR(200) COMMENT '策略名称',
+    detail_ids JSON COMMENT '符合条件的详情id列表',
+    rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',
+    rise2_avg         DECIMAL(8, 4) COMMENT '2日平均涨幅',
+    rise3_avg         DECIMAL(8, 4) COMMENT '3日平均涨幅',
+    rise4_avg         DECIMAL(8, 4) COMMENT '4日平均涨幅',
+    rise5_avg         DECIMAL(8, 4) COMMENT '5日平均涨幅',
+    rise10_avg        DECIMAL(8, 4) COMMENT '10日平均涨幅',
+    rise5_max_avg     DECIMAL(8, 4) COMMENT '5日最大平均涨幅',
+    rise10_max_avg    DECIMAL(8, 4) COMMENT '10日最大平均涨幅',
+    rise1_middle      DECIMAL(8, 4) COMMENT '1日中位数涨幅',
+    rise2_middle      DECIMAL(8, 4) COMMENT '2日中位数涨幅',
+    rise3_middle      DECIMAL(8, 4) COMMENT '3日中位数涨幅',
+    rise4_middle      DECIMAL(8, 4) COMMENT '4日中位数涨幅',
+    rise5_middle      DECIMAL(8, 4) COMMENT '5日中位数涨幅',
+    rise10_middle     DECIMAL(8, 4) COMMENT '10日中位数涨幅',
+    rise5_max_middle  DECIMAL(8, 4) COMMENT '5日最大中位数涨幅',
+    rise10_max_middle DECIMAL(8, 4) COMMENT '10日最大中位数涨幅'
+) COMMENT '1层策略结果表';
 
 
-DROP TABLE IF EXISTS stock_strategy_win_t;
-CREATE TABLE stock_strategy_win_t
+DROP TABLE IF EXISTS strategy_tmp_t;
+CREATE TABLE strategy_tmp_t
 (
-    strategy_win_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code     VARCHAR(200) COMMENT '策略编码',
-    strategy_name     VARCHAR(200) COMMENT '策略名称',
+    date_cnt          INT(8) COMMENT '有符合数据的日期天数',
+    pert                DECIMAL(8, 4) COMMENT '用于过滤判断的临时属性',
+) COMMENT '策略中间表';
+
+
+DROP TABLE IF EXISTS strategy_t;
+CREATE TABLE strategy_t
+(
+    strategy_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_code        VARCHAR(200) COMMENT '策略编码',
+    strategy_name        VARCHAR(200) COMMENT '策略名称',
+    detail_ids JSON COMMENT '符合条件的详情id列表',
     date_cnt          INT(8) COMMENT '有符合数据的日期天数',
     rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',
     rise2_avg         DECIMAL(8, 4) COMMENT '2日平均涨幅',

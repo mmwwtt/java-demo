@@ -2,10 +2,10 @@ package com.mmwwtt.stock.test;
 
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUtils;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StrategyEnum;
+import com.mmwwtt.stock.entity.Detail;
+import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.service.impl.CommonService;
-import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +30,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.codeToDetailMap;
 public class CustomTest {
 
     @Resource
-    private StrategyWinServiceImpl strategyWinService;
+    private StrategyTmpServiceImpl strategyWinService;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
@@ -39,9 +39,9 @@ public class CustomTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         List<StrategyEnum> strategyEnums = List.of(
-                new StrategyEnum("riseStrategy", "上涨预测_低吸型", (StockDetail d) -> true),
-                new StrategyEnum("pullback5ma", "五日线上方回调至五日线下", (StockDetail t0) -> {
-                    StockDetail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
+                new StrategyEnum("riseStrategy", "上涨预测_低吸型", (Detail d) -> true),
+                new StrategyEnum("pullback5ma", "五日线上方回调至五日线下", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
                     if (t1 == null || t2 == null || t3 == null || t4 == null) return false;
                     if (t0.getFiveDayLine() == null || t1.getFiveDayLine() == null) return false;
                     // 前4日收盘价都在各自五日线之上
@@ -61,18 +61,18 @@ public class CustomTest {
     @Test
     @DisplayName("根据策略绘制蜡烛图-自定义")
     public void startCalc5() throws ExecutionException, InterruptedException {
-        StrategyEnum strategyEnumDemo = new StrategyEnum("testCode", "testName", (StockDetail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed() && t0.getT3().getIsRed() && t0.getT4().getIsRed()
+        StrategyEnum strategyEnumDemo = new StrategyEnum("testCode", "testName", (Detail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed() && t0.getT3().getIsRed() && t0.getT4().getIsRed()
                 && lessThan(t0.getDealQuantity(), t0.getT1().getDealQuantity())
                 && lessThan(t0.getT1().getDealQuantity(), t0.getT2().getDealQuantity())
                 && lessThan(t0.getT2().getDealQuantity(), t0.getT3().getDealQuantity())
                 && lessThan(t0.getT3().getDealQuantity(), t0.getT4().getDealQuantity()));
 
         log.info("开始查找符合条件的数据");
-        Map<StrategyEnum, List<StockDetail>> resMap = calcByStrategy(List.of(strategyEnumDemo));
+        Map<StrategyEnum, List<Detail>> resMap = calcByStrategy(List.of(strategyEnumDemo));
         log.info("开始绘制");
         resMap.forEach((strategyEnum, resList) -> {
-            List<StockDetail> curList = resList.stream().limit(200).toList();
-            for (StockDetail detail : curList) {
+            List<Detail> curList = resList.stream().limit(200).toList();
+            for (Detail detail : curList) {
                 try {
                     StockGuiUtils.genDetailImage(detail, strategyEnum.getName());
                 } catch (IOException e) {
@@ -90,28 +90,28 @@ public class CustomTest {
     }
 
 
-    public Map<StrategyEnum, List<StockDetail>> calcByStrategy(List<StrategyEnum> strategyList) throws ExecutionException, InterruptedException {
-        Map<StrategyEnum, List<StockDetail>> strategyToCalcMap = new ConcurrentHashMap<>();
+    public Map<StrategyEnum, List<Detail>> calcByStrategy(List<StrategyEnum> strategyList) throws ExecutionException, InterruptedException {
+        Map<StrategyEnum, List<Detail>> strategyToCalcMap = new ConcurrentHashMap<>();
         log.info("开始计算");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (List<String> part : CommonService.stockCodePartList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (String stockCode : part) {
-                    List<StockDetail> stockDetails = codeToDetailMap.get(stockCode);
-                    if (stockDetails.size() < 60) {
+                    List<Detail> details = codeToDetailMap.get(stockCode);
+                    if (details.size() < 60) {
                         return;
                     }
                     for (StrategyEnum strategy : strategyList) {
-                        for (int i = 0; i < stockDetails.size() - 60; i++) {
-                            StockDetail stockDetail = stockDetails.get(i);
-                            if (moreThan(stockDetail.getPricePert(), 0.097)
-                                    || Objects.isNull(stockDetail.getNext1())
-                                    || Objects.isNull(stockDetail.getT10())
-                                    || Objects.isNull(stockDetail.getT10().getSixtyDayLine())
-                                    || !strategy.getFilterFunc().apply(stockDetail)) {
+                        for (int i = 0; i < details.size() - 60; i++) {
+                            Detail detail = details.get(i);
+                            if (moreThan(detail.getPricePert(), 0.097)
+                                    || Objects.isNull(detail.getNext1())
+                                    || Objects.isNull(detail.getT10())
+                                    || Objects.isNull(detail.getT10().getSixtyDayLine())
+                                    || !strategy.getFilterFunc().apply(detail)) {
                                 continue;
                             }
-                            strategyToCalcMap.computeIfAbsent(strategy, v -> Collections.synchronizedList(new ArrayList<>())).add(stockDetail);
+                            strategyToCalcMap.computeIfAbsent(strategy, v -> Collections.synchronizedList(new ArrayList<>())).add(detail);
                         }
                     }
                 }
@@ -137,14 +137,14 @@ public class CustomTest {
         log.info("开始查找符合条件的数据");
         List<StrategyEnum> list = Arrays.stream(strategyStr.split(" ")).map(StrategyEnum.codeToEnumMap::get).toList();
         StrategyEnum strategy = new StrategyEnum("testCode", "test_" + getTimeStr(),
-                (StockDetail t0) -> list.stream().allMatch(item -> item.getFilterFunc().apply(t0)));
-        Map<StrategyEnum, List<StockDetail>> resMap = calcByStrategy(List.of(strategy));
+                (Detail t0) -> list.stream().allMatch(item -> item.getFilterFunc().apply(t0)));
+        Map<StrategyEnum, List<Detail>> resMap = calcByStrategy(List.of(strategy));
         log.info("开始绘制");
         resMap.forEach((strategyEnum, resList) -> {
-            List<StockDetail> curList = onlyNext1IsUp
+            List<Detail> curList = onlyNext1IsUp
                     ? resList.stream().filter(item -> item.getNext1().getIsDown()).limit(200).toList()
                     : resList.stream().limit(200).toList();
-            for (StockDetail detail : curList) {
+            for (Detail detail : curList) {
                 try {
                     StockGuiUtils.genDetailImage(detail, strategyEnum.getName());
                 } catch (IOException e) {

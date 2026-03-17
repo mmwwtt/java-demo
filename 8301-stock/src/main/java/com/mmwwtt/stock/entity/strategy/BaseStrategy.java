@@ -1,140 +1,148 @@
-package com.mmwwtt.stock.entity;
+package com.mmwwtt.stock.entity.strategy;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.mmwwtt.stock.test.DFSTest;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.mmwwtt.stock.entity.Detail;
+import com.mmwwtt.stock.enums.StrategyEnum;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
+import static com.mmwwtt.stock.service.impl.CommonService.INIT_DATE_SIZE;
 
-/**
- * 策略胜率
- *
- * @author moweitao
- */
-@Data
-@TableName(value = "stock_strategy_win_t")
-@NoArgsConstructor
 @Slf4j
-public class StrategyWin {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class BaseStrategy {
 
-    private Long strategyWinId;
     /**
-     * 策略编码  组合编码
+     * 结果id
      */
-    private String strategyCode;
+    @EqualsAndHashCode.Include
+    @TableId(type = IdType.AUTO)
+    protected Long strategyId;
+
+    /**
+     * 策略编码
+     */
+    protected String strategyCode;
 
     /**
      * 策略名称
      */
-    private String strategyName;
+    protected String strategyName;
+
+
+    /**
+     * 预测对的列表
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    protected JSONArray detailIds;
+
 
     /**
      * 有符合数据的日期天数
      */
-    private Integer dateCnt;
+    protected Integer dateCnt;
 
     /**
      * 1日平均涨幅
      */
-    private Double rise1Avg;
+    protected Double rise1Avg;
 
     /**
      * 2日平均涨幅
      */
-    private Double rise2Avg;
+    protected Double rise2Avg;
 
     /**
      * 3日平均涨幅
      */
-    private Double rise3Avg;
+    protected Double rise3Avg;
 
     /**
      * 4日平均涨幅
      */
-    private Double rise4Avg;
+    protected Double rise4Avg;
 
     /**
      * 5日平均涨幅
      */
-    private Double rise5Avg;
+    protected Double rise5Avg;
 
     /**
      * 10日平均涨幅
      */
-    private Double rise10Avg;
+    protected Double rise10Avg;
 
     /**
      * 5日最大平均涨幅
      */
-    private Double rise5MaxAvg;
+    protected Double rise5MaxAvg;
 
     /**
      * 10日最大平均涨幅
      */
-    private Double rise10MaxAvg;
+    protected Double rise10MaxAvg;
 
 
     /**
      * 1日中位数涨幅
      */
-    private Double rise1Middle;
+    protected Double rise1Middle;
 
     /**
      * 2日中位数涨幅
      */
-    private Double rise2Middle;
+    protected Double rise2Middle;
 
     /**
      * 3日中位数涨幅
      */
-    private Double rise3Middle;
+    protected Double rise3Middle;
 
     /**
      * 4日中位数涨幅
      */
-    private Double rise4Middle;
+    protected Double rise4Middle;
 
     /**
      * 5日中位数涨幅
      */
-    private Double rise5Middle;
+    protected Double rise5Middle;
 
     /**
      * 10日中位数涨幅
      */
-    private Double rise10Middle;
+    protected Double rise10Middle;
 
     /**
      * 5日最大中位数涨幅
      */
-    private Double rise5MaxMiddle;
+    protected Double rise5MaxMiddle;
 
     /**
      * 10日最大中位数涨幅
      */
-    private Double rise10MaxMiddle;
+    protected Double rise10MaxMiddle;
 
 
-    /**
-     * 策略层数
-     */
-    private Integer level;
-
-
-    private static int INIT_DATE_SIZE = 500;
     /**
      * 临时属性
      */
     @TableField(exist = false)
-    private List<StockDetail> details = Collections.synchronizedList(new ArrayList<>(50000));
+    private List<Detail> details = Collections.synchronizedList(new ArrayList<>(50000));
     @TableField(exist = false)
     private List<Double> rise1Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
@@ -169,87 +177,30 @@ public class StrategyWin {
     private List<Double> rise10MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
 
 
-    @TableField(exist = false)
-    private Set<String> strategyCodeSet = new HashSet<>();
-
-    @TableField(exist = false)
-    private List<Function<StockDetail, Boolean>> filterFuncs= new ArrayList<>();
-
-    @TableField(exist = false)
-    private Set<String> parentWinStrategyCodeSet;
-
-    @TableField(exist = false)
-    private Double parentLowLimit;
-
-    @TableField(exist = false)
-    private int[] detailIds;
-
     /**
-     * 将结果累加到数据中
+     * 预测对的列表
      */
-    public void addToResult(StockDetail stockDetail) {
-        if (Objects.isNull(stockDetail)) {
+    @TableField(exist = false)
+    protected int[] detailIdArr;
+
+    public void addToResult(Detail detail) {
+        if (Objects.isNull(detail)) {
             log.info("不存在的详情");
             return;
         }
-        details.add(stockDetail);
-    }
-
-    /**
-     * 填充数据
-     * 只计算 字段的中位涨幅 和平均涨幅
-     * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
-     */
-    public void fillFilterField(DFSTest.FilterFildEnum filterFildEnum) {
-        boolean isMiddleFunc = filterFildEnum.getCode().endsWith("MIDDLE");
-        Map<String, List<Double>> dateToValuesMap = new HashMap<>(500);
-        for (StockDetail stockDetail : details) {
-            Double pert = filterFildEnum.getDetailGetter().apply(stockDetail);
-            if (pert == null) {
-                continue;
-            }
-            dateToValuesMap.computeIfAbsent(stockDetail.getDealDate(), k -> new ArrayList<>()).add(pert);
-        }
-        //先计算每日的平均值/中位数
-        List<Double> dayValues = new ArrayList<>(INIT_DATE_SIZE);
-        for (List<Double> values : dateToValuesMap.values()) {
-            dayValues.add(isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues));
-        }
-        //再计算总体的平均数/中位数
-        double resValue = isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues);
-        filterFildEnum.getWinSetter().accept(this, resValue);
-        dateCnt = dateToValuesMap.size();
-    }
-
-    /**
-     * 填充数据
-     */
-    public void fillLevelAndName() {
-        //填充策略名称和层级
-        this.level = strategyCodeSet.size();
-        StringBuilder unionName = new StringBuilder(32 * strategyCodeSet.size());
-        StringBuilder unionCode = new StringBuilder(32 * strategyCodeSet.size());
-        for (String code : strategyCodeSet) {
-            if (!unionName.isEmpty()) {
-                unionName.append(' ');
-            }
-            unionName.append(StrategyEnum.codeToEnumMap.get(code).getName());
-
-            if (!unionCode.isEmpty()) {
-                unionCode.append(' ');
-            }
-            unionCode.append(code);
-        }
-        this.strategyName = unionName.toString();
-        this.strategyCode = unionCode.toString();
+        details.add(detail);
     }
 
     /**
      * DFS完成后进行全部的数据填充
      */
     public void fillOtherData() {
+        strategyName = Arrays.stream(strategyCode.split(" "))
+                .map(strategyCode -> StrategyEnum.codeToEnumMap.get(strategyCode).getName())
+                .collect(Collectors.joining(" "));
+
         //填充其他相关数据
-        Map<String, List<StockDetail>> dateToDetailListMap = details.stream().collect(Collectors.groupingBy(StockDetail::getDealDate));
+        Map<String, List<Detail>> dateToDetailListMap = details.stream().collect(Collectors.groupingBy(Detail::getDealDate));
 
         dateToDetailListMap.forEach((date, details) -> {
             //统计每日中符合策略的stock的涨幅
@@ -261,7 +212,7 @@ public class StrategyWin {
             List<Double> curRise5Maxs = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise10s = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise10Maxs = new ArrayList<>(INIT_DATE_SIZE);
-            for (StockDetail detail : details) {
+            for (Detail detail : details) {
                 Double endPrice = detail.getEndPrice();
                 if (Objects.nonNull(detail.getNext1())) {
                     curRise1s.add(getRise(detail.getNext1().getEndPrice(), endPrice));
@@ -331,25 +282,11 @@ public class StrategyWin {
         rise4Middle = getAverage(rise4Middles);
         rise5Avg = getAverage(rise5Avgs);
         rise5Middle = getAverage(rise5Middles);
+        rise5MaxAvg = getAverage(rise5MaxAvgs);
+        rise5MaxMiddle = getAverage(rise5MaxMiddles);
         rise10Avg = getAverage(rise10Avgs);
         rise10Middle = getAverage(rise10Middles);
         rise10MaxAvg = getAverage(rise10MaxAvgs);
         rise10MaxMiddle = getAverage(rise10MaxMiddles);
-    }
-
-    public StrategyWin(String strategyCode) {
-        this(strategyCode, null, null, null);
-    }
-
-    public StrategyWin(String strategyCode, Set<String> parentWinStrategyCodeSet,
-                       Double parentLowLimit, int[] detailIds) {
-        this.strategyCode = strategyCode;
-        this.parentWinStrategyCodeSet = parentWinStrategyCodeSet;
-        this.parentLowLimit = parentLowLimit;
-        this.detailIds = detailIds;
-        strategyCodeSet.add(strategyCode);
-        if (Objects.nonNull(parentWinStrategyCodeSet)) {
-            strategyCodeSet.addAll(parentWinStrategyCodeSet);
-        }
     }
 }

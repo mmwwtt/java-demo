@@ -1,6 +1,6 @@
 package com.mmwwtt.stock.common;
 
-import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.Detail;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -19,8 +19,8 @@ public class StockGuiUtils {
     private static final int MARGIN = 20;   // 四边留白
     private static final int GAP = 8;   // K 线区与量区间距
 
-    public static void genDetailImage(StockDetail t0, String path) throws IOException {
-        List<StockDetail> list = new ArrayList<>();
+    public static void genDetailImage(Detail t0, String path) throws IOException {
+        List<Detail> list = new ArrayList<>();
         list.add(t0.getT5());
         list.add(t0.getT4());
         list.add(t0.getT3());
@@ -46,7 +46,7 @@ public class StockGuiUtils {
         ImageIO.write(img, "PNG", file);
     }
 
-    private static BufferedImage draw(List<StockDetail> list) {
+    private static BufferedImage draw(List<Detail> list) {
         Set<Integer> dataSet = Set.of(5, 10, 11);
         BufferedImage img = new BufferedImage(IMG_W+10, IMG_H, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = img.createGraphics();
@@ -61,9 +61,9 @@ public class StockGuiUtils {
         double volH = (IMG_H - 2 * MARGIN - GAP) * 0.25;
 
         /* 最大最小 */
-        double maxPrice = list.stream().mapToDouble(StockDetail::getHighPrice).max().orElse(0);
-        double minPrice = list.stream().mapToDouble(StockDetail::getLowPrice).min().orElse(0);
-        double maxVol = list.stream().mapToDouble(StockDetail::getDealQuantity).max().orElse(0);
+        double maxPrice = list.stream().mapToDouble(Detail::getHighPrice).max().orElse(0);
+        double minPrice = list.stream().mapToDouble(Detail::getLowPrice).min().orElse(0);
+        double maxVol = list.stream().mapToDouble(Detail::getDealQuantity).max().orElse(0);
         double priceRange = Math.max(maxPrice - minPrice, 1e-10);
         double candleW = (IMG_W - 2 * MARGIN) / (double) list.size();
 
@@ -73,7 +73,7 @@ public class StockGuiUtils {
         g2.drawRect(MARGIN, (int) (MARGIN + priceH + GAP), IMG_W - 2 * MARGIN + 10, (int) volH);
 
         for (int i = 0; i < list.size(); i++) {
-            StockDetail d = list.get(i);
+            Detail d = list.get(i);
             double x = MARGIN + i * candleW + candleW / 2;
             if(i==11) {
                 x +=10;

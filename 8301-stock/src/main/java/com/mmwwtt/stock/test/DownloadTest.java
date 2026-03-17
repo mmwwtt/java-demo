@@ -6,16 +6,16 @@ import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.VoConvert;
+import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.entity.StrategyResult;
+import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
-import com.mmwwtt.stock.service.impl.StockDetailServiceImpl;
+import com.mmwwtt.stock.service.impl.DetailServiceImpl;
 import com.mmwwtt.stock.service.impl.StockServiceImpl;
-import com.mmwwtt.stock.service.impl.StrategyResultServiceImpl;
-import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyL1ServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
 import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
 import com.mmwwtt.stock.vo.StockDetailVO;
 import com.mmwwtt.stock.vo.StockVO;
@@ -51,13 +51,13 @@ public class DownloadTest {
     private StockServiceImpl stockService;
 
     @Resource
-    private StockDetailServiceImpl stockDetailService;
+    private DetailServiceImpl stockDetailService;
 
     @Resource
-    private StrategyResultServiceImpl strategyResultService;
+    private StrategyL1ServiceImpl strategyResultService;
 
     @Resource
-    private StrategyWinServiceImpl strategyWinService;
+    private StrategyTmpServiceImpl strategyWinService;
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
@@ -142,13 +142,13 @@ public class DownloadTest {
     public void dataDownLoadInit() {
         log.info("开始清空表 start\n\n\n");
 
-        QueryWrapper<StockDetail> stockDetailWrapper = new QueryWrapper<>();
+        QueryWrapper<Detail> stockDetailWrapper = new QueryWrapper<>();
         stockDetailService.remove(stockDetailWrapper);
 
         QueryWrapper<StrategyWin> winWrapper = new QueryWrapper<>();
         strategyWinService.remove(winWrapper);
 
-        QueryWrapper<StrategyResult> resultWrapper = new QueryWrapper<>();
+        QueryWrapper<StrategyL1> resultWrapper = new QueryWrapper<>();
         strategyResultService.remove(resultWrapper);
         log.info("开始清空表 end\n\n\n");
     }
@@ -204,21 +204,21 @@ public class DownloadTest {
                             .peek(item -> item.setStockCode(stock.getCode()))
                             .filter(item -> item.getSf() == 0)
                             .collect(Collectors.toList());
-                    List<StockDetail> stockDetails = voConvert.convertToStockDetail(stockDetailVOs);
+                    List<Detail> details = voConvert.convertToStockDetail(stockDetailVOs);
 
-                    QueryWrapper<StockDetail> detailWrapper = new QueryWrapper<>();
+                    QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
                     detailWrapper.eq("stock_code", stock.getCode());
-                    Map<String, StockDetail> dateToMap = stockDetailService.list(detailWrapper).stream()
-                            .collect(Collectors.toMap(StockDetail::getDealDate, Function.identity()));
-                    for (StockDetail stockDetail : stockDetails) {
+                    Map<String, Detail> dateToMap = stockDetailService.list(detailWrapper).stream()
+                            .collect(Collectors.toMap(Detail::getDealDate, Function.identity()));
+                    for (Detail stockDetail : details) {
                         if (dateToMap.containsKey(stockDetail.getDealDate())) {
-                            stockDetail.setStockDetailId(dateToMap.get(stockDetail.getDealDate()).getStockDetailId());
+                            stockDetail.setDetailId(dateToMap.get(stockDetail.getDealDate()).getDetailId());
                         }
                     }
-                    stockDetails.sort(Comparator.comparing(StockDetail::getDealDate).reversed());
-                    stockDetails.forEach(item -> item.calc());
-                    StockDetail.calc(stockDetails);
-                    stockDetailService.saveOrUpdateBatch(stockDetails);
+                    details.sort(Comparator.comparing(Detail::getDealDate).reversed());
+                    details.forEach(item -> item.calc());
+                    Detail.calc(details);
+                    stockDetailService.saveOrUpdateBatch(details);
                 }
             }, ioThreadPool);
             futures.add(future);

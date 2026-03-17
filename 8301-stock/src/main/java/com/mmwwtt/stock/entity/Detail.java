@@ -13,9 +13,9 @@ import java.util.function.Consumer;
 import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @Data
-@TableName("stock_detail_t")
+@TableName("detail_t")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class StockDetail {
+public class Detail {
 
 
     /**
@@ -23,7 +23,7 @@ public class StockDetail {
      */
     @EqualsAndHashCode.Include
     @TableId(type = IdType.AUTO)
-    private Integer stockDetailId;
+    private Integer detailId;
 
     /**
      * 股票代码
@@ -339,13 +339,13 @@ public class StockDetail {
      * 下个交易日细节
      */
     @TableField(exist = false)
-    private StockDetail next1;
+    private Detail next1;
 
     /**
      * 日后第2个交易日细节
      */
     @TableField(exist = false)
-    private StockDetail next2;
+    private Detail next2;
 
     /**
      * 当天到2天后的涨幅
@@ -356,7 +356,7 @@ public class StockDetail {
      * 日后第3个交易日细节
      */
     @TableField(exist = false)
-    private StockDetail next3;
+    private Detail next3;
 
     /**
      * 当天到3天后的涨幅
@@ -367,7 +367,7 @@ public class StockDetail {
      * 日后第4个交易日细节
      */
     @TableField(exist = false)
-    private StockDetail next4;
+    private Detail next4;
 
     /**
      * 当天到4天后的涨幅
@@ -379,7 +379,7 @@ public class StockDetail {
      * 日后第5个交易日细节
      */
     @TableField(exist = false)
-    private StockDetail next5;
+    private Detail next5;
 
     /**
      * 当天到5天后的涨幅
@@ -401,7 +401,7 @@ public class StockDetail {
      * 日后第10个交易日细节
      */
     @TableField(exist = false)
-    private StockDetail next10;
+    private Detail next10;
 
     /**
      * 当天到10天后的涨幅
@@ -422,42 +422,42 @@ public class StockDetail {
      * 前1天交易日细节
      */
     @TableField(exist = false)
-    private StockDetail t1;
+    private Detail t1;
 
     /**
      * 前2天交易日细节
      */
     @TableField(exist = false)
-    private StockDetail t2;
+    private Detail t2;
 
     /**
      * 前3天交易日细节
      */
     @TableField(exist = false)
-    private StockDetail t3;
+    private Detail t3;
 
     /**
      * 前4天交易日细节
      */
     @TableField(exist = false)
-    private StockDetail t4;
+    private Detail t4;
 
     /**
      * 前5天交易日细节
      */
     @TableField(exist = false)
-    private StockDetail t5;
+    private Detail t5;
 
     @TableField(exist = false)
-    private StockDetail t6;
+    private Detail t6;
     @TableField(exist = false)
-    private StockDetail t7;
+    private Detail t7;
     @TableField(exist = false)
-    private StockDetail t8;
+    private Detail t8;
     @TableField(exist = false)
-    private StockDetail t9;
+    private Detail t9;
     @TableField(exist = false)
-    private StockDetail t10;
+    private Detail t10;
 
 
     /**
@@ -667,9 +667,9 @@ public class StockDetail {
     /**
      * 在拉取数据的时候就进行计算  并保存到数据库中，避免之后重复计算
      */
-    public static void calc(List<StockDetail> list) {
+    public static void calc(List<Detail> list) {
         for (int i = list.size() - 1; i >= 0; i--) {
-            StockDetail cur = list.get(i);
+            Detail cur = list.get(i);
 
             //macd相关
             double ema12 = i == list.size() - 1
@@ -694,7 +694,7 @@ public class StockDetail {
         }
 
         for (int i = 0; i < list.size(); i++) {
-            StockDetail cur = list.get(i);
+            Detail cur = list.get(i);
 
             if (i - 2 >= 0) {
                 cur.setNext2PricePert(divide(subtract(list.get(i - 2).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
@@ -707,16 +707,16 @@ public class StockDetail {
             }
             if (i - 5 >= 0) {
                 cur.setNext5PricePert(divide(subtract(list.get(i - 5).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
-                List<Double> highPriceList = list.subList(i - 5, i).stream().map(StockDetail::getHighPrice).toList();
-                List<Double> lowPriceList = list.subList(i - 5, i).stream().map(StockDetail::getLowPrice).toList();
+                List<Double> highPriceList = list.subList(i - 5, i).stream().map(Detail::getHighPrice).toList();
+                List<Double> lowPriceList = list.subList(i - 5, i).stream().map(Detail::getLowPrice).toList();
                 cur.setNext5MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
                 cur.setNext5MinPricePert(divide(subtract(min(lowPriceList), cur.getEndPrice()), cur.getEndPrice()));
             }
 
             if (i - 10 >= 0) {
                 cur.setNext10PricePert(divide(subtract(list.get(i - 10).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
-                List<Double> highPriceList = list.subList(i - 10, i).stream().map(StockDetail::getHighPrice).toList();
-                List<Double> lowPriceList = list.subList(i - 10, i).stream().map(StockDetail::getLowPrice).toList();
+                List<Double> highPriceList = list.subList(i - 10, i).stream().map(Detail::getHighPrice).toList();
+                List<Double> lowPriceList = list.subList(i - 10, i).stream().map(Detail::getLowPrice).toList();
                 cur.setNext10MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
                 cur.setNext10MinPricePert(divide(subtract(min(lowPriceList), cur.getEndPrice()), cur.getEndPrice()));
             }
@@ -750,7 +750,7 @@ public class StockDetail {
 
         }
         for (int i = 0; i < list.size(); i++) {
-            StockDetail cur = list.get(i);
+            Detail cur = list.get(i);
             // RSI(14): 14日涨跌的平均
             if (i + 14 < list.size()) {
                 double upSum = 0;
@@ -777,8 +777,8 @@ public class StockDetail {
             if (i + 14 < list.size()) {
                 double atrSum = 0;
                 for (int j = i; j <= i + 13; j++) {
-                    StockDetail d = list.get(j);
-                    StockDetail prev = list.get(j + 1);
+                    Detail d = list.get(j);
+                    Detail prev = list.get(j + 1);
                     if (d == null || prev == null)
                         continue;
                     double hl =  Math.abs(subtract(d.getHighPrice(), d.getLowPrice()));
@@ -841,7 +841,7 @@ public class StockDetail {
 
             // 20日均线斜率
             if (i + 21 < list.size()) {
-                StockDetail prev = list.get(i + 1);
+                Detail prev = list.get(i + 1);
                 Double prevMa20 = prev.getTwentyDayLine();
                 if (prevMa20 != null) {
                     cur.setMa20Slope(divide(subtract(cur.twentyDayLine, prevMa20), prevMa20));
@@ -875,7 +875,7 @@ public class StockDetail {
 
     }
 
-    private static void calcIsUp(List<StockDetail> list, Integer curIdx, Integer dayNum,
+    private static void calcIsUp(List<Detail> list, Integer curIdx, Integer dayNum,
                                  Consumer<Double> setDayLine, Consumer<Double> setDayDealQuantity,
                                  Consumer<Double> setHigh, Consumer<Double> setLow,
                                  Consumer<String> setHighDate, Consumer<String> setLowDate, Consumer<Boolean> setIsUp) {
@@ -889,7 +889,7 @@ public class StockDetail {
         double dayHigh = list.get(curIdx).getHighPrice();
         double dayLow = list.get(curIdx).getLowPrice();
         for (int i = curIdx; i < curIdx + dayNum; i++) {
-            StockDetail cur1 = list.get(i);
+            Detail cur1 = list.get(i);
             sumEndPrice = sum(sumEndPrice, cur1.getEndPrice());
             sumDealQuantity = sum(sumDealQuantity, cur1.getDealQuantity());
             dayHigh = max(dayHigh, cur1.getHighPrice());
@@ -916,6 +916,6 @@ public class StockDetail {
 
     @Override
     public String toString() {
-        return stockDetailId.toString();
+        return detailId.toString();
     }
 }

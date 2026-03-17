@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.dao.StockDetailDAO;
+import com.mmwwtt.stock.dao.DetailDAO;
+import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
-import com.mmwwtt.stock.entity.StockDetail;
-import com.mmwwtt.stock.service.StockDetailService;
+import com.mmwwtt.stock.service.DetailService;
 import com.mmwwtt.stock.service.StockService;
 import com.mmwwtt.stock.vo.StockDetailQueryVO;
 import io.micrometer.common.util.StringUtils;
@@ -25,13 +25,13 @@ import java.util.function.Consumer;
 
 @Service
 @Slf4j
-public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDetail> implements StockDetailService {
+public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements DetailService {
 
     @Resource
     private StockService stockService;
 
     @Resource
-    private StockDetailDAO detailDAO;
+    private DetailDAO detailDAO;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
@@ -39,8 +39,8 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
 
 
     @Override
-    public List<StockDetail> getStockDetail(StockDetailQueryVO queryVO) {
-        QueryWrapper<StockDetail> detailWrapper = new QueryWrapper<>();
+    public List<Detail> getStockDetail(StockDetailQueryVO queryVO) {
+        QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
         detailWrapper.eq("stock_code", queryVO.getStockCode());
         if (StringUtils.isNotBlank(queryVO.getDealDate())) {
             detailWrapper.eq("deal_date", queryVO.getDealDate());
@@ -49,15 +49,15 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
         if (Objects.nonNull(queryVO.getLimit())) {
             detailWrapper.last("LIMIT " + queryVO.getLimit());
         }
-        List<StockDetail> stockDetails = list(detailWrapper);
-        return genAllStockDetail(stockDetails);
+        List<Detail> details = list(detailWrapper);
+        return genAllStockDetail(details);
     }
 
 
-    public List<StockDetail> genAllStockDetail(List<StockDetail> stockDetails) {
-        for (int i = 0; i < stockDetails.size(); i++) {
-            StockDetail t0 = stockDetails.get(i);
-            List<Pair<Integer, Consumer<StockDetail>>> pairList = new ArrayList<>();
+    public List<Detail> genAllStockDetail(List<Detail> details) {
+        for (int i = 0; i < details.size(); i++) {
+            Detail t0 = details.get(i);
+            List<Pair<Integer, Consumer<Detail>>> pairList = new ArrayList<>();
             pairList.add(Pair.of(i - 1, t0::setNext1));
             pairList.add(Pair.of(i - 2, t0::setNext2));
             pairList.add(Pair.of(i - 3, t0::setNext3));
@@ -74,35 +74,35 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
             pairList.add(Pair.of(i + 8, t0::setT8));
             pairList.add(Pair.of(i + 9, t0::setT9));
             pairList.add(Pair.of(i + 10, t0::setT10));
-            for (Pair<Integer, Consumer<StockDetail>> pair : pairList) {
+            for (Pair<Integer, Consumer<Detail>> pair : pairList) {
                 Integer idx = pair.getLeft();
-                if (0 <= idx && idx < stockDetails.size()) {
-                    StockDetail tmp = stockDetails.get(idx);
+                if (0 <= idx && idx < details.size()) {
+                    Detail tmp = details.get(idx);
                     pair.getRight().accept(tmp);
                 }
             }
         }
-        return stockDetails;
+        return details;
     }
 
 
     @Override
-    public Map<String, List<StockDetail>> getCodeToDetailMap() throws ExecutionException, InterruptedException {
+    public Map<String, List<Detail>> getCodeToDetailMap() throws ExecutionException, InterruptedException {
         return getCodeToDetailMap(null);
     }
 
     @Override
-    public Map<String, List<StockDetail>> getCodeToDetailMap(Integer limit) throws ExecutionException, InterruptedException {
+    public Map<String, List<Detail>> getCodeToDetailMap(Integer limit) throws ExecutionException, InterruptedException {
         List<Stock> stockList = stockService.getAllStock();
-        Map<String, List<StockDetail>> codeToDetailMap = new ConcurrentHashMap<>();
+        Map<String, List<Detail>> codeToDetailMap = new ConcurrentHashMap<>();
         log.info("开始查询数据");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    List<StockDetail> stockDetails = getStockDetail(StockDetailQueryVO.builder().stockCode(stock.getCode()).build());
-                    codeToDetailMap.put(stock.getCode(), stockDetails);
+                    List<Detail> details = getStockDetail(StockDetailQueryVO.builder().stockCode(stock.getCode()).build());
+                    codeToDetailMap.put(stock.getCode(), details);
                 }
             }, ioThreadPool);
             futures.add(future);
@@ -114,12 +114,12 @@ public class StockDetailServiceImpl extends ServiceImpl<StockDetailDAO, StockDet
     }
 
     @Override
-    public Map<String, StockDetail> getCodeToCurDetailMap(String curDate) {
-        Map<String, StockDetail> codeToDetailMap = new ConcurrentHashMap<>();
+    public Map<String, Detail> getCodeToCurDetailMap(String curDate) {
+        Map<String, Detail> codeToDetailMap = new ConcurrentHashMap<>();
         log.info("开始查询数据");
         for (List<String> part : CommonService.stockCodePartList) {
             for (String stockCode : part) {
-                StockDetail detail = CommonService.codeToDetailMap.get(stockCode).stream()
+                Detail detail = CommonService.codeToDetailMap.get(stockCode).stream()
                         .filter(item -> Objects.equals(curDate, item.getDealDate()))
                         .findFirst().orElse(null);
                 if (Objects.nonNull(detail)) {
