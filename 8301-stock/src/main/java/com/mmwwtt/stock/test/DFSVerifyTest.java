@@ -37,7 +37,7 @@ public class DFSVerifyTest {
 
     @PostConstruct
     public void init() {
-        String sql = "rise5_max_middle>0.135 ";
+        String sql = "rise5_max_middle>0.14  and rise5_max_middle<15 ";
         winList = strategyWinService.getStrategyWin(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
@@ -48,7 +48,7 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260313", winList, false, 1.2);
+        calcCommonService.predict("20260315", winList, false, 1.2);
     }
 
     @Test
@@ -88,24 +88,21 @@ public class DFSVerifyTest {
         });
 
         for (String date : predictDateList) {
-            log.info("日期：{}", date);
             List<StockDetail> resList = dataToDetailsMap.getOrDefault(date, Collections.emptyList());
             if (CollectionUtils.isEmpty(resList)) {
                 continue;
             }
-            double fiveMaxDateAvg = divide(sum(resList.stream().map(StockDetail::getNext5MaxPricePert).toList()), resList.size());
-            double fiveDateAvg = divide(sum(resList.stream()
-                            .map(item -> divide(subtract(item.getNext5().getEndPrice(), item.getEndPrice()), item.getEndPrice()))
-                            .toList()),
-                    resList.size());
-            if (isEquals(fiveMaxDateAvg,0)) {
-                continue;
-            }
+            List<Double> next5Maxs = resList.stream().map(StockDetail::getNext5MaxPricePert).toList();
+            List<Double> next5s = resList.stream()
+                    .map(item -> getRise(item.getNext5().getEndPrice(), item.getEndPrice()))
+                    .toList();
+
+            double fiveMaxDateAvg = getAverage(next5Maxs);
             fiveMaxDateAvgList.add(fiveMaxDateAvg);
-            fiveDateAvgList.add(fiveDateAvg);
-            log.info("{}\n", fiveMaxDateAvg);
+            fiveDateAvgList.add(getAverage(next5s));
+            log.info("日期：{}    涨幅：{}%\n", date, String.format("%.3f", fiveMaxDateAvg * 100));
         }
-        log.info("平均5日最高涨幅 {}", divide(sum(fiveMaxDateAvgList), fiveMaxDateAvgList.size()));
-        log.info("平均5日涨幅 {}", divide(sum(fiveDateAvgList), fiveDateAvgList.size()));
+        log.info("平均5日最高涨幅 {}%", String.format("%.3f", getAverage(fiveMaxDateAvgList) * 100));
+        log.info("平均5日涨幅 {}%", String.format("%.3f", getAverage(fiveDateAvgList) * 100));
     }
 }

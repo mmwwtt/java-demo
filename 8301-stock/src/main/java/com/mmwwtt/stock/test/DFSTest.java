@@ -1,30 +1,38 @@
 package com.mmwwtt.stock.test;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.stock.common.GlobalThreadPool;
+import com.mmwwtt.stock.entity.StockDetail;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.CommonService;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import jakarta.annotation.Resource;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 
+//todo 将判断字段如五日平均涨幅  作为枚举  便于跑结果
+//todo 对结果进行再处理 找出符合结果的详情列表， 判断重复度>80%的如何处理
+//todo 策略枚举不采用区间隔离，而是存在重叠当相同类型的枚举则跳过筛选
+//todo 优化验证，当同一个数据被多个策略选中时，增加该数据的权重 再计算涨幅
 @Slf4j
 @SpringBootTest
 public class DFSTest {
@@ -60,17 +68,21 @@ public class DFSTest {
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
     public void DFS1() throws InterruptedException {
-        DfsMain(this::filterBy5MaxAvg, 4);
+        DfsMain(FilterFildEnum.RISE5_MAX_AVG, StrategyWin::getRise5MaxAvg, 4);
     }
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void DFS2() throws InterruptedException {
-        DfsMain(this::filterBy5MaxMiddle, 4);
+        DfsMain(FilterFildEnum.RISE5_MAX_MIDDLE, StrategyWin::getRise5MaxMiddle, 7);
     }
 
 
-    public void DfsMain(Function<StrategyWin, Boolean> isNotFunc, int levelLimit) throws InterruptedException {
+    public void DfsMain(FilterFildEnum fildEnum, Function<StrategyWin, Double> getter,
+                        int levelLimit) throws InterruptedException {
+        //调用getter方法
+        //Double apply = getter.apply(new StrategyWin());
+
         dfsInit();
         LEVEL_LIMIT = levelLimit;
         for (int i = 0; i < l1WinList.size(); i++) {
@@ -83,7 +95,7 @@ public class DFSTest {
             taskCnt.incrementAndGet();
             CompletableFuture.runAsync(() -> {
                 try {
-                    buildByLevel(detailIds, strategyWin, finalI, isNotFunc);
+                    buildByLevel(detailIds, strategyWin, finalI, fildEnum);
                 } finally {
                     taskCnt.decrementAndGet();
                 }
@@ -99,11 +111,12 @@ public class DFSTest {
 
 
     private void buildByLevel(int[] parentDetailIds, StrategyWin parentWin, Integer curIdx,
-                              Function<StrategyWin, Boolean> isNotFunc) {
+                              FilterFildEnum fildEnum) {
         int level = parentWin.getStrategyCodeSet().size() + 1;
         if (level > LEVEL_LIMIT) {
             return;
         }
+        Function<StrategyWin, Double> getter = fildEnum.getGetter();
         for (int i = curIdx + 1; i < l1WinList.size(); i++) {
             StrategyWin strategy = l1WinList.get(i);
             if (parentWin.getStrategyCodeSet().contains(strategy.getStrategyCode())) {
@@ -121,26 +134,26 @@ public class DFSTest {
                 continue;
             }
 
-            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), parentWin.getRise5MaxMiddle(),
-                    strategy.getStrategyCode(), curRetainAllDetailIds);
+            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), getter.apply(parentWin),
+                    strategy.getStrategyCode(), curRetainAllDetailIds, getter);
 
-            if (isNotFunc.apply(win)) {
+            if (fildEnum.getFunc().apply(win)) {
                 continue;
             }
             win.fillData2();
             addToWinBatch(win);
-            if (curDetailIds.length > 1000 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+            if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = i;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
                     try {
-                        buildByLevel(curRetainAllDetailIds, win, finalI, isNotFunc);
+                        buildByLevel(curRetainAllDetailIds, win, finalI, fildEnum);
                     } finally {
                         taskCnt.decrementAndGet();
                     }
                 }, cpuThreadPool);
             } else {
-                buildByLevel(curRetainAllDetailIds, win, i, isNotFunc);
+                buildByLevel(curRetainAllDetailIds, win, i, fildEnum);
             }
         }
     }
@@ -164,6 +177,51 @@ public class DFSTest {
         log.info("dfs 初始化结束");
     }
 
+    @AllArgsConstructor
+    @Getter
+    public enum FilterFildEnum implements BaseEnum {
+        RISE5_MAX_MIDDLE("rise5MaxMiddle", "最大五日涨幅中位数",
+                StockDetail::getNext5MaxPricePert,
+                StrategyWin::setRise5MaxMiddle,
+                (StrategyWin win) -> {
+                    if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), 0.025)) {
+                        return true;
+                    }
+                    int level = win.getStrategyCodeSet().size();
+                    return lessThan(win.getRise5MaxMiddle(), multiply(win.getParentLowLimit(), 1.02))
+                            || (level == 2 && lessThan(win.getRise5MaxMiddle(), 0.075))
+                            || (level == 3 && lessThan(win.getRise5MaxMiddle(), 0.085))
+                            || (level == 4 && lessThan(win.getRise5MaxMiddle(), 0.095))
+                            || (level == 5 && lessThan(win.getRise5MaxMiddle(), 0.105))
+                            || (level == 6 && lessThan(win.getRise5MaxMiddle(), 0.11))
+                            || (level == 7 && lessThan(win.getRise5MaxMiddle(), 0.12));
+                }),
+        RISE5_MAX_AVG("rise5MaxAvg", "最大五日涨幅平均数",
+                StockDetail::getNext5MaxPricePert,
+                StrategyWin::setRise5MaxAvg,
+                (StrategyWin win) -> {
+                    if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxAvg(), 0.05)) {
+                        return true;
+                    }
+                    int level = win.getStrategyCodeSet().size();
+                    return lessThan(win.getRise5MaxAvg(), multiply(win.getParentLowLimit(), 1.01))
+                            || (level == 2 && lessThan(win.getRise5MaxAvg(), 0.08))
+                            || (level == 3 && lessThan(win.getRise5MaxAvg(), 0.09))
+                            || (level == 4 && lessThan(win.getRise5MaxAvg(), 0.10))
+                            || (level == 5 && lessThan(win.getRise5MaxAvg(), 0.11))
+                            || (level == 6 && lessThan(win.getRise5MaxAvg(), 0.115))
+                            || (level == 7 && lessThan(win.getRise5MaxAvg(), 0.12));
+                }),
+
+        ;
+        private final String code;
+        private final String desc;
+        private final Function<StockDetail, Double> detailGetter;
+        private final BiConsumer<StrategyWin,Double> winSetter;
+        private final Function<StrategyWin, Boolean> func;
+    }
+
+
     private void addToWinBatch(StrategyWin win) {
         synchronized (winBatch) {
             winBatch.add(win);
@@ -184,102 +242,15 @@ public class DFSTest {
         strategyWinService.saveBatch(toSave);
     }
 
-    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet, Double parentFiveMaxPercRate,
-                                        String curStrategyCode, int[] details) {
+    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet, Double parentFieldValue,
+                                        String curStrategyCode, int[] details, Function<StrategyWin, Double> getter) {
         StrategyWin win = new StrategyWin(curStrategyCode, parentWinStrategyCodeSet,
-                parentFiveMaxPercRate, details);
+                parentFieldValue, details);
         for (int detail : details) {
             win.addToResult(idToDetailMap.get(detail));
         }
-        win.fillData1();
+        win.fillData1(getter);
         return win;
-    }
-
-    private boolean filterBy5MaxAvg(StrategyWin win) {
-        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxAvg(), 0.05)) {
-            return true;
-        }
-        int level = win.getStrategyCodeSet().size();
-        return lessThan(win.getRise5MaxAvg(), multiply(win.getParentLowLimit(), 1.01))
-                || (level == 2 && lessThan(win.getRise5MaxAvg(), 0.08))
-                || (level == 3 && lessThan(win.getRise5MaxAvg(), 0.09))
-                || (level == 4 && lessThan(win.getRise5MaxAvg(), 0.10))
-                || (level == 5 && lessThan(win.getRise5MaxAvg(), 0.11))
-                || (level == 6 && lessThan(win.getRise5MaxAvg(), 0.115))
-                || (level == 7 && lessThan(win.getRise5MaxAvg(), 0.12));
-    }
-
-    private boolean filterBy5MaxMiddle(StrategyWin win) {
-        if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), 0.025)) {
-            return true;
-        }
-        int level = win.getStrategyCodeSet().size();
-        return lessThan(win.getRise5MaxMiddle(), multiply(win.getParentLowLimit(), 1.02))
-                || (level == 2 && lessThan(win.getRise5MaxMiddle(), 0.07))
-                || (level == 3 && lessThan(win.getRise5MaxMiddle(), 0.085))
-                || (level == 4 && lessThan(win.getRise5MaxMiddle(), 0.095))
-                || (level == 5 && lessThan(win.getRise5MaxMiddle(), 0.105))
-                || (level == 6 && lessThan(win.getRise5MaxMiddle(), 0.115))
-                || (level == 7 && lessThan(win.getRise5MaxMiddle(), 0.125));
-    }
-
-    /**
-     * 取两个 list的交集
-     * 前提：两个list 都要升序,且无重复
-     */
-    private int[] retainAll(int[] list1, int[] list2) {
-        int[] tmpArr = new int[Math.min(list1.length, list2.length)];
-        if (tmpArr.length == 0) {
-            return new int[0];
-        }
-        int j = 0;
-        int arrIdx = 0;
-        for (int num1 : list1) {
-            while (num1 > list2[j]) {
-                j++;
-                if (j >= list2.length) {
-                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
-                }
-            }
-            if (num1 == list2[j]) {
-                tmpArr[arrIdx] = num1;
-                j++;
-                arrIdx++;
-                if (j >= list2.length) {
-                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
-                }
-            }
-        }
-        return Arrays.copyOfRange(tmpArr, 0, arrIdx);
-    }
-
-    /**
-     * 返回 128 位紧凑 key，用于 md5ToLevelMap，不分配 String，适合几十万 key 的大 map
-     */
-    private String getMd5Key(int[] arr) {
-        try {
-            // 1. 将 int[] 转换为 byte[] (每个 int 4字节)
-            byte[] input = new byte[arr.length * 4];
-            for (int i = 0; i < arr.length; i++) {
-                input[i * 4] = (byte) (arr[i] >> 24);
-                input[i * 4 + 1] = (byte) (arr[i] >> 16);
-                input[i * 4 + 2] = (byte) (arr[i] >> 8);
-                input[i * 4 + 3] = (byte) (arr[i]);
-            }
-
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input);
-
-            StringBuilder sb = new StringBuilder();
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b));
-            }
-            String fullMD5 = sb.toString();
-
-            return fullMD5.substring(0, 8);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }
