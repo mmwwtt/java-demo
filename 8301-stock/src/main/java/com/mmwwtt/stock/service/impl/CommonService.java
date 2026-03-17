@@ -1,25 +1,26 @@
 package com.mmwwtt.stock.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.entity.*;
-import com.mmwwtt.stock.test.DFSTest;
+import com.mmwwtt.stock.entity.Stock;
+import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StrategyResult;
+import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.vo.StockDetailQueryVO;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
-
-import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 
 @Service
 @Slf4j
@@ -89,67 +90,5 @@ public class CommonService {
                 .map(StockDetail::getDealDate).findFirst().orElse("20260201");
         stockCodeToNameMap = stockService.list().stream().collect(Collectors.toMap(Stock::getCode, Stock::getName));
         log.info("初始化结束");
-    }
-
-
-    public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
-        QueryWrapper<StrategyWin> winWrapper = new QueryWrapper<>();
-        strategyWinService.remove(winWrapper);
-
-        QueryWrapper<StrategyResult> resultWrapper = new QueryWrapper<>();
-        strategyResultService.remove(resultWrapper);
-
-        List<StrategyEnum> values = StrategyEnum.dayForStrategyList;
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (StrategyEnum strategy : values) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                List<Integer> dateList = new ArrayList<>();
-                for (String stockCode : stockCodeList) {
-                    List<StockDetail> stockDetails = codeToDetailMap.get(stockCode);
-                    for (StockDetail detail : stockDetails) {
-                        if (Objects.isNull(detail.getNext1())
-                                || Objects.isNull(detail.getT10())
-                                || Objects.isNull(detail.getT10().getSixtyDayLine())
-                                || moreThan(detail.getPricePert(), 0.097)
-                                || detail.getDealDate().compareTo("202505") < 0
-                                || detail.getDealDate().compareTo(calcEndDate) > 0) {
-                            continue;
-                        }
-                        if (strategy.getRunFunc().apply(detail)) {
-                            dateList.add(detail.getStockDetailId());
-                        }
-                    }
-                }
-                if (CollectionUtils.isNotEmpty(dateList) && dateList.size() > 10) {
-                    StrategyResult strategyResult = new StrategyResult(1, strategy.getCode(), dateList);
-                    strategyResultService.save(strategyResult);
-                }
-
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("策略层级 1 计算 - 结束");
-
-        //计算第一层的策略的win结果
-        List<StrategyResult> results = strategyResultService.getStrategyResult(
-                StrategyResult.builder().level(1).build());
-        futures = new ArrayList<>();
-        for (StrategyResult result : results) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                StrategyWin strategyWin = new StrategyWin(result.getStrategyCode());
-                result.getStockDetailIdList().stream()
-                        .map(item -> (Integer) item)
-                        .forEach(item -> strategyWin.addToResult(idToDetailMap.get(item)));
-                strategyWin.fillData1(DFSTest.FilterFildEnum.RISE5_MAX_MIDDLE.getGetter());
-                strategyWin.fillData2();
-                strategyWinService.save(strategyWin);
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("计算第一层的策略的win结果 结束");
     }
 }

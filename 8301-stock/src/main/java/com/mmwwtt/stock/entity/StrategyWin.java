@@ -2,12 +2,12 @@ package com.mmwwtt.stock.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.mmwwtt.stock.test.DFSTest;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.getAverage;
 import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
@@ -192,27 +192,28 @@ public class StrategyWin {
 
     /**
      * 填充数据
-     * 只计算 五日最高中位数涨幅 和五日最高平均涨幅
+     * 只计算 字段的中位涨幅 和平均涨幅
+     * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
-    public void fillData1( Function<StrategyWin, Double> getter) {
+    public void fillData1(DFSTest.FilterFildEnum filterFildEnum) {
+        boolean isMiddleFunc = filterFildEnum.getCode().endsWith("MIDDLE");
         Map<String, List<Double>> dateToValuesMap = new HashMap<>(500);
         for (StockDetail stockDetail : list) {
-            Double pert = getter.apply(stockDetail)stockDetail.getNext5MaxPricePert();
+            Double pert = filterFildEnum.getDetailGetter().apply(stockDetail);
             if (pert == null) {
                 continue;
             }
             dateToValuesMap.computeIfAbsent(stockDetail.getDealDate(), k -> new ArrayList<>()).add(pert);
         }
-
-        for (List<Double> fiveMaxPerts : dateToValuesMap.values()) {
-            if (!fiveMaxPerts.isEmpty()) {
-                rise5MaxAvgs.add(getAverage(fiveMaxPerts));
-                rise5MaxMiddles.add(getMiddle(fiveMaxPerts));
-            }
+        //先计算每日的平均值/中位数
+        List<Double> dayValues = new ArrayList<>(INIT_DATE_SIZE);
+        for (List<Double> values : dateToValuesMap.values()) {
+            dayValues.add(isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues));
         }
-        rise5MaxAvg = getAverage(rise5MaxAvgs);
-        rise5MaxMiddle = getMiddle(rise5MaxMiddles);
-        dateCnt = rise5MaxAvgs.size();
+        //再计算总体的平均数/中位数
+        double resValue = isMiddleFunc? getMiddle(dayValues) : getAverage(dayValues);
+        filterFildEnum.getWinSetter().accept(this,resValue);
+        dateCnt = dateToValuesMap.size();
     }
 
     /**

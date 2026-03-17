@@ -4,13 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.StockDetail;
+import com.mmwwtt.stock.entity.StrategyEnum;
+import com.mmwwtt.stock.entity.StrategyResult;
 import com.mmwwtt.stock.entity.StrategyWin;
 import com.mmwwtt.stock.service.impl.CommonService;
+import com.mmwwtt.stock.service.impl.StrategyResultServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyWinServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +33,6 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonService.*;
 
 
-//todo 将判断字段如五日平均涨幅  作为枚举  便于跑结果
 //todo 对结果进行再处理 找出符合结果的详情列表， 判断重复度>80%的如何处理
 //todo 策略枚举不采用区间隔离，而是存在重叠当相同类型的枚举则跳过筛选
 //todo 优化验证，当同一个数据被多个策略选中时，增加该数据的权重 再计算涨幅
@@ -43,10 +46,14 @@ public class DFSTest {
     @Autowired
     private StrategyWinServiceImpl strategyWinService;
 
+    @Autowired
+    private StrategyResultServiceImpl strategyResultService;
+
     @Resource
     private CommonService commonService;
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
+    private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
 
     /**
@@ -58,31 +65,31 @@ public class DFSTest {
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(4000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     private static int LEVEL_LIMIT;
+    private static FilterFildEnum fildEnum;
 
     @Test
     @DisplayName("生成level1策略结果")
     public void getL1Strategy() throws InterruptedException, ExecutionException {
-        commonService.buildStrateResultLevel1();
+        buildStrateResultLevel1();
     }
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的平均值")
     public void DFS1() throws InterruptedException {
-        DfsMain(FilterFildEnum.RISE5_MAX_AVG, StrategyWin::getRise5MaxAvg, 4);
+        fildEnum = FilterFildEnum.RISE5_MAX_AVG;
+        DfsMain(StrategyWin::getRise5MaxAvg, 4);
     }
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void DFS2() throws InterruptedException {
-        DfsMain(FilterFildEnum.RISE5_MAX_MIDDLE, StrategyWin::getRise5MaxMiddle, 7);
+        fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
+        DfsMain(StrategyWin::getRise5MaxMiddle, 7);
     }
 
 
-    public void DfsMain(FilterFildEnum fildEnum, Function<StrategyWin, Double> getter,
+    public void DfsMain(Function<StrategyWin, Double> getter,
                         int levelLimit) throws InterruptedException {
-        //调用getter方法
-        //Double apply = getter.apply(new StrategyWin());
-
         dfsInit();
         LEVEL_LIMIT = levelLimit;
         for (int i = 0; i < l1WinList.size(); i++) {
@@ -95,7 +102,7 @@ public class DFSTest {
             taskCnt.incrementAndGet();
             CompletableFuture.runAsync(() -> {
                 try {
-                    buildByLevel(detailIds, strategyWin, finalI, fildEnum);
+                    buildByLevel(detailIds, strategyWin, finalI);
                 } finally {
                     taskCnt.decrementAndGet();
                 }
@@ -110,13 +117,11 @@ public class DFSTest {
     }
 
 
-    private void buildByLevel(int[] parentDetailIds, StrategyWin parentWin, Integer curIdx,
-                              FilterFildEnum fildEnum) {
+    private void buildByLevel(int[] parentDetailIds, StrategyWin parentWin, Integer curIdx) {
         int level = parentWin.getStrategyCodeSet().size() + 1;
         if (level > LEVEL_LIMIT) {
             return;
         }
-        Function<StrategyWin, Double> getter = fildEnum.getGetter();
         for (int i = curIdx + 1; i < l1WinList.size(); i++) {
             StrategyWin strategy = l1WinList.get(i);
             if (parentWin.getStrategyCodeSet().contains(strategy.getStrategyCode())) {
@@ -134,8 +139,9 @@ public class DFSTest {
                 continue;
             }
 
-            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(), getter.apply(parentWin),
-                    strategy.getStrategyCode(), curRetainAllDetailIds, getter);
+            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(),
+                    fildEnum.getWinGetter().apply(parentWin),
+                    strategy.getStrategyCode(), curRetainAllDetailIds, fildEnum);
 
             if (fildEnum.getFunc().apply(win)) {
                 continue;
@@ -147,13 +153,13 @@ public class DFSTest {
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
                     try {
-                        buildByLevel(curRetainAllDetailIds, win, finalI, fildEnum);
+                        buildByLevel(curRetainAllDetailIds, win, finalI);
                     } finally {
                         taskCnt.decrementAndGet();
                     }
                 }, cpuThreadPool);
             } else {
-                buildByLevel(curRetainAllDetailIds, win, i, fildEnum);
+                buildByLevel(curRetainAllDetailIds, win, i);
             }
         }
     }
@@ -183,6 +189,7 @@ public class DFSTest {
         RISE5_MAX_MIDDLE("rise5MaxMiddle", "最大五日涨幅中位数",
                 StockDetail::getNext5MaxPricePert,
                 StrategyWin::setRise5MaxMiddle,
+                StrategyWin::getRise5MaxMiddle,
                 (StrategyWin win) -> {
                     if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxMiddle(), 0.025)) {
                         return true;
@@ -199,6 +206,7 @@ public class DFSTest {
         RISE5_MAX_AVG("rise5MaxAvg", "最大五日涨幅平均数",
                 StockDetail::getNext5MaxPricePert,
                 StrategyWin::setRise5MaxAvg,
+                StrategyWin::getRise5MaxMiddle,
                 (StrategyWin win) -> {
                     if (win.getDateCnt() < CNT_THRESHOLD || lessThan(win.getRise5MaxAvg(), 0.05)) {
                         return true;
@@ -217,7 +225,8 @@ public class DFSTest {
         private final String code;
         private final String desc;
         private final Function<StockDetail, Double> detailGetter;
-        private final BiConsumer<StrategyWin,Double> winSetter;
+        private final BiConsumer<StrategyWin, Double> winSetter;
+        private final Function<StrategyWin, Double> winGetter;
         private final Function<StrategyWin, Boolean> func;
     }
 
@@ -243,14 +252,74 @@ public class DFSTest {
     }
 
     private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet, Double parentFieldValue,
-                                        String curStrategyCode, int[] details, Function<StrategyWin, Double> getter) {
+                                        String curStrategyCode, int[] details, FilterFildEnum filterFildEnum) {
         StrategyWin win = new StrategyWin(curStrategyCode, parentWinStrategyCodeSet,
                 parentFieldValue, details);
         for (int detail : details) {
             win.addToResult(idToDetailMap.get(detail));
         }
-        win.fillData1(getter);
+        win.fillData1(filterFildEnum);
         return win;
     }
 
+    public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
+        QueryWrapper<StrategyWin> winWrapper = new QueryWrapper<>();
+        strategyWinService.remove(winWrapper);
+
+        QueryWrapper<StrategyResult> resultWrapper = new QueryWrapper<>();
+        strategyResultService.remove(resultWrapper);
+
+        List<StrategyEnum> values = StrategyEnum.dayForStrategyList;
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (StrategyEnum strategy : values) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                List<Integer> dateList = new ArrayList<>();
+                for (String stockCode : stockCodeList) {
+                    List<StockDetail> stockDetails = codeToDetailMap.get(stockCode);
+                    for (StockDetail detail : stockDetails) {
+                        if (Objects.isNull(detail.getNext1())
+                                || Objects.isNull(detail.getT10())
+                                || Objects.isNull(detail.getT10().getSixtyDayLine())
+                                || moreThan(detail.getPricePert(), 0.097)
+                                || detail.getDealDate().compareTo("202505") < 0
+                                || detail.getDealDate().compareTo(calcEndDate) > 0) {
+                            continue;
+                        }
+                        if (strategy.getRunFunc().apply(detail)) {
+                            dateList.add(detail.getStockDetailId());
+                        }
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(dateList) && dateList.size() > 10) {
+                    StrategyResult strategyResult = new StrategyResult(1, strategy.getCode(), dateList);
+                    strategyResultService.save(strategyResult);
+                }
+
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        log.info("策略层级 1 计算 - 结束");
+
+        //计算第一层的策略的win结果
+        List<StrategyResult> results = strategyResultService.getStrategyResult(
+                StrategyResult.builder().level(1).build());
+        futures = new ArrayList<>();
+        for (StrategyResult result : results) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                StrategyWin strategyWin = new StrategyWin(result.getStrategyCode());
+                result.getStockDetailIdList().stream()
+                        .map(item -> (Integer) item)
+                        .forEach(item -> strategyWin.addToResult(idToDetailMap.get(item)));
+                strategyWin.fillData1(fildEnum);
+                strategyWin.fillData2();
+                strategyWinService.save(strategyWin);
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+        log.info("计算第一层的策略的win结果 结束");
+    }
 }
