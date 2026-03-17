@@ -55,7 +55,7 @@ public class StrategyTmp {
     private Set<String> parentWinStrategyCodeSet;
 
     @TableField(exist = false)
-    private Double parentLowLimit;
+    private Double parentPert;
 
     @TableField(exist = false)
     private int[] detailIdArr;
@@ -117,15 +117,15 @@ public class StrategyTmp {
     }
 
 
-    public StrategyWin(String strategyCode) {
+    public StrategyTmp(String strategyCode) {
         this(strategyCode, null, null, null);
     }
 
-    public StrategyWin(String strategyCode, Set<String> parentWinStrategyCodeSet,
-                       Double parentLowLimit, int[] detailIdArr) {
+    public StrategyTmp(String strategyCode, Set<String> parentWinStrategyCodeSet,
+                       Double parentPert, int[] detailIdArr) {
         this.strategyCode = strategyCode;
         this.parentWinStrategyCodeSet = parentWinStrategyCodeSet;
-        this.parentLowLimit = parentLowLimit;
+        this.parentPert = parentPert;
         this.detailIdArr = detailIdArr;
         strategyCodeSet.add(strategyCode);
         if (Objects.nonNull(parentWinStrategyCodeSet)) {

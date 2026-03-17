@@ -183,6 +183,16 @@ public class BaseStrategy {
     @TableField(exist = false)
     protected int[] detailIdArr;
 
+    /**
+     * 策略编码
+     */
+    protected Set<String> strategyCodeSet;
+
+    public void fillCodeSet(){
+        strategyCodeSet = Arrays.stream(strategyCode.split(" ")).collect(Collectors.toSet());
+    }
+
+
     public void addToResult(Detail detail) {
         if (Objects.isNull(detail)) {
             log.info("不存在的详情");

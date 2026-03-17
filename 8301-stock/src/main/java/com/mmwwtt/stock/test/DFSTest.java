@@ -64,11 +64,11 @@ public class DFSTest {
      */
     private final List<StrategyTmp> tmpBatch = Collections.synchronizedList(new ArrayList<>());
 
-    private static List<StrategyL1> strategyL1s;
     private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(4000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     private static int LEVEL_LIMIT;
     public static FilterFildEnum fildEnum;
+    public static List<StrategyL1> strategyL1s;
 
     @Test
     @DisplayName("生成level1策略结果")
@@ -94,13 +94,12 @@ public class DFSTest {
         LEVEL_LIMIT = levelLimit;
         for (int i = 0; i < strategyL1s.size(); i++) {
             StrategyL1 strategyL1 = strategyL1s.get(i);
-            int[] detailIds = strategyL1.getDetailIdArr();
             int finalI = i;
             taskCnt.incrementAndGet();
             CompletableFuture.runAsync(() -> {
                 try {
                     StrategyTmp strategyTmp = VoConvert.INSTANCE.convertTo(strategyL1);
-                    buildByLevel(detailIds, strategyTmp, finalI);
+                    buildByLevel(strategyTmp, finalI);
                 } finally {
                     taskCnt.decrementAndGet();
                 }
@@ -115,69 +114,72 @@ public class DFSTest {
     }
 
 
-    private void buildByLevel(int[] detailIds, StrategyTmp strategyTmp, Integer curIdx) {
+    private void buildByLevel(StrategyTmp strategyTmp, Integer curIdx) {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
         if (level > LEVEL_LIMIT) {
             return;
         }
-        for (int i = curIdx + 1; i < l1WinList.size(); i++) {
-            StrategyWin strategy = l1WinList.get(i);
-            if (parentWin.getStrategyCodeSet().contains(strategy.getStrategyCode())) {
+        for (int i = curIdx + 1; i < strategyL1s.size(); i++) {
+            //计算两个策略的并集
+            StrategyL1 strategyL1 = strategyL1s.get(i);
+            if (strategyTmp.getStrategyCodeSet().contains(strategyL1.getStrategyCode())) {
                 continue;
             }
-            int[] curDetailIds = strategyCodeToDetailsMap.get(strategy.getStrategyCode());
-            if (curDetailIds == null) {
+            int[] l1DetailIdArr = strategyL1.getDetailIdArr();
+            if (l1DetailIdArr == null) {
                 continue;
             }
-            int[] curRetainAllDetailIds = retainAll(parentDetailIds, curDetailIds);
+            int[] resDetailIdArr = retainAll(strategyTmp.getDetailIdArr(), l1DetailIdArr);
 
-            String md5Key = getMd5Key(curRetainAllDetailIds);
+            String md5Key = getMd5Key(resDetailIdArr);
             Integer newLevel = md5ToLevelMap.merge(md5Key, level, Math::max);
             if (newLevel > level) {
                 continue;
             }
 
-            StrategyWin win = calcStrategyWin(parentWin.getStrategyCodeSet(),
-                    fildEnum.getWinGetter().apply(parentWin),
-                    strategy.getStrategyCode(), curRetainAllDetailIds, fildEnum);
+            //计算并集中筛选字段的属性值
+            StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1.getStrategyCode(), strategyTmp.getParentWinStrategyCodeSet(),
+                    strategyTmp.getPert(), resDetailIdArr);
+            for (int detail : resDetailIdArr) {
+                resStrategyTmp.addToResult(idToDetailMap.get(detail));
+            }
+            resStrategyTmp.fillFilterField(fildEnum);
 
-            if (!fildEnum.getFunc().apply(win)) {
+            //进行阈值过滤 和 数据保存
+            if (!fildEnum.getFunc().apply(strategyTmp)) {
                 continue;
             }
-            win.fillLevelAndName();
-            addToWinBatch(win);
+            strategyTmp.fillCode();
+            addToTmpBatch(strategyTmp);
+
+            //和递归 有空余线程时使用线程
             if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = i;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
                     try {
-                        buildByLevel(curRetainAllDetailIds, win, finalI);
+                        buildByLevel(resStrategyTmp, finalI);
                     } finally {
                         taskCnt.decrementAndGet();
                     }
                 }, cpuThreadPool);
             } else {
-                buildByLevel(curRetainAllDetailIds, win, i);
+                buildByLevel(resStrategyTmp, i);
             }
         }
     }
 
     private void dfsInit() {
         log.info("dfs 初始化");
-        QueryWrapper<StrategyWin> wrapper = new QueryWrapper<>();
-        wrapper.apply("level!=1");
-        strategyWinService.remove(wrapper);
-        tmpBatch.clear();
-        md5ToLevelMap.clear();
-        l1WinList = CommonService.strategyL1s.stream()
+        strategyTmpService.remove(new QueryWrapper<>());
+        strategyL1s = CommonService.strategyL1s.stream()
                 .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
                 .filter(item -> item.getStrategyName().startsWith("T0")
                         || item.getStrategyName().startsWith("T1")
                         || item.getStrategyName().startsWith("T2")
                         || item.getStrategyName().startsWith("T3")
                 )
-                .peek(item -> item.getStrategyCodeSet().add(item.getStrategyCode()))
-                .sorted(Comparator.comparing(StrategyWin::getRise5MaxMiddle).reversed()).toList();
+                .sorted(Comparator.comparing(StrategyL1::getRise5MaxMiddle).reversed()).toList();
         log.info("dfs 初始化结束");
     }
 
@@ -217,9 +219,9 @@ public class DFSTest {
     }
 
 
-    private void addToWinBatch(StrategyWin win) {
+    private void addToTmpBatch(StrategyTmp tmpData) {
         synchronized (tmpBatch) {
-            tmpBatch.add(win);
+            tmpBatch.add(tmpData);
             if (tmpBatch.size() >= BATCH_SAVE_SIZE) {
                 flushWinBatch();
             }
@@ -237,16 +239,6 @@ public class DFSTest {
         strategyWinService.saveBatch(toSave);
     }
 
-    private StrategyWin calcStrategyWin(Set<String> parentWinStrategyCodeSet, Double parentFieldValue,
-                                        String curStrategyCode, int[] details, FilterFildEnum filterFildEnum) {
-        StrategyWin win = new StrategyWin(curStrategyCode, parentWinStrategyCodeSet,
-                parentFieldValue, details);
-        for (int detail : details) {
-            win.addToResult(idToDetailMap.get(detail));
-        }
-        win.fillFilterField(filterFildEnum);
-        return win;
-    }
 
     public void buildStrateResultLevel1() throws ExecutionException, InterruptedException {
         QueryWrapper<StrategyL1> winWrapper = new QueryWrapper<>();

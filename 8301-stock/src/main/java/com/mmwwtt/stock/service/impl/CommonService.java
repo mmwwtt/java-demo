@@ -60,6 +60,7 @@ public class CommonService {
                 ids[i] = item.getDetailIds().getIntValue(i);
             }
             item.setDetailIdArr(ids);
+            item.fillCodeSet();
         });
 
         stockCodeList = stockService.list().stream().map(Stock::getCode).toList();
