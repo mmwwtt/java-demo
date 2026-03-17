@@ -25,5 +25,5 @@ public interface StockConverter {
             @Mapping(target = "next5", ignore = true),
             @Mapping(target = "next10", ignore = true)
     })
-    Detail convertToStockDetail(Detail detail);
+    Detail convertToDetail(Detail detail);
 }

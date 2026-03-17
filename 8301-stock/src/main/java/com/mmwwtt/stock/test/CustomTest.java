@@ -63,7 +63,7 @@ public class CustomTest {
             List<Detail> curList = resList.stream().limit(200).toList();
             for (Detail detail : curList) {
                 try {
-                    StockGuiUtils.genDetailImage(detail, strategyEnum.getName());
+                    StockGuiUtils.genDetailImage(detail, strategyEnum.getDesc());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

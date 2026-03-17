@@ -11,9 +11,7 @@ import com.mmwwtt.stock.enums.FilterFildEnum;
 import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.service.impl.CommonService;
 import com.mmwwtt.stock.service.impl.StrategyL1ServiceImpl;
-import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -37,7 +35,7 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 //todo 策略枚举不采用区间隔离，而是存在重叠当相同类型的枚举则跳过筛选
 //todo 优化验证，当同一个数据被多个策略选中时，增加该数据的权重 再计算涨幅
 //todo next5MaxPertRate 感觉这个字段不是很对
-//todo 分成1层表    DFS中间表      策略结果表
+//todo  计算中位数时，所有详情id都要升序排序
 @Slf4j
 @SpringBootTest
 public class DFSTest {
@@ -49,14 +47,7 @@ public class DFSTest {
     @Autowired
     private StrategyL1ServiceImpl strategyL1Service;
 
-    @Autowired
-    private StrategyServiceImpl strategyService;
-
-    @Resource
-    private CommonService commonService;
-
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
-    private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
 
     /**
@@ -246,7 +237,7 @@ public class DFSTest {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (StrategyEnum strategy : strategyL1Enums) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                List<Detail> resDetails = new ArrayList<>();
+                List<Integer> resDetailIds = new ArrayList<>();
                 for (String stockCode : stockCodeList) {
                     List<Detail> details = codeToDetailMap.get(stockCode);
                     for (Detail detail : details) {
@@ -259,12 +250,12 @@ public class DFSTest {
                             continue;
                         }
                         if (strategy.getFilterFunc().apply(detail)) {
-                            resDetails.add(detail);
+                            resDetailIds.add(detail.getDetailId());
                         }
                     }
                 }
-                if (CollectionUtils.isNotEmpty(resDetails) && resDetails.size() > 10) {
-                    StrategyL1 strategyL1 = new StrategyL1(strategy.getCode(), resDetails);
+                if (CollectionUtils.isNotEmpty(resDetailIds) && resDetailIds.size() > 10) {
+                    StrategyL1 strategyL1 = new StrategyL1(strategy.getCode(), resDetailIds);
                     strategyL1.fillOtherData();
                     strategyL1Service.save(strategyL1);
                 }

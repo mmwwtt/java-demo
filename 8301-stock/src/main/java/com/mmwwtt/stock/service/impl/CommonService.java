@@ -76,9 +76,9 @@ public class CommonService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         stockCodePartList.forEach(part -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
-                List<Detail> details = detailService.getStockDetail(new DetailQueryVO(stockCode));
+                List<Detail> details = detailService.getDetail(new DetailQueryVO(stockCode));
                 details.sort(Comparator.comparing(Detail::getDealDate).reversed());
-                detailService.genAllStockDetail(details);
+                detailService.genAllDetail(details);
                 details.forEach(item -> idToDetailMap.put(item.getDetailId(), item));
                 codeToDetailMap.put(stockCode, details);
             }), ioThreadPool);

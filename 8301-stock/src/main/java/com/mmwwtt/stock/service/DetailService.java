@@ -13,7 +13,7 @@ public interface DetailService {
     /**
      * 获取指定代码的股票列表
      */
-    List<Detail> getStockDetail(DetailQueryVO queryVO);
+    List<Detail> getDetail(DetailQueryVO queryVO);
 
     /**
      * 获得股票   交易列表

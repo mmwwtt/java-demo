@@ -30,16 +30,11 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
     @Resource
     private StockService stockService;
 
-    @Resource
-    private DetailDAO detailDAO;
-
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
-    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
-    private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
 
     @Override
-    public List<Detail> getStockDetail(DetailQueryVO queryVO) {
+    public List<Detail> getDetail(DetailQueryVO queryVO) {
         QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
         detailWrapper.eq("stock_code", queryVO.getStockCode());
         if (StringUtils.isNotBlank(queryVO.getDealDate())) {
@@ -50,11 +45,11 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
             detailWrapper.last("LIMIT " + queryVO.getLimit());
         }
         List<Detail> details = list(detailWrapper);
-        return genAllStockDetail(details);
+        return genAllDetail(details);
     }
 
 
-    public List<Detail> genAllStockDetail(List<Detail> details) {
+    public List<Detail> genAllDetail(List<Detail> details) {
         for (int i = 0; i < details.size(); i++) {
             Detail t0 = details.get(i);
             List<Pair<Integer, Consumer<Detail>>> pairList = new ArrayList<>();
@@ -101,7 +96,7 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    List<Detail> details = getStockDetail(DetailQueryVO.builder().stockCode(stock.getCode()).build());
+                    List<Detail> details = getDetail(DetailQueryVO.builder().stockCode(stock.getCode()).build());
                     codeToDetailMap.put(stock.getCode(), details);
                 }
             }, ioThreadPool);

@@ -26,10 +26,8 @@ import static com.mmwwtt.stock.service.impl.CommonService.*;
 public class CalcCommonService {
 
     @Resource
-    private DetailServiceImpl stockDetailService;
+    private DetailServiceImpl detailService;
 
-
-    private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
 
@@ -38,7 +36,7 @@ public class CalcCommonService {
      */
     public void predict(String curDate, List<Strategy> strategys, boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
         Map<Strategy, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
-        Map<String, Detail> codeToDetailMap = stockDetailService.getCodeToCurDetailMap(curDate);
+        Map<String, Detail> codeToDetailMap = detailService.getCodeToCurDetailMap(curDate);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
@@ -67,7 +65,7 @@ public class CalcCommonService {
                                     .add(stockCode + "_" + name + " " + pert);
                         }
                     }
-                }, ioThreadPool);
+                }, cpuThreadPool);
                 futures.add(future);
             }
         }
@@ -137,7 +135,7 @@ public class CalcCommonService {
                         }
 
                     }
-                }, ioThreadPool);
+                }, cpuThreadPool);
                 futures.add(future);
             }
         }

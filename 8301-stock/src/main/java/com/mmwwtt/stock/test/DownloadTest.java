@@ -48,7 +48,7 @@ public class DownloadTest {
     private StockServiceImpl stockService;
 
     @Resource
-    private DetailServiceImpl stockDetailService;
+    private DetailServiceImpl detailService;
 
     @Resource
     private StrategyL1ServiceImpl strategyResultService;
@@ -139,8 +139,8 @@ public class DownloadTest {
     public void dataDownLoadInit() {
         log.info("开始清空表 start\n\n\n");
 
-        QueryWrapper<Detail> stockDetailWrapper = new QueryWrapper<>();
-        stockDetailService.remove(stockDetailWrapper);
+        QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
+        detailService.remove(detailWrapper);
 
         QueryWrapper<StrategyL1> l1Wrapper = new QueryWrapper<>();
         strategyL1Service.remove(l1Wrapper);
@@ -204,21 +204,21 @@ public class DownloadTest {
                             .peek(item -> item.setStockCode(stock.getCode()))
                             .filter(item -> item.getSf() == 0)
                             .collect(Collectors.toList());
-                    List<Detail> details = voConvert.convertToStockDetail(detailVOS);
+                    List<Detail> details = voConvert.convertToDetail(detailVOS);
 
                     QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
                     detailWrapper.eq("stock_code", stock.getCode());
-                    Map<String, Detail> dateToMap = stockDetailService.list(detailWrapper).stream()
+                    Map<String, Detail> dateToMap = detailService.list(detailWrapper).stream()
                             .collect(Collectors.toMap(Detail::getDealDate, Function.identity()));
-                    for (Detail stockDetail : details) {
-                        if (dateToMap.containsKey(stockDetail.getDealDate())) {
-                            stockDetail.setDetailId(dateToMap.get(stockDetail.getDealDate()).getDetailId());
+                    for (Detail detail : details) {
+                        if (dateToMap.containsKey(detail.getDealDate())) {
+                            detail.setDetailId(dateToMap.get(detail.getDealDate()).getDetailId());
                         }
                     }
                     details.sort(Comparator.comparing(Detail::getDealDate).reversed());
                     details.forEach(item -> item.calc());
                     Detail.calc(details);
-                    stockDetailService.saveOrUpdateBatch(details);
+                    detailService.saveOrUpdateBatch(details);
                 }
             }, ioThreadPool);
             futures.add(future);

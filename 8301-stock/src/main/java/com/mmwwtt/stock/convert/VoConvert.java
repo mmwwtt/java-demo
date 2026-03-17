@@ -27,7 +27,7 @@ public interface VoConvert {
 
 
 
-    List<Detail> convertToStockDetail(List<DetailVO> detailVO);
+    List<Detail> convertToDetail(List<DetailVO> detailVO);
 
     @Mappings({
             @Mapping(target = "code", source = "stock.dm"),
@@ -40,31 +40,31 @@ public interface VoConvert {
 
 
     @Mappings({
-            @Mapping(target = "stockCode", source = "stockDetailVO.stockCode"),
-            @Mapping(target = "dealDate", source = "stockDetailVO.t"),
-            @Mapping(target = "startPrice", source = "stockDetailVO.o"),
-            @Mapping(target = "highPrice", source = "stockDetailVO.h"),
-            @Mapping(target = "lowPrice", source = "stockDetailVO.l"),
-            @Mapping(target = "endPrice", source = "stockDetailVO.c"),
-            @Mapping(target = "dealQuantity", source = "stockDetailVO.v"),
-            @Mapping(target = "dealPrice", source = "stockDetailVO.a"),
-            @Mapping(target = "lastPrice", source = "stockDetailVO.pc")
+            @Mapping(target = "stockCode", source = "detailVO.stockCode"),
+            @Mapping(target = "dealDate", source = "detailVO.t"),
+            @Mapping(target = "startPrice", source = "detailVO.o"),
+            @Mapping(target = "highPrice", source = "detailVO.h"),
+            @Mapping(target = "lowPrice", source = "detailVO.l"),
+            @Mapping(target = "endPrice", source = "detailVO.c"),
+            @Mapping(target = "dealQuantity", source = "detailVO.v"),
+            @Mapping(target = "dealPrice", source = "detailVO.a"),
+            @Mapping(target = "lastPrice", source = "detailVO.pc")
     })
-    Detail convertToStockDetail(DetailVO detailVO);
+    Detail convertToDetail(DetailVO detailVO);
 
 
     @Mappings({
-            @Mapping(target = "stockCode", source = "stockDetailVO.stockCode"),
-            @Mapping(target = "dealDate", source = "stockDetailVO.t"),
-            @Mapping(target = "startPrice", source = "stockDetailVO.o"),
-            @Mapping(target = "highPrice", source = "stockDetailVO.h"),
-            @Mapping(target = "lowPrice", source = "stockDetailVO.l"),
-            @Mapping(target = "endPrice", source = "stockDetailVO.p"),
-            @Mapping(target = "dealQuantity", source = "stockDetailVO.v"),
-            @Mapping(target = "dealPrice", source = "stockDetailVO.cje"),
-            @Mapping(target = "lastPrice", source = "stockDetailVO.yc")
+            @Mapping(target = "stockCode", source = "detailVO.stockCode"),
+            @Mapping(target = "dealDate", source = "detailVO.t"),
+            @Mapping(target = "startPrice", source = "detailVO.o"),
+            @Mapping(target = "highPrice", source = "detailVO.h"),
+            @Mapping(target = "lowPrice", source = "detailVO.l"),
+            @Mapping(target = "endPrice", source = "detailVO.p"),
+            @Mapping(target = "dealQuantity", source = "detailVO.v"),
+            @Mapping(target = "dealPrice", source = "detailVO.cje"),
+            @Mapping(target = "lastPrice", source = "detailVO.yc")
     })
-    Detail convertToStockDetail(DetailOnTimeVO stockDetailVO);
+    Detail convertToDetail(DetailOnTimeVO detailVO);
 
     @AfterMapping
     default void convertBigDecimal(@MappingTarget Detail detail) {
