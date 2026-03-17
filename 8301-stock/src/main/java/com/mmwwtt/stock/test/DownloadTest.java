@@ -230,6 +230,7 @@ public class DownloadTest {
 
 
     private <T> T getResponse(String url, Map<String, String> paramMap, ParameterizedTypeReference<T> reference) {
+        int cnt = 1;
         while (true) {
             try {
                 ResponseEntity<T> res = restTemplate.exchange(url, HttpMethod.GET, null, reference, paramMap);
@@ -243,6 +244,11 @@ public class DownloadTest {
                 }
                 try {
                     Thread.sleep(5000);
+                    cnt++;
+                    if (cnt > 5) {
+                        log.info("url:{}\n报错：{}参数：\n{}", url, e.getMessage(), paramMap);
+                        break;
+                    }
                 } catch (Exception e1) {
                     break;
                 }

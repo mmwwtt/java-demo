@@ -2,16 +2,9 @@ package com.mmwwtt.stock.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.dao.DetailDAO;
 import com.mmwwtt.stock.entity.Detail;
-import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.service.DetailService;
-import com.mmwwtt.stock.service.StockService;
-import com.mmwwtt.stock.vo.DetailQueryVO;
-import io.micrometer.common.util.StringUtils;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
@@ -20,31 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 @Service
 @Slf4j
 public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements DetailService {
 
-    @Resource
-    private StockService stockService;
-
-    private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
-
-
     @Override
-    public List<Detail> getDetail(DetailQueryVO queryVO) {
-        QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
-        detailWrapper.eq("stock_code", queryVO.getStockCode());
-        if (StringUtils.isNotBlank(queryVO.getDealDate())) {
-            detailWrapper.eq("deal_date", queryVO.getDealDate());
-        }
-        detailWrapper.orderByDesc("deal_date");
-        if (Objects.nonNull(queryVO.getLimit())) {
-            detailWrapper.last("LIMIT " + queryVO.getLimit());
-        }
-        List<Detail> details = list(detailWrapper);
+    public List<Detail> getBySql(String sql) {
+        QueryWrapper<Detail> wrapper = new QueryWrapper<>();
+        wrapper.apply(sql);
+        List<Detail> details = list(wrapper);
         return genAllDetail(details);
     }
 
@@ -81,28 +61,6 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
     }
 
     @Override
-    public Map<String, List<Detail>> getCodeToDetailMap(Integer limit) throws ExecutionException, InterruptedException {
-        List<Stock> stockList = stockService.getAllStock();
-        Map<String, List<Detail>> codeToDetailMap = new ConcurrentHashMap<>();
-        log.info("开始查询数据");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<List<Stock>> parts = Lists.partition(stockList, 50);
-        for (List<Stock> part : parts) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                for (Stock stock : part) {
-                    List<Detail> details = getDetail(DetailQueryVO.builder().stockCode(stock.getCode()).build());
-                    codeToDetailMap.put(stock.getCode(), details);
-                }
-            }, ioThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-        log.info("开始查询数据-结束");
-        return codeToDetailMap;
-    }
-
-    @Override
     public Map<String, Detail> getCodeToCurDetailMap(String curDate) {
         Map<String, Detail> codeToDetailMap = new ConcurrentHashMap<>();
         log.info("开始查询数据");
@@ -119,6 +77,4 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
         log.info("开始查询数据-结束");
         return codeToDetailMap;
     }
-
-
 }

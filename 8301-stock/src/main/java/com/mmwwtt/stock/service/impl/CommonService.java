@@ -7,7 +7,6 @@ import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.enums.StrategyEnum;
-import com.mmwwtt.stock.vo.DetailQueryVO;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -60,44 +59,8 @@ public class CommonService {
     @PostConstruct
     public void init() throws ExecutionException, InterruptedException {
         log.info("初始化开始");
-        strategyL1s = strategyL1Service.list();
-        strategyL1s.forEach(item -> {
-            int[] ids = new int[item.getDetailIds().size()];
-            for (int i = 0; i < item.getDetailIds().size(); i++) {
-                ids[i] = item.getDetailIds().getIntValue(i);
-            }
-            item.setDetailIdArr(ids);
-            item.fillCodeSet();
-        });
 
-        stockCodeList = stockService.list().stream().map(Stock::getCode).toList();
-        stockCodePartList = Lists.partition(stockCodeList, 50);
-
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        stockCodePartList.forEach(part -> {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
-                List<Detail> details = detailService.getDetail(new DetailQueryVO(stockCode));
-                details.sort(Comparator.comparing(Detail::getDealDate).reversed());
-                detailService.genAllDetail(details);
-                details.forEach(item -> idToDetailMap.put(item.getDetailId(), item));
-                codeToDetailMap.put(stockCode, details);
-            }), ioThreadPool);
-            futures.add(future);
-        });
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
-
-
-        predictDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
-                .stream().limit(15)
-                .map(Detail::getDealDate).toList();
-        calcEndDate = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
-                .stream().skip(15)
-                .map(Detail::getDealDate).findFirst().orElse("20260201");
-        stockCodeToNameMap = stockService.list().stream().collect(Collectors.toMap(Stock::getCode, Stock::getName));
-
-
-        //填充L1层的基础策略枚举
+        log.info("开始补充L1策略枚举");
         List<Integer> tList = List.of(0, 1, 2, 3);
         tList.forEach(t -> {
             List<StrategyEnum> enums = baseStrategys.stream().map(item -> {
@@ -112,6 +75,44 @@ public class CommonService {
         for (StrategyEnum strategyEnum : strategyL1Enums) {
             l1CodeToEnumMap.put(strategyEnum.getCode(), strategyEnum);
         }
+
+        log.info("开始加载L1层策略");
+        strategyL1s = strategyL1Service.list();
+        strategyL1s.forEach(item -> {
+            int[] ids = new int[item.getDetailIds().size()];
+            for (int i = 0; i < item.getDetailIds().size(); i++) {
+                ids[i] = item.getDetailIds().getIntValue(i);
+            }
+            item.setDetailIdArr(ids);
+            item.fillCodeSet();
+        });
+        log.info("开始查询股票列表");
+        stockCodeList = stockService.list().stream().map(Stock::getCode).toList();
+        stockCodePartList = Lists.partition(stockCodeList, 50);
+
+        log.info("开始查询详情列表");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        stockCodePartList.forEach(part -> {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
+                List<Detail> details = detailService.getBySql(String.format("stock_code='%s'", stockCode));
+                details.sort(Comparator.comparing(Detail::getDealDate).reversed());
+                detailService.genAllDetail(details);
+                details.forEach(item -> idToDetailMap.put(item.getDetailId(), item));
+                codeToDetailMap.put(stockCode, details);
+            }), ioThreadPool);
+            futures.add(future);
+        });
+        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allTask.get();
+
+        log.info("开始设置Dfs截止日期");
+        predictDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
+                .stream().limit(15)
+                .map(Detail::getDealDate).toList();
+        calcEndDate = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
+                .stream().skip(15)
+                .map(Detail::getDealDate).findFirst().orElse("20260201");
+        stockCodeToNameMap = stockService.list().stream().collect(Collectors.toMap(Stock::getCode, Stock::getName));
         log.info("初始化结束");
     }
 }

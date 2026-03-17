@@ -11,6 +11,8 @@ set global sync_binlog = 100000;
 SET GLOBAL innodb_buffer_pool_size = 8 * 1024 * 1024 * 1024; -- 8 GB
 SET GLOBAL innodb_log_buffer_size = 128 * 1024 * 1024; -- 128 MB
 SET GLOBAL thread_cache_size = 50;
+set GLOBAL sort_buffer_size = 1*1024 * 1024 * 1024;
+
 
 #已连接的线程
 SHOW STATUS LIKE 'Threads_connected';
@@ -126,6 +128,7 @@ CREATE TABLE detail_t
     volatility20             decimal(10, 4) comment '20日波动率',
     volume_price_divergence  INT4 comment '量价背离信号'
 ) COMMENT '股票详情表';
+create index stockCode on detail_t (stock_code);
 
 
 DROP TABLE IF EXISTS strategy_l1_t;
@@ -133,7 +136,7 @@ CREATE TABLE strategy_l1_t
 (
     strategy_id       INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code     VARCHAR(200) COMMENT '策略编码',
-    name            VARCHAR(200) COMMENT '策略描述',
+    name              VARCHAR(200) COMMENT '策略描述',
     detail_ids        JSON COMMENT '符合条件的详情id列表',
     rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',
     rise2_avg         DECIMAL(8, 4) COMMENT '2日平均涨幅',
@@ -169,7 +172,7 @@ CREATE TABLE strategy_t
 (
     strategy_id       INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code     VARCHAR(200) COMMENT '策略编码',
-    name            VARCHAR(200) COMMENT '策略描述',
+    name              VARCHAR(200) COMMENT '策略描述',
     detail_ids        JSON COMMENT '符合条件的详情id列表',
     date_cnt          INT(8) COMMENT '有符合数据的日期天数',
     rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',

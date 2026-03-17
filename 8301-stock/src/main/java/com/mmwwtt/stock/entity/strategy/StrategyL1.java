@@ -7,6 +7,8 @@ import lombok.*;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.mmwwtt.stock.service.impl.CommonService.idToDetailMap;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = "strategy_l1_t", autoResultMap = true)
@@ -20,5 +22,6 @@ public class StrategyL1 extends BaseStrategy {
         JSONArray array = new JSONArray(detailIds.size());
         array.addAll(detailIds);
         this.detailIds = array;
+        this.details = detailIds.stream().map(item -> idToDetailMap.get(item)).toList();
     }
 }

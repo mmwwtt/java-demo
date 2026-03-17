@@ -136,39 +136,39 @@ public class BaseStrategy {
      * 临时属性
      */
     @TableField(exist = false)
-    private List<Detail> details = Collections.synchronizedList(new ArrayList<>(50000));
+    protected List<Detail> details = Collections.synchronizedList(new ArrayList<>(50000));
     @TableField(exist = false)
-    private List<Double> rise1Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise1Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise2Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise2Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise3Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise3Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise4Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise4Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise5Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise5Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise10Avgs = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise10Avgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise5MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise5MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise10MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise10MaxAvgs = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise1Middles = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise1Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise2Middles = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise2Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise3Middles = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise3Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise4Middles = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise4Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise5Middles = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise5Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise10Middles = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise10Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise5MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise5MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
-    private List<Double> rise10MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
+    protected List<Double> rise10MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
 
 
     /**
