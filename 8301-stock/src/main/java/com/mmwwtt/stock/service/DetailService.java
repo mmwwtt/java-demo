@@ -1,7 +1,7 @@
 package com.mmwwtt.stock.service;
 
 import com.mmwwtt.stock.entity.Detail;
-import com.mmwwtt.stock.vo.StockDetailQueryVO;
+import com.mmwwtt.stock.vo.DetailQueryVO;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ public interface DetailService {
     /**
      * 获取指定代码的股票列表
      */
-    List<Detail> getStockDetail(StockDetailQueryVO queryVO);
+    List<Detail> getStockDetail(DetailQueryVO queryVO);
 
     /**
      * 获得股票   交易列表

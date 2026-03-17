@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StockDetailQueryVO {
+public class DetailQueryVO {
 
     /**
      * 股票代码
@@ -326,13 +326,13 @@ public class StockDetailQueryVO {
      * 下个交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO next1;
+    private DetailQueryVO next1;
 
     /**
      * 日后第2个交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO next2;
+    private DetailQueryVO next2;
 
     /**
      * 当天到2天后的涨幅
@@ -343,7 +343,7 @@ public class StockDetailQueryVO {
      * 日后第3个交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO next3;
+    private DetailQueryVO next3;
 
     /**
      * 当天到3天后的涨幅
@@ -354,7 +354,7 @@ public class StockDetailQueryVO {
      * 日后第4个交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO next4;
+    private DetailQueryVO next4;
 
     /**
      * 当天到4天后的涨幅
@@ -366,7 +366,7 @@ public class StockDetailQueryVO {
      * 日后第5个交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO next5;
+    private DetailQueryVO next5;
 
     /**
      * 当天到5天后的涨幅
@@ -383,7 +383,7 @@ public class StockDetailQueryVO {
      * 日后第10个交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO next10;
+    private DetailQueryVO next10;
 
     /**
      * 当天到10天后的涨幅
@@ -399,42 +399,42 @@ public class StockDetailQueryVO {
      * 前1天交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO t1;
+    private DetailQueryVO t1;
 
     /**
      * 前2天交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO t2;
+    private DetailQueryVO t2;
 
     /**
      * 前3天交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO t3;
+    private DetailQueryVO t3;
 
     /**
      * 前4天交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO t4;
+    private DetailQueryVO t4;
 
     /**
      * 前5天交易日细节
      */
     @TableField(exist = false)
-    private StockDetailQueryVO t5;
+    private DetailQueryVO t5;
 
     @TableField(exist = false)
-    private StockDetailQueryVO t6;
+    private DetailQueryVO t6;
     @TableField(exist = false)
-    private StockDetailQueryVO t7;
+    private DetailQueryVO t7;
     @TableField(exist = false)
-    private StockDetailQueryVO t8;
+    private DetailQueryVO t8;
     @TableField(exist = false)
-    private StockDetailQueryVO t9;
+    private DetailQueryVO t9;
     @TableField(exist = false)
-    private StockDetailQueryVO t10;
+    private DetailQueryVO t10;
 
 
     /**
@@ -547,7 +547,7 @@ public class StockDetailQueryVO {
 
     private Integer limit;
 
-    public StockDetailQueryVO(String stockCode) {
+    public DetailQueryVO(String stockCode) {
         this.stockCode = stockCode;
     }
 }

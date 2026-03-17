@@ -9,15 +9,12 @@ import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
-import com.mmwwtt.stock.entity.StrategyWin;
+import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
-import com.mmwwtt.stock.service.impl.DetailServiceImpl;
-import com.mmwwtt.stock.service.impl.StockServiceImpl;
-import com.mmwwtt.stock.service.impl.StrategyL1ServiceImpl;
-import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
-import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
-import com.mmwwtt.stock.vo.StockDetailVO;
+import com.mmwwtt.stock.service.impl.*;
+import com.mmwwtt.stock.vo.DetailOnTimeVO;
+import com.mmwwtt.stock.vo.DetailVO;
 import com.mmwwtt.stock.vo.StockVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -57,13 +54,13 @@ public class DownloadTest {
     private StrategyL1ServiceImpl strategyResultService;
 
     @Resource
-    private StrategyTmpServiceImpl strategyWinService;
+    private StrategyTmpServiceImpl strategyTmpService;
+
+    @Resource
+    private StrategyL1ServiceImpl strategyL1Service;
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
-
-    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
-    private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
 
     private final RestTemplate restTemplate = createRestTemplate();
 
@@ -93,7 +90,7 @@ public class DownloadTest {
 
     @Test
     @DisplayName("获取股票列表")
-    public void buildStockList() throws ExecutionException, InterruptedException {
+    public void buildStockList() {
         try {
             dataDownLoad();
         } catch (Exception e) {
@@ -126,15 +123,15 @@ public class DownloadTest {
         map1.put(START_DATA, "20251201");
         map1.put(END_DATA, NOW_DATA);
         map1.put(MAX_SIZE, "350");
-        List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
+        List<DetailVO> detailVOS = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<DetailVO>>() {
         });
 
         Map<String, String> map2 = new HashMap<>();
         map2.put(LICENCE, BI_YING_LICENCE);
         map2.put(STOCK_CODE, stockCode.split("\\.")[0]);
-        StockDetailOnTimeVO stockDetailOnTimeVO = getResponse(ON_TIME_DATA_URL, map2, new ParameterizedTypeReference<StockDetailOnTimeVO>() {
+        DetailOnTimeVO detailOnTimeVO = getResponse(ON_TIME_DATA_URL, map2, new ParameterizedTypeReference<DetailOnTimeVO>() {
         });
-        log.info("获取单个代码的数据结束：{}", JSONObject.toJSONString(stockDetailVOs));
+        log.info("获取单个代码的数据结束：{}", JSONObject.toJSONString(detailVOS));
     }
 
     @Test
@@ -145,8 +142,11 @@ public class DownloadTest {
         QueryWrapper<Detail> stockDetailWrapper = new QueryWrapper<>();
         stockDetailService.remove(stockDetailWrapper);
 
-        QueryWrapper<StrategyWin> winWrapper = new QueryWrapper<>();
-        strategyWinService.remove(winWrapper);
+        QueryWrapper<StrategyL1> l1Wrapper = new QueryWrapper<>();
+        strategyL1Service.remove(l1Wrapper);
+
+        QueryWrapper<StrategyTmp> tmpWrapper = new QueryWrapper<>();
+        strategyTmpService.remove(tmpWrapper);
 
         QueryWrapper<StrategyL1> resultWrapper = new QueryWrapper<>();
         strategyResultService.remove(resultWrapper);
@@ -195,16 +195,16 @@ public class DownloadTest {
                     map1.put(END_DATA, NOW_DATA);
                     map1.put(MAX_SIZE, "350");
                     log.info("获取详情数据-{}", stock.getCode());
-                    List<StockDetailVO> stockDetailVOs = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<StockDetailVO>>() {
+                    List<DetailVO> detailVOS = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<DetailVO>>() {
                     });
-                    if (Objects.isNull(stockDetailVOs)) {
+                    if (Objects.isNull(detailVOS)) {
                         continue;
                     }
-                    stockDetailVOs = stockDetailVOs.stream()
+                    detailVOS = detailVOS.stream()
                             .peek(item -> item.setStockCode(stock.getCode()))
                             .filter(item -> item.getSf() == 0)
                             .collect(Collectors.toList());
-                    List<Detail> details = voConvert.convertToStockDetail(stockDetailVOs);
+                    List<Detail> details = voConvert.convertToStockDetail(detailVOS);
 
                     QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
                     detailWrapper.eq("stock_code", stock.getCode());

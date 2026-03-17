@@ -5,7 +5,7 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
-import com.mmwwtt.stock.vo.StockDetailQueryVO;
+import com.mmwwtt.stock.vo.DetailQueryVO;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +69,7 @@ public class CommonService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         stockCodePartList.forEach(part -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
-                List<Detail> details = detailService.getStockDetail(new StockDetailQueryVO(stockCode));
+                List<Detail> details = detailService.getStockDetail(new DetailQueryVO(stockCode));
                 details.sort(Comparator.comparing(Detail::getDealDate).reversed());
                 detailService.genAllStockDetail(details);
                 details.forEach(item -> idToDetailMap.put(item.getDetailId(), item));

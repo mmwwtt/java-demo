@@ -9,7 +9,7 @@ import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.service.DetailService;
 import com.mmwwtt.stock.service.StockService;
-import com.mmwwtt.stock.vo.StockDetailQueryVO;
+import com.mmwwtt.stock.vo.DetailQueryVO;
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
 
 
     @Override
-    public List<Detail> getStockDetail(StockDetailQueryVO queryVO) {
+    public List<Detail> getStockDetail(DetailQueryVO queryVO) {
         QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
         detailWrapper.eq("stock_code", queryVO.getStockCode());
         if (StringUtils.isNotBlank(queryVO.getDealDate())) {
@@ -101,7 +101,7 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
         for (List<Stock> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Stock stock : part) {
-                    List<Detail> details = getStockDetail(StockDetailQueryVO.builder().stockCode(stock.getCode()).build());
+                    List<Detail> details = getStockDetail(DetailQueryVO.builder().stockCode(stock.getCode()).build());
                     codeToDetailMap.put(stock.getCode(), details);
                 }
             }, ioThreadPool);

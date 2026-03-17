@@ -6,8 +6,8 @@ import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import com.mmwwtt.stock.enums.StrategyEnum;
-import com.mmwwtt.stock.vo.StockDetailOnTimeVO;
-import com.mmwwtt.stock.vo.StockDetailVO;
+import com.mmwwtt.stock.vo.DetailOnTimeVO;
+import com.mmwwtt.stock.vo.DetailVO;
 import com.mmwwtt.stock.vo.StockVO;
 import org.mapstruct.*;
 import org.mapstruct.control.DeepClone;
@@ -27,7 +27,7 @@ public interface VoConvert {
 
 
 
-    List<Detail> convertToStockDetail(List<StockDetailVO> stockDetailVO);
+    List<Detail> convertToStockDetail(List<DetailVO> detailVO);
 
     @Mappings({
             @Mapping(target = "code", source = "stock.dm"),
@@ -50,7 +50,7 @@ public interface VoConvert {
             @Mapping(target = "dealPrice", source = "stockDetailVO.a"),
             @Mapping(target = "lastPrice", source = "stockDetailVO.pc")
     })
-    Detail convertToStockDetail(StockDetailVO stockDetailVO);
+    Detail convertToStockDetail(DetailVO detailVO);
 
 
     @Mappings({
@@ -64,7 +64,7 @@ public interface VoConvert {
             @Mapping(target = "dealPrice", source = "stockDetailVO.cje"),
             @Mapping(target = "lastPrice", source = "stockDetailVO.yc")
     })
-    Detail convertToStockDetail(StockDetailOnTimeVO stockDetailVO);
+    Detail convertToStockDetail(DetailOnTimeVO stockDetailVO);
 
     @AfterMapping
     default void convertBigDecimal(@MappingTarget Detail detail) {

@@ -3,7 +3,7 @@ package com.mmwwtt.stock.vo;
 import lombok.Data;
 
 @Data
-public class StockDetailOnTimeVO {
+public class DetailOnTimeVO {
     /**
      * 交易时间
      */
