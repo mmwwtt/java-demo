@@ -34,10 +34,6 @@ public class CommonService {
     @Resource
     private StrategyL1ServiceImpl strategyL1Service;
 
-
-    @Resource
-    private StrategyTmpServiceImpl strategyWinService;
-
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
 
     public static Map<Integer, Detail> idToDetailMap = new ConcurrentHashMap<>(1048576);
@@ -52,8 +48,8 @@ public class CommonService {
     public static int INIT_DATE_SIZE = 500;
 
 
-    public static final List<StrategyEnum> strategyL1Enums = new ArrayList<>();
-    public static final Map<String, StrategyEnum> l1CodeToEnumMap = new HashMap<>();
+    public static final List<StrategyEnum> strategyL1Enums = new ArrayList<>(1000);
+    public static final Map<String, StrategyEnum> l1CodeToEnumMap = new HashMap<>(1000);
 
 
     @PostConstruct
@@ -65,8 +61,8 @@ public class CommonService {
         tList.forEach(t -> {
             List<StrategyEnum> enums = baseStrategys.stream().map(item -> {
                 StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
-                cur.setCode(0 + item.getCode());
-                cur.setDesc("T0-" + item.getDesc());
+                cur.setCode(t + item.getCode());
+                cur.setDesc(String.format("T%s-%s",t, item.getDesc()));
                 cur.setFilterFunc(item.getFilterFunc());
                 return cur;
             }).toList();

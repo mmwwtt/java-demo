@@ -18,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -46,7 +43,7 @@ public class DFSTest {
     private StrategyServiceImpl strategyService;
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
-
+    private final ExecutorService singleThreadPool = GlobalThreadPool.singleThreadPool;
 
     /**
      * 收集待保存的 StrategyWin，批量写入减少 DB 往返
@@ -86,7 +83,7 @@ public class DFSTest {
                 } finally {
                     taskCnt.decrementAndGet();
                 }
-            }, cpuThreadPool);
+            }, singleThreadPool);
         }
         while (taskCnt.get() != 0) {
             Thread.sleep(10000);
@@ -104,21 +101,33 @@ public class DFSTest {
         }
         for (int i = curIdx + 1; i < strategyL1s.size(); i++) {
             //计算两个策略的并集
+
+            //已存在的策略 则跳过
             StrategyL1 strategyL1 = strategyL1s.get(i);
             if (strategyTmp.getStrategyCodeSet().contains(strategyL1.getStrategyCode())) {
                 continue;
             }
+
+            //l1层无符合数据 则跳过
             int[] l1DetailIdArr = strategyL1.getDetailIdArr();
             if (l1DetailIdArr == null) {
                 continue;
             }
-            int[] resDetailIdArr = retainAll(strategyTmp.getDetailIdArr(), l1DetailIdArr);
 
-            String md5Key = getMd5Key(resDetailIdArr);
-            Integer newLevel = md5ToLevelMap.merge(md5Key, level, Math::max);
-            if (newLevel > level) {
+            //交集为0 则跳过
+            int[] resDetailIdArr = retainAll(strategyTmp.getDetailIdArr(), l1DetailIdArr);
+            if (resDetailIdArr.length == 0) {
                 continue;
             }
+
+            //之前存在过 且层级＞=以前的层级  则跳过
+            String md5Key = getMd5Key(resDetailIdArr);
+            Integer newLevel = md5ToLevelMap.get(md5Key);
+            if (newLevel != null && newLevel <= level) {
+                continue;
+            }
+            md5ToLevelMap.put(md5Key, level);
+
 
             //计算并集中筛选字段的属性值
             StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1.getStrategyCode(), strategyTmp.getPert(), resDetailIdArr);
@@ -128,26 +137,28 @@ public class DFSTest {
             resStrategyTmp.fillFilterField(fildEnum);
 
             //进行阈值过滤 和 数据保存
-            if (!fildEnum.getFunc().apply(strategyTmp)) {
+            if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
-            strategyTmp.fillCode();
-            addToTmpBatch(strategyTmp);
+            resStrategyTmp.fillCode();
+            addToTmpBatch(resStrategyTmp);
 
-            //和递归 有空余线程时使用线程
-            if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
-                int finalI = i;
-                taskCnt.incrementAndGet();
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        buildByLevel(resStrategyTmp, finalI);
-                    } finally {
-                        taskCnt.decrementAndGet();
-                    }
-                }, cpuThreadPool);
-            } else {
-                buildByLevel(resStrategyTmp, i);
-            }
+            buildByLevel(resStrategyTmp, i);
+
+//            //和递归 有空余线程时使用线程
+//            if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+//                int finalI = i;
+//                taskCnt.incrementAndGet();
+//                CompletableFuture.runAsync(() -> {
+//                    try {
+//                        buildByLevel(resStrategyTmp, finalI);
+//                    } finally {
+//                        taskCnt.decrementAndGet();
+//                    }
+//                }, cpuThreadPool);
+//            } else {
+//                buildByLevel(resStrategyTmp, i);
+//            }
         }
     }
 

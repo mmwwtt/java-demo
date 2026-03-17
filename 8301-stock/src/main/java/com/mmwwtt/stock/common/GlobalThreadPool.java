@@ -10,10 +10,10 @@ import java.util.concurrent.*;
 @Data
 public class GlobalThreadPool {
     //定义指定的线程池
-    private final ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
-    private final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
-    private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
-    private final ExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(100);
+    public static final ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+    public static final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
+    public static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
+    public static final ExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(100);
 
     //服务器的CPU核数
     private static final int CPU_CORE_SIZE = Runtime.getRuntime().availableProcessors();

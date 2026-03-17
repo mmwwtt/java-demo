@@ -20,32 +20,38 @@ public enum FilterFildEnum implements BaseEnum {
             new QueryWrapper<StrategyTmp>().apply("rise5_max_middle>0.14  and rise5_max_middle<0.15"),
             (StrategyTmp tmp) -> {
                 if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.025)) {
-                    return true;
+                    return false;
                 }
                 int level = tmp.getStrategyCodeSet().size();
-                return lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.02))
+                if( lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.02))
                         || (level == 2 && lessThan(tmp.getPert(), 0.075))
                         || (level == 3 && lessThan(tmp.getPert(), 0.085))
                         || (level == 4 && lessThan(tmp.getPert(), 0.095))
                         || (level == 5 && lessThan(tmp.getPert(), 0.105))
                         || (level == 6 && lessThan(tmp.getPert(), 0.11))
-                        || (level == 7 && lessThan(tmp.getPert(), 0.12));
+                        || (level == 7 && lessThan(tmp.getPert(), 0.12))) {
+                    return false;
+                };
+                return true;
             }),
     RISE5_MAX_AVG("rise5MaxAvg", "最大五日涨幅平均数",
             Detail::getNext5MaxPricePert,
             new QueryWrapper<StrategyTmp>().apply("rise5_max_avg>0.14  and rise5_max_avg<0.15"),
             (StrategyTmp tmp) -> {
                 if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.05)) {
-                    return true;
+                    return false;
                 }
                 int level = tmp.getStrategyCodeSet().size();
-                return lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
+                if(lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
                         || (level == 2 && lessThan(tmp.getPert(), 0.08))
                         || (level == 3 && lessThan(tmp.getPert(), 0.09))
                         || (level == 4 && lessThan(tmp.getPert(), 0.10))
                         || (level == 5 && lessThan(tmp.getPert(), 0.11))
                         || (level == 6 && lessThan(tmp.getPert(), 0.115))
-                        || (level == 7 && lessThan(tmp.getPert(), 0.12));
+                        || (level == 7 && lessThan(tmp.getPert(), 0.12))) {
+                    return false;
+                };
+                return true;
             }),
 
     ;
@@ -63,7 +69,7 @@ public enum FilterFildEnum implements BaseEnum {
     private final QueryWrapper<StrategyTmp> wapper;
 
     /**
-     * 策略过滤方法
+     * 策略过滤，是否符合 ture则保留， false则抛弃
      */
-    private final Function<StrategyTmp, Boolean> func;
+    private final Function<StrategyTmp, Boolean> isConformity;
 }

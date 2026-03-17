@@ -95,7 +95,7 @@ public class StrategyTmp {
         //先计算每日的平均值/中位数
         List<Double> dayValues = new ArrayList<>(INIT_DATE_SIZE);
         for (List<Double> values : dateToValuesMap.values()) {
-            dayValues.add(isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues));
+            dayValues.add(isMiddleFunc ? getMiddle(values) : getAverage(values));
         }
         //再计算总体的平均数/中位数
         pert = isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues);
