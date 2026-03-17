@@ -43,12 +43,6 @@ public class StrategyTmp {
 
 
     @TableField(exist = false)
-    private Set<String> strategyCodeSet = new HashSet<>();
-
-    @TableField(exist = false)
-    private List<Function<Detail, Boolean>> filterFuncs= new ArrayList<>();
-
-    @TableField(exist = false)
     private List<Detail> details = Collections.synchronizedList(new ArrayList<>(50000));
 
     @TableField(exist = false)
@@ -59,6 +53,14 @@ public class StrategyTmp {
 
     @TableField(exist = false)
     private int[] detailIdArr;
+
+
+    @TableField(exist = false)
+    private Set<String> strategyCodeSet = new HashSet<>();
+
+    @TableField(exist = false)
+    private List<Function<Detail, Boolean>> filterFuncs= new ArrayList<>();
+
 
     public int getLevel() {
         return strategyCodeSet.size();
@@ -118,13 +120,12 @@ public class StrategyTmp {
 
 
     public StrategyTmp(String strategyCode) {
-        this(strategyCode, null, null, null);
+        this(strategyCode, null, null);
     }
 
-    public StrategyTmp(String strategyCode, Set<String> parentWinStrategyCodeSet,
+    public StrategyTmp(String strategyCode,
                        Double parentPert, int[] detailIdArr) {
         this.strategyCode = strategyCode;
-        this.parentWinStrategyCodeSet = parentWinStrategyCodeSet;
         this.parentPert = parentPert;
         this.detailIdArr = detailIdArr;
         strategyCodeSet.add(strategyCode);

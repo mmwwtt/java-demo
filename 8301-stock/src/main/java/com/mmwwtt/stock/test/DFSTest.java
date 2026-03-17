@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.Detail;
-import com.mmwwtt.stock.entity.StrategyWin;
+import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import com.mmwwtt.stock.enums.FilterFildEnum;
@@ -138,8 +138,7 @@ public class DFSTest {
             }
 
             //计算并集中筛选字段的属性值
-            StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1.getStrategyCode(), strategyTmp.getParentWinStrategyCodeSet(),
-                    strategyTmp.getPert(), resDetailIdArr);
+            StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1.getStrategyCode(), strategyTmp.getPert(), resDetailIdArr);
             for (int detail : resDetailIdArr) {
                 resStrategyTmp.addToResult(idToDetailMap.get(detail));
             }
@@ -184,31 +183,28 @@ public class DFSTest {
     }
 
     private void dfsAfterDetail() throws ExecutionException, InterruptedException {
-        List<StrategyWin> strategyWins = strategyWinService.list(fildEnum.getWapper());
+        List<StrategyTmp> strategyTmps = strategyTmpService.getBySql("pert > 0.10");
 
-        Map<Long, List<Detail>> strategyIdToDetailIdsMap = new ConcurrentHashMap<>(strategyWins.size() * 2);
-
-        strategyWins.forEach(strategyWin -> {
-            strategyIdToDetailIdsMap.put(strategyWin.getStrategyWinId(), Collections.synchronizedList(new ArrayList<>(500)));
-            strategyWin.setStrategyCodeSet(Arrays.stream(strategyWin.getStrategyCode().split(" ")).collect(Collectors.toSet()));
-            strategyWin.getStrategyCodeSet().forEach(strategyCode ->
-                    strategyWin.getFilterFuncs().add(StrategyEnum.codeToEnumMap.get(strategyCode).getFilterFunc()));
-        });
-
+        Map<Long, List<Detail>> strategyIdToDetailIdsMap = new ConcurrentHashMap<>(strategyTmps.size() * 2);
 
         //统计每个策略符合的detail  对各种属性进行填充
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        strategyWins.forEach(strategyWin -> {
+        strategyTmps.forEach(strategyTmp -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                List<Detail> details = strategyIdToDetailIdsMap.get(strategyWin.getStrategyWinId());
+                strategyIdToDetailIdsMap.put(strategyTmp.getStrategyId(), Collections.synchronizedList(new ArrayList<>(500)));
+                strategyTmp.setStrategyCodeSet(Arrays.stream(strategyTmp.getStrategyCode().split(" ")).collect(Collectors.toSet()));
+                strategyTmp.getStrategyCodeSet().forEach(strategyCode ->
+                        strategyTmp.getFilterFuncs().add(StrategyEnum.codeToEnumMap.get(strategyCode).getFilterFunc()));
+                List<Detail> details = strategyIdToDetailIdsMap.get(strategyTmp.getStrategyId());
                 codeToDetailMap.values().forEach(detailList -> detailList.forEach(detail -> {
-                    boolean isTrue = strategyWin.getFilterFuncs().stream().allMatch(func -> func.apply(detail));
+                    boolean isTrue = strategyTmp.getFilterFuncs().stream().allMatch(func -> func.apply(detail));
                     if (isTrue) {
                         details.add(detail);
                     }
                 }));
-                strategyWin.setDetails(details);
-                strategyWin.fillOtherData();
+                Strategy strategy = VoConvert.INSTANCE.convertTo(strategyTmp);
+                strategy.setDetails(details);
+                strategy.fillOtherData();
             }, cpuThreadPool);
             futures.add(future);
         });
@@ -229,14 +225,14 @@ public class DFSTest {
     }
 
     private void flushWinBatch() {
-        List<StrategyWin> toSave;
+        List<StrategyTmp> toSave;
         synchronized (tmpBatch) {
             if (tmpBatch.isEmpty())
                 return;
             toSave = new ArrayList<>(tmpBatch);
             tmpBatch.clear();
         }
-        strategyWinService.saveBatch(toSave);
+        strategyTmpService.saveBatch(toSave);
     }
 
 

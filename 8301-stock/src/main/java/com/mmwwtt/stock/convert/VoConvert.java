@@ -2,6 +2,7 @@ package com.mmwwtt.stock.convert;
 
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
+import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import com.mmwwtt.stock.enums.StrategyEnum;
@@ -77,4 +78,5 @@ public interface VoConvert {
     StrategyEnum convertTo(StrategyEnum strategyEnum);
 
     StrategyTmp convertTo(StrategyL1 strategyL1);
+    Strategy convertTo(StrategyTmp strategyTmp);
 }
