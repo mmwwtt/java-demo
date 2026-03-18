@@ -92,12 +92,12 @@ public class Detail {
     /**
      * 下影线长度
      */
-    private Double lowShadowLen;
+    private Double downShadowLen;
 
     /**
      * 下影线站总长的百分比
      */
-    private Double lowShadowPert;
+    private Double downShadowPert;
 
     /**
      * 实体长度
@@ -649,10 +649,10 @@ public class Detail {
     public void calc() {
         entityLen = divide(Math.abs(subtract(endPrice, startPrice)), lastPrice);
         upShadowLen = divide(Math.abs(subtract(highPrice, max(startPrice, endPrice))), lastPrice);
-        lowShadowLen = divide(Math.abs(subtract(min(startPrice, endPrice), lowPrice)), lastPrice);
+        downShadowLen = divide(Math.abs(subtract(min(startPrice, endPrice), lowPrice)), lastPrice);
         allLen = divide(Math.abs(subtract(highPrice, lowPrice)), lastPrice);
         upShadowPert = isEquals(allLen, 0.0) ? 0 : divide(upShadowLen, allLen);
-        lowShadowPert = isEquals(allLen, 0.0) ? 0 : divide(lowShadowLen, allLen);
+        downShadowPert = isEquals(allLen, 0.0) ? 0 : divide(downShadowLen, allLen);
         entityPert = isEquals(allLen, 0.0) ? 0 : divide(entityLen, allLen);
         isUp = moreThan(endPrice, lastPrice);
         isDown = lessThan(endPrice, lastPrice);

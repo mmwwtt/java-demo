@@ -7,7 +7,7 @@ import lombok.*;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.mmwwtt.stock.service.impl.CommonService.idToDetailMap;
+import static com.mmwwtt.stock.service.impl.CommonDataService.idToDetailMap;
 
 @EqualsAndHashCode(callSuper = true)
 @Data

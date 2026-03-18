@@ -4,7 +4,7 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUtils;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.enums.StrategyEnum;
-import com.mmwwtt.stock.service.impl.CommonService;
+import com.mmwwtt.stock.service.impl.CommonDataService;
 import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +20,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.codeToDetailMap;
-import static com.mmwwtt.stock.service.impl.CommonService.l1CodeToEnumMap;
+import static com.mmwwtt.stock.service.impl.CommonDataService.codeToDetailMap;
+import static com.mmwwtt.stock.service.impl.CommonDataService.l1CodeToEnumMap;
 
 /**
  * 自定义策略测试
@@ -82,7 +82,7 @@ public class CustomTest {
         Map<StrategyEnum, List<Detail>> strategyToCalcMap = new ConcurrentHashMap<>();
         log.info("开始计算");
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (List<String> part : CommonService.stockCodePartList) {
+        for (List<String> part : CommonDataService.stockCodePartList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (String stockCode : part) {
                     List<Detail> details = codeToDetailMap.get(stockCode);

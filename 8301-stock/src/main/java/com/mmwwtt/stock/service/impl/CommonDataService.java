@@ -24,7 +24,7 @@ import static com.mmwwtt.stock.enums.StrategyEnum.baseStrategys;
 
 @Service
 @Slf4j
-public class CommonService {
+public class CommonDataService {
 
     @Resource
     private StockServiceImpl stockService;
@@ -64,6 +64,7 @@ public class CommonService {
                 StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
                 cur.setCode(t + item.getCode());
                 cur.setDesc(String.format("T%s-%s", t, item.getDesc()));
+                cur.setType(String.format("T%s-%s", t, item.getType()));
                 cur.setFilterFunc(item.getFilterFunc());
                 return cur;
             }).toList();

@@ -17,8 +17,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.INIT_DATE_SIZE;
-import static com.mmwwtt.stock.service.impl.CommonService.l1CodeToEnumMap;
+import static com.mmwwtt.stock.service.impl.CommonDataService.INIT_DATE_SIZE;
+import static com.mmwwtt.stock.service.impl.CommonDataService.l1CodeToEnumMap;
 
 @Slf4j
 @Data

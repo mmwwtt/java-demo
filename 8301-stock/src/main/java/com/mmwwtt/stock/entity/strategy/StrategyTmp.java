@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.INIT_DATE_SIZE;
+import static com.mmwwtt.stock.service.impl.CommonDataService.INIT_DATE_SIZE;
 
 /**
  * 策略胜率

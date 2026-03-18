@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 import static com.mmwwtt.stock.common.Constants.*;
-import static com.mmwwtt.stock.service.impl.CommonService.*;
+import static com.mmwwtt.stock.service.impl.CommonDataService.*;
 
 /**
  * 必盈url   <a href="https://www.biyingapi.com/">...</a>

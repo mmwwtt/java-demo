@@ -64,9 +64,9 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
     public Map<String, Detail> getCodeToCurDetailMap(String curDate) {
         Map<String, Detail> codeToDetailMap = new ConcurrentHashMap<>();
         log.info("开始查询数据");
-        for (List<String> part : CommonService.stockCodePartList) {
+        for (List<String> part : CommonDataService.stockCodePartList) {
             for (String stockCode : part) {
-                Detail detail = CommonService.codeToDetailMap.get(stockCode).stream()
+                Detail detail = CommonDataService.codeToDetailMap.get(stockCode).stream()
                         .filter(item -> Objects.equals(curDate, item.getDealDate()))
                         .findFirst().orElse(null);
                 if (Objects.nonNull(detail)) {

@@ -8,7 +8,7 @@ import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import com.mmwwtt.stock.enums.FilterFildEnum;
-import com.mmwwtt.stock.service.impl.CommonService;
+import com.mmwwtt.stock.service.impl.CommonDataService;
 import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +23,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.*;
+import static com.mmwwtt.stock.service.impl.CommonDataService.*;
 
 
 //todo 对结果进行再处理 找出符合结果的详情列表， 判断重复度>80%的如何处理
 //todo 策略枚举不采用区间隔离，而是存在重叠当相同类型的枚举则跳过筛选
 //todo 优化验证，当同一个数据被多个策略选中时，增加该数据的权重 再计算涨幅
 //todo next5MaxPertRate 感觉这个字段不是很对
-//todo  计算中位数时，所有详情id都要升序排序
 @Slf4j
 @SpringBootTest
 public class DFSTest {
@@ -164,7 +163,7 @@ public class DFSTest {
     private void dfsInit() {
         log.info("dfs 初始化");
         strategyTmpService.remove(new QueryWrapper<>());
-        strategyL1s = CommonService.strategyL1s.stream()
+        strategyL1s = CommonDataService.strategyL1s.stream()
                 .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")

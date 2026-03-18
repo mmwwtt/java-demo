@@ -19,7 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.*;
+import static com.mmwwtt.stock.service.impl.CommonDataService.*;
 
 @Service
 @Slf4j
@@ -105,7 +105,7 @@ public class CalcCommonService {
      * 验证预测的股票结果
      */
     public List<Detail> verifyPredictRes(String curDate, List<Strategy> strategys) throws InterruptedException, ExecutionException {
-        Map<String, Detail> codeToDetailMap = CommonService.idToDetailMap.values().stream()
+        Map<String, Detail> codeToDetailMap = CommonDataService.idToDetailMap.values().stream()
                 .filter(item -> Objects.equals(item.getDealDate(), curDate))
                 .collect(Collectors.toMap(Detail::getStockCode, item -> item));
         List<Detail> resList = Collections.synchronizedList(new ArrayList<>());

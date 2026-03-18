@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonService.*;
+import static com.mmwwtt.stock.service.impl.CommonDataService.*;
 
 /**
  * DFS结果验证
