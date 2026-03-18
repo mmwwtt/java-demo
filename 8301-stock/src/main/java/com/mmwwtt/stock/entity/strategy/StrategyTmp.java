@@ -54,6 +54,9 @@ public class StrategyTmp {
     @TableField(exist = false)
     private Double parentPert;
 
+    /**
+     * 符合数据的id Array   需要从小到大排序，便于两个策略取交集的算法使用
+     */
     @TableField(exist = false)
     private int[] detailIdArr;
 
@@ -130,7 +133,8 @@ public class StrategyTmp {
         this.strategyCode = strategyCode;
         this.parentWinStrategyCodeSet = parentStrategyTmp.getStrategyCodeSet();
         this.parentPert = parentStrategyTmp.getPert();
-        this.detailIdArr = detailIdArr;
+        this.detailIdArr = Arrays.stream(detailIdArr).sorted().toArray();
+
         strategyCodeSet.add(strategyCode);
         if (Objects.nonNull(parentWinStrategyCodeSet)) {
             strategyCodeSet.addAll(parentWinStrategyCodeSet);

@@ -40,7 +40,6 @@ public class CustomTest {
     @DisplayName("测试单个策略-自定义")
     public void startCalc4() throws ExecutionException, InterruptedException {
         List<StrategyEnum> strategyEnums = List.of(
-
                 new StrategyEnum("riseStrategy", "上涨预测_低吸型", (Detail d) -> true)
         );
 

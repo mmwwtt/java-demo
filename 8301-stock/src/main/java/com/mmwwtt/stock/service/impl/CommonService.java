@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
+import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 import static com.mmwwtt.stock.enums.StrategyEnum.baseStrategys;
 
 @Service
@@ -39,7 +40,7 @@ public class CommonService {
     public static Map<Integer, Detail> idToDetailMap = new ConcurrentHashMap<>(1048576);
     public static Map<String, List<Detail>> codeToDetailMap = new ConcurrentHashMap<>(4096);
     public static Map<String, String> stockCodeToNameMap;
-    public static List<StrategyL1> strategyL1s;
+    public static List<StrategyL1> strategyL1s = Collections.synchronizedList(new ArrayList<>(1000));
     public static List<List<String>> stockCodePartList;
     public static List<String> stockCodeList;
     public static String calcEndDate;
@@ -48,8 +49,8 @@ public class CommonService {
     public static int INIT_DATE_SIZE = 500;
 
 
-    public static final List<StrategyEnum> strategyL1Enums = new ArrayList<>(1000);
-    public static final Map<String, StrategyEnum> l1CodeToEnumMap = new HashMap<>(1000);
+    public static final List<StrategyEnum> strategyL1Enums = Collections.synchronizedList(new ArrayList<>(1000));
+    public static final Map<String, StrategyEnum> l1CodeToEnumMap = new ConcurrentHashMap<>(1000);
 
 
     @PostConstruct
@@ -62,7 +63,7 @@ public class CommonService {
             List<StrategyEnum> enums = baseStrategys.stream().map(item -> {
                 StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
                 cur.setCode(t + item.getCode());
-                cur.setDesc(String.format("T%s-%s",t, item.getDesc()));
+                cur.setDesc(String.format("T%s-%s", t, item.getDesc()));
                 cur.setFilterFunc(item.getFilterFunc());
                 return cur;
             }).toList();
@@ -73,15 +74,20 @@ public class CommonService {
         }
 
         log.info("开始加载L1层策略");
-        strategyL1s = strategyL1Service.list();
-        strategyL1s.forEach(item -> {
-            int[] ids = new int[item.getDetailIds().size()];
-            for (int i = 0; i < item.getDetailIds().size(); i++) {
-                ids[i] = item.getDetailIds().getIntValue(i);
+        List<Integer> l1IdList = strategyL1Service.getIdList();
+        l1IdList.parallelStream().forEach(l1Id -> {
+            StrategyL1 strategyL1 = strategyL1Service.getById(l1Id);
+            int[] ids = new int[strategyL1.getDetailIds().size()];
+            for (int i = 0; i < strategyL1.getDetailIds().size(); i++) {
+                ids[i] = strategyL1.getDetailIds().getIntValue(i);
             }
-            item.setDetailIdArr(ids);
-            item.fillCodeSet();
+            ids= Arrays.stream(ids).sorted().toArray();
+            strategyL1.setDetailIdArr(ids);
+            strategyL1.fillCodeSet();
+            strategyL1s.add(strategyL1);
         });
+
+
         log.info("开始查询股票列表");
         stockCodeList = stockService.list().stream().map(Stock::getCode).toList();
         stockCodePartList = Lists.partition(stockCodeList, 50);
@@ -95,6 +101,10 @@ public class CommonService {
                 detailService.genAllDetail(details);
                 details.forEach(item -> idToDetailMap.put(item.getDetailId(), item));
                 codeToDetailMap.put(stockCode, details);
+                details.removeIf(detail -> Objects.isNull(detail) || Objects.isNull(detail.getT5())
+                        || Objects.isNull(detail.getT5().getSixtyDayLine())
+                        || Objects.isNull(detail.getNext1())
+                        || moreThan(detail.getPricePert(), 0.097));
             }), ioThreadPool);
             futures.add(future);
         });

@@ -172,7 +172,7 @@ public class BaseStrategy {
 
 
     /**
-     * 预测对的列表
+     * 符合数据的id Array   需要从小到大排序，便于两个策略取交集的算法使用
      */
     @TableField(exist = false)
     protected int[] detailIdArr;
@@ -181,9 +181,9 @@ public class BaseStrategy {
      * 策略编码
      */
     @TableField(exist = false)
-    protected Set<String> strategyCodeSet;
+    protected Set<String> strategyCodeSet = new HashSet<>();
 
-    public void fillCodeSet(){
+    public void fillCodeSet() {
         strategyCodeSet = Arrays.stream(strategyCode.split(" ")).collect(Collectors.toSet());
     }
 
@@ -195,6 +195,11 @@ public class BaseStrategy {
                 .map(strategyCode -> l1CodeToEnumMap.get(strategyCode).getDesc())
                 .collect(Collectors.joining(" "));
 
+        if (Objects.isNull(detailIds)) {
+            List<Integer> detailIdList = details.stream().map(Detail::getDetailId)
+                    .sorted(Comparator.comparing(Integer::intValue)).toList();
+            detailIds = new JSONArray(detailIdList);
+        }
         //填充其他相关数据
         Map<String, List<Detail>> dateToDetailListMap = details.stream().collect(Collectors.groupingBy(Detail::getDealDate));
 

@@ -12,4 +12,10 @@ public interface StrategyL1Service {
      */
     List<StrategyL1> getBySql(String sql);
 
+    /**
+     * 查询id列表
+     */
+    List<Integer> getIdList();
+
+
 }

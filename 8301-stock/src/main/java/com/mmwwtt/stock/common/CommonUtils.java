@@ -2,11 +2,11 @@ package com.mmwwtt.stock.common;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.mmwwtt.stock.common.Constants.TOLERANCE;
 
@@ -15,10 +15,6 @@ public class CommonUtils {
     /**
      * double  double
      */
-    public static boolean isEquals(double num1, double num2) {
-        return Math.abs(num1 - num2) < TOLERANCE;
-    }
-
 
     public static double subtract(double num1, double num2) {
         return num1 - num2;
@@ -143,29 +139,30 @@ public class CommonUtils {
     }
 
 
+    /**
+     * 判断相关
+     * @param num1
+     * @param num2
+     * @return
+     */
+    public static boolean isEquals(Double num1, Double num2) {
+        if(Objects.isNull(num1) || Objects.isNull(num2)) {
+            return false;
+        }
+        return Math.abs(num1 - num2) < TOLERANCE;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public static Boolean moreThan(double num1, double num2) {
+    public static Boolean moreThan(Double num1, Double num2) {
+        if(Objects.isNull(num1) || Objects.isNull(num2)) {
+            return false;
+        }
         return num1 > num2 + TOLERANCE;
     }
 
-    public static Boolean moreThan(double... nums) {
+    public static Boolean moreThan(Double... nums) {
+        if(Arrays.stream(nums).anyMatch(Objects::isNull)) {
+            return false;
+        }
         double obj = nums[0];
         for (int i = 1; i < nums.length; i++) {
             if (!moreThan(obj, nums[i])) {
@@ -176,7 +173,10 @@ public class CommonUtils {
         return true;
     }
 
-    public static Boolean lessThan(double num1, double num2) {
+    public static Boolean lessThan(Double num1, Double num2) {
+        if(Objects.isNull(num1) || Objects.isNull(num2)) {
+            return false;
+        }
         return num1 + TOLERANCE < num2;
     }
 
@@ -184,11 +184,17 @@ public class CommonUtils {
     /**
      * num  是否在 范围中
      */
-    public static Boolean isInRange(double num, double leftRange, double rightRange) {
+    public static Boolean isInRange(Double num, Double leftRange, Double rightRange) {
+        if(Objects.isNull(num) || Objects.isNull(leftRange) || Objects.isNull(rightRange)) {
+            return false;
+        }
         return moreThan(num, leftRange) && lessThan(num, rightRange);
     }
 
 
+    /**
+     * 计算相关都不能有null
+     */
     public static double max(double... nums) {
         double res = nums[0];
         for (int i = 1; i < nums.length; i++) {
@@ -238,24 +244,6 @@ public class CommonUtils {
         return res;
     }
 
-
-    private static BigDecimal toBigDecimal(Object obj) {
-        if (obj instanceof Long) {
-            return new BigDecimal((Long) obj);
-        } else if (obj instanceof Integer) {
-            return new BigDecimal((Integer) obj);
-        } else if (obj instanceof BigDecimal) {
-            return (BigDecimal) obj;
-        } else if (obj instanceof Double) {
-            return BigDecimal.valueOf((Double) obj);
-        } else if (obj instanceof Float) {
-            return BigDecimal.valueOf((Float) obj);
-        } else if (obj instanceof String) {
-            return new BigDecimal((String) obj);
-        }
-        return null;
-    }
-
     public static String getTimeStr() {
         return LocalDateTime.now()
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
@@ -269,7 +257,8 @@ public class CommonUtils {
 
 
     /**
-     * 计算品均值
+     * 不能有null
+     * 计算平均值
      */
     public static double getAverage(List<Double> list) {
         return divide(sum(list), list.size());
@@ -281,6 +270,7 @@ public class CommonUtils {
 
 
     /**
+     * 不能有null
      * 计算中位数，O(n) 平均时间复杂度，基于 QuickSelect 算法
      * 与 getMiddle 语义一致：奇数取中间，偶数取高位中位数
      */
@@ -293,6 +283,7 @@ public class CommonUtils {
     }
 
     /**
+     * 不能有null
      * 计算中位数，O(n) 平均时间复杂度，基于 QuickSelect 算法
      * 不修改原数组
      */
@@ -342,6 +333,7 @@ public class CommonUtils {
     }
 
     /**
+     * 不能有null
      * 计算涨幅 第一个比第二个涨了多少
      */
     public static double getRise(double price1, double price2) {
@@ -349,6 +341,7 @@ public class CommonUtils {
     }
 
     /**
+     * 不能有null
      * 返回 128 位紧凑 key，用于 md5ToLevelMap，不分配 String，适合几十万 key 的大 map
      */
     public static String getMd5Key(int[] arr) {
@@ -378,6 +371,7 @@ public class CommonUtils {
     }
 
     /**
+     * 不能有null
      * 取两个 list的交集
      * 前提：两个list 都要升序,且无重复
      */

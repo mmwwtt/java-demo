@@ -60,7 +60,7 @@ public class DFSTest {
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void dfs() throws InterruptedException {
         fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
-        DfsMain(3);
+        DfsMain(7);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class DFSTest {
                 } finally {
                     taskCnt.decrementAndGet();
                 }
-            }, singleThreadPool);
+            }, cpuThreadPool);
         }
         while (taskCnt.get() != 0) {
             Thread.sleep(10000);
@@ -144,7 +144,7 @@ public class DFSTest {
             resStrategyTmp.fillCode();
             addToTmpBatch(resStrategyTmp);
 
-            //和递归 有空余线程时使用线程
+            //递归 线程池有空余线程时用多线程处理
             if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = i;
                 taskCnt.incrementAndGet();
@@ -177,10 +177,9 @@ public class DFSTest {
 
     private void dfsAfterDetail() throws ExecutionException, InterruptedException {
         strategyService.remove(new QueryWrapper<>());
-        List<StrategyTmp> strategyTmps = strategyTmpService.getBySql("pert > 0.10");
-
+        List<StrategyTmp> strategyTmps = strategyTmpService.getBySql("pert > 0.13");
         Map<Integer, List<Detail>> strategyIdToDetailIdsMap = new ConcurrentHashMap<>(strategyTmps.size() * 2);
-
+        List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         strategyTmps.forEach(strategyTmp -> {
@@ -199,12 +198,13 @@ public class DFSTest {
                 Strategy strategy = VoConvert.INSTANCE.convertTo(strategyTmp);
                 strategy.setDetails(details);
                 strategy.fillOtherData();
+                resList.add(strategy);
             }, cpuThreadPool);
             futures.add(future);
         });
         CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allTask.get();
-
+        strategyService.saveBatch(resList);
         //todo 对win进行重复度判断  如果detailIds重复度达到95%则抛弃胜率低的那条
     }
 

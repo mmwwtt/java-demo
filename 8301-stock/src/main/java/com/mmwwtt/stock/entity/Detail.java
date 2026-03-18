@@ -651,16 +651,16 @@ public class Detail {
         upShadowLen = divide(Math.abs(subtract(highPrice, max(startPrice, endPrice))), lastPrice);
         lowShadowLen = divide(Math.abs(subtract(min(startPrice, endPrice), lowPrice)), lastPrice);
         allLen = divide(Math.abs(subtract(highPrice, lowPrice)), lastPrice);
-        upShadowPert = isEquals(allLen, 0) ? 0 : divide(upShadowLen, allLen);
-        lowShadowPert =  isEquals(allLen, 0) ? 0 : divide(lowShadowLen, allLen);
-        entityPert =  isEquals(allLen, 0) ? 0 : divide(entityLen, allLen);
+        upShadowPert = isEquals(allLen, 0.0) ? 0 : divide(upShadowLen, allLen);
+        lowShadowPert = isEquals(allLen, 0.0) ? 0 : divide(lowShadowLen, allLen);
+        entityPert = isEquals(allLen, 0.0) ? 0 : divide(entityLen, allLen);
         isUp = moreThan(endPrice, lastPrice);
         isDown = lessThan(endPrice, lastPrice);
         isRed = moreThan(endPrice, startPrice);
         isGreen = lessThan(endPrice, startPrice);
         isBalance = isEquals(endPrice, startPrice);
-        pertDivisionQuantity = isEquals(dealQuantity, 0) ? 0 : divide(pricePert, dealQuantity);
-        isTenStar = moreThan(allLen, 0) && lessThan(entityLen, 0.005);
+        pertDivisionQuantity = isEquals(dealQuantity, 0.0) ? 0 : divide(pricePert, dealQuantity);
+        isTenStar = moreThan(allLen, 0.0) && lessThan(entityLen, 0.005);
     }
 
 
@@ -765,11 +765,11 @@ public class Detail {
                 }
                 double avgUp = divide(upSum, 14);
                 double avgDown = divide(Math.abs(downSum), 14);
-                if (isEquals(avgDown, 0)) {
-                    cur.setRsi(moreThan(avgUp, 0) ? 100.0 : 50.0);
+                if (isEquals(avgDown, 0.0)) {
+                    cur.setRsi(moreThan(avgUp, 0.0) ? 100.0 : 50.0);
                 } else {
                     double rs = divide(avgUp, avgDown);
-                    cur.setRsi(subtract(100, divide(100, sum(1, rs))));
+                    cur.setRsi(subtract(100, divide(100, sum(1.0, rs))));
                 }
             }
 
@@ -781,9 +781,9 @@ public class Detail {
                     Detail prev = list.get(j + 1);
                     if (d == null || prev == null)
                         continue;
-                    double hl =  Math.abs(subtract(d.getHighPrice(), d.getLowPrice()));
-                    double hc =  Math.abs(subtract(d.getHighPrice(), prev.getEndPrice()));
-                    double lc =  Math.abs(subtract(d.getLowPrice(), prev.getEndPrice()));
+                    double hl = Math.abs(subtract(d.getHighPrice(), d.getLowPrice()));
+                    double hc = Math.abs(subtract(d.getHighPrice(), prev.getEndPrice()));
+                    double lc = Math.abs(subtract(d.getLowPrice(), prev.getEndPrice()));
                     double tr = max(hl, hc, lc);
                     atrSum = sum(atrSum, tr);
                 }
@@ -791,13 +791,13 @@ public class Detail {
             }
 
             // 乖离率
-            if (cur.getFiveDayLine() != null && !isEquals(cur.getFiveDayLine(), 0)) {
+            if (cur.getFiveDayLine() != null && !isEquals(cur.getFiveDayLine(), 0.0)) {
                 cur.setBias5(multiply(getRise(cur.endPrice, cur.fiveDayLine), 100));
             }
-            if (cur.getTenDayLine() != null && !isEquals(cur.getTenDayLine(), 0)) {
+            if (cur.getTenDayLine() != null && !isEquals(cur.getTenDayLine(), 0.0)) {
                 cur.setBias10(multiply(getRise(cur.endPrice, cur.tenDayLine), 100));
             }
-            if (cur.getTwentyDayLine() != null && !isEquals(cur.getTwentyDayLine(), 0)) {
+            if (cur.getTwentyDayLine() != null && !isEquals(cur.getTwentyDayLine(), 0.0)) {
                 cur.setBias20(multiply(getRise(cur.endPrice, cur.twentyDayLine), 100));
             }
 
@@ -834,7 +834,7 @@ public class Detail {
                 double upper = add(mean, multiply(std, 2));
                 double lower = subtract(mean, multiply(std, 2));
                 double bandRange = subtract(upper, lower);
-                if (!isEquals(bandRange, 0)) {
+                if (!isEquals(bandRange, 0.0)) {
                     cur.setBollPosition(divide(subtract(cur.endPrice, lower), bandRange));
                 }
             }
