@@ -77,8 +77,8 @@ public class DownloadTest {
      */
     private static RestTemplate createRestTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(30000);  // 连接超时 30 秒
-        factory.setReadTimeout(60000);     // 读取超时 60 秒
+        factory.setConnectTimeout(60000);  // 连接超时 60 秒
+        factory.setReadTimeout(180000);   // 读取超时 180 秒（3 分钟）
         return new RestTemplate(factory);
     }
 
@@ -165,7 +165,15 @@ public class DownloadTest {
         map.put(LICENCE, BI_YING_LICENCE);
         List<StockVO> stockVOList = getResponse(STOCK_LIST_URL, map, new ParameterizedTypeReference<List<StockVO>>() {
         });
+        if (CollectionUtils.isEmpty(stockVOList)) {
+            log.warn("获取股票列表失败，接口返回为空（可能网络超时）");
+            return;
+        }
         List<Stock> stockList = voConvert.convertToStock(stockVOList);
+        if (CollectionUtils.isEmpty(stockList)) {
+            log.warn("转换股票列表为空");
+            return;
+        }
         stockList = stockList.stream().filter(stock -> !stock.getCode().startsWith("30")
                 && !stock.getCode().startsWith("68")
                 && !stock.getName().contains("ST")).toList();
