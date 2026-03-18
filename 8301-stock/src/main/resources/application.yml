@@ -17,3 +17,8 @@ mybatis-plus:
   configuration:
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl      #MyBatis的sql日志，输出到控制台
     map-underscore-to-camel-case: true  #开启MyBatis的驼峰命名自动映射开关 a_colum --->  aColum
+
+logging:
+  level:
+    org.springframework.boot.autoconfigure: INFO
+    org.springframework.boot.autoconfigure.condition: INFO

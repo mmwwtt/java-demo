@@ -58,7 +58,7 @@ public class DFSTest {
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
-    public void dfsFor5MaxMid() throws InterruptedException {
+    public void dfs() throws InterruptedException {
         fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
         DfsMain(3);
     }
@@ -130,7 +130,7 @@ public class DFSTest {
 
 
             //计算并集中筛选字段的属性值
-            StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1.getStrategyCode(), strategyTmp.getPert(), resDetailIdArr);
+            StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1.getStrategyCode(), strategyTmp, resDetailIdArr);
             for (int detail : resDetailIdArr) {
                 resStrategyTmp.addToResult(idToDetailMap.get(detail));
             }
@@ -180,7 +180,7 @@ public class DFSTest {
         strategyService.remove(new QueryWrapper<>());
         List<StrategyTmp> strategyTmps = strategyTmpService.getBySql("pert > 0.10");
 
-        Map<Long, List<Detail>> strategyIdToDetailIdsMap = new ConcurrentHashMap<>(strategyTmps.size() * 2);
+        Map<Integer, List<Detail>> strategyIdToDetailIdsMap = new ConcurrentHashMap<>(strategyTmps.size() * 2);
 
         //统计每个策略符合的detail  对各种属性进行填充
         List<CompletableFuture<Void>> futures = new ArrayList<>();

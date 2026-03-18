@@ -12,9 +12,16 @@ import static com.mmwwtt.stock.service.impl.CommonService.idToDetailMap;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = "strategy_l1_t", autoResultMap = true)
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class StrategyL1 extends BaseStrategy {
+
+    /**
+     * 符合策略的详情数量统计
+     */
+    private Integer cnt;
+
 
     public StrategyL1(String strategyCode, List<Integer> detailIds) {
         this.strategyCode = strategyCode;
@@ -23,5 +30,6 @@ public class StrategyL1 extends BaseStrategy {
         array.addAll(detailIds);
         this.detailIds = array;
         this.details = detailIds.stream().map(item -> idToDetailMap.get(item)).toList();
+        this.cnt = detailIds.size();
     }
 }

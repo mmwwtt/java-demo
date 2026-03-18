@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.enums.FilterFildEnum;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +23,12 @@ import static com.mmwwtt.stock.service.impl.CommonService.INIT_DATE_SIZE;
 @Data
 @TableName(value = "strategy_tmp_t")
 @NoArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class StrategyTmp {
 
-    private Long strategyId;
+    private Integer strategyId;
+
     /**
      * 策略编码  组合编码
      */
@@ -123,9 +126,10 @@ public class StrategyTmp {
     }
 
     public StrategyTmp(String strategyCode,
-                       Double parentPert, int[] detailIdArr) {
+                       StrategyTmp parentStrategyTmp, int[] detailIdArr) {
         this.strategyCode = strategyCode;
-        this.parentPert = parentPert;
+        this.parentWinStrategyCodeSet = parentStrategyTmp.parentWinStrategyCodeSet;
+        this.parentPert = parentStrategyTmp.getPert();
         this.detailIdArr = detailIdArr;
         strategyCodeSet.add(strategyCode);
         if (Objects.nonNull(parentWinStrategyCodeSet)) {

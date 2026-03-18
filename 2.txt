@@ -47,3 +47,8 @@ sql设置
 
 
   数据库查询的数据转到java实体时，用的无参构造+setter方法的方式
+
+  JSONObject和JSON的区别   一个ToJOSNString 有null  一个无null的字段
+
+  NumberUtils.isParsable   判断一个字符串是否为数值，包括小数
+  StringUtils.isNumic   判断一个字符串是否为整数

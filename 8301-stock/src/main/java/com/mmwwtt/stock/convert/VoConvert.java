@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.mmwwtt.stock.common.CommonUtils.divide;
-import static com.mmwwtt.stock.common.CommonUtils.subtract;
+import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @Mapper(mappingControl = DeepClone.class, builder = @Builder(disableBuilder = true))
 public interface VoConvert {
@@ -67,8 +66,8 @@ public interface VoConvert {
     Detail convertToDetail(DetailOnTimeVO detailVO);
 
     @AfterMapping
-    default void convertBigDecimal(@MappingTarget Detail detail) {
-        detail.setPricePert(divide(subtract(detail.getEndPrice(), detail.getLastPrice()), detail.getLastPrice()));
+    default void afterFunc(@MappingTarget Detail detail) {
+        detail.setPricePert(getRise(detail.getEndPrice(), detail.getLastPrice()));
         detail.setDealDate(detail.getDealDate().replaceAll("-", ""));
     }
 

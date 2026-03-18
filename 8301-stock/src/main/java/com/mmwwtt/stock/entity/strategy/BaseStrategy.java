@@ -31,7 +31,7 @@ public class BaseStrategy {
      */
     @EqualsAndHashCode.Include
     @TableId(type = IdType.AUTO)
-    protected Long strategyId;
+    protected Integer strategyId;
 
     /**
      * 策略编码

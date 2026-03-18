@@ -134,10 +134,11 @@ create index stockCode on detail_t (stock_code);
 DROP TABLE IF EXISTS strategy_l1_t;
 CREATE TABLE strategy_l1_t
 (
-    strategy_id       INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_id       INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code     VARCHAR(200) COMMENT '策略编码',
     name              VARCHAR(200) COMMENT '策略描述',
     detail_ids        JSON COMMENT '符合条件的详情id列表',
+    cnt               INT(8) COMMENT '符合条件的id数量',
     rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',
     rise2_avg         DECIMAL(8, 4) COMMENT '2日平均涨幅',
     rise3_avg         DECIMAL(8, 4) COMMENT '3日平均涨幅',
@@ -160,7 +161,7 @@ CREATE TABLE strategy_l1_t
 DROP TABLE IF EXISTS strategy_tmp_t;
 CREATE TABLE strategy_tmp_t
 (
-    strategy_id   INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_id   INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code VARCHAR(200) COMMENT '策略编码',
     date_cnt      INT(8) COMMENT '有符合数据的日期天数',
     pert          DECIMAL(8, 4) COMMENT '用于过滤判断的临时属性'
@@ -170,7 +171,7 @@ CREATE TABLE strategy_tmp_t
 DROP TABLE IF EXISTS strategy_t;
 CREATE TABLE strategy_t
 (
-    strategy_id       INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_id       INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code     VARCHAR(200) COMMENT '策略编码',
     name              VARCHAR(200) COMMENT '策略描述',
     detail_ids        JSON COMMENT '符合条件的详情id列表',

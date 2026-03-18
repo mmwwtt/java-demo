@@ -109,7 +109,7 @@ public class DownloadTest {
     }
 
     @Test
-    @DisplayName("单独重新生成L1曾策略")
+    @DisplayName("重新生成L1曾策略")
     public void buildL1() throws ExecutionException, InterruptedException {
         try {
             buildStrategyL1();
@@ -121,7 +121,7 @@ public class DownloadTest {
 
 
     @Test
-    @DisplayName("获得数据")
+    @DisplayName("验证数据下载接口")
     public void getDataTest() {
         String stockCode = "605162.SH";
         Map<String, String> map1 = new HashMap<>();
@@ -143,8 +143,6 @@ public class DownloadTest {
         log.info("获取单个代码的数据结束：{}", JSONObject.toJSONString(detailVOS));
     }
 
-    @Test
-    @DisplayName("下载前的初始化  清空stock表和详情表")
     public void downLoadInit() {
         log.info("开始清空表 start\n\n\n");
         stockService.remove(new QueryWrapper<>());
@@ -237,8 +235,7 @@ public class DownloadTest {
                 return res.getBody();
             } catch (Exception e) {
                 //打印除限流和连接错误外的错误
-                if (!e.getMessage().startsWith("429")
-                        && !e.getMessage().startsWith("I/O error on GET")) {
+                if (!e.getMessage().startsWith("429") && !e.getMessage().startsWith("I/O error on GET")) {
                     log.info("调接口时发生错误{}", e.getMessage());
                     return null;
                 }
@@ -246,7 +243,7 @@ public class DownloadTest {
                     Thread.sleep(5000);
                     cnt++;
                     if (cnt > 5) {
-                        log.info("url:{}\n报错：{}参数：\n{}", url, e.getMessage(), paramMap);
+                        log.info("{}", e.getMessage());
                         break;
                     }
                 } catch (Exception e1) {
