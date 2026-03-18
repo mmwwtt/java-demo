@@ -79,6 +79,7 @@ public class DFSTest {
             CompletableFuture.runAsync(() -> {
                 try {
                     StrategyTmp strategyTmp = VoConvert.INSTANCE.convertTo(strategyL1);
+                    strategyTmp.setPert(fildEnum.getStrategyL1Getter().apply(strategyL1));
                     buildByLevel(strategyTmp, finalI);
                 } finally {
                     taskCnt.decrementAndGet();
@@ -143,22 +144,20 @@ public class DFSTest {
             resStrategyTmp.fillCode();
             addToTmpBatch(resStrategyTmp);
 
-            buildByLevel(resStrategyTmp, i);
-
-//            //和递归 有空余线程时使用线程
-//            if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
-//                int finalI = i;
-//                taskCnt.incrementAndGet();
-//                CompletableFuture.runAsync(() -> {
-//                    try {
-//                        buildByLevel(resStrategyTmp, finalI);
-//                    } finally {
-//                        taskCnt.decrementAndGet();
-//                    }
-//                }, cpuThreadPool);
-//            } else {
-//                buildByLevel(resStrategyTmp, i);
-//            }
+            //和递归 有空余线程时使用线程
+            if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+                int finalI = i;
+                taskCnt.incrementAndGet();
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        buildByLevel(resStrategyTmp, finalI);
+                    } finally {
+                        taskCnt.decrementAndGet();
+                    }
+                }, cpuThreadPool);
+            } else {
+                buildByLevel(resStrategyTmp, i);
+            }
         }
     }
 

@@ -3,6 +3,7 @@ package com.mmwwtt.stock.enums;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.stock.entity.Detail;
+import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,6 +18,7 @@ import static com.mmwwtt.stock.common.CommonUtils.multiply;
 public enum FilterFildEnum implements BaseEnum {
     RISE5_MAX_MIDDLE("rise5MaxMiddle", "最大五日涨幅中位数",
             Detail::getNext5MaxPricePert,
+            StrategyL1::getRise5MaxMiddle,
             new QueryWrapper<StrategyTmp>().apply("rise5_max_middle>0.14  and rise5_max_middle<0.15"),
             (StrategyTmp tmp) -> {
                 if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.025)) {
@@ -36,6 +38,7 @@ public enum FilterFildEnum implements BaseEnum {
             }),
     RISE5_MAX_AVG("rise5MaxAvg", "最大五日涨幅平均数",
             Detail::getNext5MaxPricePert,
+            StrategyL1::getRise5MaxAvg,
             new QueryWrapper<StrategyTmp>().apply("rise5_max_avg>0.14  and rise5_max_avg<0.15"),
             (StrategyTmp tmp) -> {
                 if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.05)) {
@@ -62,6 +65,11 @@ public enum FilterFildEnum implements BaseEnum {
      * getter setter方法
      */
     private final Function<Detail, Double> detailGetter;
+
+    /**
+     * getter setter方法
+     */
+    private final Function<StrategyL1, Double> strategyL1Getter;
 
     /**
      * 需要填充策略数据的查询sql

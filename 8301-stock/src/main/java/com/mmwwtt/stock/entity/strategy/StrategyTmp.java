@@ -128,7 +128,7 @@ public class StrategyTmp {
     public StrategyTmp(String strategyCode,
                        StrategyTmp parentStrategyTmp, int[] detailIdArr) {
         this.strategyCode = strategyCode;
-        this.parentWinStrategyCodeSet = parentStrategyTmp.parentWinStrategyCodeSet;
+        this.parentWinStrategyCodeSet = parentStrategyTmp.getStrategyCodeSet();
         this.parentPert = parentStrategyTmp.getPert();
         this.detailIdArr = detailIdArr;
         strategyCodeSet.add(strategyCode);
