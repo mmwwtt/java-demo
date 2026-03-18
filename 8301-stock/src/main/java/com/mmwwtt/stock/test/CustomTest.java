@@ -92,7 +92,7 @@ public class CustomTest {
                     for (StrategyEnum strategy : strategyList) {
                         for (int i = 0; i < details.size() - 60; i++) {
                             Detail detail = details.get(i);
-                            if (moreThan(detail.getPricePert(), 0.097)
+                            if (moreThan(detail.getRise0(), 0.097)
                                     || Objects.isNull(detail.getNext1())
                                     || Objects.isNull(detail.getT10())
                                     || Objects.isNull(detail.getT10().getSixtyDayLine())
@@ -106,8 +106,7 @@ public class CustomTest {
             }, ioThreadPool);
             futures.add(future);
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();;
 
 //        strategyToCalcMap.forEach((strategyEnum, list) -> {
 //            StrategyWin strategyWin = StrategyWin.createByStrategyName(strategyEnum);

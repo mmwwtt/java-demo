@@ -68,10 +68,10 @@ public class DFSVerifyTest {
                 if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
                     break;
                 }
-                if (Objects.isNull(detail.getNext5MaxPricePert())
+                if (Objects.isNull(detail.getRise5Max())
                         || Objects.isNull(detail.getT10())
                         || Objects.isNull(detail.getT10().getSixtyDayLine())
-                        || moreThan(detail.getPricePert(), 0.097)) {
+                        || moreThan(detail.getRise0(), 0.097)) {
                     continue;
                 }
                 for (Strategy strategyWin : strategies) {
@@ -92,7 +92,7 @@ public class DFSVerifyTest {
             if (CollectionUtils.isEmpty(resList)) {
                 continue;
             }
-            List<Double> next5Maxs = resList.stream().map(Detail::getNext5MaxPricePert).toList();
+            List<Double> next5Maxs = resList.stream().map(Detail::getRise5Max).toList();
             List<Double> next5s = resList.stream()
                     .map(item -> getRise(item.getNext5().getEndPrice(), item.getEndPrice()))
                     .toList();

@@ -229,11 +229,11 @@ public class BaseStrategy {
                 }
                 if (Objects.nonNull(detail.getNext5())) {
                     curRise5s.add(getRise(detail.getNext5().getEndPrice(), endPrice));
-                    curRise5Maxs.add(detail.getNext5MaxPricePert());
+                    curRise5Maxs.add(detail.getRise5Max());
                 }
                 if (Objects.nonNull(detail.getNext10())) {
                     curRise10s.add(getRise(detail.getNext10().getEndPrice(), endPrice));
-                    curRise10Maxs.add(detail.getNext10MaxPricePert());
+                    curRise10Maxs.add(detail.getRise10Max());
                 }
             }
 

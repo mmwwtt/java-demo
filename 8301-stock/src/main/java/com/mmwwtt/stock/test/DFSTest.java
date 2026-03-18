@@ -201,8 +201,7 @@ public class DFSTest {
             }, cpuThreadPool);
             futures.add(future);
         });
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();;
         strategyService.saveBatch(resList);
         //todo 对win进行重复度判断  如果detailIds重复度达到95%则抛弃胜率低的那条
     }

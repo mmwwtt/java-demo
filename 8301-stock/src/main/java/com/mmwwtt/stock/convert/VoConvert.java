@@ -67,7 +67,7 @@ public interface VoConvert {
 
     @AfterMapping
     default void afterFunc(@MappingTarget Detail detail) {
-        detail.setPricePert(getRise(detail.getEndPrice(), detail.getLastPrice()));
+        detail.setRise0(getRise(detail.getEndPrice(), detail.getLastPrice()));
         detail.setDealDate(detail.getDealDate().replaceAll("-", ""));
     }
 

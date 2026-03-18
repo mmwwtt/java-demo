@@ -50,7 +50,7 @@ public class CalcCommonService {
                         if (stockCodeSet.contains(stockCode)
                                 || Objects.isNull(detail) || Objects.isNull(detail.getT5())
                                 || Objects.isNull(detail.getT5().getSixtyDayLine())
-                                || moreThan(detail.getPricePert(), 0.097)) {
+                                || moreThan(detail.getRise0(), 0.097)) {
                             continue;
                         }
                         if (isOnTime) {
@@ -60,7 +60,7 @@ public class CalcCommonService {
                         if (res) {
                             stockCodeSet.add(stockCode);
                             String name = stockCodeToNameMap.getOrDefault(stockCode, "");
-                            double pert = detail.getPricePert() != null ? detail.getPricePert() : 0;
+                            double pert = detail.getRise0() != null ? detail.getRise0() : 0;
                             strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>()))
                                     .add(stockCode + "_" + name + " " + pert);
                         }
@@ -69,9 +69,7 @@ public class CalcCommonService {
                 futures.add(future);
             }
         }
-
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
         log.info("计算结束");
         String filePath = "src/main/resources/file/test.txt";
 
@@ -121,10 +119,10 @@ public class CalcCommonService {
                     for (String stockCode : part) {
                         Detail detail = codeToDetailMap.get(stockCode);
                         if (stockCodeSet.contains(stockCode) || Objects.isNull(detail)
-                                || Objects.isNull(detail.getNext5MaxPricePert())
+                                || Objects.isNull(detail.getRise5Max())
                                 || Objects.isNull(detail.getT5())
                                 || Objects.isNull(detail.getT5().getSixtyDayLine())
-                                || moreThan(detail.getPricePert(), 0.097)
+                                || moreThan(detail.getRise0(), 0.097)
                                 || (!detail.getFiveIsUp() && !detail.getTenIsUp())) {
                             continue;
                         }
@@ -139,8 +137,7 @@ public class CalcCommonService {
                 futures.add(future);
             }
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();;
         return resList;
     }
 

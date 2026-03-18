@@ -17,7 +17,7 @@ import static com.mmwwtt.stock.common.CommonUtils.multiply;
 @Getter
 public enum FilterFildEnum implements BaseEnum {
     RISE5_MAX_MIDDLE("rise5MaxMiddle", "最大五日涨幅中位数",
-            Detail::getNext5MaxPricePert,
+            Detail::getRise5Max,
             StrategyL1::getRise5MaxMiddle,
             new QueryWrapper<StrategyTmp>().apply("rise5_max_middle>0.14  and rise5_max_middle<0.15"),
             (StrategyTmp tmp) -> {
@@ -37,7 +37,7 @@ public enum FilterFildEnum implements BaseEnum {
                 return true;
             }),
     RISE5_MAX_AVG("rise5MaxAvg", "最大五日涨幅平均数",
-            Detail::getNext5MaxPricePert,
+            Detail::getRise5Max,
             StrategyL1::getRise5MaxAvg,
             new QueryWrapper<StrategyTmp>().apply("rise5_max_avg>0.14  and rise5_max_avg<0.15"),
             (StrategyTmp tmp) -> {

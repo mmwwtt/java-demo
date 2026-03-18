@@ -221,8 +221,7 @@ public class DownloadTest {
             }, ioThreadPool);
             futures.add(future);
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();;
         log.info("下载股票详细数据  end \n\n\n");
     }
 
@@ -268,7 +267,7 @@ public class DownloadTest {
                         if (Objects.isNull(detail.getNext1())
                                 || Objects.isNull(detail.getT10())
                                 || Objects.isNull(detail.getT10().getSixtyDayLine())
-                                || moreThan(detail.getPricePert(), 0.097)
+                                || moreThan(detail.getRise0(), 0.097)
                                 || detail.getDealDate().compareTo("202505") < 0
                                 || detail.getDealDate().compareTo(calcEndDate) > 0) {
                             continue;
@@ -286,8 +285,7 @@ public class DownloadTest {
             }, cpuThreadPool);
             futures.add(future);
         }
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();;
         log.info("策略层级 1 计算 - 结束");
     }
 }

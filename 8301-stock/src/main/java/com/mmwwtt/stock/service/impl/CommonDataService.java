@@ -75,27 +75,33 @@ public class CommonDataService {
         }
 
         log.info("开始加载L1层策略");
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<Integer> l1IdList = strategyL1Service.getIdList();
-        l1IdList.parallelStream().forEach(l1Id -> {
-            StrategyL1 strategyL1 = strategyL1Service.getById(l1Id);
-            int[] ids = new int[strategyL1.getDetailIds().size()];
-            for (int i = 0; i < strategyL1.getDetailIds().size(); i++) {
-                ids[i] = strategyL1.getDetailIds().getIntValue(i);
-            }
-            ids= Arrays.stream(ids).sorted().toArray();
-            strategyL1.setDetailIdArr(ids);
-            strategyL1.fillCodeSet();
-            strategyL1s.add(strategyL1);
-        });
+        for (Integer l1Id : l1IdList) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                StrategyL1 strategyL1 = strategyL1Service.getById(l1Id);
+                int[] ids = new int[strategyL1.getDetailIds().size()];
+                for (int i = 0; i < strategyL1.getDetailIds().size(); i++) {
+                    ids[i] = strategyL1.getDetailIds().getIntValue(i);
+                }
+                ids = Arrays.stream(ids).sorted().toArray();
+                strategyL1.setDetailIdArr(ids);
+                strategyL1.fillCodeSet();
+                strategyL1s.add(strategyL1);
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
 
         log.info("开始查询股票列表");
         stockCodeList = stockService.list().stream().map(Stock::getCode).toList();
         stockCodePartList = Lists.partition(stockCodeList, 50);
 
+        futures = new ArrayList<>();
         log.info("开始查询详情列表");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        stockCodePartList.forEach(part -> {
+        for (List<String> part : stockCodePartList) {
+
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
                 List<Detail> details = detailService.getBySql(String.format("stock_code='%s'", stockCode));
                 details.sort(Comparator.comparing(Detail::getDealDate).reversed());
@@ -105,12 +111,11 @@ public class CommonDataService {
                 details.removeIf(detail -> Objects.isNull(detail) || Objects.isNull(detail.getT5())
                         || Objects.isNull(detail.getT5().getSixtyDayLine())
                         || Objects.isNull(detail.getNext1())
-                        || moreThan(detail.getPricePert(), 0.097));
+                        || moreThan(detail.getRise0(), 0.097));
             }), ioThreadPool);
             futures.add(future);
-        });
-        CompletableFuture<Void> allTask = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allTask.get();
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
         log.info("开始设置Dfs截止日期");
         predictDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())

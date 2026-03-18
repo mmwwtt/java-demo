@@ -5,23 +5,29 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmwwtt.stock.dao.StrategyL1DAO;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.service.StrategyL1Service;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Slf4j
 public class StrategyL1ServiceImpl extends ServiceImpl<StrategyL1DAO, StrategyL1> implements StrategyL1Service {
+
+    @Resource
+    private StrategyL1DAO strategyL1DAO;
 
     @Override
     public List<StrategyL1> getBySql(String sql) {
         QueryWrapper<StrategyL1> wrapper = new QueryWrapper<>();
         wrapper.apply(sql);
         return list(wrapper);
+    }
+
+    @Override
+    public List<Integer> getIdList() {
+        return strategyL1DAO.getIdList();
     }
 
 }

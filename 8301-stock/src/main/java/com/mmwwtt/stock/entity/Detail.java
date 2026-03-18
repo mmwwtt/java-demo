@@ -70,11 +70,6 @@ public class Detail {
      */
     private Double lastPrice;
 
-    /**
-     * 涨跌幅
-     */
-    private Double pricePert;
-
 
     // ------------- 新增：K线分析常用计算方法（适配后续判断逻辑）-------------
 
@@ -336,126 +331,71 @@ public class Detail {
     private Boolean isFilterPert;
 
     /**
-     * 下个交易日细节
+     * 当天收盘到后续N天收盘的涨幅
+     */
+    private Double rise0;
+    private Double rise1;
+    private Double rise2;
+    private Double rise3;
+    private Double rise4;
+    private Double rise5;
+    private Double rise5Max;
+    private Double rise5Min;
+    private Double rise10;
+    private Double rise10Max;
+    private Double rise10Min;
+
+    /**
+     * 后续N天交易日详情
      */
     @TableField(exist = false)
     private Detail next1;
 
-    /**
-     * 日后第2个交易日细节
-     */
     @TableField(exist = false)
     private Detail next2;
 
-    /**
-     * 当天到2天后的涨幅
-     */
-    private Double next2PricePert;
-
-    /**
-     * 日后第3个交易日细节
-     */
     @TableField(exist = false)
     private Detail next3;
 
-    /**
-     * 当天到3天后的涨幅
-     */
-    private Double next3PricePert;
-
-    /**
-     * 日后第4个交易日细节
-     */
     @TableField(exist = false)
     private Detail next4;
 
-    /**
-     * 当天到4天后的涨幅
-     */
-    private Double next4PricePert;
-
-
-    /**
-     * 日后第5个交易日细节
-     */
     @TableField(exist = false)
     private Detail next5;
 
-    /**
-     * 当天到5天后的涨幅
-     */
-    private Double next5PricePert;
-
-    /**
-     * 当天到5天内最高的涨幅
-     */
-    private Double next5MaxPricePert;
-
-    /**
-     * 当天到5天内最低的涨幅(回调)
-     */
-    private Double next5MinPricePert;
-
-
-    /**
-     * 日后第10个交易日细节
-     */
     @TableField(exist = false)
     private Detail next10;
 
     /**
-     * 当天到10天后的涨幅
-     */
-    private Double next10PricePert;
-
-    /**
-     * 当天到10天内最高的涨幅
-     */
-    private Double next10MaxPricePert;
-
-    /**
-     * 当天到10天内最低的涨幅(回调)
-     */
-    private Double next10MinPricePert;
-
-    /**
-     * 前1天交易日细节
+     * 前N天交易日详情
      */
     @TableField(exist = false)
     private Detail t1;
 
-    /**
-     * 前2天交易日细节
-     */
     @TableField(exist = false)
     private Detail t2;
 
-    /**
-     * 前3天交易日细节
-     */
     @TableField(exist = false)
     private Detail t3;
 
-    /**
-     * 前4天交易日细节
-     */
     @TableField(exist = false)
     private Detail t4;
 
-    /**
-     * 前5天交易日细节
-     */
     @TableField(exist = false)
     private Detail t5;
 
     @TableField(exist = false)
     private Detail t6;
+
     @TableField(exist = false)
     private Detail t7;
+
     @TableField(exist = false)
     private Detail t8;
+
     @TableField(exist = false)
     private Detail t9;
+
     @TableField(exist = false)
     private Detail t10;
 
@@ -465,7 +405,6 @@ public class Detail {
      */
     @TableField(exist = false)
     private Double quantityRatio;
-
 
     /**
      * 放量
@@ -659,7 +598,7 @@ public class Detail {
         isRed = moreThan(endPrice, startPrice);
         isGreen = lessThan(endPrice, startPrice);
         isBalance = isEquals(endPrice, startPrice);
-        pertDivisionQuantity = isEquals(dealQuantity, 0.0) ? 0 : divide(pricePert, dealQuantity);
+        pertDivisionQuantity = isEquals(dealQuantity, 0.0) ? 0 : divide(rise0, dealQuantity);
         isTenStar = moreThan(allLen, 0.0) && lessThan(entityLen, 0.005);
     }
 
@@ -695,30 +634,32 @@ public class Detail {
 
         for (int i = 0; i < list.size(); i++) {
             Detail cur = list.get(i);
-
+            if (i - 1 >= 0) {
+                cur.setRise1(getRise(list.get(i - 1).getEndPrice(), cur.getEndPrice()));
+            }
             if (i - 2 >= 0) {
-                cur.setNext2PricePert(divide(subtract(list.get(i - 2).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setRise2(getRise(list.get(i - 2).getEndPrice(), cur.getEndPrice()));
             }
             if (i - 3 >= 0) {
-                cur.setNext3PricePert(divide(subtract(list.get(i - 3).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setRise3(getRise(list.get(i - 3).getEndPrice(), cur.getEndPrice()));
             }
             if (i - 4 >= 0) {
-                cur.setNext4PricePert(divide(subtract(list.get(i - 4).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setRise4(getRise(list.get(i - 4).getEndPrice(), cur.getEndPrice()));
             }
             if (i - 5 >= 0) {
-                cur.setNext5PricePert(divide(subtract(list.get(i - 5).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setRise5(getRise(list.get(i - 5).getEndPrice(), cur.getEndPrice()));
                 List<Double> highPriceList = list.subList(i - 5, i).stream().map(Detail::getHighPrice).toList();
                 List<Double> lowPriceList = list.subList(i - 5, i).stream().map(Detail::getLowPrice).toList();
-                cur.setNext5MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
-                cur.setNext5MinPricePert(divide(subtract(min(lowPriceList), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setRise5Max(getRise(max(highPriceList), cur.getEndPrice()));
+                cur.setRise5Min(getRise(min(lowPriceList), cur.getEndPrice()));
             }
 
             if (i - 10 >= 0) {
-                cur.setNext10PricePert(divide(subtract(list.get(i - 10).getEndPrice(), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setRise10(getRise(list.get(i - 10).getEndPrice(), cur.getEndPrice()));
                 List<Double> highPriceList = list.subList(i - 10, i).stream().map(Detail::getHighPrice).toList();
                 List<Double> lowPriceList = list.subList(i - 10, i).stream().map(Detail::getLowPrice).toList();
-                cur.setNext10MaxPricePert(divide(subtract(max(highPriceList), cur.getEndPrice()), cur.getEndPrice()));
-                cur.setNext10MinPricePert(divide(subtract(min(lowPriceList), cur.getEndPrice()), cur.getEndPrice()));
+                cur.setRise10Max(getRise(max(highPriceList), cur.getEndPrice()));
+                cur.setRise10Min(getRise(min(lowPriceList), cur.getEndPrice()));
             }
 
             calcIsUp(list, i, 5, cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveHigh, cur::setFiveLow,
