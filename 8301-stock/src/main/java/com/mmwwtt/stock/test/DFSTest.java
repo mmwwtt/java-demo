@@ -29,7 +29,6 @@ import static com.mmwwtt.stock.service.impl.CommonDataService.*;
 //todo 对结果进行再处理 找出符合结果的详情列表， 判断重复度>80%的如何处理
 //todo 策略枚举不采用区间隔离，而是存在重叠当相同类型的枚举则跳过筛选
 //todo 优化验证，当同一个数据被多个策略选中时，增加该数据的权重 再计算涨幅
-//todo next5MaxPertRate 感觉这个字段不是很对
 @Slf4j
 @SpringBootTest
 public class DFSTest {
