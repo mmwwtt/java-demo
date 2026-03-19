@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -186,6 +187,7 @@ public class DFSTest {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         strategyTmps.forEach(strategyTmp -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                strategyTmp.setStrategyCodeSet(Arrays.stream(strategyTmp.getStrategyCode().split(" ")).filter(s -> !s.isEmpty()).collect(Collectors.toSet()));
                 List<int[]> detailArrList = strategyTmp.getStrategyCodeSet().stream().map(code -> codeToL1Map.get(code).getDetailIdArr()).toList();
                 int[] resDetailIds = retainAll(detailArrList);
                 List<Detail> details = Arrays.stream(resDetailIds).mapToObj(detailId -> idToDetailMap.get(detailId)).toList();
