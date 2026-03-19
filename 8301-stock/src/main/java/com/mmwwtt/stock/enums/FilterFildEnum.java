@@ -26,12 +26,12 @@ public enum FilterFildEnum implements BaseEnum {
                 }
                 int level = tmp.getStrategyCodeSet().size();
                 if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && lessThan(tmp.getPert(), 0.07))
-                        || (level == 3 && lessThan(tmp.getPert(), 0.08))
-                        || (level == 4 && lessThan(tmp.getPert(), 0.09))
-                        || (level == 5 && lessThan(tmp.getPert(), 0.10))
-                        || (level == 6 && lessThan(tmp.getPert(), 0.105))
-                        || (level == 7 && lessThan(tmp.getPert(), 0.11))) {
+                        || (level == 2 && lessThan(tmp.getPert(), 0.065))
+                        || (level == 3 && lessThan(tmp.getPert(), 0.07))
+                        || (level == 4 && lessThan(tmp.getPert(), 0.075))
+                        || (level == 5 && lessThan(tmp.getPert(), 0.08))
+                        || (level == 6 && lessThan(tmp.getPert(), 0.085))
+                        || (level == 7 && lessThan(tmp.getPert(), 0.09))) {
                     return false;
                 }
                 return true;
