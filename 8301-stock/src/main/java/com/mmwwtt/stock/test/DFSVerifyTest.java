@@ -87,7 +87,7 @@ public class DFSVerifyTest {
                         pair.getLeft().add(detail);
                         //详情id-权重map
                         Map<Integer, Double> detailIdToWeightMap = pair.getRight();
-                        detailIdToWeightMap.merge(detail.getDetailId(), 1.0, (a, b) -> a + 0.2);
+                        detailIdToWeightMap.merge(detail.getDetailId(), 1.0, (a, b) -> a + 1.0);
                     }
                 }
             }
@@ -103,17 +103,20 @@ public class DFSVerifyTest {
             if (CollectionUtils.isEmpty(details)) {
                 continue;
             }
-            List<Double> next5Maxs = details
+            List<Double> rise5Maxs = details
                     .stream().map(item -> item.getRise5Max() * detailIdToWeightMap.get(item.getDetailId()))
                     .toList();
-            List<Double> next5s = details.stream()
+            List<Double> rise5s = details.stream()
                     .map(item -> item.getRise5() * detailIdToWeightMap.get(item.getDetailId()))
                     .toList();
 
-            double fiveMaxDateAvg = getAverage(next5Maxs);
-            fiveMaxDateAvgList.add(fiveMaxDateAvg);
-            fiveDateAvgList.add(getAverage(next5s));
-            log.info("日期：{}    涨幅：{}%\n", date, String.format("%.3f", fiveMaxDateAvg * 100));
+            double rise5MaxsDateAvg = divide(sum(rise5Maxs) , sum((List<Double>) detailIdToWeightMap.values()));
+            double rise5sDateAvg = divide(sum(rise5s) , sum((List<Double>) detailIdToWeightMap.values()));
+            log.info("日期：{}   五日平均涨幅：{}%   五日最高平均涨幅：{}%  \n",
+                    date, String.format("%.3f", rise5sDateAvg * 100),String.format("%.3f", rise5MaxsDateAvg * 100));
+
+            fiveMaxDateAvgList.add(rise5MaxsDateAvg);
+            fiveDateAvgList.add(rise5sDateAvg);
         }
         log.info("平均5日最高涨幅 {}%", String.format("%.3f", getAverage(fiveMaxDateAvgList) * 100));
         log.info("平均5日涨幅 {}%", String.format("%.3f", getAverage(fiveDateAvgList) * 100));
