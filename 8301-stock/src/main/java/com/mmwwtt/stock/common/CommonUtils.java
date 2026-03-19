@@ -5,6 +5,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -141,26 +142,27 @@ public class CommonUtils {
 
     /**
      * 判断相关
+     *
      * @param num1
      * @param num2
      * @return
      */
     public static boolean isEquals(Double num1, Double num2) {
-        if(Objects.isNull(num1) || Objects.isNull(num2)) {
+        if (Objects.isNull(num1) || Objects.isNull(num2)) {
             return false;
         }
         return Math.abs(num1 - num2) < TOLERANCE;
     }
 
     public static Boolean moreThan(Double num1, Double num2) {
-        if(Objects.isNull(num1) || Objects.isNull(num2)) {
+        if (Objects.isNull(num1) || Objects.isNull(num2)) {
             return false;
         }
         return num1 > num2 + TOLERANCE;
     }
 
     public static Boolean moreThan(Double... nums) {
-        if(Arrays.stream(nums).anyMatch(Objects::isNull)) {
+        if (Arrays.stream(nums).anyMatch(Objects::isNull)) {
             return false;
         }
         double obj = nums[0];
@@ -174,7 +176,7 @@ public class CommonUtils {
     }
 
     public static Boolean lessThan(Double num1, Double num2) {
-        if(Objects.isNull(num1) || Objects.isNull(num2)) {
+        if (Objects.isNull(num1) || Objects.isNull(num2)) {
             return false;
         }
         return num1 + TOLERANCE < num2;
@@ -185,7 +187,7 @@ public class CommonUtils {
      * num  是否在 范围中
      */
     public static Boolean isInRange(Double num, Double leftRange, Double rightRange) {
-        if(Objects.isNull(num) || Objects.isNull(leftRange) || Objects.isNull(rightRange)) {
+        if (Objects.isNull(num) || Objects.isNull(leftRange) || Objects.isNull(rightRange)) {
             return false;
         }
         return moreThan(num, leftRange) && lessThan(num, rightRange);
@@ -378,7 +380,7 @@ public class CommonUtils {
     public static int[] retainAll(int[] list1, int[] list2) {
         int[] tmpArr = new int[Math.min(list1.length, list2.length)];
         if (tmpArr.length == 0) {
-            return new int[0];
+            return tmpArr;
         }
         int j = 0;
         int arrIdx = 0;
@@ -401,4 +403,15 @@ public class CommonUtils {
         return Arrays.copyOfRange(tmpArr, 0, arrIdx);
     }
 
+    public static int[] retainAll(List<int[]> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return new int[0];
+        }
+        list=list.stream().sorted(Comparator.comparing(item -> item.length)).toList();
+        int[] res = list.get(0);
+        for (int i = 1; i < list.size(); i++) {
+            res = retainAll(res, list.get(i));
+        }
+        return res;
+    }
 }

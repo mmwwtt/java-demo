@@ -20,10 +20,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonDataService.*;
+import static com.mmwwtt.stock.service.impl.CommonDataService.codeToL1Map;
+import static com.mmwwtt.stock.service.impl.CommonDataService.idToDetailMap;
 
 
 //todo 对结果进行再处理 找出符合结果的详情列表， 判断重复度>80%的如何处理
@@ -55,7 +55,7 @@ public class DFSTest {
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     private static int LEVEL_LIMIT;
     public static FilterFildEnum fildEnum;
-    public static List<StrategyL1> strategyL1s;
+    public static List<StrategyL1> dfsStrategyL1s;
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
@@ -73,8 +73,8 @@ public class DFSTest {
     public void DfsMain(int levelLimit) throws InterruptedException {
         dfsInit();
         LEVEL_LIMIT = levelLimit;
-        for (int i = 0; i < strategyL1s.size(); i++) {
-            StrategyL1 strategyL1 = strategyL1s.get(i);
+        for (int i = 0; i < dfsStrategyL1s.size(); i++) {
+            StrategyL1 strategyL1 = dfsStrategyL1s.get(i);
             int finalI = i;
             taskCnt.incrementAndGet();
             CompletableFuture.runAsync(() -> {
@@ -101,11 +101,11 @@ public class DFSTest {
         if (level > LEVEL_LIMIT) {
             return;
         }
-        for (int idx = parentIdx + 1; idx < strategyL1s.size(); idx++) {
+        for (int idx = parentIdx + 1; idx < dfsStrategyL1s.size(); idx++) {
             //计算两个策略的并集
 
             //已存在的策略  或者策略类型相同  则跳过
-            StrategyL1 strategyL1 = strategyL1s.get(idx);
+            StrategyL1 strategyL1 = dfsStrategyL1s.get(idx);
             if (strategyTmp.getStrategyCodeSet().contains(strategyL1.getStrategyCode())
                     || (Objects.nonNull(strategyL1.getType()) && strategyTmp.getStrategyTypeSet().contains(strategyL1.getType()))) {
                 continue;
@@ -167,7 +167,7 @@ public class DFSTest {
     private void dfsInit() {
         log.info("dfs 初始化");
         strategyTmpService.remove(new QueryWrapper<>());
-        strategyL1s = CommonDataService.strategyL1s.stream()
+        dfsStrategyL1s = CommonDataService.strategyL1s.stream()
                 .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")
@@ -186,17 +186,9 @@ public class DFSTest {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         strategyTmps.forEach(strategyTmp -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                strategyIdToDetailIdsMap.put(strategyTmp.getStrategyId(), Collections.synchronizedList(new ArrayList<>(500)));
-                strategyTmp.setStrategyCodeSet(Arrays.stream(strategyTmp.getStrategyCode().split(" ")).collect(Collectors.toSet()));
-                strategyTmp.getStrategyCodeSet().forEach(strategyCode ->
-                        strategyTmp.getFilterFuncs().add(l1CodeToEnumMap.get(strategyCode).getFilterFunc()));
-                List<Detail> details = strategyIdToDetailIdsMap.get(strategyTmp.getStrategyId());
-                codeToDetailMap.values().forEach(detailList -> detailList.forEach(detail -> {
-                    boolean isTrue = strategyTmp.getFilterFuncs().stream().allMatch(func -> func.apply(detail));
-                    if (isTrue) {
-                        details.add(detail);
-                    }
-                }));
+                List<int[]> detailArrList = strategyTmp.getStrategyCodeSet().stream().map(code -> codeToL1Map.get(code).getDetailIdArr()).toList();
+                int[] resDetailIds = retainAll(detailArrList);
+                List<Detail> details = Arrays.stream(resDetailIds).mapToObj(detailId -> idToDetailMap.get(detailId)).toList();
                 Strategy strategy = VoConvert.INSTANCE.convertTo(strategyTmp);
                 strategy.setDetails(details);
                 strategy.fillOtherData();
@@ -205,7 +197,6 @@ public class DFSTest {
             futures.add(future);
         });
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
-        ;
         strategyService.saveBatch(resList);
         //todo 对win进行重复度判断  如果detailIds重复度达到95%则抛弃胜率低的那条
     }

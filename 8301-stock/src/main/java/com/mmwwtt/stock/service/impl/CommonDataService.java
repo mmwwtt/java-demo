@@ -17,7 +17,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 import static com.mmwwtt.stock.enums.StrategyEnum.baseStrategys;
@@ -39,8 +38,8 @@ public class CommonDataService {
 
     public static Map<Integer, Detail> idToDetailMap = new ConcurrentHashMap<>(1048576);
     public static Map<String, List<Detail>> codeToDetailMap = new ConcurrentHashMap<>(4096);
-    public static Map<String, String> stockCodeToNameMap;
     public static List<StrategyL1> strategyL1s = Collections.synchronizedList(new ArrayList<>(1000));
+    public static Map<String, StrategyL1> codeToL1Map = new ConcurrentHashMap<>(1000);
     public static List<List<String>> stockCodePartList;
     public static List<String> stockCodeList;
     public static String calcEndDate;
@@ -90,6 +89,7 @@ public class CommonDataService {
                 strategyL1.setDetailIdArr(ids);
                 strategyL1.fillCodeSet();
                 strategyL1s.add(strategyL1);
+                codeToL1Map.put(strategyL1.getStrategyCode(), strategyL1);
             }, ioThreadPool);
             futures.add(future);
         }
@@ -125,7 +125,6 @@ public class CommonDataService {
         calcEndDate = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
                 .stream().skip(15)
                 .map(Detail::getDealDate).findFirst().orElse("20260201");
-        stockCodeToNameMap = stockService.list().stream().collect(Collectors.toMap(Stock::getCode, Stock::getName));
         log.info("初始化结束");
     }
 }

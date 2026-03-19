@@ -59,10 +59,9 @@ public class CalcCommonService {
                         boolean res = functionList.stream().allMatch(item -> item.apply(detail));
                         if (res) {
                             stockCodeSet.add(stockCode);
-                            String name = stockCodeToNameMap.getOrDefault(stockCode, "");
                             double pert = detail.getRise0() != null ? detail.getRise0() : 0;
                             strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>()))
-                                    .add(stockCode + "_" + name + " " + pert);
+                                    .add(stockCode + " " + pert);
                         }
                     }
                 }, cpuThreadPool);
