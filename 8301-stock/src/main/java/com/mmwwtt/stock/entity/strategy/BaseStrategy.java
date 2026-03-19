@@ -274,20 +274,20 @@ public class BaseStrategy {
         });
         //算出策略的存在符合数据的日期的   平均  和中位数
         rise1Avg = getAverage(rise1Avgs);
-        rise1Middle = getAverage(rise1Middles);
+        rise1Middle = getMiddle(rise1Middles);
         rise2Avg = getAverage(rise2Avgs);
-        rise2Middle = getAverage(rise2Middles);
+        rise2Middle = getMiddle(rise2Middles);
         rise3Avg = getAverage(rise3Avgs);
-        rise3Middle = getAverage(rise3Middles);
+        rise3Middle = getMiddle(rise3Middles);
         rise4Avg = getAverage(rise4Avgs);
-        rise4Middle = getAverage(rise4Middles);
+        rise4Middle = getMiddle(rise4Middles);
         rise5Avg = getAverage(rise5Avgs);
-        rise5Middle = getAverage(rise5Middles);
+        rise5Middle = getMiddle(rise5Middles);
         rise5MaxAvg = getAverage(rise5MaxAvgs);
-        rise5MaxMiddle = getAverage(rise5MaxMiddles);
+        rise5MaxMiddle = getMiddle(rise5MaxMiddles);
         rise10Avg = getAverage(rise10Avgs);
-        rise10Middle = getAverage(rise10Middles);
+        rise10Middle = getMiddle(rise10Middles);
         rise10MaxAvg = getAverage(rise10MaxAvgs);
-        rise10MaxMiddle = getAverage(rise10MaxMiddles);
+        rise10MaxMiddle = getMiddle(rise10MaxMiddles);
     }
 }
