@@ -84,9 +84,11 @@ public class DFSVerifyTest {
                     if (res) {
                         Pair<List<Detail>, Map<Integer, Double>> pair =
                                 dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(), new HashMap<>()));
-                        pair.getLeft().add(detail);
                         //详情id-权重map
                         Map<Integer, Double> detailIdToWeightMap = pair.getRight();
+                        if(!detailIdToWeightMap.containsKey(detail.getDetailId())) {
+                            pair.getLeft().add(detail);
+                        }
                         detailIdToWeightMap.merge(detail.getDetailId(), 1.0, (a, b) -> a + 1.0);
                     }
                 }
@@ -110,8 +112,8 @@ public class DFSVerifyTest {
                     .map(item -> item.getRise5() * detailIdToWeightMap.get(item.getDetailId()))
                     .toList();
 
-            double rise5MaxsDateAvg = divide(sum(rise5Maxs) , sum((List<Double>) detailIdToWeightMap.values()));
-            double rise5sDateAvg = divide(sum(rise5s) , sum((List<Double>) detailIdToWeightMap.values()));
+            double rise5MaxsDateAvg = divide(sum(rise5Maxs) , sum( detailIdToWeightMap.values().stream().toList()));
+            double rise5sDateAvg = divide(sum(rise5s) , sum( detailIdToWeightMap.values().stream().toList()));
             log.info("日期：{}   五日平均涨幅：{}%   五日最高平均涨幅：{}%  \n",
                     date, String.format("%.3f", rise5sDateAvg * 100),String.format("%.3f", rise5MaxsDateAvg * 100));
 
