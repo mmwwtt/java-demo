@@ -166,6 +166,7 @@ CREATE TABLE strategy_tmp_t
     strategy_id   INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code VARCHAR(200) COMMENT '策略编码',
     date_cnt      INT(8) COMMENT '有符合数据的日期天数',
+    detail_cnt      INT(8) COMMENT '有符合数据的详情数',
     pert          DECIMAL(8, 4) COMMENT '用于过滤判断的临时属性'
 ) COMMENT '策略中间表';
 
@@ -177,7 +178,9 @@ CREATE TABLE strategy_t
     strategy_code     VARCHAR(200) COMMENT '策略编码',
     name              VARCHAR(200) COMMENT '策略描述',
     detail_ids        JSON COMMENT '符合条件的详情id列表',
+    detail_cnt        INT(8) COMMENT '符合条件的详情数量',
     date_cnt          INT(8) COMMENT '有符合数据的日期天数',
+    is_active         boolean comment '策略是否有效(如何和其他重复度高则根据 规则决定是否失效)',
     rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',
     rise1_middle      DECIMAL(8, 4) COMMENT '1日中位数涨幅',
     rise2_avg         DECIMAL(8, 4) COMMENT '2日平均涨幅',

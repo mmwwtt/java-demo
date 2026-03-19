@@ -195,10 +195,13 @@ public class BaseStrategy {
                 .map(strategyCode -> l1CodeToEnumMap.get(strategyCode).getDesc())
                 .collect(Collectors.joining(" "));
 
+        List<Integer> detailIdList = details.stream().map(Detail::getDetailId)
+                .sorted(Comparator.comparing(Integer::intValue)).toList();
         if (Objects.isNull(detailIds)) {
-            List<Integer> detailIdList = details.stream().map(Detail::getDetailId)
-                    .sorted(Comparator.comparing(Integer::intValue)).toList();
             detailIds = new JSONArray(detailIdList);
+        }
+        if (Objects.isNull(detailIdArr)) {
+            detailIdArr = detailIdList.stream().mapToInt(Integer::intValue).toArray();
         }
         //填充其他相关数据
         Map<String, List<Detail>> dateToDetailListMap = details.stream().collect(Collectors.groupingBy(Detail::getDealDate));

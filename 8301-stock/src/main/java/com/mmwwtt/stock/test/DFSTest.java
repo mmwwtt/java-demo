@@ -27,9 +27,8 @@ import static com.mmwwtt.stock.service.impl.CommonDataService.codeToL1Map;
 import static com.mmwwtt.stock.service.impl.CommonDataService.idToDetailMap;
 
 
-//todo 对结果进行再处理 找出符合结果的详情列表， 判断重复度>80%的如何处理
-//todo 策略枚举不采用区间隔离，而是存在重叠当相同类型的枚举则跳过筛选
-//todo 优化验证，当同一个数据被多个策略选中时，增加该数据的权重 再计算涨幅
+//todo 策略枚举不采用区间隔离，增加更密集的策略
+//todo 同一个组合策略，但是tmp表和策略表里计算出来的字段值不一样
 @Slf4j
 @SpringBootTest
 public class DFSTest {
@@ -60,14 +59,16 @@ public class DFSTest {
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
-    public void dfs() throws InterruptedException {
+    public void dfs() throws InterruptedException, ExecutionException {
         fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
         DfsMain(7);
+        dfsAfterDetail("pert > 0.12");
     }
 
     @Test
-    @DisplayName("填充DFS后策略的其他字段数据， 并对策略的详情列表做交集，判断是否高度重合，并做处理")
+    @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
+        fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
         dfsAfterDetail("pert > 0.12");
     }
 
@@ -185,7 +186,7 @@ public class DFSTest {
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        strategyTmps.forEach(strategyTmp -> {
+        for (StrategyTmp strategyTmp : strategyTmps) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 strategyTmp.setStrategyCodeSet(Arrays.stream(strategyTmp.getStrategyCode().split(" ")).filter(s -> !s.isEmpty()).collect(Collectors.toSet()));
                 List<int[]> detailArrList = strategyTmp.getStrategyCodeSet().stream().map(code -> codeToL1Map.get(code).getDetailIdArr()).toList();
@@ -197,10 +198,43 @@ public class DFSTest {
                 resList.add(strategy);
             }, cpuThreadPool);
             futures.add(future);
-        });
+        }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+
         strategyService.saveBatch(resList);
-        //todo 对win进行重复度判断  如果detailIds重复度达到95%则抛弃胜率低的那条
+
+        //当两个策略重复度高达95%时， 字段阈值高的有效， 低的则改成失效状态  从而避免策略重复
+        futures = new ArrayList<>();
+        for (Strategy strategy1 : resList) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Strategy strategy2 : resList) {
+                    if (Objects.equals(strategy1.getStrategyId(), strategy2.getStrategyId())) {
+                        continue;
+                    }
+                    double repeatPerc = getRepeatPerc(strategy1.getDetailIdArr(), strategy2.getDetailIdArr());
+                    if (moreThan(repeatPerc, 0.95)) {
+                        Double pert1 = fildEnum.getStrategyGetter().apply(strategy1);
+                        Double pert2 = fildEnum.getStrategyGetter().apply(strategy2);
+                        if (isEquals(pert1, pert2)) {
+                            if (strategy1.getDateCnt() > strategy2.getDateCnt()) {
+                                strategy2.setIsActive(false);
+                            } else {
+                                strategy1.setIsActive(false);
+                            }
+                        }
+                        if (moreThan(pert1, pert2)) {
+                            strategy2.setIsActive(false);
+                        }
+                        if (lessThan(pert1, pert2)) {
+                            strategy1.setIsActive(false);
+                        }
+                    }
+                }
+            }, cpuThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        strategyService.saveOrUpdateBatch(resList);
     }
 
 

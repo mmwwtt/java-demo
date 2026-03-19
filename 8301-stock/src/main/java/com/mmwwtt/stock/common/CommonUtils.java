@@ -4,10 +4,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.mmwwtt.stock.common.Constants.TOLERANCE;
 
@@ -378,6 +375,9 @@ public class CommonUtils {
      * 前提：两个list 都要升序,且无重复
      */
     public static int[] retainAll(int[] list1, int[] list2) {
+        if (Objects.isNull(list1) || Objects.isNull(list2)) {
+            return new int[0];
+        }
         int[] tmpArr = new int[Math.min(list1.length, list2.length)];
         if (tmpArr.length == 0) {
             return tmpArr;
@@ -407,11 +407,39 @@ public class CommonUtils {
         if (CollectionUtils.isEmpty(list)) {
             return new int[0];
         }
-        list=list.stream().sorted(Comparator.comparing(item -> item.length)).toList();
+        boolean havaNall = list.stream().anyMatch(Objects::isNull);
+        if (havaNall) {
+            return new int[0];
+        }
+
+        list = list.stream().sorted(Comparator.comparing(item -> item.length)).toList();
         int[] res = list.get(0);
         for (int i = 1; i < list.size(); i++) {
             res = retainAll(res, list.get(i));
         }
         return res;
+    }
+
+    /**
+     * 计算两个list的重合度
+     * 算法： 交集 / 并集
+     */
+    public static double getRepeatPerc(int[] list1, int[] list2) {
+        if (Objects.isNull(list1) || Objects.isNull(list2)) {
+            return 0d;
+        }
+
+        //交集
+        int[] retainArr = retainAll(list1, list2);
+
+        //并集
+        Set<Integer> unionSet = new HashSet<>();
+        for (int detailId : list1) {
+            unionSet.add(detailId);
+        }
+        for (int detailId : list2) {
+            unionSet.add(detailId);
+        }
+        return retainArr.length * 1.0 / unionSet.size();
     }
 }

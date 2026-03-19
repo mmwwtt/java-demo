@@ -41,6 +41,11 @@ public class StrategyTmp {
     private Integer dateCnt;
 
     /**
+     * 有符合数据的日期天数
+     */
+    private Integer detailCnt;
+
+    /**
      * 用于过滤数据的 字段阈值
      */
     private Double pert;
@@ -115,6 +120,7 @@ public class StrategyTmp {
         //再计算总体的平均数/中位数
         pert = isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues);
         dateCnt = dateToValuesMap.size();
+        detailCnt = detailIdArr.length;
     }
 
     /**

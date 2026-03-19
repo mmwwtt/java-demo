@@ -2,6 +2,7 @@ package com.mmwwtt.stock.enums;
 
 import com.mmwwtt.demo.common.BaseEnum;
 import com.mmwwtt.stock.entity.Detail;
+import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public enum FilterFildEnum implements BaseEnum {
     RISE5_MAX_MIDDLE("rise5MaxMiddle", "最大五日涨幅中位数",
             Detail::getRise5Max,
             StrategyL1::getRise5MaxMiddle,
+            Strategy::getRise5MaxMiddle,
             (StrategyTmp tmp) -> {
                 if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.025)) {
                     return false;
@@ -39,6 +41,7 @@ public enum FilterFildEnum implements BaseEnum {
     RISE5_MAX_AVG("rise5MaxAvg", "最大五日涨幅平均数",
             Detail::getRise5Max,
             StrategyL1::getRise5MaxAvg,
+            Strategy::getRise5MaxAvg,
             (StrategyTmp tmp) -> {
                 if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.05)) {
                     return false;
@@ -61,14 +64,12 @@ public enum FilterFildEnum implements BaseEnum {
     private final String desc;
 
     /**
-     * getter setter方法
+     * getter
      */
     private final Function<Detail, Double> detailGetter;
-
-    /**
-     * getter setter方法
-     */
     private final Function<StrategyL1, Double> strategyL1Getter;
+    private final Function<Strategy, Double> strategyGetter;
+
     /**
      * 策略过滤，是否符合 ture则保留， false则抛弃
      */

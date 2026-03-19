@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,7 +38,7 @@ public class DFSVerifyTest {
 
     @PostConstruct
     public void init() {
-        String sql = "rise5_max_middle>0.14  and rise5_max_middle<0.15 ";
+        String sql = "rise5_max_middle>0.11 and is_active=true";
         strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
@@ -61,7 +62,8 @@ public class DFSVerifyTest {
     public void verifyPredictResByFiveMaxDetail() {
         List<Double> fiveMaxDateAvgList = new ArrayList<>();
         List<Double> fiveDateAvgList = new ArrayList<>();
-        Map<String, List<Detail>> dataToDetailsMap = new ConcurrentHashMap<>();
+        //日期    详情列表   详情-权重
+        Map<String, Pair<List<Detail>, Map<Integer, Double>>> dataToDetailsMap = new ConcurrentHashMap<>();
 
         codeToDetailMap.entrySet().parallelStream().forEach(entry -> {
             for (Detail detail : entry.getValue()) {
@@ -80,21 +82,32 @@ public class DFSVerifyTest {
                     boolean res = strategyEnums.stream()
                             .allMatch(strategyEnum -> strategyEnum.getFilterFunc().apply(detail));
                     if (res) {
-                        dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(detail);
-                        break;
+                        Pair<List<Detail>, Map<Integer, Double>> pair =
+                                dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(), new HashMap<>()));
+                        pair.getLeft().add(detail);
+                        //详情id-权重map
+                        Map<Integer, Double> detailIdToWeightMap = pair.getRight();
+                        detailIdToWeightMap.merge(detail.getDetailId(), 1.0, (a, b) -> a + 0.2);
                     }
                 }
             }
         });
 
         for (String date : predictDateList) {
-            List<Detail> resList = dataToDetailsMap.getOrDefault(date, Collections.emptyList());
-            if (CollectionUtils.isEmpty(resList)) {
+            Pair<List<Detail>, Map<Integer, Double>> pair = dataToDetailsMap.getOrDefault(date, null);
+            if (Objects.isNull(pair)) {
                 continue;
             }
-            List<Double> next5Maxs = resList.stream().map(Detail::getRise5Max).toList();
-            List<Double> next5s = resList.stream()
-                    .map(item -> getRise(item.getNext5().getEndPrice(), item.getEndPrice()))
+            List<Detail> details = pair.getLeft();
+            Map<Integer, Double> detailIdToWeightMap = pair.getRight();
+            if (CollectionUtils.isEmpty(details)) {
+                continue;
+            }
+            List<Double> next5Maxs = details
+                    .stream().map(item -> item.getRise5Max() * detailIdToWeightMap.get(item.getDetailId()))
+                    .toList();
+            List<Double> next5s = details.stream()
+                    .map(item -> item.getRise5() * detailIdToWeightMap.get(item.getDetailId()))
                     .toList();
 
             double fiveMaxDateAvg = getAverage(next5Maxs);
