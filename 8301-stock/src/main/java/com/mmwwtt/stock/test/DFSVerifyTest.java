@@ -38,7 +38,7 @@ public class DFSVerifyTest {
 
     @PostConstruct
     public void init() {
-        String sql = "rise5_max_middle>0.11 and is_active=true";
+        String sql = "rise5_max_middle>0.12 and is_active=true";
         strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
@@ -53,7 +53,7 @@ public class DFSVerifyTest {
     }
 
     @Test
-    @DisplayName("验证策略预测-5max")
+    @DisplayName("验证策略-5max")
     public void verifyPredictResByFiveMax() {
         verifyPredictResByFiveMaxDetail();
     }
@@ -89,7 +89,7 @@ public class DFSVerifyTest {
                         if(!detailIdToWeightMap.containsKey(detail.getDetailId())) {
                             pair.getLeft().add(detail);
                         }
-                        detailIdToWeightMap.merge(detail.getDetailId(), 1.0, (a, b) -> a + 1.0);
+                        detailIdToWeightMap.merge(detail.getDetailId(), 1d, (a, b) -> a + 1);
                     }
                 }
             }
@@ -105,15 +105,15 @@ public class DFSVerifyTest {
             if (CollectionUtils.isEmpty(details)) {
                 continue;
             }
-            List<Double> rise5Maxs = details
-                    .stream().map(item -> item.getRise5Max() * detailIdToWeightMap.get(item.getDetailId()))
+            List<Double> rise5Maxs = details.stream()
+                    .map(item -> item.getRise5Max() * detailIdToWeightMap.get(item.getDetailId()))
                     .toList();
             List<Double> rise5s = details.stream()
                     .map(item -> item.getRise5() * detailIdToWeightMap.get(item.getDetailId()))
                     .toList();
-
-            double rise5MaxsDateAvg = divide(sum(rise5Maxs) , sum( detailIdToWeightMap.values().stream().toList()));
-            double rise5sDateAvg = divide(sum(rise5s) , sum( detailIdToWeightMap.values().stream().toList()));
+            Double weightSum = sum(detailIdToWeightMap.values().stream().toList());
+            double rise5MaxsDateAvg = divide(sum(rise5Maxs) , weightSum);
+            double rise5sDateAvg = divide(sum(rise5s) , weightSum);
             log.info("日期：{}   五日平均涨幅：{}%   五日最高平均涨幅：{}%  \n",
                     date, String.format("%.3f", rise5sDateAvg * 100),String.format("%.3f", rise5MaxsDateAvg * 100));
 

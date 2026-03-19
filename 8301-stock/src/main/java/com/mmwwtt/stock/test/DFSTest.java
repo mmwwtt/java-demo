@@ -69,7 +69,7 @@ public class DFSTest {
     @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
         fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
-        dfsAfterDetail("pert > 0.12");
+        dfsAfterDetail("pert > 0.10");
     }
 
     public void DfsMain(int levelLimit) throws InterruptedException {
