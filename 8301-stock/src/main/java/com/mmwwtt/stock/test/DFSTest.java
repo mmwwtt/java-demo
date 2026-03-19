@@ -182,7 +182,6 @@ public class DFSTest {
     private void dfsAfterDetail(String sql) throws ExecutionException, InterruptedException {
         strategyService.remove(new QueryWrapper<>());
         List<StrategyTmp> strategyTmps = strategyTmpService.getBySql(sql);
-        Map<Integer, List<Detail>> strategyIdToDetailIdsMap = new ConcurrentHashMap<>(strategyTmps.size() * 2);
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
         List<CompletableFuture<Void>> futures = new ArrayList<>();

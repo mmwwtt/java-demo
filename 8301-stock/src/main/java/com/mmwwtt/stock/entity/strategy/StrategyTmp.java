@@ -103,7 +103,7 @@ public class StrategyTmp {
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
-        boolean isMiddleFunc = filterFildEnum.getCode().endsWith("MIDDLE");
+        boolean isMiddleFunc = filterFildEnum.name().endsWith("MIDDLE");
         Map<String, List<Double>> dateToValuesMap = new HashMap<>(500);
         for (Detail detail : details) {
             Double pert = filterFildEnum.getDetailGetter().apply(detail);
