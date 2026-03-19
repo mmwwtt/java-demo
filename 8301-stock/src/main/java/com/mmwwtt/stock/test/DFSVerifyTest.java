@@ -1,5 +1,6 @@
 package com.mmwwtt.stock.test;
 
+import com.mmwwtt.stock.common.StockGuiUtils;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.enums.StrategyEnum;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -47,15 +49,23 @@ public class DFSVerifyTest {
     }
 
     @Test
+    @DisplayName("验证策略-5max")
+    public void verifyPredictResByFiveMax() {
+        verifyPredictResByFiveMaxDetail();
+    }
+
+
+    @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
         calcCommonService.predict("20260319", strategies, false, 1.2);
     }
 
+
     @Test
-    @DisplayName("验证策略-5max")
-    public void verifyPredictResByFiveMax() {
-        verifyPredictResByFiveMaxDetail();
+    @DisplayName("根据策略绘制蜡烛图")
+    public void startCalc3() {
+        buildImg(201281);
     }
 
 
@@ -122,5 +132,23 @@ public class DFSVerifyTest {
         }
         log.info("平均5日最高涨幅 {}%", String.format("%.3f", getAverage(fiveMaxDateAvgList) * 100));
         log.info("平均5日涨幅 {}%", String.format("%.3f", getAverage(fiveDateAvgList) * 100));
+    }
+
+    private void buildImg(Integer strategyId) {
+        Strategy strategy = strategyService.getById(strategyId);
+        List<Detail> details = new ArrayList<>(1000);
+
+        for (Object detailId : strategy.getDetailIds()) {
+            details.add(idToDetailMap.get((Integer) detailId));
+        }
+        log.info("开始绘制");
+        for (Detail detail : details) {
+            try {
+                StockGuiUtils.genDetailImage(detail, strategy.getName());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        log.info("绘制完成");
     }
 }
