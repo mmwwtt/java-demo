@@ -28,7 +28,6 @@ import static com.mmwwtt.stock.service.impl.CommonDataService.idToDetailMap;
 
 
 //todo 策略枚举不采用区间隔离，增加更密集的策略
-//todo 同一个组合策略，但是tmp表和策略表里计算出来的字段值不一样
 @Slf4j
 @SpringBootTest
 public class DFSTest {
