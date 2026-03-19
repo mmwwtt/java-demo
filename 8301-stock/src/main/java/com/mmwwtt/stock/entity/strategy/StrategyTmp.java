@@ -12,7 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.mmwwtt.stock.common.CommonUtils.*;
+import static com.mmwwtt.stock.common.CommonUtils.getAverage;
+import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
 import static com.mmwwtt.stock.service.impl.CommonDataService.INIT_DATE_SIZE;
 
 /**
@@ -63,6 +64,14 @@ public class StrategyTmp {
 
     @TableField(exist = false)
     private Set<String> strategyCodeSet = new HashSet<>();
+
+
+    /**
+     * 同一种类型的type只能有一个，null除外
+     */
+    @TableField(exist = false)
+    private Set<String> strategyTypeSet = new HashSet<>();
+
 
     @TableField(exist = false)
     private List<Function<Detail, Boolean>> filterFuncs= new ArrayList<>();
@@ -123,21 +132,23 @@ public class StrategyTmp {
         this.strategyCode = unionCode.toString();
     }
 
-
-    public StrategyTmp(String strategyCode) {
-        this(strategyCode, null, null);
-    }
-
-    public StrategyTmp(String strategyCode,
+    public StrategyTmp(StrategyL1 strategyL1,
                        StrategyTmp parentStrategyTmp, int[] detailIdArr) {
-        this.strategyCode = strategyCode;
+        this.strategyCode = strategyL1.getStrategyCode();
         this.parentWinStrategyCodeSet = parentStrategyTmp.getStrategyCodeSet();
         this.parentPert = parentStrategyTmp.getPert();
         this.detailIdArr = Arrays.stream(detailIdArr).sorted().toArray();
 
-        strategyCodeSet.add(strategyCode);
-        if (Objects.nonNull(parentWinStrategyCodeSet)) {
-            strategyCodeSet.addAll(parentWinStrategyCodeSet);
+        strategyCodeSet.add(strategyL1.getStrategyCode());
+        if (Objects.nonNull(parentStrategyTmp.getStrategyCodeSet())) {
+            strategyCodeSet.addAll(parentStrategyTmp.getStrategyCodeSet());
+        }
+
+        if(Objects.nonNull(strategyL1.getType())) {
+            strategyTypeSet.add(strategyL1.getType());
+        }
+        if (Objects.nonNull(parentStrategyTmp.getStrategyTypeSet())) {
+            strategyTypeSet.addAll(parentStrategyTmp.getStrategyTypeSet());
         }
     }
 }

@@ -48,7 +48,10 @@ public class DFSTest {
      */
     private final List<StrategyTmp> tmpBatch = Collections.synchronizedList(new ArrayList<>());
 
-    private static final Map<String, Integer> md5ToLevelMap = new ConcurrentHashMap<>(4000000);
+    /**
+     * md5和pair<level, idx>    层级 当前策略下标
+     */
+    private static final Map<String, Integer> md5ToIdxMap = new ConcurrentHashMap<>(4000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     private static int LEVEL_LIMIT;
     public static FilterFildEnum fildEnum;
@@ -64,7 +67,7 @@ public class DFSTest {
     @Test
     @DisplayName("填充DFS后策略的其他字段数据， 并对策略的详情列表做交集，判断是否高度重合，并做处理")
     public void dfsAfter() throws ExecutionException, InterruptedException {
-        dfsAfterDetail();
+        dfsAfterDetail("pert > 0.12");
     }
 
     public void DfsMain(int levelLimit) throws InterruptedException {
@@ -89,21 +92,22 @@ public class DFSTest {
             log.info("任务数 taskCnt:{}", taskCnt.get());
         }
         flushWinBatch();
-        log.info("md5Map数量 ： {}", md5ToLevelMap.size());
+        log.info("md5Map数量 ： {}", md5ToIdxMap.size());
     }
 
 
-    private void buildByLevel(StrategyTmp strategyTmp, Integer curIdx) {
+    private void buildByLevel(StrategyTmp strategyTmp, Integer parentIdx) {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
         if (level > LEVEL_LIMIT) {
             return;
         }
-        for (int i = curIdx + 1; i < strategyL1s.size(); i++) {
+        for (int idx = parentIdx + 1; idx < strategyL1s.size(); idx++) {
             //计算两个策略的并集
 
-            //已存在的策略 则跳过
-            StrategyL1 strategyL1 = strategyL1s.get(i);
-            if (strategyTmp.getStrategyCodeSet().contains(strategyL1.getStrategyCode())) {
+            //已存在的策略  或者策略类型相同  则跳过
+            StrategyL1 strategyL1 = strategyL1s.get(idx);
+            if (strategyTmp.getStrategyCodeSet().contains(strategyL1.getStrategyCode())
+                    || (Objects.nonNull(strategyL1.getType()) && strategyTmp.getStrategyTypeSet().contains(strategyL1.getType()))) {
                 continue;
             }
 
@@ -119,17 +123,18 @@ public class DFSTest {
                 continue;
             }
 
-            //之前存在过 且层级＞=以前的层级  则跳过
-            String md5Key = getMd5Key(resDetailIdArr);
-            Integer newLevel = md5ToLevelMap.get(md5Key);
-            if (newLevel != null && newLevel <= level) {
+            //新md5(level + md5)相同表示层级相同 且结果集也相同的数据
+            // 当新md5存在， 如果idx>之前的idx 则 之后的后续递归遍历在之前就存在过，   需要过滤，避免多余判断
+            String md5Key = level + getMd5Key(resDetailIdArr);
+            Integer beforeIdx = md5ToIdxMap.get(md5Key);
+            if (beforeIdx != null && beforeIdx <= idx) {
                 continue;
             }
-            md5ToLevelMap.put(md5Key, level);
+            md5ToIdxMap.put(md5Key, idx);
 
 
             //计算并集中筛选字段的属性值
-            StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1.getStrategyCode(), strategyTmp, resDetailIdArr);
+            StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1, strategyTmp, resDetailIdArr);
             for (int detail : resDetailIdArr) {
                 resStrategyTmp.addToResult(idToDetailMap.get(detail));
             }
@@ -144,7 +149,7 @@ public class DFSTest {
 
             //递归 线程池有空余线程时用多线程处理
             if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
-                int finalI = i;
+                int finalI = idx;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
                     try {
@@ -154,7 +159,7 @@ public class DFSTest {
                     }
                 }, cpuThreadPool);
             } else {
-                buildByLevel(resStrategyTmp, i);
+                buildByLevel(resStrategyTmp, idx);
             }
         }
     }
@@ -167,15 +172,14 @@ public class DFSTest {
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")
                         || item.getName().startsWith("T2")
-                        || item.getName().startsWith("T3")
-                )
+                        || item.getName().startsWith("T3"))
                 .sorted(Comparator.comparing(StrategyL1::getRise5MaxMiddle).reversed()).toList();
         log.info("dfs 初始化结束");
     }
 
-    private void dfsAfterDetail() throws ExecutionException, InterruptedException {
+    private void dfsAfterDetail(String sql) throws ExecutionException, InterruptedException {
         strategyService.remove(new QueryWrapper<>());
-        List<StrategyTmp> strategyTmps = strategyTmpService.getBySql("pert > 0.13");
+        List<StrategyTmp> strategyTmps = strategyTmpService.getBySql(sql);
         Map<Integer, List<Detail>> strategyIdToDetailIdsMap = new ConcurrentHashMap<>(strategyTmps.size() * 2);
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
@@ -200,7 +204,8 @@ public class DFSTest {
             }, cpuThreadPool);
             futures.add(future);
         });
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();;
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        ;
         strategyService.saveBatch(resList);
         //todo 对win进行重复度判断  如果detailIds重复度达到95%则抛弃胜率低的那条
     }

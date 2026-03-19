@@ -266,7 +266,7 @@ public class DownloadTest {
         strategyL1Service.remove(new QueryWrapper<>());
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (StrategyEnum strategy : strategyL1Enums) {
+        for (StrategyEnum strategyEnum : strategyL1Enums) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 List<Integer> resDetailIds = new ArrayList<>();
                 for (String stockCode : stockCodeList) {
@@ -280,13 +280,13 @@ public class DownloadTest {
                                 || detail.getDealDate().compareTo(calcEndDate) > 0) {
                             continue;
                         }
-                        if (strategy.getFilterFunc().apply(detail)) {
+                        if (strategyEnum.getFilterFunc().apply(detail)) {
                             resDetailIds.add(detail.getDetailId());
                         }
                     }
                 }
                 if (CollectionUtils.isNotEmpty(resDetailIds) && resDetailIds.size() > 10) {
-                    StrategyL1 strategyL1 = new StrategyL1(strategy.getCode(), resDetailIds);
+                    StrategyL1 strategyL1 = new StrategyL1(strategyEnum, resDetailIds);
                     strategyL1.fillOtherData();
                     strategyL1Service.save(strategyL1);
                 }

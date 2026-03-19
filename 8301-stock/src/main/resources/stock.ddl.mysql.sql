@@ -11,7 +11,7 @@ set global sync_binlog = 100000;
 SET GLOBAL innodb_buffer_pool_size = 8 * 1024 * 1024 * 1024; -- 8 GB
 SET GLOBAL innodb_log_buffer_size = 128 * 1024 * 1024; -- 128 MB
 SET GLOBAL thread_cache_size = 50;
-set GLOBAL sort_buffer_size = 1*1024 * 1024 * 1024;
+set GLOBAL sort_buffer_size = 1 * 1024 * 1024 * 1024;
 
 
 #已连接的线程
@@ -48,8 +48,8 @@ CREATE TABLE detail_t
     last_price               decimal(10, 4) NOT NULL COMMENT '前收盘价',
     up_shadow_len            decimal(10, 4) COMMENT '上影线长度',
     up_shadow_pert           decimal(10, 4) COMMENT '上影线站总长的百分比',
-    down_shadow_len           decimal(10, 4) COMMENT '下影线长度',
-    down_shadow_pert          decimal(10, 4) COMMENT '下影线站总长的百分比',
+    down_shadow_len          decimal(10, 4) COMMENT '下影线长度',
+    down_shadow_pert         decimal(10, 4) COMMENT '下影线站总长的百分比',
     entity_len               decimal(10, 4) COMMENT '实体长度',
     entity_pert              decimal(10, 4) COMMENT '实体占总长的百分比',
     all_len                  decimal(10, 4) COMMENT '总长',
@@ -95,17 +95,17 @@ CREATE TABLE detail_t
     is_green                 boolean COMMENT '是否为阴线',
     is_balance               boolean COMMENT '开盘价是否等于收盘价',
     is_ten_star              boolean COMMENT '是否为十字星',
-    rise0               decimal(10, 4) NOT NULL COMMENT '当天涨跌幅',
-    rise1         decimal(10, 4) COMMENT '当天收盘到1天后的涨幅',
-    rise2         decimal(10, 4) COMMENT '当天收盘到2天后的涨幅',
-    rise3         decimal(10, 4) COMMENT '当天收盘到3天后的涨幅',
-    rise4         decimal(10, 4) COMMENT '当天收盘到4天后的涨幅',
-    rise5         decimal(10, 4) COMMENT '当天收盘到5天后的涨幅',
-    rise5_max     decimal(10, 4) COMMENT '当天收盘到5天内最高的涨幅',
-    rise5_min     decimal(10, 4) COMMENT '当天收盘到5天内最低的涨幅(回调)',
-    rise10        decimal(10, 4) COMMENT '当天收盘到10天后的涨幅',
-    rise10_max    decimal(10, 4) COMMENT '当天收盘到10天内最高的涨幅',
-    rise10_min    decimal(10, 4) COMMENT '当天收盘到10天内最低的涨幅(回调)',
+    rise0                    decimal(10, 4) NOT NULL COMMENT '当天涨跌幅',
+    rise1                    decimal(10, 4) COMMENT '当天收盘到1天后的涨幅',
+    rise2                    decimal(10, 4) COMMENT '当天收盘到2天后的涨幅',
+    rise3                    decimal(10, 4) COMMENT '当天收盘到3天后的涨幅',
+    rise4                    decimal(10, 4) COMMENT '当天收盘到4天后的涨幅',
+    rise5                    decimal(10, 4) COMMENT '当天收盘到5天后的涨幅',
+    rise5_max                decimal(10, 4) COMMENT '当天收盘到5天内最高的涨幅',
+    rise5_min                decimal(10, 4) COMMENT '当天收盘到5天内最低的涨幅(回调)',
+    rise10                   decimal(10, 4) COMMENT '当天收盘到10天后的涨幅',
+    rise10_max               decimal(10, 4) COMMENT '当天收盘到10天内最高的涨幅',
+    rise10_min               decimal(10, 4) COMMENT '当天收盘到10天内最低的涨幅(回调)',
     wr                       decimal(10, 4) COMMENT '威廉指标',
     ema12                    decimal(10, 4) COMMENT 'MACD相关指标',
     ema26                    decimal(10, 4) COMMENT 'MACD相关指标',
@@ -138,6 +138,7 @@ CREATE TABLE strategy_l1_t
     strategy_id       INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code     VARCHAR(200) COMMENT '策略编码',
     name              VARCHAR(200) COMMENT '策略描述',
+    type              VARCHAR(200) COMMENT '策略类型',
     detail_ids        JSON COMMENT '符合条件的详情id列表',
     cnt               INT(8) COMMENT '符合条件的id数量',
     rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',

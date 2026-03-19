@@ -92,7 +92,6 @@ public class CalcCommonService {
                     fos.write((s + "\n").getBytes());
                 }
             }
-
         } catch (IOException ignored) {
         }
 
@@ -131,7 +130,6 @@ public class CalcCommonService {
                             stockCodeSet.add(stockCode);
                             resList.add(detail);
                         }
-
                     }
                 }, cpuThreadPool);
                 futures.add(future);

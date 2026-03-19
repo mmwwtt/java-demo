@@ -21,7 +21,7 @@ public class Constants {
     /**
      * 分时级别
      */
-    public static final String TIME_LEVEL="timeLevel";
+    public static final String TIME_LEVEL = "timeLevel";
 
     /**
      * 除权方式
@@ -31,7 +31,7 @@ public class Constants {
     /**
      * 通行证
      */
-    public static final String LICENCE= "licence";
+    public static final String LICENCE = "licence";
 
     /**
      * 最大条数
@@ -61,13 +61,13 @@ public class Constants {
     /**
      * 获取历史数据的url
      */
-    public static final String HISTORY_DATA_URL= "https://api.biyingapi.com/hsstock/history/{stockCode}/{timeLevel}/" +
+    public static final String HISTORY_DATA_URL = "https://api.biyingapi.com/hsstock/history/{stockCode}/{timeLevel}/" +
             "{excludeRight}/{licence}?st={startData}&et={endData}&lt={maxSize}";
 
     /**
      * 获取实时数据的url(交易中)
      */
-    public static final String ON_TIME_DATA_URL= "https://api.biyingapi.com/hsrl/ssjy/{stockCode}/{licence}";
+    public static final String ON_TIME_DATA_URL = "https://api.biyingapi.com/hsrl/ssjy/{stockCode}/{licence}";
 
     public static final String REAL_TIME_URL = "https://api.biyingapi.com/hsstock/real/time/{stockCode}/{licence}";
 

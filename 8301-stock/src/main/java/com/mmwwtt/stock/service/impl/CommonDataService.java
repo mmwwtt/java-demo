@@ -64,8 +64,10 @@ public class CommonDataService {
                 StrategyEnum cur = VoConvert.INSTANCE.convertTo(item);
                 cur.setCode(t + item.getCode());
                 cur.setDesc(String.format("T%s-%s", t, item.getDesc()));
-                cur.setType(String.format("T%s-%s", t, item.getType()));
                 cur.setFilterFunc(item.getFilterFunc());
+                if(Objects.nonNull(item.getType())) {
+                    cur.setType(String.format("T%s-%s", t, item.getType()));
+                }
                 return cur;
             }).toList();
             strategyL1Enums.addAll(enums);
@@ -101,7 +103,6 @@ public class CommonDataService {
         futures = new ArrayList<>();
         log.info("开始查询详情列表");
         for (List<String> part : stockCodePartList) {
-
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
                 List<Detail> details = detailService.getBySql(String.format("stock_code='%s'", stockCode));
                 details.sort(Comparator.comparing(Detail::getDealDate).reversed());
