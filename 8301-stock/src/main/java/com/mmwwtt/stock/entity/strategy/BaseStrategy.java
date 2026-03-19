@@ -217,25 +217,24 @@ public class BaseStrategy {
             List<Double> curRise10s = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise10Maxs = new ArrayList<>(INIT_DATE_SIZE);
             for (Detail detail : details) {
-                Double endPrice = detail.getEndPrice();
                 if (Objects.nonNull(detail.getNext1())) {
-                    curRise1s.add(getRise(detail.getNext1().getEndPrice(), endPrice));
+                    curRise1s.add(detail.getRise1());
                 }
                 if (Objects.nonNull(detail.getNext2())) {
-                    curRise2s.add(getRise(detail.getNext2().getEndPrice(), endPrice));
+                    curRise2s.add(detail.getRise2());
                 }
                 if (Objects.nonNull(detail.getNext3())) {
-                    curRise3s.add(getRise(detail.getNext3().getEndPrice(), endPrice));
+                    curRise3s.add(detail.getRise3());
                 }
                 if (Objects.nonNull(detail.getNext4())) {
-                    curRise4s.add(getRise(detail.getNext4().getEndPrice(), endPrice));
+                    curRise4s.add(detail.getRise4());
                 }
                 if (Objects.nonNull(detail.getNext5())) {
-                    curRise5s.add(getRise(detail.getNext5().getEndPrice(), endPrice));
+                    curRise5s.add(detail.getRise5());
                     curRise5Maxs.add(detail.getRise5Max());
                 }
                 if (Objects.nonNull(detail.getNext10())) {
-                    curRise10s.add(getRise(detail.getNext10().getEndPrice(), endPrice));
+                    curRise10s.add(detail.getRise10());
                     curRise10Maxs.add(detail.getRise10Max());
                 }
             }
