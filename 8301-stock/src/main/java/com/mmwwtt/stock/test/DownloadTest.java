@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
-import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.VoConvert;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
@@ -22,12 +21,15 @@ import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -145,7 +147,6 @@ public class DownloadTest {
 
     public void downLoadInit() {
         log.info("开始清空表 start\n\n\n");
-        stockService.remove(new QueryWrapper<>());
         detailService.remove(new QueryWrapper<>());
         strategyL1Service.remove(new QueryWrapper<>());
         strategyTmpService.remove(new QueryWrapper<>());
@@ -157,16 +158,19 @@ public class DownloadTest {
     @Test
     @DisplayName("调接口获取数据")
     public void downStock() {
-
         log.info("下载数据");
-        RestTemplate restTemplate = createRestTemplate();
-        restTemplate.setInterceptors(Collections.singletonList(new LoggingInterceptor()));
-        Map<String, String> map = new HashMap<>();
-        map.put(LICENCE, BI_YING_LICENCE);
-        List<StockVO> stockVOList = getResponse(STOCK_LIST_URL, map, new ParameterizedTypeReference<List<StockVO>>() {
-        });
+        stockService.remove(new QueryWrapper<>());
+
+        List<StockVO> stockVOList;
+        try (InputStream inputStream = new ClassPathResource("file/stock.json").getInputStream()) {
+            String json = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            stockVOList = JSONObject.parseArray(json, StockVO.class);
+        } catch (Exception e) {
+            log.error("读取 stock.json 失败", e);
+            return;
+        }
         if (CollectionUtils.isEmpty(stockVOList)) {
-            log.warn("获取股票列表失败，接口返回为空（可能网络超时）");
+            log.warn("读取股票列表为空");
             return;
         }
         List<Stock> stockList = voConvert.convertToStock(stockVOList);
@@ -177,7 +181,6 @@ public class DownloadTest {
         stockList = stockList.stream().filter(stock -> !stock.getCode().startsWith("30")
                 && !stock.getCode().startsWith("68")
                 && !stock.getName().contains("ST")).toList();
-        stockService.remove(new QueryWrapper<>());
         stockService.saveBatch(stockList);
         log.info("下载数据 end\n\n\n");
     }
@@ -229,7 +232,8 @@ public class DownloadTest {
             }, ioThreadPool);
             futures.add(future);
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();;
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        ;
         log.info("下载股票详细数据  end \n\n\n");
     }
 
@@ -293,7 +297,8 @@ public class DownloadTest {
             }, cpuThreadPool);
             futures.add(future);
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();;
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        ;
         log.info("策略层级 1 计算 - 结束");
     }
 }
