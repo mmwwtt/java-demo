@@ -10,28 +10,32 @@ select dif from detail_t order by  dif limit 110000,1;
 
 
 -- 自动生成基础策略枚举  start--------------------------------------
-SET @field = 'wr';
-SET @getter = 'getWr()';
-SET @code = '313';
+SET @field = 'dif';
+SET @getter = 'getDif()';
+SET @code = '310';
 
 WITH split_points AS (SELECT row_num,
-                             wr as cut_val
-                      FROM (SELECT wr,
-                                   ROW_NUMBER() OVER (ORDER BY wr ASC) AS row_num
+                             dif as cut_val
+                      FROM (SELECT dif,
+                                   ROW_NUMBER() OVER (ORDER BY dif ASC) AS row_num
                             FROM detail_t
-                            WHERE wr IS NOT NULL) AS ranked_data
+                            WHERE dif IS NOT NULL) AS ranked_data
                       WHERE row_num IN (
                                         55000, 110000, 165000, 220000, 275000,
                                         330000, 385000, 440000, 495000, 550000,
                                         605000, 660000, 715000, 770000, 825000
                           )),
+     sp_with_idx AS (SELECT ROW_NUMBER() OVER (ORDER BY row_num) AS rn, cut_val FROM split_points),
      ranges AS (
-
-         SELECT 1 AS idx, NULL AS min_val, (SELECT cut_val FROM split_points ORDER BY row_num LIMIT 1) AS max_val
+         SELECT 1 AS idx, NULL AS min_val, (SELECT cut_val FROM sp_with_idx WHERE rn = 1) AS max_val
          UNION ALL
-
-         SELECT ROW_NUMBER() OVER (ORDER BY row_num) + 1 AS idx, cut_val AS min_val, LEAD(cut_val) OVER (ORDER BY row_num) AS max_val
-         FROM split_points
+         SELECT a.rn + 1 AS idx, a.cut_val AS min_val, b.cut_val AS max_val
+         FROM sp_with_idx a
+         JOIN sp_with_idx b ON b.rn = a.rn + 2
+         UNION ALL
+         SELECT 15 AS idx, (SELECT cut_val FROM sp_with_idx WHERE rn = 14) AS min_val, (SELECT cut_val FROM sp_with_idx WHERE rn = 15) AS max_val
+         UNION ALL
+         SELECT 16 AS idx, (SELECT cut_val FROM sp_with_idx WHERE rn = 15) AS min_val, NULL AS max_val
      )
 SELECT CONCAT(
                'new StrategyEnum("', @code, LPAD(idx, 2, '0'), '", "',

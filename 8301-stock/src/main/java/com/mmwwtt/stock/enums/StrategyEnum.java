@@ -64,109 +64,152 @@ public class StrategyEnum {
                             && lessThan(t3.getDif(), t3.getDea());
                 }),
 
-                new StrategyEnum("30021", "上穿过5日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getFiveDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getFiveDayLine())
-                        && lessThan(t0.getT1().getHighPrice(), t0.getFiveDayLine())),
-                new StrategyEnum("30022", "上穿过10日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getTenDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getTenDayLine())
-                        && lessThan(t0.getT1().getHighPrice(), t0.getTenDayLine())),
-                new StrategyEnum("30023", "上穿过20日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getTwentyDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getTwentyDayLine())
-                        && lessThan(t0.getT1().getHighPrice(), t0.getTwentyDayLine())),
-                new StrategyEnum("30024", "上穿过40日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getFortyDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getFortyDayLine())
-                        && lessThan(t0.getT1().getHighPrice(), t0.getFortyDayLine())),
-                new StrategyEnum("30025", "上穿过60日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getSixtyDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getSixtyDayLine())
-                        && lessThan(t0.getT1().getHighPrice(), t0.getSixtyDayLine())),
+                // 上穿过: 前3天持续在均线下方，避免今天下穿明天上穿的反复跳动
+                new StrategyEnum("30021", "上穿过5日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getFiveDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line) && lessThan(t3.getHighPrice(), line);
+                }),
+                new StrategyEnum("30022", "上穿过10日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getTenDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line) && lessThan(t3.getHighPrice(), line);
+                }),
+                new StrategyEnum("30023", "上穿过20日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getTwentyDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line) && lessThan(t3.getHighPrice(), line);
+                }),
+                new StrategyEnum("30024", "上穿过40日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getFortyDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line) && lessThan(t3.getHighPrice(), line);
+                }),
+                new StrategyEnum("30025", "上穿过60日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getSixtyDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line) && lessThan(t3.getHighPrice(), line);
+                }),
 
-                new StrategyEnum("30026", "下穿过5日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getFiveDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getFiveDayLine())
-                        && moreThan(t0.getT1().getLowPrice(), t0.getFiveDayLine())),
-                new StrategyEnum("30027", "下穿过10日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getTenDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getTenDayLine())
-                        && moreThan(t0.getT1().getLowPrice(), t0.getTenDayLine())),
-                new StrategyEnum("30028", "下穿过20日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getTwentyDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getTwentyDayLine())
-                        && moreThan(t0.getT1().getLowPrice(), t0.getTwentyDayLine())),
-                new StrategyEnum("30029", "下穿过40日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getFortyDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getFortyDayLine())
-                        && moreThan(t0.getT1().getLowPrice(), t0.getFortyDayLine())),
-                new StrategyEnum("30030", "下穿过60日线", (Detail t0) -> moreThan(t0.getHighPrice(), t0.getSixtyDayLine())
-                        && lessThan(t0.getLowPrice(), t0.getSixtyDayLine())
-                        && moreThan(t0.getT1().getLowPrice(), t0.getSixtyDayLine())),
+                // 下穿过: 前3天持续在均线上方，避免今天上穿明天下穿的反复跳动
+                new StrategyEnum("30026", "下穿过5日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getFiveDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line) && moreThan(t3.getLowPrice(), line);
+                }),
+                new StrategyEnum("30027", "下穿过10日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getTenDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line) && moreThan(t3.getLowPrice(), line);
+                }),
+                new StrategyEnum("30028", "下穿过20日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getTwentyDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line) && moreThan(t3.getLowPrice(), line);
+                }),
+                new StrategyEnum("30029", "下穿过40日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getFortyDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line) && moreThan(t3.getLowPrice(), line);
+                }),
+                new StrategyEnum("30030", "下穿过60日线", (Detail t0) -> {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3();
+                    Double line = t0.getSixtyDayLine();
+                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3) && Objects.nonNull(line)
+                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
+                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line) && moreThan(t3.getLowPrice(), line);
+                }),
 
 
                 new StrategyEnum("31001", "dif<-0.3676", "dif", (Detail t0) -> lessThan(t0.getDif(), -0.3676)),
-                new StrategyEnum("31002", "-0.3676<dif<-0.1765", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.3676, -0.1765)),
-                new StrategyEnum("31003", "-0.1765<dif<-0.0950", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.1765, -0.0950)),
-                new StrategyEnum("31004", "-0.0950<dif<-0.0477", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.0950, -0.0477)),
-                new StrategyEnum("31005", "-0.0477<dif<-0.0150", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.0477, -0.0150)),
-                new StrategyEnum("31006", "-0.0150<dif<0.0127", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.0150, 0.0127)),
-                new StrategyEnum("31007", "0.0127<dif<0.0430", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.0127, 0.0430)),
-                new StrategyEnum("31008", "0.0430<dif<0.0794", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.0430, 0.0794)),
-                new StrategyEnum("31009", "0.0794<dif<0.1275", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.0794, 0.1275)),
-                new StrategyEnum("31010", "0.1275<dif<0.1940", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.1275, 0.1940)),
-                new StrategyEnum("31011", "0.1940<dif<0.2928", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.1940, 0.2928)),
-                new StrategyEnum("31012", "0.2928<dif<0.4497", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.2928, 0.4497)),
-                new StrategyEnum("31013", "0.4497<dif<0.7047", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.4497, 0.7047)),
-                new StrategyEnum("31014", "0.7047<dif<1.1793", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.7047, 1.1793)),
-                new StrategyEnum("31015", "1.1793<dif<2.2348", "dif", (Detail t0) -> isInRange(t0.getDif(), 1.1793, 2.2348)),
+                new StrategyEnum("31002", "-0.3676<dif<-0.0950", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.3676, -0.0950)),
+                new StrategyEnum("31003", "-0.1765<dif<-0.0477", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.1765, -0.0477)),
+                new StrategyEnum("31004", "-0.0950<dif<-0.0150", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.0950, -0.0150)),
+                new StrategyEnum("31005", "-0.0477<dif<0.0127", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.0477, 0.0127)),
+                new StrategyEnum("31006", "-0.0150<dif<0.0430", "dif", (Detail t0) -> isInRange(t0.getDif(), -0.0150, 0.0430)),
+                new StrategyEnum("31007", "0.0127<dif<0.0794", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.0127, 0.0794)),
+                new StrategyEnum("31008", "0.0430<dif<0.1275", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.0430, 0.1275)),
+                new StrategyEnum("31009", "0.0794<dif<0.1940", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.0794, 0.1940)),
+                new StrategyEnum("31010", "0.1275<dif<0.2928", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.1275, 0.2928)),
+                new StrategyEnum("31011", "0.1940<dif<0.4497", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.1940, 0.4497)),
+                new StrategyEnum("31012", "0.2928<dif<0.7047", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.2928, 0.7047)),
+                new StrategyEnum("31013", "0.4497<dif<1.1793", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.4497, 1.1793)),
+                new StrategyEnum("31014", "0.7047<dif<2.2348", "dif", (Detail t0) -> isInRange(t0.getDif(), 0.7047, 2.2348)),
                 new StrategyEnum("31016", "2.2348<dif", "dif", (Detail t0) -> moreThan(t0.getDif(), 2.2348)),
 
 
+
                 new StrategyEnum("31101", "dea<-0.3210", "dea", (Detail t0) -> lessThan(t0.getDea(), -0.3210)),
-                new StrategyEnum("31102", "-0.3210<dea<-0.1499", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.3210, -0.1499)),
-                new StrategyEnum("31103", "-0.1499<dea<-0.0784", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.1499, -0.0784)),
-                new StrategyEnum("31104", "-0.0784<dea<-0.0365", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.0784, -0.0365)),
-                new StrategyEnum("31105", "-0.0365<dea<-0.0070", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.0365, -0.0070)),
-                new StrategyEnum("31106", "-0.0070<dea<0.0193", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.0070, 0.0193)),
-                new StrategyEnum("31107", "0.0193<dea<0.0488", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.0193, 0.0488)),
-                new StrategyEnum("31108", "0.0488<dea<0.0853", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.0488, 0.0853)),
-                new StrategyEnum("31109", "0.0853<dea<0.1338", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.0853, 0.1338)),
-                new StrategyEnum("31110", "0.1338<dea<0.2017", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.1338, 0.2017)),
-                new StrategyEnum("31111", "0.2017<dea<0.3029", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.2017, 0.3029)),
-                new StrategyEnum("31112", "0.3029<dea<0.4616", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.3029, 0.4616)),
-                new StrategyEnum("31113", "0.4616<dea<0.7156", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.4616, 0.7156)),
-                new StrategyEnum("31114", "0.7156<dea<1.1766", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.7156, 1.1766)),
-                new StrategyEnum("31115", "1.1766<dea<2.1718", "dea", (Detail t0) -> isInRange(t0.getDea(), 1.1766, 2.1718)),
+                new StrategyEnum("31102", "-0.3210<dea<-0.0784", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.3210, -0.0784)),
+                new StrategyEnum("31103", "-0.1499<dea<-0.0365", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.1499, -0.0365)),
+                new StrategyEnum("31104", "-0.0784<dea<-0.0070", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.0784, -0.0070)),
+                new StrategyEnum("31105", "-0.0365<dea<0.0193", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.0365, 0.0193)),
+                new StrategyEnum("31106", "-0.0070<dea<0.0488", "dea", (Detail t0) -> isInRange(t0.getDea(), -0.0070, 0.0488)),
+                new StrategyEnum("31107", "0.0193<dea<0.0853", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.0193, 0.0853)),
+                new StrategyEnum("31108", "0.0488<dea<0.1338", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.0488, 0.1338)),
+                new StrategyEnum("31109", "0.0853<dea<0.2017", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.0853, 0.2017)),
+                new StrategyEnum("31110", "0.1338<dea<0.3029", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.1338, 0.3029)),
+                new StrategyEnum("31111", "0.2017<dea<0.4616", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.2017, 0.4616)),
+                new StrategyEnum("31112", "0.3029<dea<0.7156", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.3029, 0.7156)),
+                new StrategyEnum("31113", "0.4616<dea<1.1766", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.4616, 1.1766)),
+                new StrategyEnum("31114", "0.7156<dea<2.1718", "dea", (Detail t0) -> isInRange(t0.getDea(), 0.7156, 2.1718)),
                 new StrategyEnum("31116", "2.1718<dea", "dea", (Detail t0) -> moreThan(t0.getDea(), 2.1718)),
 
 
+
                 new StrategyEnum("31201", "macd<-0.7436", "macd", (Detail t0) -> lessThan(t0.getMacd(), -0.7436)),
-                new StrategyEnum("31202", "-0.7436<macd<-0.4107", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.7436, -0.4107)),
-                new StrategyEnum("31203", "-0.4107<macd<-0.2592", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.4107, -0.2592)),
-                new StrategyEnum("31204", "-0.2592<macd<-0.1683", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.2592, -0.1683)),
-                new StrategyEnum("31205", "-0.1683<macd<-0.1087", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.1683, -0.1087)),
-                new StrategyEnum("31206", "-0.1087<macd<-0.0673", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.1087, -0.0673)),
-                new StrategyEnum("31207", "-0.0673<macd<-0.0375", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.0673, -0.0375)),
-                new StrategyEnum("31208", "-0.0375<macd<-0.0145", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.0375, -0.0145)),
-                new StrategyEnum("31209", "-0.0145<macd<0.0043", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.0145, 0.0043)),
-                new StrategyEnum("31210", "0.0043<macd<0.0234", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.0043, 0.0234)),
-                new StrategyEnum("31211", "0.0234<macd<0.0476", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.0234, 0.0476)),
-                new StrategyEnum("31212", "0.0476<macd<0.0830", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.0476, 0.0830)),
-                new StrategyEnum("31213", "0.0830<macd<0.1426", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.0830, 0.1426)),
-                new StrategyEnum("31214", "0.1426<macd<0.2683", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.1426, 0.2683)),
-                new StrategyEnum("31215", "0.2683<macd<0.6589", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.2683, 0.6589)),
+                new StrategyEnum("31202", "-0.7436<macd<-0.2592", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.7436, -0.2592)),
+                new StrategyEnum("31203", "-0.4107<macd<-0.1683", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.4107, -0.1683)),
+                new StrategyEnum("31204", "-0.2592<macd<-0.1087", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.2592, -0.1087)),
+                new StrategyEnum("31205", "-0.1683<macd<-0.0673", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.1683, -0.0673)),
+                new StrategyEnum("31206", "-0.1087<macd<-0.0375", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.1087, -0.0375)),
+                new StrategyEnum("31207", "-0.0673<macd<-0.0145", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.0673, -0.0145)),
+                new StrategyEnum("31208", "-0.0375<macd<0.0043", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.0375, 0.0043)),
+                new StrategyEnum("31209", "-0.0145<macd<0.0234", "macd", (Detail t0) -> isInRange(t0.getMacd(), -0.0145, 0.0234)),
+                new StrategyEnum("31210", "0.0043<macd<0.0476", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.0043, 0.0476)),
+                new StrategyEnum("31211", "0.0234<macd<0.0830", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.0234, 0.0830)),
+                new StrategyEnum("31212", "0.0476<macd<0.1426", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.0476, 0.1426)),
+                new StrategyEnum("31213", "0.0830<macd<0.2683", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.0830, 0.2683)),
+                new StrategyEnum("31214", "0.1426<macd<0.6589", "macd", (Detail t0) -> isInRange(t0.getMacd(), 0.1426, 0.6589)),
                 new StrategyEnum("31216", "0.6589<macd", "macd", (Detail t0) -> moreThan(t0.getMacd(), 0.6589)),
 
 
+
+
                 new StrategyEnum("31301", "wr<-93.3333", "wr", (Detail t0) -> lessThan(t0.getWr(), -93.3333)),
-                new StrategyEnum("31302", "-93.3333<wr<-86.8217", "wr", (Detail t0) -> isInRange(t0.getWr(), -93.3333, -86.8217)),
-                new StrategyEnum("31303", "-86.8217<wr<-80.4878", "wr", (Detail t0) -> isInRange(t0.getWr(), -86.8217, -80.4878)),
-                new StrategyEnum("31304", "-80.4878<wr<-74.0741", "wr", (Detail t0) -> isInRange(t0.getWr(), -80.4878, -74.0741)),
-                new StrategyEnum("31305", "-74.0741<wr<-67.5676", "wr", (Detail t0) -> isInRange(t0.getWr(), -74.0741, -67.5676)),
-                new StrategyEnum("31306", "-67.5676<wr<-61.0526", "wr", (Detail t0) -> isInRange(t0.getWr(), -67.5676, -61.0526)),
-                new StrategyEnum("31307", "-61.0526<wr<-54.5455", "wr", (Detail t0) -> isInRange(t0.getWr(), -61.0526, -54.5455)),
-                new StrategyEnum("31308", "-54.5455<wr<-48.0000", "wr", (Detail t0) -> isInRange(t0.getWr(), -54.5455, -48.0000)),
-                new StrategyEnum("31309", "-48.0000<wr<-41.6667", "wr", (Detail t0) -> isInRange(t0.getWr(), -48.0000, -41.6667)),
-                new StrategyEnum("31310", "-41.6667<wr<-35.4167", "wr", (Detail t0) -> isInRange(t0.getWr(), -41.6667, -35.4167)),
-                new StrategyEnum("31311", "-35.4167<wr<-29.2683", "wr", (Detail t0) -> isInRange(t0.getWr(), -35.4167, -29.2683)),
-                new StrategyEnum("31312", "-29.2683<wr<-23.1405", "wr", (Detail t0) -> isInRange(t0.getWr(), -29.2683, -23.1405)),
-                new StrategyEnum("31313", "-23.1405<wr<-16.9643", "wr", (Detail t0) -> isInRange(t0.getWr(), -23.1405, -16.9643)),
-                new StrategyEnum("31314", "-16.9643<wr<-10.2041", "wr", (Detail t0) -> isInRange(t0.getWr(), -16.9643, -10.2041)),
-                new StrategyEnum("31315", "-10.2041<wr<0.0000", "wr", (Detail t0) -> isInRange(t0.getWr(), -10.2041, 0.0000)),
+                new StrategyEnum("31302", "-93.3333<wr<-80.4878", "wr", (Detail t0) -> isInRange(t0.getWr(), -93.3333, -80.4878)),
+                new StrategyEnum("31303", "-86.8217<wr<-74.0741", "wr", (Detail t0) -> isInRange(t0.getWr(), -86.8217, -74.0741)),
+                new StrategyEnum("31304", "-80.4878<wr<-67.5676", "wr", (Detail t0) -> isInRange(t0.getWr(), -80.4878, -67.5676)),
+                new StrategyEnum("31305", "-74.0741<wr<-61.0526", "wr", (Detail t0) -> isInRange(t0.getWr(), -74.0741, -61.0526)),
+                new StrategyEnum("31306", "-67.5676<wr<-54.5455", "wr", (Detail t0) -> isInRange(t0.getWr(), -67.5676, -54.5455)),
+                new StrategyEnum("31307", "-61.0526<wr<-48.0000", "wr", (Detail t0) -> isInRange(t0.getWr(), -61.0526, -48.0000)),
+                new StrategyEnum("31308", "-54.5455<wr<-41.6667", "wr", (Detail t0) -> isInRange(t0.getWr(), -54.5455, -41.6667)),
+                new StrategyEnum("31309", "-48.0000<wr<-35.4167", "wr", (Detail t0) -> isInRange(t0.getWr(), -48.0000, -35.4167)),
+                new StrategyEnum("31310", "-41.6667<wr<-29.2683", "wr", (Detail t0) -> isInRange(t0.getWr(), -41.6667, -29.2683)),
+                new StrategyEnum("31311", "-35.4167<wr<-23.1405", "wr", (Detail t0) -> isInRange(t0.getWr(), -35.4167, -23.1405)),
+                new StrategyEnum("31312", "-29.2683<wr<-16.9643", "wr", (Detail t0) -> isInRange(t0.getWr(), -29.2683, -16.9643)),
+                new StrategyEnum("31313", "-23.1405<wr<-10.2041", "wr", (Detail t0) -> isInRange(t0.getWr(), -23.1405, -10.2041)),
+                new StrategyEnum("31314", "-16.9643<wr<0.0000", "wr", (Detail t0) -> isInRange(t0.getWr(), -16.9643, 0.0000)),
                 new StrategyEnum("31316", "0.0000<wr", "wr", (Detail t0) -> moreThan(t0.getWr(), 0.0000)),
+
 
 
 
