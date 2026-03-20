@@ -210,31 +210,7 @@ public class StrategyEnum {
                 new StrategyEnum("31314", "-16.9643<wr<0.0000", "wr", (Detail t0) -> isInRange(t0.getWr(), -16.9643, 0.0000)),
                 new StrategyEnum("31316", "0.0000<wr", "wr", (Detail t0) -> moreThan(t0.getWr(), 0.0000)),
 
-
-
-
-
-
-
-
-                new StrategyEnum("21002", "下影线占比10_40", "dowShadowPert", (Detail t0) -> isInRange(t0.getDownShadowPert(), 0.1, 0.4)),
-                new StrategyEnum("21004", "下影线占比40_70", "dowShadowPert", (Detail t0) -> isInRange(t0.getDownShadowPert(), 0.4, 0.7)),
-                new StrategyEnum("21006", "下影线占比70_100", "dowShadowPert", (Detail t0) -> isInRange(t0.getDownShadowPert(), 0.7, 1.0)),
-
-                new StrategyEnum("21022", "上影线占比10_40", "upShadowPert", (Detail t0) -> isInRange(t0.getUpShadowPert(), 0.1, 0.4)),
-                new StrategyEnum("21024", "上影线占比40_70", "upShadowPert", (Detail t0) -> isInRange(t0.getUpShadowPert(), 0.4, 0.7)),
-                new StrategyEnum("21028", "上影线占比70_100", "upShadowPert", (Detail t0) -> isInRange(t0.getUpShadowPert(), 0.7, 1.0)),
-
-                new StrategyEnum("21031", "上影线长度_00_03", "upshadowLen", (Detail t0) -> isInRange(t0.getUpShadowLen(), 0.00, 0.03)),
-                new StrategyEnum("21032", "上影线长度_03_06", "upshadowLen", (Detail t0) -> isInRange(t0.getUpShadowLen(), 0.03, 0.06)),
-                new StrategyEnum("21034", "上影线长度_06_10", "upshadowLen", (Detail t0) -> isInRange(t0.getUpShadowLen(), 0.06, 0.10)),
-
-                new StrategyEnum("21040", "总长度_00_03", "allLen", (Detail t0) -> isInRange(t0.getAllLen(), 0.0, 0.03)),
-                new StrategyEnum("21042", "总长度_03_06", "allLen", (Detail t0) -> isInRange(t0.getAllLen(), 0.03, 0.06)),
-                new StrategyEnum("21044", "总长度_06_09", "allLen", (Detail t0) -> isInRange(t0.getAllLen(), 0.06, 0.09)),
-                new StrategyEnum("21046", "总长度_09_12", "allLen", (Detail t0) -> isInRange(t0.getAllLen(), 0.09, 0.12)),
-                new StrategyEnum("21048", "总长度_12_16", "allLen", (Detail t0) -> isInRange(t0.getAllLen(), 0.12, 0.16)),
-
+                //todo 下影线长度/占比   上影线长度/占比  总长度
 
                 new StrategyEnum("21060", "区间60_00_30", "position60", (Detail t0) -> isInRange(t0.getPosition60(), 0.0, 0.3)),
                 new StrategyEnum("21062", "区间60_30_60", "position60", (Detail t0) -> isInRange(t0.getPosition60(), 0.3, 0.6)),
@@ -265,11 +241,6 @@ public class StrategyEnum {
                     double space = divide(subtract(t0.getLowPrice(), t0.getT1().getHighPrice()), t0.getT1().getHighPrice());
                     return moreThan(space, 0.04);
                 }),
-
-                new StrategyEnum("21100", "下影线长度_00_03", "downShowLen", (Detail t0) -> isInRange(t0.getDownShadowLen(), 0.0, 0.03)),
-                new StrategyEnum("21102", "下影线长度_03_06", "downShowLen", (Detail t0) -> isInRange(t0.getDownShadowLen(), 0.03, 0.06)),
-                new StrategyEnum("21104", "下影线长度_06_12", "downShowLen", (Detail t0) -> isInRange(t0.getDownShadowLen(), 0.06, 0.12)),
-                new StrategyEnum("21107", "下影线长度大于_12", "downShowLen", (Detail t0) -> moreThan(t0.getDownShadowLen(), 0.12)),
 
 
                 new StrategyEnum("21120", "比前一天缩量_00_30", "lessDeal", (Detail t0) -> isInRange(t0.getDealQuantity(), 0.0,

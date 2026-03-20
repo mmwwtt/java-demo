@@ -18,11 +18,13 @@ import com.mmwwtt.stock.vo.StockVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -72,6 +74,8 @@ public class DownloadTest {
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     private final RestTemplate restTemplate = createRestTemplate();
+    @Autowired
+    private CommonDataService commonDataService;
 
     /**
      * 创建带超时配置的 RestTemplate
@@ -104,6 +108,8 @@ public class DownloadTest {
             downLoadInit();
             downStock();
             downDetail();
+            commonDataService.init();
+            buildStrategyL1();
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -121,6 +127,51 @@ public class DownloadTest {
         }
     }
 
+    @DisplayName("重新生成L1曾策略")
+    public void buildStrategyL1() throws ExecutionException, InterruptedException {
+        strategyL1Service.remove(new QueryWrapper<>());
+
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (StrategyEnum strategyEnum : strategyL1Enums) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                List<Integer> resDetailIds = new ArrayList<>();
+                for (String stockCode : stockCodeList) {
+                    List<Detail> details = codeToDetailMap.get(stockCode);
+                    for (Detail detail : details) {
+                        if (Objects.isNull(detail.getNext1())
+                                || Objects.isNull(detail.getT10())
+                                || Objects.isNull(detail.getT10().getSixtyDayLine())
+                                || moreThan(detail.getRise0(), 0.097)
+                                || detail.getDealDate().compareTo("202505") < 0
+                                || detail.getDealDate().compareTo(calcEndDate) > 0) {
+                            continue;
+                        }
+                        if (strategyEnum.getFilterFunc().apply(detail)) {
+                            resDetailIds.add(detail.getDetailId());
+                        }
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(resDetailIds) && resDetailIds.size() > 10) {
+                    StrategyL1 strategyL1 = new StrategyL1(strategyEnum, resDetailIds);
+                    strategyL1.fillOtherData();
+                    strategyL1Service.save(strategyL1);
+                }
+            }, cpuThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        log.info("策略层级 1 计算 - 结束");
+    }
+
+    @DisplayName("生成策略枚举")
+    public void buildBaseStrategyEnum() throws ExecutionException, InterruptedException {
+        int start = 310;
+        List<Triple<String, Function<Detail,Double>,String>> triples = new ArrayList<>();
+        triples.add(Triple.of("dif",Detail::getDif, ""));
+        log.info("开始生成策略枚举");
+
+        log.info("开始生成策略枚举结束");
+    }
 
     @Test
     @DisplayName("验证数据下载接口")
@@ -263,42 +314,5 @@ public class DownloadTest {
             }
         }
         return null;
-    }
-
-
-    public void buildStrategyL1() throws ExecutionException, InterruptedException {
-        strategyL1Service.remove(new QueryWrapper<>());
-
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (StrategyEnum strategyEnum : strategyL1Enums) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                List<Integer> resDetailIds = new ArrayList<>();
-                for (String stockCode : stockCodeList) {
-                    List<Detail> details = codeToDetailMap.get(stockCode);
-                    for (Detail detail : details) {
-                        if (Objects.isNull(detail.getNext1())
-                                || Objects.isNull(detail.getT10())
-                                || Objects.isNull(detail.getT10().getSixtyDayLine())
-                                || moreThan(detail.getRise0(), 0.097)
-                                || detail.getDealDate().compareTo("202505") < 0
-                                || detail.getDealDate().compareTo(calcEndDate) > 0) {
-                            continue;
-                        }
-                        if (strategyEnum.getFilterFunc().apply(detail)) {
-                            resDetailIds.add(detail.getDetailId());
-                        }
-                    }
-                }
-                if (CollectionUtils.isNotEmpty(resDetailIds) && resDetailIds.size() > 10) {
-                    StrategyL1 strategyL1 = new StrategyL1(strategyEnum, resDetailIds);
-                    strategyL1.fillOtherData();
-                    strategyL1Service.save(strategyL1);
-                }
-            }, cpuThreadPool);
-            futures.add(future);
-        }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
-        ;
-        log.info("策略层级 1 计算 - 结束");
     }
 }

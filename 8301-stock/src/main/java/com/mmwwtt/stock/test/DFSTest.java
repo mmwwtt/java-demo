@@ -29,6 +29,7 @@ import static com.mmwwtt.stock.service.impl.CommonDataService.idToDetailMap;
 
 //todo 策略枚举不采用区间隔离，增加更密集的策略
 //todo  根据策略预测的时候也要加权处理
+//todo  下影线长度计算有问题
 @Slf4j
 @SpringBootTest
 public class DFSTest {

@@ -40,10 +40,10 @@ public class CommonDataService {
     public static Map<String, List<Detail>> codeToDetailMap = new ConcurrentHashMap<>(4096);
     public static List<StrategyL1> strategyL1s = Collections.synchronizedList(new ArrayList<>(1000));
     public static Map<String, StrategyL1> codeToL1Map = new ConcurrentHashMap<>(1000);
-    public static List<List<String>> stockCodePartList;
-    public static List<String> stockCodeList;
+    public static List<List<String>> stockCodePartList = new ArrayList<>();
+    public static List<String> stockCodeList = new ArrayList<>();
     public static String calcEndDate;
-    public static List<String> predictDateList;
+    public static List<String> predictDateList = new ArrayList<>();
 
     public static int INIT_DATE_SIZE = 500;
 
@@ -56,6 +56,14 @@ public class CommonDataService {
     public void init() throws ExecutionException, InterruptedException {
         log.info("初始化开始");
 
+        idToDetailMap = new ConcurrentHashMap<>(1048576);
+        codeToDetailMap = new ConcurrentHashMap<>(4096);
+        strategyL1s = Collections.synchronizedList(new ArrayList<>(1000));
+        codeToL1Map = new ConcurrentHashMap<>(1000);
+        stockCodePartList = new ArrayList<>();
+        stockCodeList = new ArrayList<>();
+        predictDateList = new ArrayList<>();
+
         log.info("开始补充L1策略枚举");
         List<Integer> tList = List.of(0, 1, 2, 3);
         tList.forEach(t -> {
@@ -64,7 +72,7 @@ public class CommonDataService {
                 cur.setCode(t + item.getCode());
                 cur.setDesc(String.format("T%s-%s", t, item.getDesc()));
                 cur.setFilterFunc(item.getFilterFunc());
-                if(Objects.nonNull(item.getType())) {
+                if (Objects.nonNull(item.getType())) {
                     cur.setType(String.format("T%s-%s", t, item.getType()));
                 }
                 return cur;
