@@ -466,16 +466,19 @@ public class Detail {
     private Double ema26;
 
     /**
+     * 快线
      * DIF = 12日EMA - 26日EMA
      */
     private Double dif;
 
     /**
+     * 慢线
      * 今日DEA = 今日DIF × 2/10 + 昨日DEA × 8/10
      */
     private Double dea;
 
     /**
+     * 动能
      * MACD柱 = (DIF - DEA) × 2
      * 大于0表示  EMA26 在  EMA12 之上  做多胜率更高(趋势在上涨)   (26天中的高位)
      * 小于0表示  EMA26 在  EMA12 之下  接飞刀概率大(趋势在下跌)    (26天中的低位)
