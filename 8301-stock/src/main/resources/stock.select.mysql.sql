@@ -10,16 +10,16 @@ select dif from detail_t order by  dif limit 110000,1;
 
 
 -- 自动生成基础策略枚举  start--------------------------------------
-SET @field = 'macd';
-SET @getter = 'getMacd()';
-SET @code = '302';
+SET @field = 'wr';
+SET @getter = 'getWr()';
+SET @code = '313';
 
 WITH split_points AS (SELECT row_num,
-                             macd as cut_val
-                      FROM (SELECT macd,
-                                   ROW_NUMBER() OVER (ORDER BY macd ASC) AS row_num
+                             wr as cut_val
+                      FROM (SELECT wr,
+                                   ROW_NUMBER() OVER (ORDER BY wr ASC) AS row_num
                             FROM detail_t
-                            WHERE macd IS NOT NULL) AS ranked_data
+                            WHERE wr IS NOT NULL) AS ranked_data
                       WHERE row_num IN (
                                         55000, 110000, 165000, 220000, 275000,
                                         330000, 385000, 440000, 495000, 550000,
