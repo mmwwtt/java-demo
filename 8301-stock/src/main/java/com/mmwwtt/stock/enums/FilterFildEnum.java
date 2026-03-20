@@ -1,6 +1,6 @@
 package com.mmwwtt.stock.enums;
 
-import com.mmwwtt.demo.common.BaseEnum;
+import com.mmwwtt.stock.common.BaseEnum;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
@@ -31,7 +31,9 @@ public enum FilterFildEnum implements BaseEnum {
                         || (level == 4 && lessThan(tmp.getPert(), 0.075))
                         || (level == 5 && lessThan(tmp.getPert(), 0.08))
                         || (level == 6 && lessThan(tmp.getPert(), 0.085))
-                        || (level == 7 && lessThan(tmp.getPert(), 0.09))) {
+                        || (level == 7 && lessThan(tmp.getPert(), 0.09))
+                        || (level == 8 && lessThan(tmp.getPert(), 0.095))
+                        || (level == 8 && lessThan(tmp.getPert(), 0.10))) {
                     return false;
                 }
                 return true;
