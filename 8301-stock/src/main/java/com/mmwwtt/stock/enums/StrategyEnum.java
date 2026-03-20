@@ -142,8 +142,8 @@ public class StrategyEnum {
                 // 均线排列强度
                 new StrategyEnum("00040", "均线多头排列_1", "maAlignBullScore", (Detail t0) -> Objects.equals(1, t0.getMaAlignBullScore())),
                 new StrategyEnum("00041", "均线多头排列_2", "maAlignBullScore", (Detail t0) -> Objects.equals(2, t0.getMaAlignBullScore())),
-                new StrategyEnum("00042", "均线空头排列_3", "maAlignBullScore", (Detail t0) -> Objects.equals(3, t0.getMaAlignBullScore())),
-                new StrategyEnum("00043", "均线空头排列_4", "maAlignBullScore", (Detail t0) -> Objects.equals(4, t0.getMaAlignBullScore())),
+                new StrategyEnum("00042", "均线多头排列_3", "maAlignBullScore", (Detail t0) -> Objects.equals(3, t0.getMaAlignBullScore())),
+                new StrategyEnum("00043", "均线多头排列_4", "maAlignBullScore", (Detail t0) -> Objects.equals(4, t0.getMaAlignBullScore())),
 
 
                 // 量价背离
@@ -248,25 +248,25 @@ public class StrategyEnum {
                         multiply(t0.getT1().getDealQuantity(), 1.3), multiply(t0.getT1().getDealQuantity(), 1.6))),
                 new StrategyEnum("10604", "比前一天放量_40_70", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 1.4), multiply(t0.getT1().getDealQuantity(), 1.7))),
-                new StrategyEnum("10600", "比前一天放量_50_80", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
+                new StrategyEnum("10605", "比前一天放量_50_80", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 1.5), multiply(t0.getT1().getDealQuantity(), 1.8))),
-                new StrategyEnum("10601", "比前一天放量_60_90", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
+                new StrategyEnum("10606", "比前一天放量_60_90", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 1.6), multiply(t0.getT1().getDealQuantity(), 1.9))),
-                new StrategyEnum("10602", "比前一天放量_70_100", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
+                new StrategyEnum("10607", "比前一天放量_70_100", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 1.7), multiply(t0.getT1().getDealQuantity(), 2.0))),
-                new StrategyEnum("10603", "比前一天放量_80_110", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
+                new StrategyEnum("10608", "比前一天放量_80_110", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 1.8), multiply(t0.getT1().getDealQuantity(), 2.1))),
-                new StrategyEnum("10604", "比前一天放量_90_120", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
+                new StrategyEnum("10609", "比前一天放量_90_120", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 1.9), multiply(t0.getT1().getDealQuantity(), 2.2))),
-                new StrategyEnum("10601", "比前一天放量_100_130", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
+                new StrategyEnum("10610", "比前一天放量_100_130", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 2.0), multiply(t0.getT1().getDealQuantity(), 2.3))),
-                new StrategyEnum("10602", "比前一天放量_110_140", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
+                new StrategyEnum("10611", "比前一天放量_110_140", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 2.1), multiply(t0.getT1().getDealQuantity(), 2.4))),
-                new StrategyEnum("10603", "比前一天放量_120_150", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
+                new StrategyEnum("10612", "比前一天放量_120_150", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 2.2), multiply(t0.getT1().getDealQuantity(), 2.5))),
-                new StrategyEnum("10604", "比前一天放量_130_160", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
+                new StrategyEnum("10613", "比前一天放量_130_160", "moreDeal", (Detail t0) -> isInRange(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 2.3), multiply(t0.getT1().getDealQuantity(), 2.6))),
-                new StrategyEnum("10605", "比前一天放量大于160", "moreDeal", (Detail t0) -> moreThan(t0.getDealQuantity(),
+                new StrategyEnum("10614", "比前一天放量大于160", "moreDeal", (Detail t0) -> moreThan(t0.getDealQuantity(),
                         multiply(t0.getT1().getDealQuantity(), 2.6)))
 
         );

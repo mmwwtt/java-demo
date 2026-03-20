@@ -87,6 +87,8 @@ public class CommonDataService {
         triples.add(Triple.of("20均线斜率",Detail::getVolatility20, ""));
         triples.add(Triple.of("ATR14波动率",Detail::getLastPrice, ""));
 
+        //demo
+        //new StrategyEnum("10000", "区间60_0_20", "position60", (Detail t0) -> isInRange(t0.getPosition60(), 0.0, 0.2)),
         for (Triple<String, Function<Detail, Double>, String> triple : triples) {
             String name = triple.getLeft();
             Function<Detail, Double> getter = triple.getMiddle();
