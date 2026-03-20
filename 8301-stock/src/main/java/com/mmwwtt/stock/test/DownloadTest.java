@@ -18,7 +18,6 @@ import com.mmwwtt.stock.vo.StockVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,16 +160,6 @@ public class DownloadTest {
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
         log.info("策略层级 1 计算 - 结束");
-    }
-
-    @DisplayName("生成策略枚举")
-    public void buildBaseStrategyEnum() throws ExecutionException, InterruptedException {
-        int start = 310;
-        List<Triple<String, Function<Detail,Double>,String>> triples = new ArrayList<>();
-        triples.add(Triple.of("dif",Detail::getDif, ""));
-        log.info("开始生成策略枚举");
-
-        log.info("开始生成策略枚举结束");
     }
 
     @Test

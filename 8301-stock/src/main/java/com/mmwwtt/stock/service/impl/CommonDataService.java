@@ -10,6 +10,7 @@ import com.mmwwtt.stock.enums.StrategyEnum;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 import static com.mmwwtt.stock.enums.StrategyEnum.baseStrategys;
@@ -65,6 +67,31 @@ public class CommonDataService {
         predictDateList = new ArrayList<>();
 
         log.info("开始补充L1策略枚举");
+        String basePrefix = "320";
+        List<Triple<String, Function<Detail,Double>,String>> triples = new ArrayList<>();
+        triples.add(Triple.of("dif",Detail::getDif, ""));
+        triples.add(Triple.of("dea",Detail::getDea, ""));
+        triples.add(Triple.of("macd",Detail::getMacd, ""));
+        triples.add(Triple.of("wr", Detail::getWr, ""));
+        triples.add(Triple.of("上影线占比",Detail::getUpShadowPert, ""));
+        triples.add(Triple.of("上影线长度",Detail::getUpShadowLen, ""));
+        triples.add(Triple.of("下影线百分比",Detail::getDownShadowPert, ""));
+        triples.add(Triple.of("下引线长度",Detail::getDownShadowLen, ""));
+        triples.add(Triple.of("总长",Detail::getAllLen, ""));
+
+        triples.add(Triple.of("rsi",Detail::getRsi, ""));
+        triples.add(Triple.of("bias5",Detail::getBias5, ""));
+        triples.add(Triple.of("bias20",Detail::getBias20, ""));
+        triples.add(Triple.of("布林带",Detail::getBollPosition, ""));
+        triples.add(Triple.of("20均线波动率",Detail::getMa20Slope, ""));
+        triples.add(Triple.of("20均线斜率",Detail::getVolatility20, ""));
+        triples.add(Triple.of("ATR14波动率",Detail::getLastPrice, ""));
+
+        for (Triple<String, Function<Detail, Double>, String> triple : triples) {
+            String name = triple.getLeft();
+            Function<Detail, Double> getter = triple.getMiddle();
+
+        }
         List<Integer> tList = List.of(0, 1, 2, 3);
         tList.forEach(t -> {
             List<StrategyEnum> enums = baseStrategys.stream().map(item -> {
