@@ -139,7 +139,7 @@ public class DownloadTest {
 
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (StrategyL1 strategyL1 : baseL1s) {
+        for (StrategyL1 strategyL1 : allBaseL1) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 List<Detail> curDetails = new ArrayList<>(100000);
                 for (String stockCode : stockCodeList) {
@@ -249,20 +249,10 @@ public class DownloadTest {
                             .filter(item -> item.getSf() == 0)
                             .collect(Collectors.toList());
                     List<Detail> details = voConvert.convertToDetail(detailVOS);
-
-                    QueryWrapper<Detail> detailWrapper = new QueryWrapper<>();
-                    detailWrapper.eq("stock_code", stock.getCode());
-                    Map<String, Detail> dateToMap = detailService.list(detailWrapper).stream()
-                            .collect(Collectors.toMap(Detail::getDealDate, Function.identity()));
-                    for (Detail detail : details) {
-                        if (dateToMap.containsKey(detail.getDealDate())) {
-                            detail.setDetailId(dateToMap.get(detail.getDealDate()).getDetailId());
-                        }
-                    }
                     details.sort(Comparator.comparing(Detail::getDealDate).reversed());
                     details.forEach(item -> item.calc());
                     Detail.calc(details);
-                    detailService.saveOrUpdateBatch(details);
+                    detailService.saveBatch(details);
                 }
             }, ioThreadPool);
             futures.add(future);
