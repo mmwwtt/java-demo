@@ -1,12 +1,16 @@
 package com.mmwwtt.stock.convert;
 
 import com.mmwwtt.stock.entity.Detail;
+import com.mmwwtt.stock.entity.Stock;
+import com.mmwwtt.stock.vo.StockVO;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.control.DeepClone;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 @Mapper(mappingControl = DeepClone.class, builder = @Builder(disableBuilder = true))
 public interface StockConverter {
@@ -26,4 +30,7 @@ public interface StockConverter {
             @Mapping(target = "next10", ignore = true)
     })
     Detail convertToDetail(Detail detail);
+
+
+    List<Stock> convertToStock(List<StockVO> stockList);
 }

@@ -17,8 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonDataService.INIT_DATE_SIZE;
-import static com.mmwwtt.stock.service.impl.CommonDataService.l1CodeToEnumMap;
+import static com.mmwwtt.stock.service.impl.CommonDataService.*;
 
 @Slf4j
 @Data
@@ -192,7 +191,7 @@ public class BaseStrategy {
      */
     public void fillOtherData() {
         name = Arrays.stream(strategyCode.split(" "))
-                .map(strategyCode -> l1CodeToEnumMap.get(strategyCode).getDesc())
+                .map(strategyCode -> codeToL1Map.get(strategyCode).getName())
                 .collect(Collectors.joining(" "));
 
         List<Integer> detailIdList = details.stream().map(Detail::getDetailId)

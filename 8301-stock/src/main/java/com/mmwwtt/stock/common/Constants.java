@@ -51,7 +51,7 @@ public class Constants {
     /**
      * 必盈的通行证licence
      */
-    public static final String BI_YING_LICENCE = "868DA37C-9636-4050-9DC6-443B40E82AFC";
+    public static final String BI_YING_LICENCE = "D2C89D6F-D0A2-4E96-9C72-B442F0F0A7C1";
 
     /**
      * 获得股票列表的url

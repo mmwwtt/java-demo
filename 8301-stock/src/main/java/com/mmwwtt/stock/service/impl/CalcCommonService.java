@@ -41,8 +41,8 @@ public class CalcCommonService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
         for (Strategy strategy : strategys) {
-            List<Function<Detail, Boolean>> functionList = Arrays.stream(strategy.getStrategyCode().split(" "))
-                    .map(item -> l1CodeToEnumMap.get(item).getFilterFunc()).toList();
+            List<Function<Detail, Boolean>> filterFuncs = Arrays.stream(strategy.getStrategyCode().split(" "))
+                    .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
@@ -56,7 +56,7 @@ public class CalcCommonService {
                         if (isOnTime) {
                             detail.setDealQuantity(multiply(detail.getDealQuantity(), quantityMult));
                         }
-                        boolean res = functionList.stream().allMatch(item -> item.apply(detail));
+                        boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                         if (res) {
                             stockCodeSet.add(stockCode);
                             double pert = detail.getRise0() != null ? detail.getRise0() : 0;
@@ -111,7 +111,7 @@ public class CalcCommonService {
 
         for (Strategy strategy : strategys) {
             List<Function<Detail, Boolean>> functionList = Arrays.stream(strategy.getStrategyCode().split(" "))
-                    .map(item -> l1CodeToEnumMap.get(item).getFilterFunc()).toList();
+                    .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {

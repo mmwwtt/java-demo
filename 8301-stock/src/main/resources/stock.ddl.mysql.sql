@@ -156,7 +156,8 @@ CREATE TABLE strategy_l1_t
     rise5_middle      DECIMAL(8, 4) COMMENT '5日中位数涨幅',
     rise10_middle     DECIMAL(8, 4) COMMENT '10日中位数涨幅',
     rise5_max_middle  DECIMAL(8, 4) COMMENT '5日最大中位数涨幅',
-    rise10_max_middle DECIMAL(8, 4) COMMENT '10日最大中位数涨幅'
+    rise10_max_middle DECIMAL(8, 4) COMMENT '10日最大中位数涨幅',
+    filter_func_str   VARCHAR(200) COMMENT '策略方法'
 ) COMMENT '1层策略结果表';
 
 
@@ -166,7 +167,7 @@ CREATE TABLE strategy_tmp_t
     strategy_id   INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code VARCHAR(200) COMMENT '策略编码',
     date_cnt      INT(8) COMMENT '有符合数据的日期天数',
-    detail_cnt      INT(8) COMMENT '有符合数据的详情数',
+    detail_cnt    INT(8) COMMENT '有符合数据的详情数',
     pert          DECIMAL(8, 4) COMMENT '用于过滤判断的临时属性'
 ) COMMENT '策略中间表';
 

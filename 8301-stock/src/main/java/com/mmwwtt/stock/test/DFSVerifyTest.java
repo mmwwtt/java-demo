@@ -3,7 +3,6 @@ package com.mmwwtt.stock.test;
 import com.mmwwtt.stock.common.StockGuiUtils;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.strategy.Strategy;
-import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.service.impl.CalcCommonService;
 import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import jakarta.annotation.PostConstruct;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.impl.CommonDataService.*;
@@ -87,10 +87,9 @@ public class DFSVerifyTest {
                     continue;
                 }
                 for (Strategy strategyWin : strategies) {
-                    List<StrategyEnum> strategyEnums = strategyWin.getStrategyCodeSet().stream()
-                            .map(l1CodeToEnumMap::get).toList();
-                    boolean res = strategyEnums.stream()
-                            .allMatch(strategyEnum -> strategyEnum.getFilterFunc().apply(detail));
+                    List<Function<Detail,Boolean>> filterFuncs = strategyWin.getStrategyCodeSet().stream()
+                            .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
+                    boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                     if (res) {
                         Pair<List<Detail>, Map<Integer, Double>> pair =
                                 dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(), new HashMap<>()));

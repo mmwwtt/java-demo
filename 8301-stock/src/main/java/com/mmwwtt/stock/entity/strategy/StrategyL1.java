@@ -1,14 +1,13 @@
 package com.mmwwtt.stock.entity.strategy;
 
-import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.mmwwtt.stock.enums.StrategyEnum;
+import com.mmwwtt.stock.entity.Detail;
 import lombok.*;
 
-import java.util.Comparator;
-import java.util.List;
-
-import static com.mmwwtt.stock.service.impl.CommonDataService.idToDetailMap;
+import java.util.Objects;
+import java.util.function.Function;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,6 +16,13 @@ import static com.mmwwtt.stock.service.impl.CommonDataService.idToDetailMap;
 @AllArgsConstructor
 @Builder
 public class StrategyL1 extends BaseStrategy {
+
+    /**
+     * 第一位   0开头是零散策略   1开头是区间策略    2开头是根据代码生成的
+     * 第二,三位   策略类型
+     * 第三，四位， 具体策略编码
+     */
+    private String code;
 
     /**
      * 符合策略的详情数量统计
@@ -29,15 +35,45 @@ public class StrategyL1 extends BaseStrategy {
     private String type;
 
 
-    public StrategyL1(StrategyEnum strategyEnum, List<Integer> detailIds) {
-        this.strategyCode = strategyEnum.getCode();
-        this.type = strategyEnum.getType();
-        detailIds.sort(Comparator.comparing(Integer::intValue));
-        JSONArray array = new JSONArray(detailIds.size());
-        array.addAll(detailIds);
-        this.detailIds = array;
-        this.details = detailIds.stream().map(item -> idToDetailMap.get(item)).toList();
-        this.cnt = detailIds.size();
+    @TableField(exist = false)
+    private Function<Detail, Boolean> filterFunc;
+
+    private String filterFuncStr;
+
+
+//    public StrategyL1(StrategyEnum strategyEnum, List<Integer> detailIds) {
+//        this.strategyCode = strategyEnum.getCode();
+//        this.type = strategyEnum.getType();
+//        detailIds.sort(Comparator.comparing(Integer::intValue));
+//        JSONArray array = new JSONArray(detailIds.size());
+//        array.addAll(detailIds);
+//        this.detailIds = array;
+//        this.details = detailIds.stream().map(item -> idToDetailMap.get(item)).toList();
+//        this.cnt = detailIds.size();
+//    }
+
+
+    public StrategyL1(String code, String name,Function<Detail, Boolean> filterFunc) {
+        this(code, name,null, filterFunc);
+    }
+    public StrategyL1(String code, String name,String type, Function<Detail, Boolean> filterFunc) {
+        this.code = code;
+        this.name = name;
+        this.type = type;
+        this.filterFunc = filterFunc;
+    }
+
+    public void setFilterFunc( Function<Detail, Boolean>  func){
+        this.filterFunc = func;
+        if(Objects.isNull(filterFuncStr)) {
+            filterFuncStr = JSON.toJSONString(func);
+        }
+    }
+    public void setFilterFuncStr(String str){
+        this.filterFuncStr = str;
+        if(Objects.isNull(filterFunc)) {
+            filterFunc = JSON.toJavaObject(JSON.parseObject(str),  Function.class );
+        }
     }
 
 }

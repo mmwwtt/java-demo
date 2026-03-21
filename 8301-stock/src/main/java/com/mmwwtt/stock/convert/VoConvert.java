@@ -5,7 +5,6 @@ import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
-import com.mmwwtt.stock.enums.StrategyEnum;
 import com.mmwwtt.stock.vo.DetailOnTimeVO;
 import com.mmwwtt.stock.vo.DetailVO;
 import com.mmwwtt.stock.vo.StockVO;
@@ -74,8 +73,7 @@ public interface VoConvert {
     Map<String, Set<Integer>> convertToMap(Map<String, Set<Integer>> map);
     Set<Integer> convertToSet(Set<Integer> set);
 
-    StrategyEnum convertTo(StrategyEnum strategyEnum);
-
+    StrategyL1 convertToStrategyL1(StrategyL1 strategyL1);
     StrategyTmp convertTo(StrategyL1 strategyL1);
     Strategy convertTo(StrategyTmp strategyTmp);
 }
