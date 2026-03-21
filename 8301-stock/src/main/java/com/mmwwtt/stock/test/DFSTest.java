@@ -8,7 +8,7 @@ import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import com.mmwwtt.stock.enums.FilterFildEnum;
-import com.mmwwtt.stock.service.impl.CommonDataService;
+import com.mmwwtt.stock.service.CommonDataService;
 import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonDataService.codeToL1Map;
-import static com.mmwwtt.stock.service.impl.CommonDataService.idToDetailMap;
+import static com.mmwwtt.stock.service.CommonDataService.codeToL1Map;
+import static com.mmwwtt.stock.service.CommonDataService.idToDetailMap;
 
 
 //todo  根据策略预测的时候也要加权处理
@@ -176,7 +176,7 @@ public class DFSTest {
         log.info("dfs 初始化");
         strategyTmpService.remove(new QueryWrapper<>());
         dfsStrategyL1s = CommonDataService.strategyL1s.stream()
-                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
+                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.03))
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")
                         || item.getName().startsWith("T2")

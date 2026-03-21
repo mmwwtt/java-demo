@@ -1,4 +1,4 @@
-package com.mmwwtt.stock.service.impl;
+package com.mmwwtt.stock.service;
 
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
@@ -7,6 +7,9 @@ import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.strategy.BaseStrategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
+import com.mmwwtt.stock.service.impl.DetailServiceImpl;
+import com.mmwwtt.stock.service.impl.StockServiceImpl;
+import com.mmwwtt.stock.service.impl.StrategyL1ServiceImpl;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +40,7 @@ public class CommonDataService {
     private StrategyL1ServiceImpl strategyL1Service;
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
+    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     public static Map<Integer, Detail> idToDetailMap = new ConcurrentHashMap<>(1048576);
     public static Map<String, List<Detail>> codeToDetailMap = new ConcurrentHashMap<>(4096);
@@ -61,7 +65,7 @@ public class CommonDataService {
         stockCodeList = new ArrayList<>();
         predictDateList = new ArrayList<>();
         log.info("开始加载L1层策略");
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<CompletableFuture<Void>> futures;
 
 
         log.info("开始查询股票列表");
@@ -111,7 +115,7 @@ public class CommonDataService {
                     strategyL1.setFilterFunc(codeToFunc.get(strategyL1.getStrategyCode()));
                     strategyL1s.add(strategyL1);
                     codeToL1Map.put(strategyL1.getStrategyCode(), strategyL1);
-                }, ioThreadPool);
+                }, cpuThreadPool);
                 futures.add(future);
             }
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();

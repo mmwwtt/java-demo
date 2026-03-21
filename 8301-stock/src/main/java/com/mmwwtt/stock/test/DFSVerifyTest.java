@@ -1,9 +1,10 @@
 package com.mmwwtt.stock.test;
 
+import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUtils;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.strategy.Strategy;
-import com.mmwwtt.stock.service.impl.CalcCommonService;
+import com.mmwwtt.stock.service.impl.DetailServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -14,14 +15,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonDataService.*;
+import static com.mmwwtt.stock.service.CommonDataService.*;
 
 /**
  * DFS结果验证
@@ -34,7 +39,8 @@ public class DFSVerifyTest {
     private StrategyServiceImpl strategyService;
 
     @Resource
-    private CalcCommonService calcCommonService;
+    private DetailServiceImpl detailService;
+    private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     private static List<Strategy> strategies;
 
@@ -58,7 +64,7 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        calcCommonService.predict("20260319", strategies, false, 1.2);
+        predict("20260319", strategies, false, 1.2);
     }
 
 
@@ -149,5 +155,71 @@ public class DFSVerifyTest {
             }
         }
         log.info("绘制完成");
+    }
+
+
+
+    /**
+     * 预测明日股票
+     */
+    public void predict(String curDate, List<Strategy> strategys, boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
+        Map<Strategy, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        Map<String, Detail> codeToDetailMap = detailService.getCodeToCurDetailMap(curDate);
+        Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
+        for (Strategy strategy : strategys) {
+            List<Function<Detail, Boolean>> filterFuncs = Arrays.stream(strategy.getStrategyCode().split(" "))
+                    .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
+            for (List<String> part : stockCodePartList) {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    for (String stockCode : part) {
+                        Detail detail = codeToDetailMap.get(stockCode);
+                        if (stockCodeSet.contains(stockCode)
+                                || Objects.isNull(detail) || Objects.isNull(detail.getT5())
+                                || Objects.isNull(detail.getT5().getSixtyDayLine())
+                                || moreThan(detail.getRise0(), 0.097)) {
+                            continue;
+                        }
+                        if (isOnTime) {
+                            detail.setDealQuantity(multiply(detail.getDealQuantity(), quantityMult));
+                        }
+                        boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
+                        if (res) {
+                            stockCodeSet.add(stockCode);
+                            double pert = detail.getRise0() != null ? detail.getRise0() : 0;
+                            strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>()))
+                                    .add(stockCode + " " + pert);
+                        }
+                    }
+                }, cpuThreadPool);
+                futures.add(future);
+            }
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        log.info("计算结束");
+        String filePath = "src/main/resources/file/test.txt";
+
+        File file = new File(filePath);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        try (FileOutputStream fos = new FileOutputStream(file, true)) {
+            fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
+            List<Strategy> resStrategies = strategyToStockMap.keySet().stream()
+                    .sorted(Comparator.comparing(Strategy::getRise5Avg).reversed()).toList();
+            for (Strategy strategy : resStrategies) {
+                List<String> resStockList = strategyToStockMap.get(strategy);
+                String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高平均涨幅：%4f \n5日最高中位数涨幅：%4f \n",
+                        strategy.getDateCnt(),strategy.getName(),
+                        strategy.getRise5MaxAvg(),strategy.getRise5MaxMiddle());
+                fos.write(str.getBytes());
+                for (String s : resStockList) {
+                    fos.write((s + "\n").getBytes());
+                }
+            }
+        } catch (IOException ignored) {
+        }
+
     }
 }

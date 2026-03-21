@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmwwtt.stock.dao.StrategyDAO;
 import com.mmwwtt.stock.entity.strategy.Strategy;
-import com.mmwwtt.stock.service.StrategyService;
+import com.mmwwtt.stock.service.interfaces.StrategyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

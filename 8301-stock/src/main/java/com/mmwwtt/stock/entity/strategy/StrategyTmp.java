@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.getAverage;
 import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
-import static com.mmwwtt.stock.service.impl.CommonDataService.INIT_DATE_SIZE;
+import static com.mmwwtt.stock.service.CommonDataService.INIT_DATE_SIZE;
 
 /**
  * 策略胜率

@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.impl.CommonDataService.*;
+import static com.mmwwtt.stock.service.CommonDataService.*;
 
 @Slf4j
 @Data

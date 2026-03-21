@@ -12,6 +12,7 @@ import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.enums.ExcludeRightEnum;
 import com.mmwwtt.stock.enums.TimeLevelEnum;
+import com.mmwwtt.stock.service.CommonDataService;
 import com.mmwwtt.stock.service.impl.*;
 import com.mmwwtt.stock.vo.DetailOnTimeVO;
 import com.mmwwtt.stock.vo.DetailVO;
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.moreThan;
 import static com.mmwwtt.stock.common.Constants.*;
-import static com.mmwwtt.stock.service.impl.CommonDataService.*;
+import static com.mmwwtt.stock.service.CommonDataService.*;
 
 /**
  * 必盈url   <a href="https://www.biyingapi.com/">...</a>
@@ -70,6 +71,7 @@ public class DownloadTest {
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     private final RestTemplate restTemplate = createRestTemplate();
+
     @Autowired
     private CommonDataService commonDataService;
 

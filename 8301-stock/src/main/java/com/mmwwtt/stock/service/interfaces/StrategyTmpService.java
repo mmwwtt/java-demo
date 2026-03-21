@@ -1,4 +1,4 @@
-package com.mmwwtt.stock.service;
+package com.mmwwtt.stock.service.interfaces;
 
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 
