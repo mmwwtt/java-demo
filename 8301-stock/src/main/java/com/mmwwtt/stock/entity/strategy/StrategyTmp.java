@@ -52,7 +52,7 @@ public class StrategyTmp {
 
 
     @TableField(exist = false)
-    private List<Detail> details = Collections.synchronizedList(new ArrayList<>(50000));
+    private List<Detail> details = Collections.synchronizedList(new ArrayList<>(500));
 
     @TableField(exist = false)
     private Set<String> parentWinStrategyCodeSet;
@@ -154,9 +154,5 @@ public class StrategyTmp {
         if (Objects.nonNull(parentStrategyTmp.getStrategyTypeSet())) {
             strategyTypeSet.addAll(parentStrategyTmp.getStrategyTypeSet());
         }
-    }
-
-    public void getTpe() {
-
     }
 }

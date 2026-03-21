@@ -60,7 +60,7 @@ public class DFSTest {
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void dfs() throws InterruptedException, ExecutionException {
         fildEnum = FilterFildEnum.DATE80_RISE5_MAX_MIDDLE;
-        DfsMain(6);
+        DfsMain(8);
         dfsAfterDetail("pert > 0.12");
     }
 
