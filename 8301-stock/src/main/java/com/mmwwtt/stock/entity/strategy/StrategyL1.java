@@ -1,12 +1,10 @@
 package com.mmwwtt.stock.entity.strategy;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.mmwwtt.stock.entity.Detail;
 import lombok.*;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 @EqualsAndHashCode(callSuper = true)
@@ -27,36 +25,21 @@ public class StrategyL1 extends BaseStrategy {
      */
     private String type;
 
-
     @TableField(exist = false)
     private Function<Detail, Boolean> filterFunc;
 
-    private String filterFuncStr;
 
-
-    public StrategyL1(String strategyCode, String name,Function<Detail, Boolean> filterFunc) {
-        this(strategyCode, name,null, filterFunc);
+    public StrategyL1(String strategyCode, String name, Function<Detail, Boolean> filterFunc) {
+        this(strategyCode, name, null, filterFunc);
     }
-    public StrategyL1(String strategyCode, String name,String type, Function<Detail, Boolean> filterFunc) {
+
+    public StrategyL1(String strategyCode, String name, String type, Function<Detail, Boolean> filterFunc) {
         this.strategyCode = strategyCode;
         this.name = name;
         this.type = type;
         this.filterFunc = filterFunc;
-        this.filterFuncStr = JSON.toJSONString(filterFunc);
     }
 
-    public void setFilterFunc( Function<Detail, Boolean>  func){
-        this.filterFunc = func;
-        if(Objects.isNull(filterFuncStr)) {
-            filterFuncStr = JSON.toJSONString(func);
-        }
-    }
-    public void setFilterFuncStr(String str){
-        this.filterFuncStr = str;
-        if(Objects.isNull(filterFunc)) {
-            filterFunc = JSON.toJavaObject(JSON.parseObject(str),  Function.class );
-        }
-    }
     public void fillOtherData() {
         super.fillOtherData();
         this.cnt = detailIds.size();

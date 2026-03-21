@@ -156,8 +156,7 @@ CREATE TABLE strategy_l1_t
     rise5_middle      DECIMAL(8, 4) COMMENT '5日中位数涨幅',
     rise10_middle     DECIMAL(8, 4) COMMENT '10日中位数涨幅',
     rise5_max_middle  DECIMAL(8, 4) COMMENT '5日最大中位数涨幅',
-    rise10_max_middle DECIMAL(8, 4) COMMENT '10日最大中位数涨幅',
-    filter_func_str   VARCHAR(200) COMMENT '策略方法'
+    rise10_max_middle DECIMAL(8, 4) COMMENT '10日最大中位数涨幅'
 ) COMMENT '1层策略结果表';
 
 
