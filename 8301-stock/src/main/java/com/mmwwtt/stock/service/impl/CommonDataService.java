@@ -431,7 +431,7 @@ public class CommonDataService {
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
-        List<Integer> tList = List.of(0, 1, 2, 3);
+        List<Integer> tList = List.of(0, 1, 2, 3,5);
         List<StrategyL1> allBaseL1 = new ArrayList<>(baseL1s.size() * 10);
         tList.forEach(t -> {
             List<StrategyL1> dateBaseL1 = baseL1s.stream().map(item -> {

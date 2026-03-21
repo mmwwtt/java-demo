@@ -157,4 +157,8 @@ public class StrategyTmp {
             strategyTypeSet.addAll(parentStrategyTmp.getStrategyTypeSet());
         }
     }
+
+    public void getTpe() {
+
+    }
 }

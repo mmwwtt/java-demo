@@ -60,7 +60,7 @@ public class DFSTest {
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void dfs() throws InterruptedException, ExecutionException {
         fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
-        DfsMain(10);
+        DfsMain(7);
         dfsAfterDetail("pert > 0.12");
     }
 
@@ -82,6 +82,10 @@ public class DFSTest {
                 try {
                     StrategyTmp strategyTmp = VoConvert.INSTANCE.convertTo(strategyL1);
                     strategyTmp.setPert(fildEnum.getStrategyL1Getter().apply(strategyL1));
+                    strategyTmp.getStrategyCodeSet().add(strategyTmp.getStrategyCode());
+                    if (Objects.nonNull(strategyL1.getType())) {
+                        strategyTmp.getStrategyTypeSet().add(strategyL1.getType());
+                    }
                     buildByLevel(strategyTmp, finalI);
                 } finally {
                     taskCnt.decrementAndGet();
@@ -107,8 +111,11 @@ public class DFSTest {
 
             //已存在的策略  或者策略类型相同  则跳过
             StrategyL1 strategyL1 = dfsStrategyL1s.get(idx);
-            if (strategyTmp.getStrategyCodeSet().contains(strategyL1.getStrategyCode())
-                    || (Objects.nonNull(strategyL1.getType()) && strategyTmp.getStrategyTypeSet().contains(strategyL1.getType()))) {
+            if (strategyTmp.getStrategyCodeSet().contains(strategyL1.getStrategyCode())) {
+                continue;
+            }
+
+            if (Objects.nonNull(strategyL1.getType()) && strategyTmp.getStrategyTypeSet().contains(strategyL1.getType())) {
                 continue;
             }
 
