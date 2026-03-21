@@ -191,7 +191,8 @@ public class BaseStrategy {
      */
     public void fillOtherData() {
         name = Arrays.stream(strategyCode.split(" "))
-                .map(strategyCode -> codeToL1Map.get(strategyCode).getName())
+                .map(strategyCode -> codeToL1Map.containsKey(strategyCode)?
+                        codeToL1Map.get(strategyCode).getName(): strategyCode)
                 .collect(Collectors.joining(" "));
 
         List<Integer> detailIdList = details.stream().map(Detail::getDetailId)
@@ -202,6 +203,7 @@ public class BaseStrategy {
         if (Objects.isNull(detailIdArr)) {
             detailIdArr = detailIdList.stream().mapToInt(Integer::intValue).toArray();
         }
+
         //填充其他相关数据
         Map<String, List<Detail>> dateToDetailListMap = details.stream().collect(Collectors.groupingBy(Detail::getDealDate));
 

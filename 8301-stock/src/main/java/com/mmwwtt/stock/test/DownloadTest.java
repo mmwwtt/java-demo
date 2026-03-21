@@ -118,15 +118,13 @@ public class DownloadTest {
     @Test
     public void buildStrategyL1() throws ExecutionException, InterruptedException {
         strategyL1Service.remove(new QueryWrapper<>());
-
-        // 生成最终 strategyL1Enums：baseStrategys + tripleDerivedEnums，并统一打上 T0/T1/T2/T3 前缀。
         List<Integer> tList = List.of(0, 1, 2, 3);
         List<StrategyL1> baseL1s = getBaseL1s();
         List<StrategyL1> allBaseL1 = new ArrayList<>(baseL1s.size() * 10);
         tList.forEach(t -> {
             List<StrategyL1> dateBaseL1 = baseL1s.stream().map(item -> {
                 StrategyL1 cur = VoConvert.INSTANCE.convertToStrategyL1(item);
-                cur.setCode(t + item.getCode());
+                cur.setStrategyCode(t + item.getStrategyCode());
                 cur.setName(String.format("T%s-%s", t, item.getName()));
                 cur.setFilterFunc(item.getFilterFunc());
                 if (Objects.nonNull(item.getType())) {
@@ -555,9 +553,8 @@ public class DownloadTest {
         triples.add(Triple.of("ATR14波动率", Detail::getAtr14, "atr14"));
 
 
-        log.info("根据 triples 生成区间策略枚举(16分/滑动窗口)");
+        int startCode = 20000;
         List<StrategyL1> l1s = new ArrayList<>();
-        int fieldIdx = 0;
         for (Triple<String, Function<Detail, Double>, String> triple : triples) {
             String fieldName = triple.getLeft();
             Function<Detail, Double> getter = triple.getMiddle();
@@ -577,27 +574,24 @@ public class DownloadTest {
                 idx = Math.max(0, Math.min(n - 1, idx));
                 nodes[i - 1] = values.get(idx);
             }
-
-            // 记录 1~3, 2~4, ..., 14~16 => 14 个滑动窗口区间策略
+            int itemStartCode = startCode;
             for (int i = 1; i <= 14; i++) {
-                Double left = nodes[i - 1];     // node i
-                Double right = nodes[i + 1];   // node i+2
+                Double left = nodes[i - 1];
+                Double right = nodes[i + 1];
                 if (Objects.isNull(left) || Objects.isNull(right) || Objects.equals(left, right)) {
                     continue;
                 }
-
-                // base code 独立于 t 前缀，避免不同字段区间重复；后续会在 tList 里前置 T 编码。
-                String baseCode = String.format("9%02d%02d", fieldIdx, i);
-                String desc = String.format("%s_区间节点%d~%d(%.6f~%.6f)", fieldName, i, i + 2, left, right);
+                String desc = String.format("%s_%.3f_%.3f", fieldName, left, right);
                 String finalTypeKey = (typeKey == null || typeKey.isBlank()) ? fieldName : typeKey;
                 double l = left;
                 double r = right;
                 Function<Detail, Boolean> filterFunc = d -> isInRange(getter.apply(d), l, r);
 
-                l1s.add(new StrategyL1(baseCode, desc, finalTypeKey, filterFunc));
+                l1s.add(new StrategyL1(String.valueOf(itemStartCode), desc, finalTypeKey, filterFunc));
+                itemStartCode++;
             }
-            fieldIdx++;
+            startCode+=100;
         }
-        return list;
+        return l1s;
     }
 }

@@ -18,13 +18,6 @@ import java.util.function.Function;
 public class StrategyL1 extends BaseStrategy {
 
     /**
-     * 第一位   0开头是零散策略   1开头是区间策略    2开头是根据代码生成的
-     * 第二,三位   策略类型
-     * 第三，四位， 具体策略编码
-     */
-    private String code;
-
-    /**
      * 符合策略的详情数量统计
      */
     private Integer cnt;
@@ -53,14 +46,15 @@ public class StrategyL1 extends BaseStrategy {
 //    }
 
 
-    public StrategyL1(String code, String name,Function<Detail, Boolean> filterFunc) {
-        this(code, name,null, filterFunc);
+    public StrategyL1(String strategyCode, String name,Function<Detail, Boolean> filterFunc) {
+        this(strategyCode, name,null, filterFunc);
     }
-    public StrategyL1(String code, String name,String type, Function<Detail, Boolean> filterFunc) {
-        this.code = code;
+    public StrategyL1(String strategyCode, String name,String type, Function<Detail, Boolean> filterFunc) {
+        this.strategyCode = strategyCode;
         this.name = name;
         this.type = type;
         this.filterFunc = filterFunc;
+        this.filterFuncStr = JSON.toJSONString(filterFunc);
     }
 
     public void setFilterFunc( Function<Detail, Boolean>  func){
@@ -74,6 +68,10 @@ public class StrategyL1 extends BaseStrategy {
         if(Objects.isNull(filterFunc)) {
             filterFunc = JSON.toJavaObject(JSON.parseObject(str),  Function.class );
         }
+    }
+    public void fillOtherData() {
+        super.fillOtherData();
+        this.cnt = detailIds.size();
     }
 
 }
