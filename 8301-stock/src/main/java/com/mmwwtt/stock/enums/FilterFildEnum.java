@@ -16,24 +16,50 @@ import static com.mmwwtt.stock.common.CommonUtils.multiply;
 @AllArgsConstructor
 @Getter
 public enum FilterFildEnum implements BaseEnum {
-    RISE5_MAX_MIDDLE("rise5MaxMiddle", "最大五日涨幅中位数",
+    DATE80_RISE5_MAX_MIDDLE("80rise5MaxMiddle", "最大五日涨幅中位数",
             Detail::getRise5Max,
             StrategyL1::getRise5MaxMiddle,
             Strategy::getRise5MaxMiddle,
             (StrategyTmp tmp) -> {
-                if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.025)) {
+                if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.03)) {
                     return false;
                 }
                 int level = tmp.getStrategyCodeSet().size();
                 if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && lessThan(tmp.getPert(), 0.065))
-                        || (level == 3 && lessThan(tmp.getPert(), 0.07))
-                        || (level == 4 && lessThan(tmp.getPert(), 0.075))
-                        || (level == 5 && lessThan(tmp.getPert(), 0.08))
-                        || (level == 6 && lessThan(tmp.getPert(), 0.085))
-                        || (level == 7 && lessThan(tmp.getPert(), 0.09))
-                        || (level == 8 && lessThan(tmp.getPert(), 0.095))
-                        || (level == 8 && lessThan(tmp.getPert(), 0.10))) {
+                        || (level == 2 && lessThan(tmp.getPert(), 0.07))
+                        || (level == 3 && lessThan(tmp.getPert(), 0.08))
+                        || (level == 4 && lessThan(tmp.getPert(), 0.09))
+                        || (level == 5 && lessThan(tmp.getPert(), 0.095))
+                        || (level == 6 && lessThan(tmp.getPert(), 0.10))
+                        || (level == 7 && lessThan(tmp.getPert(), 0.105))
+                        || (level == 8 && lessThan(tmp.getPert(), 0.11))
+                        || (level == 9 && lessThan(tmp.getPert(), 0.115))
+                        || (level == 10 && lessThan(tmp.getPert(), 0.12))) {
+                    return false;
+                }
+                return true;
+            }
+    ),
+
+    DATE50_RISE5_MAX_MIDDLE("80rise5MaxMiddle", "最大五日涨幅中位数",
+            Detail::getRise5Max,
+            StrategyL1::getRise5MaxMiddle,
+            Strategy::getRise5MaxMiddle,
+            (StrategyTmp tmp) -> {
+                if (tmp.getDateCnt() < 50 || lessThan(tmp.getPert(), 0.03)) {
+                    return false;
+                }
+                int level = tmp.getStrategyCodeSet().size();
+                if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
+                        || (level == 2 && lessThan(tmp.getPert(), 0.07))
+                        || (level == 3 && lessThan(tmp.getPert(), 0.08))
+                        || (level == 4 && lessThan(tmp.getPert(), 0.09))
+                        || (level == 5 && lessThan(tmp.getPert(), 0.10))
+                        || (level == 6 && lessThan(tmp.getPert(), 0.11))
+                        || (level == 7 && lessThan(tmp.getPert(), 0.115))
+                        || (level == 8 && lessThan(tmp.getPert(), 0.12))
+                        || (level == 9 && lessThan(tmp.getPert(), 0.125))
+                        || (level == 10 && lessThan(tmp.getPert(), 0.13))) {
                     return false;
                 }
                 return true;

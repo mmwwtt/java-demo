@@ -59,15 +59,15 @@ public class DFSTest {
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void dfs() throws InterruptedException, ExecutionException {
-        fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
-        DfsMain(7);
+        fildEnum = FilterFildEnum.DATE80_RISE5_MAX_MIDDLE;
+        DfsMain(6);
         dfsAfterDetail("pert > 0.12");
     }
 
     @Test
     @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
-        fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
+        fildEnum = FilterFildEnum.DATE80_RISE5_MAX_MIDDLE;
         dfsAfterDetail("pert > 0.10");
     }
 
@@ -156,7 +156,7 @@ public class DFSTest {
             addToTmpBatch(resStrategyTmp);
 
             //递归 线程池有空余线程时用多线程处理
-            if (level < LEVEL_LIMIT && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+            if (level < LEVEL_LIMIT-3 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = idx;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {

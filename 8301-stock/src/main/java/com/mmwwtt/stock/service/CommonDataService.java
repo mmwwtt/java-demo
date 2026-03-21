@@ -60,7 +60,7 @@ public class CommonDataService {
         idToDetailMap = new ConcurrentHashMap<>(1048576);
         codeToDetailMap = new ConcurrentHashMap<>(4096);
         strategyL1s = Collections.synchronizedList(new ArrayList<>(1000));
-        codeToL1Map = new ConcurrentHashMap<>(1000);
+        codeToL1Map = new ConcurrentHashMap<>(2000);
         stockCodePartList = new ArrayList<>();
         stockCodeList = new ArrayList<>();
         predictDateList = new ArrayList<>();
@@ -403,13 +403,14 @@ public class CommonDataService {
                 String typeKey = triple.getRight();
 
                 List<Double> values = idToDetailMap.values().stream()
+                        .filter(CommonDataService::isValidDetail)
                         .map(getter)
                         .filter(Objects::nonNull)
                         .sorted()
                         .toList();
-                int[] idxArr = new int[]{0, 55000, 110000, 165000, 220000, 275000, 330000, 385000,
-                        440000, 495000, 550000, 605000, 660000, 715000, 770000, values.size()-1};
-                for (int i = 0; i < 14; i++) {
+                int[] idxArr = new int[]{0, 50000, 100000, 150000, 200000, 250000, 300000, 350000,
+                        400000, 450000, 500000, 550000, 600000, values.size() - 1};
+                for (int i = 0; i < idxArr.length - 2; i++) {
                     double left = values.get(idxArr[i]);
                     double right = values.get(idxArr[i + 2]);
                     String desc = String.format("%s_%.3f_%.3f", fieldName, left, right);
@@ -447,5 +448,13 @@ public class CommonDataService {
             allBaseL1.addAll(dateBaseL1);
         });
         return allBaseL1;
+    }
+
+
+    public static boolean isValidDetail(Detail detail) {
+
+        return Objects.nonNull(detail) && Objects.nonNull(detail.getT5())
+                && Objects.nonNull(detail.getT5().getSixtyDayLine())
+                && !moreThan(detail.getRise0(), 0.097);
     }
 }

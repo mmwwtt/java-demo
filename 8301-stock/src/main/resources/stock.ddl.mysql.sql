@@ -167,7 +167,8 @@ CREATE TABLE strategy_tmp_t
     strategy_code VARCHAR(200) COMMENT '策略编码',
     date_cnt      INT(8) COMMENT '有符合数据的日期天数',
     detail_cnt    INT(8) COMMENT '有符合数据的详情数',
-    pert          DECIMAL(8, 4) COMMENT '用于过滤判断的临时属性'
+    pert          DECIMAL(8, 4) COMMENT '用于过滤判断的临时属性',
+    level         INT(4) comment '策略层数'
 ) COMMENT '策略中间表';
 
 

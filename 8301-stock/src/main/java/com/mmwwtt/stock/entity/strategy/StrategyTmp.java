@@ -81,10 +81,7 @@ public class StrategyTmp {
     @TableField(exist = false)
     private List<Function<Detail, Boolean>> filterFuncs= new ArrayList<>();
 
-
-    public int getLevel() {
-        return strategyCodeSet.size();
-    }
+    private Integer level;
 
     /**
      * 将结果累加到数据中
@@ -149,6 +146,7 @@ public class StrategyTmp {
         if (Objects.nonNull(parentStrategyTmp.getStrategyCodeSet())) {
             strategyCodeSet.addAll(parentStrategyTmp.getStrategyCodeSet());
         }
+        level = strategyCodeSet.size();
 
         if(Objects.nonNull(strategyL1.getType())) {
             strategyTypeSet.add(strategyL1.getType());
