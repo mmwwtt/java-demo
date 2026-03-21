@@ -34,18 +34,6 @@ public class StrategyL1 extends BaseStrategy {
     private String filterFuncStr;
 
 
-//    public StrategyL1(StrategyEnum strategyEnum, List<Integer> detailIds) {
-//        this.strategyCode = strategyEnum.getCode();
-//        this.type = strategyEnum.getType();
-//        detailIds.sort(Comparator.comparing(Integer::intValue));
-//        JSONArray array = new JSONArray(detailIds.size());
-//        array.addAll(detailIds);
-//        this.detailIds = array;
-//        this.details = detailIds.stream().map(item -> idToDetailMap.get(item)).toList();
-//        this.cnt = detailIds.size();
-//    }
-
-
     public StrategyL1(String strategyCode, String name,Function<Detail, Boolean> filterFunc) {
         this(strategyCode, name,null, filterFunc);
     }
