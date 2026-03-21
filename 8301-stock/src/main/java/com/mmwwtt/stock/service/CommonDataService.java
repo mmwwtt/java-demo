@@ -99,13 +99,8 @@ public class CommonDataService {
                 .map(Detail::getDealDate).findFirst().orElse("20260201");
 
         if (!idToDetailMap.isEmpty()) {
-            try {
-                getAllBaseL1s().stream()
-                        .collect(Collectors.toMap(BaseStrategy::getStrategyCode, StrategyL1::getFilterFunc));
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-            Map<String, Function<Detail, Boolean>> codeToFunc = getAllBaseL1s().stream()
+            List<StrategyL1> allBaseL1List = getAllBaseL1s();
+            Map<String, Function<Detail, Boolean>> codeToFunc = allBaseL1List.stream()
                     .collect(Collectors.toMap(BaseStrategy::getStrategyCode, StrategyL1::getFilterFunc));
             List<Integer> l1IdList = strategyL1Service.getIdList();
             for (Integer l1Id : l1IdList) {
@@ -136,7 +131,7 @@ public class CommonDataService {
      * 返回最基础的l1策略
      */
     public static List<StrategyL1> getAllBaseL1s() throws ExecutionException, InterruptedException {
-        List<StrategyL1> baseL1s = new ArrayList<>(1000);
+        List<StrategyL1> baseL1s = Collections.synchronizedList(new ArrayList<>(2000));
 
 
         baseL1s.addAll(Arrays.asList(
@@ -413,8 +408,8 @@ public class CommonDataService {
                         .sorted()
                         .toList();
                 int[] idxArr = new int[]{0, 55000, 110000, 165000, 220000, 275000, 330000, 385000,
-                        440000, 495000, 550000, 605000, 660000, 715000, 770000, values.size()};
-                for (int i = 0; i <= 14; i++) {
+                        440000, 495000, 550000, 605000, 660000, 715000, 770000, values.size()-1};
+                for (int i = 0; i < 14; i++) {
                     double left = values.get(idxArr[i]);
                     double right = values.get(idxArr[i + 2]);
                     String desc = String.format("%s_%.3f_%.3f", fieldName, left, right);
@@ -429,7 +424,7 @@ public class CommonDataService {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
         List<Integer> tList = List.of(0, 1, 2, 3, 5);
-        List<StrategyL1> allBaseL1 = new ArrayList<>(baseL1s.size() * 10);
+        List<StrategyL1> allBaseL1 = Collections.synchronizedList(new ArrayList<>(2000));
         tList.forEach(t -> {
             List<StrategyL1> dateBaseL1 = baseL1s.stream().map(item -> {
                 StrategyL1 cur = VoConvert.INSTANCE.convertToStrategyL1(item);
