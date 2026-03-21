@@ -192,7 +192,7 @@ public class BaseStrategy {
     public void fillOtherData() {
         name = Arrays.stream(strategyCode.split(" "))
                 .map(strategyCode -> codeToL1Map.containsKey(strategyCode)?
-                        codeToL1Map.get(strategyCode).getName(): strategyCode)
+                        codeToL1Map.get(strategyCode).getName(): name)
                 .collect(Collectors.joining(" "));
 
         List<Integer> detailIdList = details.stream().map(Detail::getDetailId)

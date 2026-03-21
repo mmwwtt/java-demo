@@ -116,24 +116,7 @@ public class DownloadTest {
     @Test
     public void buildStrategyL1() throws ExecutionException, InterruptedException {
         strategyL1Service.remove(new QueryWrapper<>());
-        List<Integer> tList = List.of(0, 1, 2, 3);
-        List<StrategyL1> baseL1s = CommonDataService.getAllBaseL1s();
-        List<StrategyL1> allBaseL1 = new ArrayList<>(baseL1s.size() * 10);
-        tList.forEach(t -> {
-            List<StrategyL1> dateBaseL1 = baseL1s.stream().map(item -> {
-                StrategyL1 cur = VoConvert.INSTANCE.convertToStrategyL1(item);
-                cur.setStrategyCode(t + item.getStrategyCode());
-                cur.setName(String.format("T%s-%s", t, item.getName()));
-                cur.setFilterFunc(item.getFilterFunc());
-                if (Objects.nonNull(item.getType())) {
-                    cur.setType(String.format("T%s-%s", t, item.getType()));
-                }
-                return cur;
-            }).toList();
-            allBaseL1.addAll(dateBaseL1);
-        });
-
-
+        List<StrategyL1> allBaseL1 = CommonDataService.getAllBaseL1s();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (StrategyL1 strategyL1 : allBaseL1) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {

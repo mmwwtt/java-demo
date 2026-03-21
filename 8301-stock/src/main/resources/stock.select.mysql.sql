@@ -5,52 +5,15 @@ from strategy_tmp_t;
 
 
 
-select down_shadow_len from detail_t order by  down_shadow_len limit 110000,1;
+select down_shadow_len
+from detail_t
+order by down_shadow_len
+limit 110000,1;
 
 
-
--- 自动生成基础策略枚举  start--------------------------------------
-SET @field = '下影线长度';
-SET @getter = 'getDownShadowLen()';
-SET @code = '316';
-
-WITH split_points AS (SELECT row_num,
-                             down_shadow_len as cut_val
-                      FROM (SELECT down_shadow_len,
-                                   ROW_NUMBER() OVER (ORDER BY down_shadow_len ASC) AS row_num
-                            FROM detail_t
-                            WHERE down_shadow_len IS NOT NULL) AS ranked_data
-                      WHERE row_num IN (
-                                        55000, 110000, 165000, 220000, 275000,
-                                        330000, 385000, 440000, 495000, 550000,
-                                        605000, 660000, 715000, 770000, 825000
-                          )),
-     sp_with_idx AS (SELECT ROW_NUMBER() OVER (ORDER BY row_num) AS rn, cut_val FROM split_points),
-     ranges AS (
-         SELECT 1 AS idx, NULL AS min_val, (SELECT cut_val FROM sp_with_idx WHERE rn = 1) AS max_val
-         UNION ALL
-         SELECT a.rn + 1 AS idx, a.cut_val AS min_val, b.cut_val AS max_val
-         FROM sp_with_idx a
-         JOIN sp_with_idx b ON b.rn = a.rn + 2
-         UNION ALL
-         SELECT 15 AS idx, (SELECT cut_val FROM sp_with_idx WHERE rn = 15) AS min_val, NULL AS max_val
-     )
-SELECT CONCAT(
-               'new StrategyEnum("', @code, LPAD(idx, 2, '0'), '", "',
-               CASE
-                   WHEN min_val IS NULL THEN CONCAT(@field, '<', ROUND(max_val, 4))
-                   WHEN max_val IS NULL THEN CONCAT(ROUND(min_val, 4), '<', @field)
-                   ELSE CONCAT(ROUND(min_val, 4), '<', @field, '<', ROUND(max_val, 4))
-                   END,
-               '", "', @field, '", (Detail t0) -> ',
-               CASE
-                   WHEN min_val IS NULL THEN CONCAT('lessThan(t0.', @getter, ', ', ROUND(max_val, 4), ')')
-                   WHEN max_val IS NULL THEN CONCAT('moreThan(t0.', @getter, ', ', ROUND(min_val, 4), ')')
-                   ELSE CONCAT('isInRange(t0.', @getter, ', ', ROUND(min_val, 4), ', ', ROUND(max_val, 4), ')')
-                   END,
-               '),'
-       ) AS java_code
-FROM ranges
-ORDER BY idx;
-
--- 自动生成基础策略枚举  end--------------------------------------
+select strategy_id,strategy_code,name,type,cnt,rise1_avg, rise2_avg,
+       rise3_avg,rise4_avg,rise5_avg,rise10_avg,rise5_max_avg,
+       rise10_max_avg,rise1_middle,rise2_middle,rise3_middle,
+       rise4_middle,rise5_middle,rise10_middle,rise5_max_middle,
+       rise10_max_middle
+from strategy_l1_t;

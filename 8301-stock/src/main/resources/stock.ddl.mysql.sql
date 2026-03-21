@@ -139,7 +139,6 @@ CREATE TABLE strategy_l1_t
     strategy_code     VARCHAR(200) COMMENT '策略编码',
     name              VARCHAR(200) COMMENT '策略描述',
     type              VARCHAR(200) COMMENT '策略类型',
-    detail_ids        JSON COMMENT '符合条件的详情id列表',
     cnt               INT(8) COMMENT '符合条件的id数量',
     rise1_avg         DECIMAL(8, 4) COMMENT '1日平均涨幅',
     rise2_avg         DECIMAL(8, 4) COMMENT '2日平均涨幅',
@@ -156,7 +155,8 @@ CREATE TABLE strategy_l1_t
     rise5_middle      DECIMAL(8, 4) COMMENT '5日中位数涨幅',
     rise10_middle     DECIMAL(8, 4) COMMENT '10日中位数涨幅',
     rise5_max_middle  DECIMAL(8, 4) COMMENT '5日最大中位数涨幅',
-    rise10_max_middle DECIMAL(8, 4) COMMENT '10日最大中位数涨幅'
+    rise10_max_middle DECIMAL(8, 4) COMMENT '10日最大中位数涨幅',
+    detail_ids        JSON COMMENT '符合条件的详情id列表'
 ) COMMENT '1层策略结果表';
 
 
