@@ -16,4 +16,6 @@ select strategy_id,strategy_code,name,type,cnt,rise1_avg, rise2_avg,
        rise10_max_avg,rise1_middle,rise2_middle,rise3_middle,
        rise4_middle,rise5_middle,rise10_middle,rise5_max_middle,
        rise10_max_middle
-from strategy_l1_t;
+from strategy_l1_t
+where strategy_code like '2%'
+;

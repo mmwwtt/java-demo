@@ -22,10 +22,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.common.CommonUtils.divide;
-import static com.mmwwtt.stock.common.CommonUtils.isInRange;
-import static com.mmwwtt.stock.common.CommonUtils.multiply;
-import static com.mmwwtt.stock.common.CommonUtils.subtract;
 
 @Service
 @Slf4j
@@ -98,27 +94,30 @@ public class CommonDataService {
                 .stream().skip(15)
                 .map(Detail::getDealDate).findFirst().orElse("20260201");
 
-
-        Map<String, Function<Detail, Boolean>> codeToFunc = getAllBaseL1s().stream()
-                .collect(Collectors.toMap(BaseStrategy::getStrategyCode, StrategyL1::getFilterFunc));
-        List<Integer> l1IdList = strategyL1Service.getIdList();
-        for (Integer l1Id : l1IdList) {
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                StrategyL1 strategyL1 = strategyL1Service.getById(l1Id);
-                int[] ids = new int[strategyL1.getDetailIds().size()];
-                for (int i = 0; i < strategyL1.getDetailIds().size(); i++) {
-                    ids[i] = strategyL1.getDetailIds().getIntValue(i);
-                }
-                ids = Arrays.stream(ids).sorted().toArray();
-                strategyL1.setDetailIdArr(ids);
-                strategyL1.fillCodeSet();
-                strategyL1.setFilterFunc(codeToFunc.get(strategyL1.getStrategyCode()));
-                strategyL1s.add(strategyL1);
-                codeToL1Map.put(strategyL1.getStrategyCode(), strategyL1);
-            }, ioThreadPool);
-            futures.add(future);
+        if(!idToDetailMap.isEmpty()) {
+            Map<String, Function<Detail, Boolean>> codeToFunc = getAllBaseL1s().stream()
+                    .collect(Collectors.toMap(BaseStrategy::getStrategyCode, StrategyL1::getFilterFunc));
+            List<Integer> l1IdList = strategyL1Service.getIdList();
+            for (Integer l1Id : l1IdList) {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    StrategyL1 strategyL1 = strategyL1Service.getById(l1Id);
+                    int[] ids = new int[strategyL1.getDetailIds().size()];
+                    for (int i = 0; i < strategyL1.getDetailIds().size(); i++) {
+                        ids[i] = strategyL1.getDetailIds().getIntValue(i);
+                    }
+                    ids = Arrays.stream(ids).sorted().toArray();
+                    strategyL1.setDetailIdArr(ids);
+                    strategyL1.fillCodeSet();
+                    strategyL1.setFilterFunc(codeToFunc.get(strategyL1.getStrategyCode()));
+                    strategyL1s.add(strategyL1);
+                    codeToL1Map.put(strategyL1.getStrategyCode(), strategyL1);
+                }, ioThreadPool);
+                futures.add(future);
+            }
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+            log.info("l1层base策略生成结束");
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+
         log.info("初始化结束");
     }
 
@@ -126,8 +125,8 @@ public class CommonDataService {
     /**
      * 返回最基础的l1策略
      */
-    public static List<StrategyL1> getAllBaseL1s() {
-        List<StrategyL1> baseL1s = new ArrayList<>();
+    public static List<StrategyL1> getAllBaseL1s() throws ExecutionException, InterruptedException {
+        List<StrategyL1> baseL1s = new ArrayList<>(1000);
 
 
         baseL1s.addAll(Arrays.asList(
@@ -387,46 +386,50 @@ public class CommonDataService {
         triples.add(Triple.of("20均线斜率", Detail::getMa20Slope, "ma20Slope"));
         triples.add(Triple.of("ATR14波动率", Detail::getAtr14, "atr14"));
 
-
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         int startCode = 20000;
-        List<StrategyL1> l1s = new ArrayList<>();
         for (Triple<String, Function<Detail, Double>, String> triple : triples) {
-            String fieldName = triple.getLeft();
-            Function<Detail, Double> getter = triple.getMiddle();
-            String typeKey = triple.getRight();
-
-            List<Double> values = idToDetailMap.values().stream()
-                    .map(getter)
-                    .filter(Objects::nonNull)
-                    .sorted()
-                    .toList();
-
-            // 取 16 个节点值：node1..node16
-            Double[] nodes = new Double[16];
-            int n = values.size();
-            for (int i = 1; i <= 16; i++) {
-                int idx = (int) Math.floor((double) i * n / 16.0) - 1;
-                idx = Math.max(0, Math.min(n - 1, idx));
-                nodes[i - 1] = values.get(idx);
-            }
-            int itemStartCode = startCode;
-            for (int i = 1; i <= 14; i++) {
-                Double left = nodes[i - 1];
-                Double right = nodes[i + 1];
-                if (Objects.isNull(left) || Objects.isNull(right) || Objects.equals(left, right)) {
-                    continue;
-                }
-                String desc = String.format("%s_%.3f_%.3f", fieldName, left, right);
-                String finalTypeKey = (typeKey == null || typeKey.isBlank()) ? fieldName : typeKey;
-                double l = left;
-                double r = right;
-                Function<Detail, Boolean> filterFunc = d -> isInRange(getter.apply(d), l, r);
-
-                l1s.add(new StrategyL1(String.valueOf(itemStartCode), desc, finalTypeKey, filterFunc));
-                itemStartCode++;
-            }
             startCode += 100;
+            int finalStartCode = startCode;
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                int curStartCode = finalStartCode;
+                String fieldName = triple.getLeft();
+                Function<Detail, Double> getter = triple.getMiddle();
+                String typeKey = triple.getRight();
+
+                List<Double> values = idToDetailMap.values().stream()
+                        .map(getter)
+                        .filter(Objects::nonNull)
+                        .sorted()
+                        .toList();
+
+                // 取 16 个节点值：node1..node16
+                Double[] nodes = new Double[16];
+                int n = values.size();
+                for (int i = 1; i <= 16; i++) {
+                    int idx = (int) Math.floor((double) i * n / 16.0) - 1;
+                    idx = Math.max(0, Math.min(n - 1, idx));
+                    nodes[i - 1] = values.get(idx);
+                }
+                for (int i = 1; i <= 14; i++) {
+                    Double left = nodes[i - 1];
+                    Double right = nodes[i + 1];
+                    if (Objects.isNull(left) || Objects.isNull(right) || Objects.equals(left, right)) {
+                        continue;
+                    }
+                    String desc = String.format("%s_%.3f_%.3f", fieldName, left, right);
+                    String finalTypeKey = (typeKey == null || typeKey.isBlank()) ? fieldName : typeKey;
+                    double l = left;
+                    double r = right;
+                    Function<Detail, Boolean> filterFunc = d -> isInRange(getter.apply(d), l, r);
+
+                    baseL1s.add(new StrategyL1(String.valueOf(curStartCode), desc, finalTypeKey, filterFunc));
+                    curStartCode++;
+                }
+            });
+            futures.add(future);
         }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
         List<Integer> tList = List.of(0, 1, 2, 3);
         List<StrategyL1> allBaseL1 = new ArrayList<>(baseL1s.size() * 10);
@@ -435,7 +438,15 @@ public class CommonDataService {
                 StrategyL1 cur = VoConvert.INSTANCE.convertToStrategyL1(item);
                 cur.setStrategyCode(t + item.getStrategyCode());
                 cur.setName(String.format("T%s-%s", t, item.getName()));
-                cur.setFilterFunc(item.getFilterFunc());
+                cur.setFilterFunc((Detail t0) -> switch (t) {
+                    case 0 -> item.getFilterFunc().apply(t0);
+                    case 1 -> item.getFilterFunc().apply(t0.getT1());
+                    case 2 -> item.getFilterFunc().apply(t0.getT2());
+                    case 3 -> item.getFilterFunc().apply(t0.getT3());
+                    case 4 -> item.getFilterFunc().apply(t0.getT4());
+                    case 5 -> item.getFilterFunc().apply(t0.getT5());
+                    default -> false;
+                });
                 if (Objects.nonNull(item.getType())) {
                     cur.setType(String.format("T%s-%s", t, item.getType()));
                 }
