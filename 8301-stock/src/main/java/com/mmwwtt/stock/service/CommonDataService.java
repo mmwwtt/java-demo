@@ -98,7 +98,13 @@ public class CommonDataService {
                 .stream().skip(15)
                 .map(Detail::getDealDate).findFirst().orElse("20260201");
 
-        if(!idToDetailMap.isEmpty()) {
+        if (!idToDetailMap.isEmpty()) {
+            try {
+                getAllBaseL1s().stream()
+                        .collect(Collectors.toMap(BaseStrategy::getStrategyCode, StrategyL1::getFilterFunc));
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
             Map<String, Function<Detail, Boolean>> codeToFunc = getAllBaseL1s().stream()
                     .collect(Collectors.toMap(BaseStrategy::getStrategyCode, StrategyL1::getFilterFunc));
             List<Integer> l1IdList = strategyL1Service.getIdList();
@@ -406,27 +412,14 @@ public class CommonDataService {
                         .filter(Objects::nonNull)
                         .sorted()
                         .toList();
-
-                // 取 16 个节点值：node1..node16
-                Double[] nodes = new Double[16];
-                int n = values.size();
-                for (int i = 1; i <= 16; i++) {
-                    int idx = (int) Math.floor((double) i * n / 16.0) - 1;
-                    idx = Math.max(0, Math.min(n - 1, idx));
-                    nodes[i - 1] = values.get(idx);
-                }
-                for (int i = 1; i <= 14; i++) {
-                    Double left = nodes[i - 1];
-                    Double right = nodes[i + 1];
-                    if (Objects.isNull(left) || Objects.isNull(right) || Objects.equals(left, right)) {
-                        continue;
-                    }
+                int[] idxArr = new int[]{0, 55000, 110000, 165000, 220000, 275000, 330000, 385000,
+                        440000, 495000, 550000, 605000, 660000, 715000, 770000, values.size()};
+                for (int i = 0; i <= 14; i++) {
+                    double left = values.get(idxArr[i]);
+                    double right = values.get(idxArr[i + 2]);
                     String desc = String.format("%s_%.3f_%.3f", fieldName, left, right);
                     String finalTypeKey = (typeKey == null || typeKey.isBlank()) ? fieldName : typeKey;
-                    double l = left;
-                    double r = right;
-                    Function<Detail, Boolean> filterFunc = d -> isInRange(getter.apply(d), l, r);
-
+                    Function<Detail, Boolean> filterFunc = d -> isInRange(getter.apply(d), left, right);
                     baseL1s.add(new StrategyL1(String.valueOf(curStartCode), desc, finalTypeKey, filterFunc));
                     curStartCode++;
                 }
@@ -435,7 +428,7 @@ public class CommonDataService {
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
-        List<Integer> tList = List.of(0, 1, 2, 3,5);
+        List<Integer> tList = List.of(0, 1, 2, 3, 5);
         List<StrategyL1> allBaseL1 = new ArrayList<>(baseL1s.size() * 10);
         tList.forEach(t -> {
             List<StrategyL1> dateBaseL1 = baseL1s.stream().map(item -> {

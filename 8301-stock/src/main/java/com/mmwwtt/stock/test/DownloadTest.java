@@ -27,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -70,21 +69,10 @@ public class DownloadTest {
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
-    private final RestTemplate restTemplate = createRestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
     private CommonDataService commonDataService;
-
-    /**
-     * 创建带超时配置的 RestTemplate
-     * 连接超时 30 秒，读取超时 60 秒（可根据需要调整）
-     */
-    private static RestTemplate createRestTemplate() {
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(60000);  // 连接超时 60 秒
-        factory.setReadTimeout(180000);   // 读取超时 180 秒（3 分钟）
-        return new RestTemplate(factory);
-    }
 
     /**
      * 今天的日期
