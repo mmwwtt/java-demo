@@ -224,7 +224,7 @@ public class DownloadTest {
     @Test
     @DisplayName("调接口获取每日详细数据-全量")
     public void downDetail() throws InterruptedException, ExecutionException {
-        List<Stock> stockList = stockService.getAllStock();
+        List<Stock> stockList = stockService.list();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
         for (List<Stock> part : parts) {

@@ -31,6 +31,12 @@ public interface StockConverter {
     })
     Detail convertToDetail(Detail detail);
 
+    @Mappings({
+            @Mapping(target = "code", source = "stock.dm"),
+            @Mapping(target = "name", source = "stock.mc"),
+    })
+    Stock convertToStock(StockVO stock);
 
     List<Stock> convertToStock(List<StockVO> stockList);
+
 }
