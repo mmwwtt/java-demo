@@ -46,20 +46,17 @@ public enum FilterFildEnum implements BaseEnum {
             StrategyL1::getRise5MaxMiddle,
             Strategy::getRise5MaxMiddle,
             (StrategyTmp tmp) -> {
-                if (tmp.getDateCnt() < 50 || lessThan(tmp.getPert(), 0.03)) {
-                    return false;
-                }
                 int level = tmp.getStrategyCodeSet().size();
                 if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && lessThan(tmp.getPert(), 0.07))
-                        || (level == 3 && lessThan(tmp.getPert(), 0.08))
-                        || (level == 4 && lessThan(tmp.getPert(), 0.09))
-                        || (level == 5 && lessThan(tmp.getPert(), 0.10))
-                        || (level == 6 && lessThan(tmp.getPert(), 0.11))
-                        || (level == 7 && lessThan(tmp.getPert(), 0.115))
-                        || (level == 8 && lessThan(tmp.getPert(), 0.12))
-                        || (level == 9 && lessThan(tmp.getPert(), 0.125))
-                        || (level == 10 && lessThan(tmp.getPert(), 0.13))) {
+                        || (level == 2 && (lessThan(tmp.getPert(), 0.070) || tmp.getDateCnt() < 80))
+                        || (level == 3 && (lessThan(tmp.getPert(), 0.091) || tmp.getDateCnt() < 65))
+                        || (level == 4 && (lessThan(tmp.getPert(), 0.098) || tmp.getDateCnt() < 65))
+                        || (level == 5 && (lessThan(tmp.getPert(), 0.101) || tmp.getDateCnt() < 65))
+                        || (level == 6 && (lessThan(tmp.getPert(), 0.108) || tmp.getDateCnt() < 65))
+                        || (level == 7 && (lessThan(tmp.getPert(), 0.115) || tmp.getDateCnt() < 60))
+                        || (level == 8 && (lessThan(tmp.getPert(), 0.117) || tmp.getDateCnt() < 60))
+                        || (level == 9 && (lessThan(tmp.getPert(), 0.120) || tmp.getDateCnt() < 55))
+                        || (level == 10 && (lessThan(tmp.getPert(), 0.125)) || tmp.getDateCnt() < 55)) {
                     return false;
                 }
                 return true;

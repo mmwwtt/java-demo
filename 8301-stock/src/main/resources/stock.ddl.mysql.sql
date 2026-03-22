@@ -177,7 +177,7 @@ CREATE TABLE strategy_t
 (
     strategy_id       INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     strategy_code     VARCHAR(200) COMMENT '策略编码',
-    name              VARCHAR(200) COMMENT '策略描述',
+    name              VARCHAR(400) COMMENT '策略描述',
     detail_ids        JSON COMMENT '符合条件的详情id列表',
     detail_cnt        INT(8) COMMENT '符合条件的详情数量',
     date_cnt          INT(8) COMMENT '有符合数据的日期天数',

@@ -52,15 +52,14 @@ public class DFSTest {
      */
     private static final Map<String, Integer> md5ToIdxMap = new ConcurrentHashMap<>(4000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
-    private static int LEVEL_LIMIT;
     public static FilterFildEnum fildEnum;
     public static List<StrategyL1> dfsStrategyL1s;
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void dfs() throws InterruptedException, ExecutionException {
-        fildEnum = FilterFildEnum.DATE80_RISE5_MAX_MIDDLE;
-        DfsMain(8);
+        fildEnum = FilterFildEnum.DATE50_RISE5_MAX_MIDDLE;
+        DfsMain();
         dfsAfterDetail("pert > 0.12");
     }
 
@@ -71,9 +70,8 @@ public class DFSTest {
         dfsAfterDetail("pert > 0.10");
     }
 
-    public void DfsMain(int levelLimit) throws InterruptedException {
+    public void DfsMain() throws InterruptedException {
         dfsInit();
-        LEVEL_LIMIT = levelLimit;
         for (int i = 0; i < dfsStrategyL1s.size(); i++) {
             StrategyL1 strategyL1 = dfsStrategyL1s.get(i);
             int finalI = i;
@@ -103,9 +101,6 @@ public class DFSTest {
 
     private void buildByLevel(StrategyTmp strategyTmp, Integer parentIdx) {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
-        if (level > LEVEL_LIMIT) {
-            return;
-        }
         for (int idx = parentIdx + 1; idx < dfsStrategyL1s.size(); idx++) {
             //计算两个策略的并集
 
@@ -156,7 +151,7 @@ public class DFSTest {
             addToTmpBatch(resStrategyTmp);
 
             //递归 线程池有空余线程时用多线程处理
-            if (level < LEVEL_LIMIT-3 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+            if (level <=3 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = idx;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
