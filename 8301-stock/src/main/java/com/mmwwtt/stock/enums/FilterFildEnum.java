@@ -49,14 +49,19 @@ public enum FilterFildEnum implements BaseEnum {
                 int level = tmp.getStrategyCodeSet().size();
                 if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
                         || (level == 2 && (lessThan(tmp.getPert(), 0.070) || tmp.getDateCnt() < 80))
-                        || (level == 3 && (lessThan(tmp.getPert(), 0.091) || tmp.getDateCnt() < 65))
+                        || (level == 3 && (lessThan(tmp.getPert(), 0.091) || tmp.getDateCnt() < 70))
                         || (level == 4 && (lessThan(tmp.getPert(), 0.098) || tmp.getDateCnt() < 65))
-                        || (level == 5 && (lessThan(tmp.getPert(), 0.101) || tmp.getDateCnt() < 65))
-                        || (level == 6 && (lessThan(tmp.getPert(), 0.108) || tmp.getDateCnt() < 65))
+                        || (level == 5 && (lessThan(tmp.getPert(), 0.103) || tmp.getDateCnt() < 65))
+                        || (level == 6 && (lessThan(tmp.getPert(), 0.11) || tmp.getDateCnt() < 65))
                         || (level == 7 && (lessThan(tmp.getPert(), 0.115) || tmp.getDateCnt() < 60))
                         || (level == 8 && (lessThan(tmp.getPert(), 0.117) || tmp.getDateCnt() < 60))
                         || (level == 9 && (lessThan(tmp.getPert(), 0.120) || tmp.getDateCnt() < 55))
-                        || (level == 10 && (lessThan(tmp.getPert(), 0.125)) || tmp.getDateCnt() < 55)) {
+                        || (level == 10 && (lessThan(tmp.getPert(), 0.125)) || tmp.getDateCnt() < 55)
+                        || (level == 11 && (lessThan(tmp.getPert(), 0.13)) || tmp.getDateCnt() < 50)
+                        || (level == 12 && (lessThan(tmp.getPert(), 0.135)) || tmp.getDateCnt() < 50)
+                        || (level == 13 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 45)
+                        || (level == 14 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 45)
+                        || (level == 15 && (lessThan(tmp.getPert(), 0.145)) || tmp.getDateCnt() < 40)) {
                     return false;
                 }
                 return true;

@@ -60,14 +60,14 @@ public class DFSTest {
     public void dfs() throws InterruptedException, ExecutionException {
         fildEnum = FilterFildEnum.DATE50_RISE5_MAX_MIDDLE;
         DfsMain();
-        dfsAfterDetail("pert > 0.12");
+        dfsAfterDetail("pert > 0.135");
     }
 
     @Test
     @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
-        fildEnum = FilterFildEnum.DATE80_RISE5_MAX_MIDDLE;
-        dfsAfterDetail("pert > 0.10");
+        fildEnum = FilterFildEnum.DATE50_RISE5_MAX_MIDDLE;
+        dfsAfterDetail("pert > 0.135");
     }
 
     public void DfsMain() throws InterruptedException {
@@ -208,7 +208,8 @@ public class DFSTest {
         for (Strategy strategy1 : resList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Strategy strategy2 : resList) {
-                    if (Objects.equals(strategy1.getStrategyId(), strategy2.getStrategyId())) {
+                    if (Objects.equals(strategy1.getStrategyId(), strategy2.getStrategyId())
+                    || !strategy2.getIsActive()) {
                         continue;
                     }
                     double repeatPerc = getRepeatPerc(strategy1.getDetailIdArr(), strategy2.getDetailIdArr());

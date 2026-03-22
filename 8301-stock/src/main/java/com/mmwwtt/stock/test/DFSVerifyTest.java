@@ -46,7 +46,7 @@ public class DFSVerifyTest {
 
     @PostConstruct
     public void init() {
-        String sql = "rise5_max_middle>0.12 and is_active=true";
+        String sql = "rise5_max_middle>0.160 and is_active=true";
         strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
