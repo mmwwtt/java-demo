@@ -28,6 +28,7 @@ import static com.mmwwtt.stock.service.CommonDataService.idToDetailMap;
 
 
 //todo  根据策略预测的时候也要加权处理
+//todo  不同市值的公司的主升浪逻辑也不会一样， 应该区别计算
 @Slf4j
 @SpringBootTest
 public class DFSTest {
