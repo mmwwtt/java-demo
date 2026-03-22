@@ -17,4 +17,5 @@ select strategy_id,strategy_code,name,type,cnt,rise1_avg, rise2_avg,
        rise4_middle,rise5_middle,rise10_middle,rise5_max_middle,
        rise10_max_middle
 from strategy_l1_t
+where name like 'T0%'
 order by rise5_max_middle desc

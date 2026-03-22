@@ -152,7 +152,7 @@ public class DFSTest {
             addToTmpBatch(resStrategyTmp);
 
             //递归 线程池有空余线程时用多线程处理
-            if (level <=3 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+            if (level <= 3 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = idx;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
@@ -177,7 +177,8 @@ public class DFSTest {
                         || item.getName().startsWith("T1")
                         || item.getName().startsWith("T2")
                         || item.getName().startsWith("T3"))
-                .sorted(Comparator.comparing(StrategyL1::getRise5MaxMiddle).reversed()).toList();
+                .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIds().size()))
+                .toList();
         log.info("dfs 初始化结束");
     }
 
@@ -210,7 +211,7 @@ public class DFSTest {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Strategy strategy2 : resList) {
                     if (Objects.equals(strategy1.getStrategyId(), strategy2.getStrategyId())
-                    || !strategy2.getIsActive()) {
+                            || !strategy2.getIsActive()) {
                         continue;
                     }
                     double repeatPerc = getRepeatPerc(strategy1.getDetailIdArr(), strategy2.getDetailIdArr());
