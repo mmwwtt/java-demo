@@ -61,14 +61,14 @@ public class DFSTest {
     public void dfs() throws InterruptedException, ExecutionException {
         fildEnum = FilterFildEnum.DATE50_RISE5_MAX_MIDDLE;
         DfsMain();
-        dfsAfterDetail("pert > 0.135");
+        dfsAfterDetail("pert > 0.145");
     }
 
     @Test
     @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
         fildEnum = FilterFildEnum.DATE50_RISE5_MAX_MIDDLE;
-        dfsAfterDetail("pert > 0.135");
+        dfsAfterDetail("pert > 0.145");
     }
 
     public void DfsMain() throws InterruptedException {
