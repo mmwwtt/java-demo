@@ -64,7 +64,7 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        predict("20260319", strategies, false, 1.2);
+        predict("20260320", strategies, false, 1.2);
     }
 
 

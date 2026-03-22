@@ -41,7 +41,7 @@ public enum FilterFildEnum implements BaseEnum {
             }
     ),
 
-    DATE50_RISE5_MAX_MIDDLE("80rise5MaxMiddle", "最大五日涨幅中位数",
+    DATE50_RISE5_MAX_MIDDLE("50rise5MaxMiddle", "最大五日涨幅中位数",
             Detail::getRise5Max,
             StrategyL1::getRise5MaxMiddle,
             Strategy::getRise5MaxMiddle,
@@ -56,12 +56,12 @@ public enum FilterFildEnum implements BaseEnum {
                         || (level == 7 && (lessThan(tmp.getPert(), 0.115) || tmp.getDateCnt() < 60))
                         || (level == 8 && (lessThan(tmp.getPert(), 0.117) || tmp.getDateCnt() < 60))
                         || (level == 9 && (lessThan(tmp.getPert(), 0.120) || tmp.getDateCnt() < 55))
-                        || (level == 10 && (lessThan(tmp.getPert(), 0.125)) || tmp.getDateCnt() < 55)
-                        || (level == 11 && (lessThan(tmp.getPert(), 0.13)) || tmp.getDateCnt() < 50)
-                        || (level == 12 && (lessThan(tmp.getPert(), 0.135)) || tmp.getDateCnt() < 50)
-                        || (level == 13 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 45)
-                        || (level == 14 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 45)
-                        || (level == 15 && (lessThan(tmp.getPert(), 0.145)) || tmp.getDateCnt() < 40)) {
+                        || (level == 10 && (lessThan(tmp.getPert(), 0.125)) || tmp.getDateCnt() < 50)
+                        || (level == 11 && (lessThan(tmp.getPert(), 0.13)) || tmp.getDateCnt() < 45)
+                        || (level == 12 && (lessThan(tmp.getPert(), 0.135)) || tmp.getDateCnt() < 40)
+                        || (level == 13 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 35)
+                        || (level == 14 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 30)
+                        || (level == 15 && (lessThan(tmp.getPert(), 0.145)) || tmp.getDateCnt() < 30)) {
                     return false;
                 }
                 return true;
