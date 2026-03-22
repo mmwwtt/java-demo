@@ -590,8 +590,8 @@ public class Detail {
      */
     public void calc() {
         entityLen = divide(Math.abs(subtract(endPrice, startPrice)), lastPrice);
-        upShadowLen = Math.abs(subtract(highPrice, max(startPrice, endPrice)));
-        downShadowLen = Math.abs(subtract(lowPrice, min(startPrice, endPrice)));
+        upShadowLen = divide(Math.abs(subtract(highPrice, max(startPrice, endPrice))), lastPrice);
+        downShadowLen = divide(Math.abs(subtract(lowPrice, min(startPrice, endPrice))), lastPrice);
         allLen = divide(Math.abs(subtract(highPrice, lowPrice)), lastPrice);
         upShadowPert = isEquals(allLen, 0.0) ? 0 : divide(upShadowLen, allLen);
         downShadowPert = isEquals(allLen, 0.0) ? 0 : divide(downShadowLen, allLen);
