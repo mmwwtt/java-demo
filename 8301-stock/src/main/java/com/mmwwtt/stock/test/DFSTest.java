@@ -51,7 +51,7 @@ public class DFSTest {
     /**
      * md5和pair<level, idx>    层级 当前策略下标
      */
-    private static final Map<String, Integer> md5ToIdxMap = new ConcurrentHashMap<>(4000000);
+    private static final Map<String, Integer> md5ToIdxMap = new ConcurrentHashMap<>(20000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     public static FilterFildEnum fildEnum;
     public static List<StrategyL1> dfsStrategyL1s;
@@ -123,7 +123,7 @@ public class DFSTest {
 
             //交集为0 则跳过
             int[] resDetailIdArr = retainAll(strategyTmp.getDetailIdArr(), l1DetailIdArr);
-            if (resDetailIdArr.length == 0) {
+            if (resDetailIdArr.length <= 20) {
                 continue;
             }
 
