@@ -204,7 +204,7 @@ public class DFSVerifyTest {
             file.getParentFile().mkdirs();
         }
 
-        try (FileOutputStream fos = new FileOutputStream(file, true)) {
+        try (FileOutputStream fos = new FileOutputStream(file, false)) {
             fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
             List<Strategy> resStrategies = strategyToStockMap.keySet().stream()
                     .sorted(Comparator.comparing(Strategy::getRise5Avg).reversed()).toList();

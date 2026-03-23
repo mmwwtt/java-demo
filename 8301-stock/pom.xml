@@ -55,8 +55,6 @@
             <artifactId>selenium-java</artifactId>
             <version>4.25.0</version>
         </dependency>
-
-        <!-- WebDriverManager: 自动下载和管理浏览器驱动 (推荐) -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>

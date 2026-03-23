@@ -46,7 +46,7 @@ public class InfoTest {
     public void builInfo() {
         System.setProperty("webdriver.chrome.driver", "D:\\1.moweitao\\1.java\\chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
-        //options.addArguments("--headless"); // 如果需要无头模式（后台运行），取消注释此行
+        options.addArguments("--headless"); // 如果需要无头模式（后台运行），取消注释此行
 
         WebDriver driver = new ChromeDriver(options);
         String filePath = "src/main/resources/file/预测的股票.txt";
@@ -54,7 +54,8 @@ public class InfoTest {
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
-        try (FileOutputStream fos = new FileOutputStream(file, true)) {
+        // 使用覆盖模式打开文件，先清空历史内容再写入本次抓取结果
+        try (FileOutputStream fos = new FileOutputStream(file, false)) {
             // 设置隐式等待 (全局等待元素出现)
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
             // 最大化窗口
@@ -85,8 +86,9 @@ public class InfoTest {
                     continue;
                 }
                 if (DATES.stream().anyMatch(str::contains)) {
-                    str = str.replaceAll("\\n\\s*\\n", "\n");
+                    str = str.replaceAll("\\n\\s*\\n", "\n") + "\n";
                     fos.write(str.getBytes());
+                    ;
                 }
             }
             log.info("数据抓取结束 ");
