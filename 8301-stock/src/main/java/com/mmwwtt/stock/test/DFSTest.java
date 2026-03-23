@@ -71,7 +71,7 @@ public class DFSTest {
     @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
         fildEnum = FilterFildEnum.DATE50_RISE5_MAX_MIDDLE;
-        dfsAfterDetail("pert > 0.145");
+        dfsAfterDetail("pert > 0.140");
     }
 
     public void DfsMain() throws InterruptedException {
@@ -155,7 +155,7 @@ public class DFSTest {
             addToTmpBatch(resStrategyTmp);
 
             //递归 线程池有空余线程时用多线程处理
-            if (level <= 3 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+            if (level <= 4 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                 int finalI = idx;
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
