@@ -1,6 +1,7 @@
 package com.mmwwtt.stock.test;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
@@ -10,14 +11,14 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**
@@ -48,7 +49,12 @@ public class InfoTest {
         //options.addArguments("--headless"); // 如果需要无头模式（后台运行），取消注释此行
 
         WebDriver driver = new ChromeDriver(options);
-        try {
+        String filePath = "src/main/resources/file/预测的股票.txt";
+        File file = new File(filePath);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+        try (FileOutputStream fos = new FileOutputStream(file, true)) {
             // 设置隐式等待 (全局等待元素出现)
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
             // 最大化窗口
@@ -70,21 +76,25 @@ public class InfoTest {
             @SuppressWarnings("unchecked")
             List<String> list = (List<String>) js.executeScript(
                     "return Array.from(document.querySelectorAll('.c-de0422')).map(function(el){return el.innerText.trim();});");
-            if (list == null)
-                list = new ArrayList<>();
-            String res = list.stream().filter(item -> item.length() > 16)
-                    .filter(item -> DATES.stream().anyMatch(item::contains))
-                    .collect(Collectors.joining("\n"));
-            res = res.replaceAll("\\n\\s*\\n", "\n");
+            if (CollectionUtils.isEmpty(list)) {
+                return;
+            }
 
+            for (String str : list) {
+                if (str.length() < 16) {
+                    continue;
+                }
+                if (DATES.stream().anyMatch(str::contains)) {
+                    str = str.replaceAll("\\n\\s*\\n", "\n");
+                    fos.write(str.getBytes());
+                }
+            }
             log.info("数据抓取结束 ");
-            log.info("{}", res);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             System.out.println("正在关闭浏览器...");
             driver.quit();
         }
-
     }
 }
