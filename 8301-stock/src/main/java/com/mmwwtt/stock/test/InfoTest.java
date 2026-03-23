@@ -11,9 +11,12 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -24,15 +27,27 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InfoTest {
 
+    private static final Set<String> DATES = new HashSet<>();
+
+    static {
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+
+        String todayStr = today.format(DateTimeFormatter.ofPattern("财联社M月d日电"));      // "03-19"
+        String yesterdayStr = yesterday.format(DateTimeFormatter.ofPattern("财联社M月d日电")); // "03-18"
+
+        DATES.add(todayStr);
+        DATES.add(yesterdayStr);
+    }
+
     @Test
     @DisplayName("获取财联社的电报内容")
-    public void builInfo()  {
+    public void builInfo() {
         System.setProperty("webdriver.chrome.driver", "D:\\1.moweitao\\1.java\\chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
         //options.addArguments("--headless"); // 如果需要无头模式（后台运行），取消注释此行
 
         WebDriver driver = new ChromeDriver(options);
-
         try {
             // 设置隐式等待 (全局等待元素出现)
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
@@ -44,26 +59,23 @@ public class InfoTest {
             btn.click();
             Thread.sleep(1000);
 
-//            //懒加载剩余内容
+            //懒加载剩余内容
             JavascriptExecutor js = (JavascriptExecutor) driver;
-            for (int i = 1; i <= 50; i++) {
+            for (int i = 1; i <= 40; i++) {
                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
                 Thread.sleep(500);
             }
-
-            //抓取数据
-            List<String> list = Collections.synchronizedList(new ArrayList<>());
-            List<WebElement> newsBoxes = driver.findElements(By.className("telegraph-content-box"));
-            newsBoxes.parallelStream().forEach(box-> {
-                WebElement strongElement = box.findElement(By.tagName("strong"));
-                String info = (String) js.executeScript(
-                                "return arguments[0].parentNode.innerText.substring(arguments[0].innerText.length);",
-                                strongElement
-                        );
-                list.add(info);
-            });
-            String res = list.stream().sorted(String::compareTo).collect(Collectors.joining("\n"));
-
+            log.info("数据加载完成, 开始进行抓取");
+            // 抓取数据
+            @SuppressWarnings("unchecked")
+            List<String> list = (List<String>) js.executeScript(
+                    "return Array.from(document.querySelectorAll('.c-de0422')).map(function(el){return el.innerText.trim();});");
+            if (list == null)
+                list = new ArrayList<>();
+            String res = list.stream().filter(item -> item.length() > 16)
+                    .filter(item -> DATES.stream().anyMatch(item::contains))
+                    .collect(Collectors.joining("\n"));
+            res = res.replaceAll("\\n\\s*\\n", "\n");
 
             log.info("数据抓取结束 ");
             log.info("{}", res);
