@@ -244,7 +244,7 @@ public class DownloadTest {
                     return null;
                 }
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(5);
                     cnt++;
                     if (cnt > 15) {
                         log.info("{}", e.getMessage());

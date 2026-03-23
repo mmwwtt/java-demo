@@ -197,7 +197,7 @@ public class DFSVerifyTest {
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
         log.info("计算结束");
-        String filePath = "src/main/resources/file/test.txt";
+        String filePath = "src/main/resources/file/预测的股票.txt";
 
         File file = new File(filePath);
         if (!file.getParentFile().exists()) {
