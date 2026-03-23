@@ -16,30 +16,6 @@ import static com.mmwwtt.stock.common.CommonUtils.multiply;
 @AllArgsConstructor
 @Getter
 public enum FilterFildEnum implements BaseEnum {
-    DATE80_RISE5_MAX_MIDDLE("80rise5MaxMiddle", "最大五日涨幅中位数",
-            Detail::getRise5Max,
-            StrategyL1::getRise5MaxMiddle,
-            Strategy::getRise5MaxMiddle,
-            (StrategyTmp tmp) -> {
-                if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.03)) {
-                    return false;
-                }
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && lessThan(tmp.getPert(), 0.070))
-                        || (level == 3 && lessThan(tmp.getPert(), 0.091))
-                        || (level == 4 && lessThan(tmp.getPert(), 0.098))
-                        || (level == 5 && lessThan(tmp.getPert(), 0.101))
-                        || (level == 6 && lessThan(tmp.getPert(), 0.108))
-                        || (level == 7 && lessThan(tmp.getPert(), 0.115))
-                        || (level == 8 && lessThan(tmp.getPert(), 0.117))
-                        || (level == 9 && lessThan(tmp.getPert(), 0.120))
-                        || (level == 10 && lessThan(tmp.getPert(), 0.125))) {
-                    return false;
-                }
-                return true;
-            }
-    ),
 
     DATE50_RISE5_MAX_MIDDLE("50rise5MaxMiddle", "最大五日涨幅中位数",
             Detail::getRise5Max,
@@ -68,22 +44,28 @@ public enum FilterFildEnum implements BaseEnum {
             }
     ),
 
-    RISE5_MAX_AVG("rise5MaxAvg", "最大五日涨幅平均数",
-            Detail::getRise5Max,
-            StrategyL1::getRise5MaxAvg,
-            Strategy::getRise5MaxAvg,
+    RISE5_AVG("rise5Avg", "最大五日涨幅平均数",
+            Detail::getRise5,
+            StrategyL1::getRise5Avg,
+            Strategy::getRise5Avg,
             (StrategyTmp tmp) -> {
-                if (tmp.getDateCnt() < 80 || lessThan(tmp.getPert(), 0.05)) {
-                    return false;
-                }
+
                 int level = tmp.getStrategyCodeSet().size();
                 if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && lessThan(tmp.getPert(), 0.07))
-                        || (level == 3 && lessThan(tmp.getPert(), 0.08))
-                        || (level == 4 && lessThan(tmp.getPert(), 0.9))
-                        || (level == 5 && lessThan(tmp.getPert(), 0.10))
-                        || (level == 6 && lessThan(tmp.getPert(), 0.105))
-                        || (level == 7 && lessThan(tmp.getPert(), 0.11))) {
+                        || (level == 2 && (lessThan(tmp.getPert(), 0.01) || tmp.getDateCnt() < 80))
+                        || (level == 3 && (lessThan(tmp.getPert(), 0.02) || tmp.getDateCnt() < 70))
+                        || (level == 4 && (lessThan(tmp.getPert(), 0.03) || tmp.getDateCnt() < 65))
+                        || (level == 5 && (lessThan(tmp.getPert(), 0.04) || tmp.getDateCnt() < 65))
+                        || (level == 6 && (lessThan(tmp.getPert(), 0.045) || tmp.getDateCnt() < 65))
+                        || (level == 7 && (lessThan(tmp.getPert(), 0.05) || tmp.getDateCnt() < 60))
+                        || (level == 8 && (lessThan(tmp.getPert(), 0.055) || tmp.getDateCnt() < 60))
+                        || (level == 9 && (lessThan(tmp.getPert(), 0.06) || tmp.getDateCnt() < 55))
+                        || (level == 10 && (lessThan(tmp.getPert(), 0.07)) || tmp.getDateCnt() < 50)
+                        || (level == 11 && (lessThan(tmp.getPert(), 0.13)) || tmp.getDateCnt() < 45)
+                        || (level == 12 && (lessThan(tmp.getPert(), 0.135)) || tmp.getDateCnt() < 40)
+                        || (level == 13 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 35)
+                        || (level == 14 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 30)
+                        || (level == 15 && (lessThan(tmp.getPert(), 0.145)) || tmp.getDateCnt() < 30)) {
                     return false;
                 }
                 return true;

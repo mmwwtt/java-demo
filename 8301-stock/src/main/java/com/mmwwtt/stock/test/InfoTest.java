@@ -88,7 +88,6 @@ public class InfoTest {
                 if (DATES.stream().anyMatch(str::contains)) {
                     str = str.replaceAll("\\n\\s*\\n", "\n") + "\n";
                     fos.write(str.getBytes());
-                    ;
                 }
             }
             log.info("数据抓取结束 ");
