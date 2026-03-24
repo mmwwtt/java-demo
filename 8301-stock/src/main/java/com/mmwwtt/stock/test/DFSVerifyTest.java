@@ -48,9 +48,7 @@ public class DFSVerifyTest {
     // rise3  rise3_max_middle > 0.16  and rise53_min_middle > -0.04
     @PostConstruct
     public void init() {
-        String sql = "rise3_max_middle > 0.098 "
-                //+ "and rise3_min_middle > -0.04 "
-                //+ "and is_active = true"
+        String sql = "0.155 <rise5_max_middle"
                 ;
         strategies = strategyService.getBySql(sql)
                 .stream()
@@ -62,7 +60,7 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("验证策略")
     public void verifyPredictResByFiveMax() {
-        verifyPredictRes("3", Detail::getRise3, Detail::getRise3Max);
+        //verifyPredictRes("3", Detail::getRise3, Detail::getRise3Max);
         log.info("\n\n");
         verifyPredictRes("5", Detail::getRise5, Detail::getRise5Max);
     }
@@ -71,7 +69,7 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        predict("20260323", strategies, false, 1.2);
+        predict("20260324", strategies, false, 1.2);
     }
 
 
