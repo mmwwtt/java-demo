@@ -53,13 +53,16 @@ public class DFSTest {
      */
     private static final Map<String, Integer> md5ToIdxMap = new ConcurrentHashMap<>(20000000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
-    public static FilterFildEnum fildEnum;
     public static List<StrategyL1> dfsStrategyL1s;
+
+    /**
+     * DFS 过滤策略
+     */
+    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void dfs() throws InterruptedException, ExecutionException {
-        fildEnum = FilterFildEnum.RISE5_AVG;
         DfsMain();
         dfsAfterDetail("pert > 0.145");
     }
@@ -70,7 +73,6 @@ public class DFSTest {
     @Test
     @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
-        fildEnum = FilterFildEnum.DATE50_RISE5_MAX_MIDDLE;
         dfsAfterDetail("pert > 0.140");
     }
 

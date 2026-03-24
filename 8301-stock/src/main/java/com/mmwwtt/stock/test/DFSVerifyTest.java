@@ -207,12 +207,12 @@ public class DFSVerifyTest {
         try (FileOutputStream fos = new FileOutputStream(file, false)) {
             fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
             List<Strategy> resStrategies = strategyToStockMap.keySet().stream()
-                    .sorted(Comparator.comparing(Strategy::getRise5Avg).reversed()).toList();
+                    .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed()).toList();
             for (Strategy strategy : resStrategies) {
                 List<String> resStockList = strategyToStockMap.get(strategy);
-                String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高平均涨幅：%4f \n5日最高中位数涨幅：%4f \n",
+                String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高中位数涨幅：%4f \n",
                         strategy.getDateCnt(),strategy.getName(),
-                        strategy.getRise5MaxAvg(),strategy.getRise5MaxMiddle());
+                        strategy.getRise5MaxMiddle());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {
                     fos.write((s + "\n").getBytes());

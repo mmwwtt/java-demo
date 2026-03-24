@@ -344,6 +344,9 @@ public class Detail {
     private Double rise10;
     private Double rise10Max;
     private Double rise10Min;
+    private Double rise20;
+    private Double rise20Max;
+    private Double rise20Min;
 
     /**
      * 后续N天交易日详情
@@ -366,6 +369,8 @@ public class Detail {
     @TableField(exist = false)
     private Detail next10;
 
+    @TableField(exist = false)
+    private Detail next20;
     /**
      * 前N天交易日详情
      */
@@ -663,6 +668,13 @@ public class Detail {
                 List<Double> lowPriceList = list.subList(i - 10, i).stream().map(Detail::getLowPrice).toList();
                 cur.setRise10Max(getRise(max(highPriceList), cur.getEndPrice()));
                 cur.setRise10Min(getRise(min(lowPriceList), cur.getEndPrice()));
+            }
+            if (i - 20 >= 0) {
+                cur.setRise20(getRise(list.get(i - 20).getEndPrice(), cur.getEndPrice()));
+                List<Double> highPriceList = list.subList(i - 20, i).stream().map(Detail::getHighPrice).toList();
+                List<Double> lowPriceList = list.subList(i - 20, i).stream().map(Detail::getLowPrice).toList();
+                cur.setRise20Max(getRise(max(highPriceList), cur.getEndPrice()));
+                cur.setRise20Min(getRise(min(lowPriceList), cur.getEndPrice()));
             }
 
             calcIsUp(list, i, 5, cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveHigh, cur::setFiveLow,

@@ -40,6 +40,7 @@ public class DetailServiceImpl extends ServiceImpl<DetailDAO, Detail> implements
             pairList.add(Pair.of(i - 4, t0::setNext4));
             pairList.add(Pair.of(i - 5, t0::setNext5));
             pairList.add(Pair.of(i - 10, t0::setNext10));
+            pairList.add(Pair.of(i - 20, t0::setNext20));
             pairList.add(Pair.of(i + 1, t0::setT1));
             pairList.add(Pair.of(i + 2, t0::setT2));
             pairList.add(Pair.of(i + 3, t0::setT3));
