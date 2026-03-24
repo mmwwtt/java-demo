@@ -65,7 +65,7 @@ public class DFSTest {
     public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
 
     @Test
-    @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
+    @DisplayName("DFS深度遍历")
     public void dfs() throws InterruptedException, ExecutionException {
         DfsMain();
         dfsAfterDetail();
@@ -169,7 +169,7 @@ public class DFSTest {
                     addToTmpBatch(tmp);
 
                     //递归 线程池有空余线程时用多线程处理
-                    if (level <= 4 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+                    if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
                         taskCnt.incrementAndGet();
                         CompletableFuture.runAsync(() -> {
                             try {
