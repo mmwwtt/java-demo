@@ -59,7 +59,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
+    public static FilterFildEnum fildEnum = FilterFildEnum.RISE10_MAX_MIDDLE;
     public static double repeatPert = 0.95;
 
     @Test
@@ -73,7 +73,7 @@ public class DFSTest {
     @Test
     @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
-        dfsAfterDetail("pert > 0.140");
+        dfsAfterDetail("pert > 0.21");
     }
 
     public void DfsMain() throws InterruptedException {
@@ -153,10 +153,11 @@ public class DFSTest {
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
-            //对小于detail样本小于1000的集合重复度判断
-            if (resStrategyTmp.getDateCnt() < 100  && !checkTmpRepeat(resStrategyTmp)) {
-                continue;
-            }
+//            //对小于detail样本小于1000的集合重复度判断
+//            if (resStrategyTmp.getDateCnt() < 80 && resStrategyTmp.getDetailCnt()<120
+//                    && !checkTmpRepeat(resStrategyTmp)) {
+//                continue;
+//            }
             //对样本小于1000的数据做保存
             resStrategyTmp.fillCode();
             addToTmpBatch(resStrategyTmp);
@@ -184,8 +185,8 @@ public class DFSTest {
     private boolean checkTmpRepeat(StrategyTmp tmp) {
         for (int i = 0; i < dfsTmps.size(); i++) {
             StrategyTmp dfsTmp = dfsTmps.get(i);
-            if (dfsTmp.getDetailCnt() < tmp.getDetailCnt() * repeatPert
-                    || tmp.getDetailCnt() < dfsTmp.getDetailCnt() * repeatPert) {
+            double sizePert = Math.abs(tmp.getDetailCnt() - dfsTmp.getDetailCnt()) * 1.0 / tmp.getDetailCnt();
+            if (sizePert < repeatPert) {
                 continue;
             }
             double repeatPerc = getRepeatPerc(tmp.getDetailIdArr(), dfsTmp.getDetailIdArr());

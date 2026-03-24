@@ -52,20 +52,20 @@ public enum FilterFildEnum implements BaseEnum {
             (StrategyTmp tmp) -> {
                 int level = tmp.getStrategyCodeSet().size();
                 if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && (lessThan(tmp.getPert(), 0.070) || tmp.getDateCnt() < 80))
-                        || (level == 3 && (lessThan(tmp.getPert(), 0.091) || tmp.getDateCnt() < 70))
-                        || (level == 4 && (lessThan(tmp.getPert(), 0.098) || tmp.getDateCnt() < 65))
-                        || (level == 5 && (lessThan(tmp.getPert(), 0.103) || tmp.getDateCnt() < 65))
-                        || (level == 6 && (lessThan(tmp.getPert(), 0.11) || tmp.getDateCnt() < 65))
-                        || (level == 7 && (lessThan(tmp.getPert(), 0.115) || tmp.getDateCnt() < 60))
-                        || (level == 8 && (lessThan(tmp.getPert(), 0.117) || tmp.getDateCnt() < 60))
-                        || (level == 9 && (lessThan(tmp.getPert(), 0.120) || tmp.getDateCnt() < 55))
-                        || (level == 10 && (lessThan(tmp.getPert(), 0.125)) || tmp.getDateCnt() < 50)
-                        || (level == 11 && (lessThan(tmp.getPert(), 0.13)) || tmp.getDateCnt() < 45)
-                        || (level == 12 && (lessThan(tmp.getPert(), 0.135)) || tmp.getDateCnt() < 40)
-                        || (level == 13 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 35)
-                        || (level == 14 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 30)
-                        || (level == 15 && (lessThan(tmp.getPert(), 0.145)) || tmp.getDateCnt() < 30)) {
+                        || (level == 2 && (lessThan(tmp.getPert(), 0.095) || tmp.getDateCnt() < 80))
+                        || (level == 3 && (lessThan(tmp.getPert(), 0.12) || tmp.getDateCnt() < 70))
+                        || (level == 4 && (lessThan(tmp.getPert(), 0.135) || tmp.getDateCnt() < 65))
+                        || (level == 5 && (lessThan(tmp.getPert(), 0.145) || tmp.getDateCnt() < 65))
+                        || (level == 6 && (lessThan(tmp.getPert(), 0.155) || tmp.getDateCnt() < 65))
+                        || (level == 7 && (lessThan(tmp.getPert(), 0.165) || tmp.getDateCnt() < 60))
+                        || (level == 8 && (lessThan(tmp.getPert(), 0.17) || tmp.getDateCnt() < 60))
+                        || (level == 9 && (lessThan(tmp.getPert(), 0.18) || tmp.getDateCnt() < 55))
+                        || (level == 10 && (lessThan(tmp.getPert(), 0.19)) || tmp.getDateCnt() < 50)
+                        || (level == 11 && (lessThan(tmp.getPert(), 0.20)) || tmp.getDateCnt() < 45)
+                        || (level == 12 && (lessThan(tmp.getPert(), 0.21)) || tmp.getDateCnt() < 40)
+                        || (level == 13 && (lessThan(tmp.getPert(), 0.22)) || tmp.getDateCnt() < 35)
+                        || (level == 14 && (lessThan(tmp.getPert(), 0.23)) || tmp.getDateCnt() < 30)
+                        || (level == 15 && (lessThan(tmp.getPert(), 0.24)) || tmp.getDateCnt() < 30)) {
                     return false;
                 }
                 return true;
