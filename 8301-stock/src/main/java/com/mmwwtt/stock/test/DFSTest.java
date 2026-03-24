@@ -107,6 +107,7 @@ public class DFSTest {
 
     private void buildByLevel(StrategyTmp strategyTmp, Integer parentIdx) {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
+        Map<Integer, StrategyTmp> idxToTmpMap = new HashMap<>(200);
         for (int idx = parentIdx + 1; idx < dfsStrategyL1s.size(); idx++) {
             //计算两个策略的并集
 
@@ -153,29 +154,33 @@ public class DFSTest {
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
-//            //对小于detail样本小于1000的集合重复度判断
-//            if (resStrategyTmp.getDateCnt() < 80 && resStrategyTmp.getDetailCnt()<120
-//                    && !checkTmpRepeat(resStrategyTmp)) {
-//                continue;
-//            }
-            //对样本小于1000的数据做保存
-            resStrategyTmp.fillCode();
-            addToTmpBatch(resStrategyTmp);
+            idxToTmpMap.put(idx, resStrategyTmp);
+        }
+        idxToTmpMap.entrySet().stream()
+                .sorted(Comparator.comparing(Map.Entry::getValue),Comparator.comparing(StrategyTmp::getPert))
+                .limit(20)
+                .forEach(entry -> {
+                    StrategyTmp tmp = entry.getValue();
+                    Integer idx = entry.getKey();
+                    //对样本小于1000的数据做保存
+                    tmp.fillCode();
+                    addToTmpBatch(tmp);
 
-            //递归 线程池有空余线程时用多线程处理
-            if (level <= 4 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
-                int finalI = idx;
-                taskCnt.incrementAndGet();
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        buildByLevel(resStrategyTmp, finalI);
-                    } finally {
-                        taskCnt.decrementAndGet();
+                    //递归 线程池有空余线程时用多线程处理
+                    if (level <= 4 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+                        taskCnt.incrementAndGet();
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                buildByLevel(tmp, idx);
+                            } finally {
+                                taskCnt.decrementAndGet();
+                            }
+                        }, cpuThreadPool);
+                    } else {
+                        buildByLevel(tmp, idx);
                     }
-                }, cpuThreadPool);
-            } else {
-                buildByLevel(resStrategyTmp, idx);
-            }
+                });
+
         }
     }
 
