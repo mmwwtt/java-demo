@@ -19,8 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.CommonDataService.codeToL1Map;
@@ -55,10 +55,12 @@ public class DFSTest {
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     public static List<StrategyL1> dfsStrategyL1s;
 
+    public static List<StrategyTmp> dfsTmps = Collections.synchronizedList(new ArrayList<>(30000));
     /**
      * DFS 过滤策略
      */
     public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
+    public static double repeatPert = 0.95;
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
@@ -66,8 +68,6 @@ public class DFSTest {
         DfsMain();
         dfsAfterDetail("pert > 0.145");
     }
-
-
 
 
     @Test
@@ -153,6 +153,11 @@ public class DFSTest {
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
+            //对小于detail样本小于1000的集合重复度判断
+            if (resStrategyTmp.getDetailCnt() < 200  && !checkTmpRepeat(resStrategyTmp)) {
+                continue;
+            }
+            //对样本小于1000的数据做保存
             resStrategyTmp.fillCode();
             addToTmpBatch(resStrategyTmp);
 
@@ -171,6 +176,31 @@ public class DFSTest {
                 buildByLevel(resStrategyTmp, idx);
             }
         }
+    }
+
+    /**
+     * 校验临时数据的是否存在重复
+     */
+    private boolean checkTmpRepeat(StrategyTmp tmp) {
+        for (int i = 0; i < dfsTmps.size(); i++) {
+            StrategyTmp dfsTmp = dfsTmps.get(i);
+            if (dfsTmp.getDetailCnt() < tmp.getDetailCnt() * repeatPert
+                    || tmp.getDetailCnt() < dfsTmp.getDetailCnt() * repeatPert) {
+                continue;
+            }
+            double repeatPerc = getRepeatPerc(tmp.getDetailIdArr(), dfsTmp.getDetailIdArr());
+            if (moreThan(repeatPerc, 0.95)) {
+                if ((isEquals(tmp.getPert(), dfsTmp.getPert()) && tmp.getDateCnt() > dfsTmp.getDateCnt())
+                        || moreThan(tmp.getPert(), dfsTmp.getPert())) {
+                    dfsTmps.set(i, tmp);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        dfsTmps.add(tmp);
+        return true;
     }
 
     private void dfsInit() {

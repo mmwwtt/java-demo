@@ -52,7 +52,7 @@ public class StrategyTmp {
 
 
     @TableField(exist = false)
-    private List<Detail> details = Collections.synchronizedList(new ArrayList<>(500));
+    private List<Detail> details = Collections.synchronizedList(new ArrayList<>(1000));
 
     @TableField(exist = false)
     private Set<String> parentWinStrategyCodeSet;
