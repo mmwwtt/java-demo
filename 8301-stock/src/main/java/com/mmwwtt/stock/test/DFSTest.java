@@ -56,11 +56,13 @@ public class DFSTest {
     public static List<StrategyL1> dfsStrategyL1s;
 
     public static List<StrategyTmp> dfsTmps = Collections.synchronizedList(new ArrayList<>(30000));
+    public static double repeatPert = 0.95;
+
+
     /**
      * DFS 过滤策略
      */
-    public static FilterFildEnum fildEnum = FilterFildEnum.RISE10_MAX_MIDDLE;
-    public static double repeatPert = 0.95;
+    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
 
     @Test
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
@@ -157,7 +159,7 @@ public class DFSTest {
             idxToTmpMap.put(idx, resStrategyTmp);
         }
         idxToTmpMap.entrySet().stream()
-                .sorted(Comparator.comparing(Map.Entry::getValue),Comparator.comparing(StrategyTmp::getPert))
+                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getPert)))
                 .limit(20)
                 .forEach(entry -> {
                     StrategyTmp tmp = entry.getValue();
@@ -181,7 +183,6 @@ public class DFSTest {
                     }
                 });
 
-        }
     }
 
     /**
