@@ -154,7 +154,7 @@ public class DFSTest {
                 continue;
             }
             //对小于detail样本小于1000的集合重复度判断
-            if (resStrategyTmp.getDetailCnt() < 200  && !checkTmpRepeat(resStrategyTmp)) {
+            if (resStrategyTmp.getDateCnt() < 100  && !checkTmpRepeat(resStrategyTmp)) {
                 continue;
             }
             //对样本小于1000的数据做保存
