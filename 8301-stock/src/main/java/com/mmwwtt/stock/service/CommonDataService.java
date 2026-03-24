@@ -382,6 +382,7 @@ public class CommonDataService {
         triples.add(Triple.of("下影线百分比", Detail::getDownShadowPert, "downShadowPert"));
         triples.add(Triple.of("下引线长度", Detail::getDownShadowLen, "downShadowLen"));
         triples.add(Triple.of("总长", Detail::getAllLen, "allLen"));
+        triples.add(Triple.of("涨幅", Detail::getRise0, "rise0"));
 
         triples.add(Triple.of("rsi", Detail::getRsi, "rsi"));
         triples.add(Triple.of("bias5", Detail::getBias5, "bias5"));
@@ -424,7 +425,7 @@ public class CommonDataService {
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
-        List<Integer> tList = List.of(0, 1, 2, 3, 5);
+        List<Integer> tList = List.of(0, 1, 2, 3, 4, 5);
         List<StrategyL1> allBaseL1 = Collections.synchronizedList(new ArrayList<>(2000));
         tList.forEach(t -> {
             List<StrategyL1> dateBaseL1 = baseL1s.stream().map(item -> {

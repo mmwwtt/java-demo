@@ -337,6 +337,8 @@ public class Detail {
     private Double rise1;
     private Double rise2;
     private Double rise3;
+    private Double rise3Max;
+    private Double rise3Min;
     private Double rise4;
     private Double rise5;
     private Double rise5Max;
@@ -650,6 +652,10 @@ public class Detail {
             }
             if (i - 3 >= 0) {
                 cur.setRise3(getRise(list.get(i - 3).getEndPrice(), cur.getEndPrice()));
+                List<Double> highPriceList = list.subList(i - 3, i).stream().map(Detail::getHighPrice).toList();
+                List<Double> lowPriceList = list.subList(i - 3, i).stream().map(Detail::getLowPrice).toList();
+                cur.setRise3Max(getRise(max(highPriceList), cur.getEndPrice()));
+                cur.setRise3Min(getRise(min(lowPriceList), cur.getEndPrice()));
             }
             if (i - 4 >= 0) {
                 cur.setRise4(getRise(list.get(i - 4).getEndPrice(), cur.getEndPrice()));

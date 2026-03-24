@@ -128,10 +128,11 @@ public class DownloadTest {
                     }
                 }
 
-                if (CollectionUtils.isNotEmpty(curDetails) && curDetails.size() > 10) {
+                if (CollectionUtils.isNotEmpty(curDetails) && curDetails.size() > 100) {
                     strategyL1.setDetails(curDetails);
                     strategyL1.fillOtherData();
                     strategyL1Service.save(strategyL1);
+                    allBaseL1.remove(strategyL1);
                 }
             }, cpuThreadPool);
             futures.add(future);

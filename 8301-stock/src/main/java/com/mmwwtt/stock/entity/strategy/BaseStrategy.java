@@ -86,6 +86,11 @@ public class BaseStrategy {
     protected Double rise20Middle;
 
     /**
+     * 3日最大中位数涨幅
+     */
+    protected Double rise3MaxMiddle;
+
+    /**
      * 5日最大中位数涨幅
      */
     protected Double rise5MaxMiddle;
@@ -98,6 +103,12 @@ public class BaseStrategy {
      * 20日最大中位数涨幅
      */
     protected Double rise20MaxMiddle;
+
+    /**
+     * 3日最大中位数跌幅
+     */
+    protected Double rise3MinMiddle;
+
 
     /**
      * 5日最大中位数跌幅
@@ -135,12 +146,16 @@ public class BaseStrategy {
     protected List<Double> rise20Middles = new ArrayList<>(INIT_DATE_SIZE);
 
     @TableField(exist = false)
+    protected List<Double> rise3MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
     protected List<Double> rise5MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
     protected List<Double> rise10MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
     protected List<Double> rise20MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
 
+    @TableField(exist = false)
+    protected List<Double> rise3MinMiddles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
     protected List<Double> rise5MinMiddles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
@@ -191,6 +206,8 @@ public class BaseStrategy {
             List<Double> curRise1s = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise2s = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise3s = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise3Maxs = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise3Mins = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise4s = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise5s = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise5Maxs = new ArrayList<>(INIT_DATE_SIZE);
@@ -210,6 +227,8 @@ public class BaseStrategy {
                 }
                 if (Objects.nonNull(detail.getNext3())) {
                     curRise3s.add(detail.getRise3());
+                    curRise3Maxs.add(detail.getRise3Max());
+                    curRise3Mins.add(detail.getRise3Min());
                 }
                 if (Objects.nonNull(detail.getNext4())) {
                     curRise4s.add(detail.getRise4());
@@ -240,6 +259,12 @@ public class BaseStrategy {
             }
             if (CollectionUtils.isNotEmpty(curRise3s)) {
                 rise3Middles.add(getMiddle(curRise3s));
+            }
+            if (CollectionUtils.isNotEmpty(curRise3Maxs)) {
+                rise3MaxMiddles.add(getMiddle(curRise3Maxs));
+            }
+            if (CollectionUtils.isNotEmpty(curRise3Mins)) {
+                rise3MinMiddles.add(getMiddle(curRise3Mins));
             }
             if (CollectionUtils.isNotEmpty(curRise4s)) {
                 rise4Middles.add(getMiddle(curRise4s));
@@ -277,6 +302,8 @@ public class BaseStrategy {
         rise1Middle = getMiddle(rise1Middles);
         rise2Middle = getMiddle(rise2Middles);
         rise3Middle = getMiddle(rise3Middles);
+        rise3MaxMiddle = getMiddle(rise3MaxMiddles);
+        rise3MinMiddle = getMiddle(rise3MinMiddles);
         rise4Middle = getMiddle(rise4Middles);
         rise5Middle = getMiddle(rise5Middles);
         rise5MaxMiddle = getMiddle(rise5MaxMiddles);

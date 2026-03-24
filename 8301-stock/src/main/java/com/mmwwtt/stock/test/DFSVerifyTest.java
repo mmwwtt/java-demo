@@ -44,9 +44,14 @@ public class DFSVerifyTest {
 
     private static List<Strategy> strategies;
 
+    // rise5  rise5_max_middle > 0.16  and rise5_min_middle > -0.04
+    // rise3  rise3_max_middle > 0.16  and rise53_min_middle > -0.04
     @PostConstruct
     public void init() {
-        String sql = "rise10_max_middle>0.220 and is_active=true";
+        String sql = "rise3_max_middle > 0.098 "
+                //+ "and rise3_min_middle > -0.04 "
+                //+ "and is_active = true"
+                ;
         strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
@@ -55,9 +60,11 @@ public class DFSVerifyTest {
     }
 
     @Test
-    @DisplayName("验证策略-5max")
+    @DisplayName("验证策略")
     public void verifyPredictResByFiveMax() {
-        verifyPredictResByFiveMaxDetail();
+        verifyPredictRes("3", Detail::getRise3, Detail::getRise3Max);
+        log.info("\n\n");
+        verifyPredictRes("5", Detail::getRise5, Detail::getRise5Max);
     }
 
 
@@ -75,7 +82,8 @@ public class DFSVerifyTest {
     }
 
 
-    public void verifyPredictResByFiveMaxDetail() {
+    public void verifyPredictRes(String dateNum, Function<Detail, Double> riseGetter,
+                                 Function<Detail, Double> riseMaxGetter) {
         List<Double> fiveMaxDateAvgList = new ArrayList<>();
         List<Double> fiveDateAvgList = new ArrayList<>();
         //日期    详情列表   详情-权重
@@ -93,7 +101,7 @@ public class DFSVerifyTest {
                     continue;
                 }
                 for (Strategy strategyWin : strategies) {
-                    List<Function<Detail,Boolean>> filterFuncs = strategyWin.getStrategyCodeSet().stream()
+                    List<Function<Detail, Boolean>> filterFuncs = strategyWin.getStrategyCodeSet().stream()
                             .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
                     boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                     if (res) {
@@ -101,7 +109,7 @@ public class DFSVerifyTest {
                                 dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(), new HashMap<>()));
                         //详情id-权重map
                         Map<Integer, Double> detailIdToWeightMap = pair.getRight();
-                        if(!detailIdToWeightMap.containsKey(detail.getDetailId())) {
+                        if (!detailIdToWeightMap.containsKey(detail.getDetailId())) {
                             pair.getLeft().add(detail);
                         }
                         detailIdToWeightMap.merge(detail.getDetailId(), 1d, (a, b) -> a + 1);
@@ -120,23 +128,24 @@ public class DFSVerifyTest {
             if (CollectionUtils.isEmpty(details)) {
                 continue;
             }
-            List<Double> rise5Maxs = details.stream()
-                    .map(item -> item.getRise5Max() * detailIdToWeightMap.get(item.getDetailId()))
+            List<Double> riseMaxs = details.stream()
+                    .map(item -> riseMaxGetter.apply(item) * detailIdToWeightMap.get(item.getDetailId()))
                     .toList();
-            List<Double> rise5s = details.stream()
-                    .map(item -> item.getRise5() * detailIdToWeightMap.get(item.getDetailId()))
+            List<Double> rises = details.stream()
+                    .map(item -> riseGetter.apply(item) * detailIdToWeightMap.get(item.getDetailId()))
                     .toList();
             Double weightSum = sum(detailIdToWeightMap.values().stream().toList());
-            double rise5MaxsDateAvg = divide(sum(rise5Maxs) , weightSum);
-            double rise5sDateAvg = divide(sum(rise5s) , weightSum);
-            log.info("日期：{}   五日平均涨幅：{}%   五日最高平均涨幅：{}%  \n",
-                    date, String.format("%.3f", rise5sDateAvg * 100),String.format("%.3f", rise5MaxsDateAvg * 100));
+            double riseMaxsDateAvg = divide(sum(riseMaxs), weightSum);
+            double risesDateAvg = divide(sum(rises), weightSum);
+            log.info("日期：{}   {}日平均涨幅：{}%   {}日最高平均涨幅：{}%  \n",
+                    date, dateNum, String.format("%.3f", risesDateAvg * 100),
+                    dateNum, String.format("%.3f", riseMaxsDateAvg * 100));
 
-            fiveMaxDateAvgList.add(rise5MaxsDateAvg);
-            fiveDateAvgList.add(rise5sDateAvg);
+            fiveMaxDateAvgList.add(riseMaxsDateAvg);
+            fiveDateAvgList.add(risesDateAvg);
         }
-        log.info("平均5日最高涨幅 {}%", String.format("%.3f", getAverage(fiveMaxDateAvgList) * 100));
-        log.info("平均5日涨幅 {}%", String.format("%.3f", getAverage(fiveDateAvgList) * 100));
+        log.info("平均{}日最高涨幅 {}%", dateNum, String.format("%.3f", getAverage(fiveMaxDateAvgList) * 100));
+        log.info("平均{}日涨幅 {}%", dateNum, String.format("%.3f", getAverage(fiveDateAvgList) * 100));
     }
 
     private void buildImg(Integer strategyId) {
@@ -156,7 +165,6 @@ public class DFSVerifyTest {
         }
         log.info("绘制完成");
     }
-
 
 
     /**
@@ -211,7 +219,7 @@ public class DFSVerifyTest {
             for (Strategy strategy : resStrategies) {
                 List<String> resStockList = strategyToStockMap.get(strategy);
                 String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高中位数涨幅：%4f \n",
-                        strategy.getDateCnt(),strategy.getName(),
+                        strategy.getDateCnt(), strategy.getName(),
                         strategy.getRise5MaxMiddle());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {

@@ -68,14 +68,14 @@ public class DFSTest {
     @DisplayName("DFS深度遍历 - 五日最大涨幅的中位数")
     public void dfs() throws InterruptedException, ExecutionException {
         DfsMain();
-        dfsAfterDetail("pert > 0.145");
+        dfsAfterDetail();
     }
 
 
     @Test
     @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
-        dfsAfterDetail("pert > 0.21");
+        dfsAfterDetail();
     }
 
     public void DfsMain() throws InterruptedException {
@@ -158,13 +158,13 @@ public class DFSTest {
             }
             idxToTmpMap.put(idx, resStrategyTmp);
         }
+        //取阈值最高的30条策略继续进行递归
         idxToTmpMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getPert)))
-                .limit(20)
+                .limit(15)
                 .forEach(entry -> {
                     StrategyTmp tmp = entry.getValue();
                     Integer idx = entry.getKey();
-                    //对样本小于1000的数据做保存
                     tmp.fillCode();
                     addToTmpBatch(tmp);
 
@@ -185,31 +185,6 @@ public class DFSTest {
 
     }
 
-    /**
-     * 校验临时数据的是否存在重复
-     */
-    private boolean checkTmpRepeat(StrategyTmp tmp) {
-        for (int i = 0; i < dfsTmps.size(); i++) {
-            StrategyTmp dfsTmp = dfsTmps.get(i);
-            double sizePert = Math.abs(tmp.getDetailCnt() - dfsTmp.getDetailCnt()) * 1.0 / tmp.getDetailCnt();
-            if (sizePert < repeatPert) {
-                continue;
-            }
-            double repeatPerc = getRepeatPerc(tmp.getDetailIdArr(), dfsTmp.getDetailIdArr());
-            if (moreThan(repeatPerc, 0.95)) {
-                if ((isEquals(tmp.getPert(), dfsTmp.getPert()) && tmp.getDateCnt() > dfsTmp.getDateCnt())
-                        || moreThan(tmp.getPert(), dfsTmp.getPert())) {
-                    dfsTmps.set(i, tmp);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-        dfsTmps.add(tmp);
-        return true;
-    }
-
     private void dfsInit() {
         log.info("dfs 初始化");
         strategyTmpService.remove(new QueryWrapper<>());
@@ -218,14 +193,17 @@ public class DFSTest {
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")
                         || item.getName().startsWith("T2")
-                        || item.getName().startsWith("T3"))
+                        || item.getName().startsWith("T3")
+                        || item.getName().startsWith("T4")
+                        || item.getName().startsWith("T5"))
                 .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIds().size()))
                 .toList();
         log.info("dfs 初始化结束");
     }
 
-    private void dfsAfterDetail(String sql) throws ExecutionException, InterruptedException {
+    private void dfsAfterDetail() throws ExecutionException, InterruptedException {
         strategyService.remove(new QueryWrapper<>());
+        String sql = fildEnum.getDfsAfterSql();
         List<StrategyTmp> strategyTmps = strategyTmpService.getBySql(sql);
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
