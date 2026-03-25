@@ -86,6 +86,9 @@ public class StrategyTmp {
      * 将结果累加到数据中
      */
     public void addToResult(Detail detail) {
+        if(Objects.isNull(detail)) {
+            return;
+        }
         details.add(detail);
     }
 
