@@ -111,7 +111,6 @@ public class DFSTest {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
         Map<Integer, StrategyTmp> idxToTmpMap = new HashMap<>(200);
         for (int idx = parentIdx + 1; idx < dfsStrategyL1s.size(); idx++) {
-            //计算两个策略的并集
 
             //已存在的策略  或者策略类型相同  则跳过
             StrategyL1 strategyL1 = dfsStrategyL1s.get(idx);
@@ -161,7 +160,7 @@ public class DFSTest {
         //取阈值最高的30条策略继续进行递归
         idxToTmpMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getPert)))
-                .limit(15)
+                .limit(10)
                 .forEach(entry -> {
                     StrategyTmp tmp = entry.getValue();
                     Integer idx = entry.getKey();
@@ -189,13 +188,12 @@ public class DFSTest {
         log.info("dfs 初始化");
         strategyTmpService.remove(new QueryWrapper<>());
         dfsStrategyL1s = CommonDataService.strategyL1s.stream()
-                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.03))
+                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
                 .filter(item -> item.getName().startsWith("T0")
-//                        || item.getName().startsWith("T1")
-//                        || item.getName().startsWith("T2")
-//                        || item.getName().startsWith("T3")
-//                        || item.getName().startsWith("T4")
-//                        || item.getName().startsWith("T5")
+                        || item.getName().startsWith("T1")
+                        || item.getName().startsWith("T2")
+                        || item.getName().startsWith("T3")
+                  //      || item.getName().startsWith("T4")
                 )
                 .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIds().size()))
                 .toList();
