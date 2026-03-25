@@ -140,21 +140,6 @@ public class CommonDataService {
                         (Detail t0) -> t0.getIsRed() && t0.getT1().getIsRed()),
                 new StrategyL1("00005", "三连红", (Detail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed()),
                 new StrategyL1("00006", "是十字星", Detail::getIsTenStar),
-//
-//                new StrategyL1("00007", "多头排列_5日线_大于10_大于20", (Detail t0) ->
-//                        moreThan(t0.getFiveDayLine(), t0.getTenDayLine()) && moreThan(t0.getTenDayLine(), t0.getTwentyDayLine())),
-//
-//                new StrategyL1("00010", "区间5向上", Detail::getFiveIsUp),
-//                new StrategyL1("00011", "区间10向上", Detail::getTenIsUp),
-//                new StrategyL1("00012", "区间20向上", Detail::getTwentyIsUp),
-//                new StrategyL1("00013", "区间40向上", Detail::getFortyIsUp),
-//                new StrategyL1("00014", "区间60向上", Detail::getSixtyIsUp),
-//
-//                new StrategyL1("00015", "区间5向下", (Detail t0) -> !t0.getFiveIsUp()),
-//                new StrategyL1("00016", "区间10向下", (Detail t0) -> !t0.getTenIsUp()),
-//                new StrategyL1("00017", "区间20向下", (Detail t0) -> !t0.getTwentyIsUp()),
-//                new StrategyL1("00018", "区间40向下", (Detail t0) -> !t0.getFortyIsUp()),
-//                new StrategyL1("00019", "区间60向下", (Detail t0) -> !t0.getSixtyIsUp()),
 
                 // 金叉: 当天 DIF 上穿 DEA，且前3天持续 DIF<DEA，避免今天死叉明天金叉的反复跳动
                 new StrategyL1("00020", "DIF线上穿DEA线_金叉", (Detail t0) -> {
@@ -449,7 +434,7 @@ public class CommonDataService {
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
-        List<Integer> tList = List.of(0, 1, 2, 3, 4,5);
+        List<Integer> tList = List.of(0, 1, 2, 3, 4, 5);
         List<StrategyL1> allBaseL1 = Collections.synchronizedList(new ArrayList<>(2000));
         tList.forEach(t -> {
             List<StrategyL1> dateBaseL1 = baseL1s.stream().map(item -> {
