@@ -277,7 +277,12 @@ public class CommonUtils {
         if (CollectionUtils.isEmpty(list)) {
             return 0;
         }
-        double[] arr = list.stream().mapToDouble(d -> d == null ? 0 : d).toArray();
+        double[] arr = new double[list.size()];
+
+        for (int i = 0; i < list.size(); i++) {
+            Double value = list.get(i);
+            arr[i] = (value == null) ? 0.0 : value;
+        }
         return getMiddle(arr);
     }
 
