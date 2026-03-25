@@ -32,6 +32,6 @@ public class Strategy extends BaseStrategy {
     private Integer detailCnt;
     public void fillOtherData() {
         super.fillOtherData();
-        detailCnt = detailIds.size();
+        detailCnt = detailIdArray.size();
     }
 }

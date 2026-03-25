@@ -193,7 +193,7 @@ public class DFSTest {
                         || item.getName().startsWith("T3")
                         || item.getName().startsWith("T4")
                         || item.getName().startsWith("T5"))
-                .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIds().size()))
+                .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIdArray().size()))
                 .toList();
         log.info("dfs 初始化结束");
     }

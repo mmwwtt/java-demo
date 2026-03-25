@@ -150,7 +150,7 @@ public class DFSVerifyTest {
         Strategy strategy = strategyService.getById(strategyId);
         List<Detail> details = new ArrayList<>(1000);
 
-        for (Object detailId : strategy.getDetailIds()) {
+        for (Object detailId : strategy.getDetailIdArray()) {
             details.add(idToDetailMap.get((Integer) detailId));
         }
         log.info("开始绘制");

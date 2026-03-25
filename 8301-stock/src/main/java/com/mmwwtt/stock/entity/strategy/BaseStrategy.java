@@ -47,7 +47,7 @@ public class BaseStrategy {
      * 预测对的列表
      */
     @TableField(typeHandler = FastjsonTypeHandler.class)
-    protected JSONArray detailIds;
+    protected JSONArray detailIdArray;
 
 
 
@@ -191,8 +191,8 @@ public class BaseStrategy {
 
         List<Integer> detailIdList = details.stream().map(Detail::getDetailId)
                 .sorted(Comparator.comparing(Integer::intValue)).toList();
-        if (Objects.isNull(detailIds)) {
-            detailIds = new JSONArray(detailIdList);
+        if (Objects.isNull(detailIdArray)) {
+            detailIdArray = new JSONArray(detailIdList);
         }
         if (Objects.isNull(detailIdArr)) {
             detailIdArr = detailIdList.stream().mapToInt(Integer::intValue).toArray();

@@ -42,7 +42,7 @@ public class StrategyL1 extends BaseStrategy {
 
     public void fillOtherData() {
         super.fillOtherData();
-        this.cnt = detailIds.size();
+        this.cnt = detailIdArray.size();
     }
 
 }
