@@ -77,6 +77,7 @@ public class CommonDataService {
         for (List<String> part : stockCodePartList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
                 List<Detail> details = detailService.getBySql(String.format("stock_code='%s'", stockCode));
+                details.removeIf(detail -> detail.getDealDate().compareTo("202505") < 0);
                 details.sort(Comparator.comparing(Detail::getDealDate).reversed());
                 detailService.genAllDetail(details);
                 details.forEach(item -> idToDetailMap.put(item.getDetailId(), item));
