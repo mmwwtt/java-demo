@@ -55,10 +55,6 @@ public class DFSTest {
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     public static List<StrategyL1> dfsStrategyL1s;
 
-    public static List<StrategyTmp> dfsTmps = Collections.synchronizedList(new ArrayList<>(30000));
-    public static double repeatPert = 0.95;
-
-
     /**
      * DFS 过滤策略
      */
@@ -155,6 +151,7 @@ public class DFSTest {
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
+            //需要保存的数据的md5进行记录
             md5ToIdxMap.put(md5Key, idx);
             idxToTmpMap.put(idx, resStrategyTmp);
         }
