@@ -375,9 +375,21 @@ public class CommonUtils {
      * 前提：两个list 都要升序,且无重复
      */
     public static int[] retainAll(int[] list1, int[] list2) {
-        if (Objects.isNull(list1) || Objects.isNull(list2)) {
+        if (Objects.isNull(list1) || list1.length == 0 ||
+                Objects.isNull(list2) || list2.length == 0) {
             return new int[0];
         }
+        boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 30;
+        return isBig ? retainAllBinarySearch(list1, list2) : retainAllInOrder(list1, list2);
+    }
+
+    /**
+     * 根据顺序判断是否属于交集(双指针， 适合集合规模差距不大情况)
+     * 不能有null
+     * 取两个 list的交集
+     * 前提：两个list 都要升序,且无重复
+     */
+    public static int[] retainAllInOrder(int[] list1, int[] list2) {
         int[] tmpArr = new int[Math.min(list1.length, list2.length)];
         if (tmpArr.length == 0) {
             return tmpArr;
@@ -398,6 +410,31 @@ public class CommonUtils {
                 if (j >= list2.length) {
                     return Arrays.copyOfRange(tmpArr, 0, arrIdx);
                 }
+            }
+        }
+        return Arrays.copyOfRange(tmpArr, 0, arrIdx);
+    }
+
+    /**
+     * 根据顺序判断是否属于交集(二分法， 适合集合规模差距大的情况)
+     * 不能有null
+     * 取两个 list的交集
+     * 前提：两个list 都要升序,且无重复
+     */
+    public static int[] retainAllBinarySearch(int[] list1, int[] list2) {
+        int[] longArr = list1.length > list2.length ? list1 : list2;
+        int[] shortArr = list1.length > list2.length ? list2 : list1;
+        int[] tmpArr = new int[longArr.length];
+        if (tmpArr.length == 0) {
+            return tmpArr;
+        }
+
+        int arrIdx = 0;
+        for (int num1 : shortArr) {
+            int index = Arrays.binarySearch(longArr, num1);
+            if (index >= 0) {
+                tmpArr[arrIdx] = num1;
+                arrIdx++;
             }
         }
         return Arrays.copyOfRange(tmpArr, 0, arrIdx);

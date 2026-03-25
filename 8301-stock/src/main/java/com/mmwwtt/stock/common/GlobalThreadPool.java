@@ -51,7 +51,7 @@ public class GlobalThreadPool {
                 if (cpuThreadPool == null) {
                     cpuThreadPool = new ThreadPoolExecutor(
                             CORE_POOL_SIZE,
-                            CORE_POOL_SIZE * 2,
+                            CORE_POOL_SIZE,
                             KEEP_ALIVE_TIME,
                             UNIT,
                             WORK_QUEUE,
@@ -62,67 +62,6 @@ public class GlobalThreadPool {
             }
         }
         return cpuThreadPool;
-    }
-
-
-    // 获取线程池实例的静态方法，用双重校验的单例模式
-    public static ThreadPoolExecutor getMiddleThreadPool2() {
-        if (middleThreadPool2 == null) {
-            synchronized (GlobalThreadPool.class) {
-                if (middleThreadPool2 == null) {
-                    middleThreadPool2 = new ThreadPoolExecutor(
-                            CPU_CORE_SIZE * 2,
-                            CPU_CORE_SIZE * 3,
-                            KEEP_ALIVE_TIME,
-                            UNIT,
-                            WORK_QUEUE,
-                            new ThreadPoolExecutor.AbortPolicy()
-                    );
-                    middleThreadPool2.allowCoreThreadTimeOut(true);
-                }
-            }
-        }
-        return middleThreadPool2;
-    }
-
-    // 获取线程池实例的静态方法，用双重校验的单例模式
-    public static ThreadPoolExecutor getMiddleThreadPool3() {
-        if (middleThreadPool3 == null) {
-            synchronized (GlobalThreadPool.class) {
-                if (middleThreadPool3 == null) {
-                    middleThreadPool3 = new ThreadPoolExecutor(
-                            CPU_CORE_SIZE * 3,
-                            CPU_CORE_SIZE * 4,
-                            KEEP_ALIVE_TIME,
-                            UNIT,
-                            WORK_QUEUE,
-                            new ThreadPoolExecutor.AbortPolicy()
-                    );
-                    middleThreadPool3.allowCoreThreadTimeOut(true);
-                }
-            }
-        }
-        return middleThreadPool3;
-    }
-
-    // 获取线程池实例的静态方法，用双重校验的单例模式
-    public static ThreadPoolExecutor getMiddleThreadPool4() {
-        if (middleThreadPool4 == null) {
-            synchronized (GlobalThreadPool.class) {
-                if (middleThreadPool4 == null) {
-                    middleThreadPool4 = new ThreadPoolExecutor(
-                            CPU_CORE_SIZE * 4,
-                            CPU_CORE_SIZE * 5,
-                            KEEP_ALIVE_TIME,
-                            UNIT,
-                            WORK_QUEUE,
-                            new ThreadPoolExecutor.AbortPolicy()
-                    );
-                    middleThreadPool4.allowCoreThreadTimeOut(true);
-                }
-            }
-        }
-        return middleThreadPool4;
     }
 
     // 获取线程池实例的静态方法，用双重校验的单例模式

@@ -127,7 +127,7 @@ public class DFSTest {
 
             //交集为0 则跳过
             int[] resDetailIdArr = retainAll(strategyTmp.getDetailIdArr(), l1DetailIdArr);
-            if (resDetailIdArr.length <= 20) {
+            if (resDetailIdArr.length <= 40) {
                 continue;
             }
 
@@ -191,8 +191,7 @@ public class DFSTest {
                         || item.getName().startsWith("T1")
                         || item.getName().startsWith("T2")
                         || item.getName().startsWith("T3")
-                        || item.getName().startsWith("T4")
-                        || item.getName().startsWith("T5"))
+                        || item.getName().startsWith("T4"))
                 .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIds().size()))
                 .toList();
         log.info("dfs 初始化结束");

@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.mmwwtt.stock.common.CommonUtils.getAverage;
 import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
 import static com.mmwwtt.stock.service.CommonDataService.INIT_DATE_SIZE;
 
@@ -87,10 +86,6 @@ public class StrategyTmp {
      * 将结果累加到数据中
      */
     public void addToResult(Detail detail) {
-        if (Objects.isNull(detail)) {
-            log.info("不存在的详情");
-            return;
-        }
         details.add(detail);
     }
 
@@ -100,7 +95,6 @@ public class StrategyTmp {
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
-        boolean isMiddleFunc = filterFildEnum.name().endsWith("MIDDLE");
         Map<String, List<Double>> dateToValuesMap = new HashMap<>(500);
         for (Detail detail : details) {
             Double pert = filterFildEnum.getDetailGetter().apply(detail);
@@ -112,10 +106,10 @@ public class StrategyTmp {
         //先计算每日的平均值/中位数
         List<Double> dayValues = new ArrayList<>(INIT_DATE_SIZE);
         for (List<Double> values : dateToValuesMap.values()) {
-            dayValues.add(isMiddleFunc ? getMiddle(values) : getAverage(values));
+            dayValues.add(getMiddle(values));
         }
         //再计算总体的平均数/中位数
-        pert = isMiddleFunc ? getMiddle(dayValues) : getAverage(dayValues);
+        pert = getMiddle(dayValues);
         dateCnt = dateToValuesMap.size();
         detailCnt = detailIdArr.length;
     }
