@@ -132,8 +132,8 @@ public class DownloadTest {
                     strategyL1.setDetails(curDetails);
                     strategyL1.fillOtherData();
                     strategyL1Service.save(strategyL1);
+                    allBaseL1.remove(strategyL1);
                 }
-                allBaseL1.remove(strategyL1);
             }, cpuThreadPool);
             futures.add(future);
         }
