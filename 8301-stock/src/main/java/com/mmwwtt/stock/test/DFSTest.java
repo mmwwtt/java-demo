@@ -186,12 +186,13 @@ public class DFSTest {
         log.info("dfs 初始化");
         strategyTmpService.remove(new QueryWrapper<>());
         dfsStrategyL1s = CommonDataService.strategyL1s.stream()
-                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
+                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.03))
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")
                         || item.getName().startsWith("T2")
                         || item.getName().startsWith("T3")
-                        || item.getName().startsWith("T4"))
+                        || item.getName().startsWith("T4")
+                        || item.getName().startsWith("T5"))
                 .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIds().size()))
                 .toList();
         log.info("dfs 初始化结束");
