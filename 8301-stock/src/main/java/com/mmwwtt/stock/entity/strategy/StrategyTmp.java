@@ -78,7 +78,7 @@ public class StrategyTmp {
 
 
     @TableField(exist = false)
-    private List<Function<Detail, Boolean>> filterFuncs= new ArrayList<>();
+    private List<Function<Detail, Boolean>> filterFuncs = new ArrayList<>();
 
     private Integer level;
 
@@ -95,22 +95,30 @@ public class StrategyTmp {
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
-        Map<String, List<Double>> dateToValuesMap = new HashMap<>(500);
+        Map<String, Integer> cntMap = new HashMap<>(INIT_DATE_SIZE);
+        Map<String, Integer> idxMap = new HashMap<>(INIT_DATE_SIZE);
+        Map<String, double[]> valuesMap = new HashMap<>(INIT_DATE_SIZE);
         for (Detail detail : details) {
-            Double pert = filterFildEnum.getDetailGetter().apply(detail);
-            if (pert == null) {
-                continue;
-            }
-            dateToValuesMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(pert);
+            cntMap.merge(detail.getDealDate(), 1, Integer::sum);
+        }
+        cntMap.forEach((k, v) -> {
+            idxMap.put(k, 0);
+            valuesMap.put(k, new double[v]);
+        });
+
+        for (Detail detail : details) {
+            double[] values = valuesMap.get(detail.getDealDate());
+            values[idxMap.get(detail.getDealDate())] = filterFildEnum.getDetailGetter().apply(detail);
+            idxMap.merge(detail.getDealDate(), 1, Integer::sum);
         }
         //先计算每日的平均值/中位数
         List<Double> dayValues = new ArrayList<>(INIT_DATE_SIZE);
-        for (List<Double> values : dateToValuesMap.values()) {
+        for (double[] values : valuesMap.values()) {
             dayValues.add(getMiddle(values));
         }
         //再计算总体的平均数/中位数
         pert = getMiddle(dayValues);
-        dateCnt = dateToValuesMap.size();
+        dateCnt = valuesMap.size();
         detailCnt = detailIdArr.length;
     }
 
@@ -142,7 +150,7 @@ public class StrategyTmp {
         }
         level = strategyCodeSet.size();
 
-        if(Objects.nonNull(strategyL1.getType())) {
+        if (Objects.nonNull(strategyL1.getType())) {
             strategyTypeSet.add(strategyL1.getType());
         }
         if (Objects.nonNull(parentStrategyTmp.getStrategyTypeSet())) {
