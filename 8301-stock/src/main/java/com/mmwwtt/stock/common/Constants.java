@@ -56,7 +56,7 @@ public class Constants {
     /**
      * 获得股票列表的url
      */
-    public static final String STOCK_LIST_URL = "http://api.biyingapi.com/hslt/list/{licence}";
+    public static final String STOCK_LIST_URL = "https://api.biyingapi.com/hslt/list/{licence}";
 
     /**
      * 获取历史数据的url
