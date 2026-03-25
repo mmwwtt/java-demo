@@ -139,8 +139,6 @@ public class CommonDataService {
                         (Detail t0) -> t0.getIsRed() && t0.getT1().getIsRed()),
                 new StrategyL1("00005", "三连红", (Detail t0) -> t0.getIsRed() && t0.getT1().getIsRed() && t0.getT2().getIsRed()),
                 new StrategyL1("00006", "是十字星", Detail::getIsTenStar),
-                new StrategyL1("00007", "多头排列_5日线_大于10_大于20", (Detail t0) ->
-                        moreThan(t0.getFiveDayLine(), t0.getTenDayLine()) && moreThan(t0.getTenDayLine(), t0.getTwentyDayLine())),
 
                 new StrategyL1("00010", "区间5向上", Detail::getFiveIsUp),
                 new StrategyL1("00011", "区间10向上", Detail::getTenIsUp),
@@ -425,7 +423,7 @@ public class CommonDataService {
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
-        List<Integer> tList = List.of(0, 1, 2, 3, 4, 5);
+        List<Integer> tList = List.of(0, 1, 2, 3, 4);
         List<StrategyL1> allBaseL1 = Collections.synchronizedList(new ArrayList<>(2000));
         tList.forEach(t -> {
             List<StrategyL1> dateBaseL1 = baseL1s.stream().map(item -> {
@@ -438,7 +436,6 @@ public class CommonDataService {
                     case 2 -> item.getFilterFunc().apply(t0.getT2());
                     case 3 -> item.getFilterFunc().apply(t0.getT3());
                     case 4 -> item.getFilterFunc().apply(t0.getT4());
-                    case 5 -> item.getFilterFunc().apply(t0.getT5());
                     default -> false;
                 });
                 if (Objects.nonNull(item.getType())) {
