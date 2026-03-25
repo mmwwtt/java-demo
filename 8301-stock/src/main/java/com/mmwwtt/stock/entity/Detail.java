@@ -143,6 +143,10 @@ public class Detail {
      */
     private String fiveLowDate;
 
+    /**
+     * 5日内当前日是否处于上涨
+     */
+    private Boolean fiveIsUp;
 
     /**
      * 10日线
@@ -174,6 +178,11 @@ public class Detail {
     private String tenLowDate;
 
     /**
+     * 10日内当前日是否处于上涨
+     */
+    private Boolean tenIsUp;
+
+    /**
      * 20日线
      */
     private Double twentyDayLine;
@@ -197,6 +206,11 @@ public class Detail {
      * 20日内最低的日期
      */
     private String twentyLowDate;
+
+    /**
+     * 20日内当前日是否处于上涨
+     */
+    private Boolean twentyIsUp;
 
     /**
      * 20日均量
@@ -229,6 +243,11 @@ public class Detail {
     private String fortyLowDate;
 
     /**
+     * 40日内当前日是否处于上涨
+     */
+    private Boolean fortyIsUp;
+
+    /**
      * 40日均量
      */
     private Double fortyDayDealQuantity;
@@ -258,6 +277,12 @@ public class Detail {
      * 60日内最低的日期
      */
     private String sixtyLowDate;
+
+
+    /**
+     * 60日内当前日是否处于上涨， 离最低近就是上涨， 离最高近就是下跌， 最高最低不能是当天
+     */
+    private Boolean sixtyIsUp;
 
     /**
      * 60日均量
@@ -659,15 +684,15 @@ public class Detail {
             }
 
             calcIsUp(list, i, 5, cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveHigh, cur::setFiveLow,
-                    cur::setFiveHighDate, cur::setFiveLowDate);
+                    cur::setFiveHighDate, cur::setFiveLowDate, cur::setFiveIsUp);
             calcIsUp(list, i, 10, cur::setTenDayLine, cur::setTenDayDealQuantity, cur::setTenHigh, cur::setTenLow,
-                    cur::setTenHighDate, cur::setTenLowDate);
+                    cur::setTenHighDate, cur::setTenLowDate, cur::setTenIsUp);
             calcIsUp(list, i, 20, cur::setTwentyDayLine, cur::setTwentyDayDealQuantity, cur::setTwentyHigh, cur::setTwentyLow,
-                    cur::setTwentyHighDate, cur::setTwentyLowDate);
+                    cur::setTwentyHighDate, cur::setTwentyLowDate, cur::setTwentyIsUp);
             calcIsUp(list, i, 40, cur::setFortyDayLine, cur::setFortyDayDealQuantity, cur::setFortyHigh, cur::setFortyLow,
-                    cur::setFortyHighDate, cur::setFortyLowDate);
+                    cur::setFortyHighDate, cur::setFortyLowDate, cur::setFortyIsUp);
             calcIsUp(list, i, 60, cur::setSixtyDayLine, cur::setSixtyDayDealQuantity, cur::setSixtyHigh, cur::setSixtyLow,
-                    cur::setSixtyHighDate, cur::setSixtyLowDate);
+                    cur::setSixtyHighDate, cur::setSixtyLowDate, cur::setSixtyIsUp);
 
             if (list.size() > i + 14) {
                 Double dayHigh = list.get(i).getHighPrice();
@@ -815,7 +840,7 @@ public class Detail {
     private static void calcIsUp(List<Detail> list, Integer curIdx, Integer dayNum,
                                  Consumer<Double> setDayLine, Consumer<Double> setDayDealQuantity,
                                  Consumer<Double> setHigh, Consumer<Double> setLow,
-                                 Consumer<String> setHighDate, Consumer<String> setLowDate) {
+                                 Consumer<String> setHighDate, Consumer<String> setLowDate, Consumer<Boolean> setIsUp) {
         String highDate = "";
         String lowDate = "";
         if (list.size() <= curIdx + dayNum) {
@@ -848,6 +873,7 @@ public class Detail {
         boolean isUp = highDate.compareTo(lowDate) < 0;
         setHighDate.accept(highDate);
         setLowDate.accept(lowDate);
+        setIsUp.accept(isUp);
     }
 
     @Override
