@@ -190,7 +190,7 @@ CREATE TABLE week_detail_t
     ma_align_bear_score      INT4 comment '均线空头排列强度(0~4)',
     volume_price_divergence  INT4 comment '量价背离信号'
 ) COMMENT '股票详情表';
-create index stockCode on detail_t (stock_code);
+create index stockCode on week_detail_t (stock_code);
 
 
 DROP TABLE IF EXISTS strategy_l1_t;
