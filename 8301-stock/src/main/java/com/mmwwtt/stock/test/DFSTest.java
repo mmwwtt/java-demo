@@ -142,7 +142,6 @@ public class DFSTest {
             if (beforeIdx != null && beforeIdx <= idx) {
                 continue;
             }
-            md5ToIdxMap.put(md5Key, idx);
 
 
             //计算并集中筛选字段的属性值
@@ -156,6 +155,7 @@ public class DFSTest {
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
+            md5ToIdxMap.put(md5Key, idx);
             idxToTmpMap.put(idx, resStrategyTmp);
         }
         //取阈值最高的30条策略继续进行递归
