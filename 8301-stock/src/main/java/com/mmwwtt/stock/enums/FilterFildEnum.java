@@ -99,7 +99,7 @@ public enum FilterFildEnum implements BaseEnum {
                 }
                 return true;
             },
-            "pert > 0.155"
+            "pert > 0.135"
     ),
 
 

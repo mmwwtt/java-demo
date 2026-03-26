@@ -44,12 +44,10 @@ public class DFSVerifyTest {
 
     private static List<Strategy> strategies;
 
-    // rise5  rise5_max_middle > 0.16  and rise5_min_middle > -0.04
-    // rise3  rise3_max_middle > 0.16  and rise53_min_middle > -0.04
+    // rise5  rise5_max_middle > 0.16
     @PostConstruct
     public void init() {
-        String sql = "0.155 <rise5_max_middle"
-                ;
+        String sql = "is_active =true";
         strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
@@ -60,9 +58,8 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("验证策略")
     public void verifyPredictResByFiveMax() {
-        //verifyPredictRes("3", Detail::getRise3, Detail::getRise3Max);
         log.info("\n\n");
-        verifyPredictRes("5", Detail::getRise5, Detail::getRise5Max);
+        verifyPredictRes(Detail::getRise5, Detail::getRise5Max);
     }
 
 
@@ -80,7 +77,7 @@ public class DFSVerifyTest {
     }
 
 
-    public void verifyPredictRes(String dateNum, Function<Detail, Double> riseGetter,
+    public void verifyPredictRes(Function<Detail, Double> riseGetter,
                                  Function<Detail, Double> riseMaxGetter) {
         List<Double> fiveMaxDateAvgList = new ArrayList<>();
         List<Double> fiveDateAvgList = new ArrayList<>();
@@ -135,15 +132,15 @@ public class DFSVerifyTest {
             Double weightSum = sum(detailIdToWeightMap.values().stream().toList());
             double riseMaxsDateAvg = divide(sum(riseMaxs), weightSum);
             double risesDateAvg = divide(sum(rises), weightSum);
-            log.info("日期：{}   {}日平均涨幅：{}%   {}日最高平均涨幅：{}%  \n",
-                    date, dateNum, String.format("%.3f", risesDateAvg * 100),
-                    dateNum, String.format("%.3f", riseMaxsDateAvg * 100));
+            log.info("日期：{}   5日平均涨幅：{}%   5日最高平均涨幅：{}%  \n",
+                    date, String.format("%.3f", risesDateAvg * 100),
+                    String.format("%.3f", riseMaxsDateAvg * 100));
 
             fiveMaxDateAvgList.add(riseMaxsDateAvg);
             fiveDateAvgList.add(risesDateAvg);
         }
-        log.info("平均{}日最高涨幅 {}%", dateNum, String.format("%.3f", getAverage(fiveMaxDateAvgList) * 100));
-        log.info("平均{}日涨幅 {}%", dateNum, String.format("%.3f", getAverage(fiveDateAvgList) * 100));
+        log.info("平均5日最高涨幅 {}%", String.format("%.3f", getAverage(fiveMaxDateAvgList) * 100));
+        log.info("平均5日涨幅 {}%", String.format("%.3f", getAverage(fiveDateAvgList) * 100));
     }
 
     private void buildImg(Integer strategyId) {
