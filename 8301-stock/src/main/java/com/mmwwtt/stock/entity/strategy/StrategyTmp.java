@@ -11,10 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
 import static com.mmwwtt.stock.service.CommonDataService.INIT_DATE_SIZE;
-import static com.mmwwtt.stock.service.CommonDataService.allDateList;
 
 /**
  * 策略胜率
@@ -99,18 +99,12 @@ public class StrategyTmp {
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
-        Map<String, Integer> cntMap = new HashMap<>(INIT_DATE_SIZE);
         Map<String, Integer> idxMap = new HashMap<>(INIT_DATE_SIZE);
         Map<String, double[]> valuesMap = new HashMap<>(INIT_DATE_SIZE);
-        for (String date : allDateList) {
-            cntMap.put(date, 0);
-        }
-        for (Detail detail : details) {
-            cntMap.merge(detail.getDealDate(), 1, Integer::sum);
-        }
+        Map<String, Long> cntMap = details.stream().collect(Collectors.groupingBy(Detail::getDealDate, Collectors.counting()));
         cntMap.forEach((date, cnt) -> {
             if (cnt != 0) {
-                valuesMap.put(date, new double[cnt]);
+                valuesMap.put(date, new double[Math.toIntExact(cnt)]);
                 idxMap.put(date, 0);
             }
         });
