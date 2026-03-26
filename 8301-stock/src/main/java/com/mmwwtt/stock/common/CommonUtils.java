@@ -380,12 +380,32 @@ public class CommonUtils {
      * 前提：两个list 都要升序,且无重复
      */
     public static int[] retainAll(int[] list1, int[] list2) {
-        if (Objects.isNull(list1) || list1.length == 0 ||
-                Objects.isNull(list2) || list2.length == 0) {
+        if (Objects.isNull(list1) || Objects.isNull(list2)) {
             return new int[0];
         }
-        boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 30;
-        return isBig ? retainAllBinarySearch(list1, list2) : retainAllInOrder(list1, list2);
+        int[] tmpArr = new int[Math.min(list1.length, list2.length)];
+        if (tmpArr.length == 0) {
+            return tmpArr;
+        }
+        int j = 0;
+        int arrIdx = 0;
+        for (int num1 : list1) {
+            while (num1 > list2[j]) {
+                j++;
+                if (j >= list2.length) {
+                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
+                }
+            }
+            if (num1 == list2[j]) {
+                tmpArr[arrIdx] = num1;
+                j++;
+                arrIdx++;
+                if (j >= list2.length) {
+                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
+                }
+            }
+        }
+        return Arrays.copyOfRange(tmpArr, 0, arrIdx);
     }
 
     /**
