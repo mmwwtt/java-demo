@@ -95,8 +95,8 @@ public class DFSTest {
             }, cpuThreadPool);
         }
         while (taskCnt.get() != 0) {
-            Thread.sleep(10000);
             log.info("任务数 taskCnt:{}", taskCnt.get());
+            Thread.sleep(10000);
         }
         flushWinBatch();
         log.info("md5Map数量 ： {}", md5ToIdxMap.size());
@@ -107,7 +107,6 @@ public class DFSTest {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
         Map<Integer, StrategyTmp> idxToTmpMap = new HashMap<>(200);
         for (int idx = parentIdx + 1; idx < dfsStrategyL1s.size(); idx++) {
-            //计算两个策略的并集
 
             //已存在的策略  或者策略类型相同  则跳过
             StrategyL1 strategyL1 = dfsStrategyL1s.get(idx);

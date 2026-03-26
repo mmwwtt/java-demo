@@ -1,6 +1,7 @@
 package com.mmwwtt.stock.common;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
@@ -289,7 +290,7 @@ public class CommonUtils {
     /**
      * 不能有null
      * 计算中位数，O(n) 平均时间复杂度，基于 QuickSelect 算法
-     * 不修改原数组
+     * 不修改原数组,无需排序
      */
     public static double getMiddle(double[] arr) {
         if (arr == null || arr.length == 0) {
@@ -380,32 +381,12 @@ public class CommonUtils {
      * 前提：两个list 都要升序,且无重复
      */
     public static int[] retainAll(int[] list1, int[] list2) {
-        if (Objects.isNull(list1) || Objects.isNull(list2)) {
-            return new int[0];
+        if (Objects.isNull(list1) || list1.length == 0 ||
+                Objects.isNull(list2) || list2.length == 0) {
+            return ArrayUtils.EMPTY_INT_ARRAY;
         }
-        int[] tmpArr = new int[Math.min(list1.length, list2.length)];
-        if (tmpArr.length == 0) {
-            return tmpArr;
-        }
-        int j = 0;
-        int arrIdx = 0;
-        for (int num1 : list1) {
-            while (num1 > list2[j]) {
-                j++;
-                if (j >= list2.length) {
-                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
-                }
-            }
-            if (num1 == list2[j]) {
-                tmpArr[arrIdx] = num1;
-                j++;
-                arrIdx++;
-                if (j >= list2.length) {
-                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
-                }
-            }
-        }
-        return Arrays.copyOfRange(tmpArr, 0, arrIdx);
+        boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 30;
+        return isBig ? retainAllBinarySearch(list1, list2) : retainAllInOrder(list1, list2);
     }
 
     /**
@@ -416,12 +397,10 @@ public class CommonUtils {
      */
     public static int[] retainAllInOrder(int[] list1, int[] list2) {
         int[] tmpArr = new int[Math.min(list1.length, list2.length)];
-        if (tmpArr.length == 0) {
-            return tmpArr;
-        }
         int j = 0;
         int arrIdx = 0;
-        for (int num1 : list1) {
+        for (int i = 0; i < list1.length; i++) {
+            int num1 = list1[i];
             while (num1 > list2[j]) {
                 j++;
                 if (j >= list2.length) {
@@ -432,7 +411,7 @@ public class CommonUtils {
                 tmpArr[arrIdx] = num1;
                 j++;
                 arrIdx++;
-                if (j >= list2.length) {
+                if (j >= list2.length || i == list1.length - 1) {
                     return Arrays.copyOfRange(tmpArr, 0, arrIdx);
                 }
             }
@@ -449,7 +428,7 @@ public class CommonUtils {
     public static int[] retainAllBinarySearch(int[] list1, int[] list2) {
         int[] longArr = list1.length > list2.length ? list1 : list2;
         int[] shortArr = list1.length > list2.length ? list2 : list1;
-        int[] tmpArr = new int[longArr.length];
+        int[] tmpArr = new int[shortArr.length];
         if (tmpArr.length == 0) {
             return tmpArr;
         }
@@ -467,11 +446,11 @@ public class CommonUtils {
 
     public static int[] retainAll(List<int[]> list) {
         if (CollectionUtils.isEmpty(list)) {
-            return new int[0];
+            return ArrayUtils.EMPTY_INT_ARRAY;
         }
         boolean havaNall = list.stream().anyMatch(Objects::isNull);
         if (havaNall) {
-            return new int[0];
+            return ArrayUtils.EMPTY_INT_ARRAY;
         }
 
         list = list.stream().sorted(Comparator.comparing(item -> item.length)).toList();

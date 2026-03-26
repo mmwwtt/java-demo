@@ -99,27 +99,26 @@ public class StrategyTmp {
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
-        Map<String, Integer> idxMap = new HashMap<>(INIT_DATE_SIZE);
-        Map<String, double[]> valuesMap = new HashMap<>(INIT_DATE_SIZE);
-        Map<String, Long> cntMap = details.stream().collect(Collectors.groupingBy(Detail::getDealDate, Collectors.counting()));
-        cntMap.forEach((date, cnt) -> {
-            valuesMap.put(date, new double[Math.toIntExact(cnt)]);
-            idxMap.put(date, 0);
+        List<Double> dayValues = new ArrayList<>(INIT_DATE_SIZE);
+        Map<String, List<Double>> resultMap = details.stream()
+                .collect(Collectors.groupingBy(
+                        Detail::getDealDate,
+                        Collectors.mapping(
+                                detail -> filterFildEnum.getDetailGetter().apply(detail),
+                                Collectors.toList()
+                        )
+                ));
+        resultMap.forEach((k, v) -> {
+            double[] arr = new double[v.size()];
+            for (int i = 0; i < v.size(); i++) {
+                arr[i] = v.get(i);
+            }
+            dayValues.add(getMiddle(arr));
         });
 
-        for (Detail detail : details) {
-            double[] values = valuesMap.get(detail.getDealDate());
-            values[idxMap.get(detail.getDealDate())] = filterFildEnum.getDetailGetter().apply(detail);
-            idxMap.merge(detail.getDealDate(), 1, Integer::sum);
-        }
-        //先计算每日的平均值/中位数
-        List<Double> dayValues = new ArrayList<>(INIT_DATE_SIZE);
-        for (double[] values : valuesMap.values()) {
-            dayValues.add(getMiddle(values));
-        }
         //再计算总体的平均数/中位数
         pert = getMiddle(dayValues);
-        dateCnt = valuesMap.size();
+        dateCnt = dayValues.size();
         detailCnt = detailIdArr.length;
     }
 
