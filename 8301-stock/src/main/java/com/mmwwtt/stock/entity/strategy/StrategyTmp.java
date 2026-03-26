@@ -86,7 +86,7 @@ public class StrategyTmp {
      * 将结果累加到数据中
      */
     public void addToResult(Detail detail) {
-        if(Objects.isNull(detail)) {
+        if (Objects.isNull(detail)) {
             return;
         }
         details.add(detail);
@@ -101,11 +101,14 @@ public class StrategyTmp {
         Map<String, Integer> cntMap = new HashMap<>(INIT_DATE_SIZE);
         Map<String, Integer> idxMap = new HashMap<>(INIT_DATE_SIZE);
         Map<String, double[]> valuesMap = new HashMap<>(INIT_DATE_SIZE);
+        details.stream().map(Detail::getDealDate).distinct().forEach(date -> {
+            cntMap.put(date, 0);
+            idxMap.put(date, 0);
+        });
         for (Detail detail : details) {
             cntMap.merge(detail.getDealDate(), 1, Integer::sum);
         }
         cntMap.forEach((k, v) -> {
-            idxMap.put(k, 0);
             valuesMap.put(k, new double[v]);
         });
 
