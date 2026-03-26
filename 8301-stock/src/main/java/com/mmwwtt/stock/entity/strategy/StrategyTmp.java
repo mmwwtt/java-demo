@@ -103,10 +103,8 @@ public class StrategyTmp {
         Map<String, double[]> valuesMap = new HashMap<>(INIT_DATE_SIZE);
         Map<String, Long> cntMap = details.stream().collect(Collectors.groupingBy(Detail::getDealDate, Collectors.counting()));
         cntMap.forEach((date, cnt) -> {
-            if (cnt != 0) {
-                valuesMap.put(date, new double[Math.toIntExact(cnt)]);
-                idxMap.put(date, 0);
-            }
+            valuesMap.put(date, new double[Math.toIntExact(cnt)]);
+            idxMap.put(date, 0);
         });
 
         for (Detail detail : details) {
