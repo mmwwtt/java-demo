@@ -17,63 +17,6 @@ import static com.mmwwtt.stock.common.CommonUtils.multiply;
 @Getter
 public enum FilterFildEnum implements BaseEnum {
 
-    RISE1_MAX_MIDDLE("rise3MaxMiddle", "最大3日涨幅中位数",
-            Detail::getRise1,
-            StrategyL1::getRise1Middle,
-            Strategy::getRise1Middle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && (lessThan(tmp.getPert(), 0.0) || tmp.getDateCnt() < 80))
-                        || (level == 3 && (lessThan(tmp.getPert(), 0.0) || tmp.getDateCnt() < 70))
-                        || (level == 4 && (lessThan(tmp.getPert(), 0.0) || tmp.getDateCnt() < 65))
-                        || (level == 5 && (lessThan(tmp.getPert(), 0.0) || tmp.getDateCnt() < 65))
-                        || (level == 6 && (lessThan(tmp.getPert(), 0.0) || tmp.getDateCnt() < 65))
-                        || (level == 7 && (lessThan(tmp.getPert(), 0.0) || tmp.getDateCnt() < 60))
-                        || (level == 8 && (lessThan(tmp.getPert(), 0.0) || tmp.getDateCnt() < 60))
-                        || (level == 9 && (lessThan(tmp.getPert(), 0.0) || tmp.getDateCnt() < 55))
-                        || (level == 10 && (lessThan(tmp.getPert(), 0.0)) || tmp.getDateCnt() < 50)
-                        || (level == 11 && (lessThan(tmp.getPert(), 0.0)) || tmp.getDateCnt() < 45)
-                        || (level == 12 && (lessThan(tmp.getPert(), 0.0)) || tmp.getDateCnt() < 40)
-                        || (level == 13 && (lessThan(tmp.getPert(), 0.0)) || tmp.getDateCnt() < 35)
-                        || (level == 14 && (lessThan(tmp.getPert(), 0.0)) || tmp.getDateCnt() < 30)
-                        || (level == 15 && (lessThan(tmp.getPert(), 0.0)) || tmp.getDateCnt() < 30)) {
-                    return false;
-                }
-                return true;
-            },
-            "pert > 0.06"
-    ),
-
-    RISE3_MAX_MIDDLE("rise3MaxMiddle", "最大3日涨幅中位数",
-            Detail::getRise3Max,
-            StrategyL1::getRise3MaxMiddle,
-            Strategy::getRise3MaxMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && (lessThan(tmp.getPert(), 0.05) || tmp.getDateCnt() < 80))
-                        || (level == 3 && (lessThan(tmp.getPert(), 0.06) || tmp.getDateCnt() < 70))
-                        || (level == 4 && (lessThan(tmp.getPert(), 0.07) || tmp.getDateCnt() < 65))
-                        || (level == 5 && (lessThan(tmp.getPert(), 0.08) || tmp.getDateCnt() < 65))
-                        || (level == 6 && (lessThan(tmp.getPert(), 0.09) || tmp.getDateCnt() < 65))
-                        || (level == 7 && (lessThan(tmp.getPert(), 0.10) || tmp.getDateCnt() < 60))
-                        || (level == 8 && (lessThan(tmp.getPert(), 0.105) || tmp.getDateCnt() < 60))
-                        || (level == 9 && (lessThan(tmp.getPert(), 0.11) || tmp.getDateCnt() < 55))
-                        || (level == 10 && (lessThan(tmp.getPert(), 0.115)) || tmp.getDateCnt() < 50)
-                        || (level == 11 && (lessThan(tmp.getPert(), 0.12)) || tmp.getDateCnt() < 45)
-                        || (level == 12 && (lessThan(tmp.getPert(), 0.125)) || tmp.getDateCnt() < 40)
-                        || (level == 13 && (lessThan(tmp.getPert(), 0.13)) || tmp.getDateCnt() < 35)
-                        || (level == 14 && (lessThan(tmp.getPert(), 0.135)) || tmp.getDateCnt() < 30)
-                        || (level == 15 && (lessThan(tmp.getPert(), 0.14)) || tmp.getDateCnt() < 30)) {
-                    return false;
-                }
-                return true;
-            },
-            "pert > 0.098"
-    ),
-
-
     RISE5_MAX_MIDDLE("rise5MaxMiddle", "最大五日涨幅中位数",
             Detail::getRise5Max,
             StrategyL1::getRise5MaxMiddle,
