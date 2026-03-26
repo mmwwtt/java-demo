@@ -80,8 +80,8 @@ public enum FilterFildEnum implements BaseEnum {
             Strategy::getRise5MaxMiddle,
             (StrategyTmp tmp) -> {
                 int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && (lessThan(tmp.getPert(), 0.06) || tmp.getDateCnt() < 80))
+                if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.005))
+                        || (level == 2 && (lessThan(tmp.getPert(), 0.05) || tmp.getDateCnt() < 80))
                         || (level == 3 && (lessThan(tmp.getPert(), 0.077) || tmp.getDateCnt() < 70))
                         || (level == 4 && (lessThan(tmp.getPert(), 0.087) || tmp.getDateCnt() < 65))
                         || (level == 5 && (lessThan(tmp.getPert(), 0.098) || tmp.getDateCnt() < 65))
@@ -99,7 +99,7 @@ public enum FilterFildEnum implements BaseEnum {
                 }
                 return true;
             },
-            "pert > 0.135"
+            "pert > 0.17"
     ),
 
 
