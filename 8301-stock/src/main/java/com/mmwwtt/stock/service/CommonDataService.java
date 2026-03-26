@@ -42,29 +42,30 @@ public class CommonDataService {
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
-    public static Map<Integer, Detail> idToDetailMap = new ConcurrentHashMap<>(1048576);
-    public static Map<String, List<Detail>> codeToDetailMap = new ConcurrentHashMap<>(4096);
-    public static List<StrategyL1> strategyL1s = Collections.synchronizedList(new ArrayList<>(1000));
-    public static Map<String, StrategyL1> codeToL1Map = new ConcurrentHashMap<>(1000);
-    public static List<List<String>> stockCodePartList = new ArrayList<>();
-    public static List<String> stockCodeList = new ArrayList<>();
-    public static String calcEndDate;
-    public static List<String> predictDateList = new ArrayList<>();
-    public static List<String> allDateList = new ArrayList<>();
+    public static Detail[] detailArr;
+    public static Map<String, List<Detail>> codeToDetailMap;
+    public static List<StrategyL1> strategyL1s;
+    public static Map<String, StrategyL1> codeToL1Map;
+    public static List<List<String>> stockCodePartList;
+    public static List<String> stockCodeList;
+    public static List<String> predictDateList;
+    public static List<String> allDateList;
 
+
+    public static String calcEndDate;
     public static int INIT_DATE_SIZE = 500;
 
     @PostConstruct
     public void init() throws ExecutionException, InterruptedException {
         log.info("初始化开始");
-
-        idToDetailMap = new ConcurrentHashMap<>(1048576);
+        detailArr = new Detail[1200000];
         codeToDetailMap = new ConcurrentHashMap<>(4096);
         strategyL1s = Collections.synchronizedList(new ArrayList<>(1000));
         codeToL1Map = new ConcurrentHashMap<>(2000);
         stockCodePartList = new ArrayList<>();
         stockCodeList = new ArrayList<>();
         predictDateList = new ArrayList<>();
+        allDateList = new ArrayList<>();
         log.info("开始加载L1层策略");
         List<CompletableFuture<Void>> futures;
 
@@ -81,7 +82,7 @@ public class CommonDataService {
                 details.removeIf(detail -> detail.getDealDate().compareTo("202505") < 0);
                 details.sort(Comparator.comparing(Detail::getDealDate).reversed());
                 detailService.genAllDetail(details);
-                details.forEach(item -> idToDetailMap.put(item.getDetailId(), item));
+                details.forEach(item -> detailArr[item.getDetailId()] = item);
                 codeToDetailMap.put(stockCode, details);
                 details.removeIf(detail -> Objects.isNull(detail) || Objects.isNull(detail.getT5())
                         || Objects.isNull(detail.getT5().getSixtyDayLine())
@@ -97,7 +98,7 @@ public class CommonDataService {
         predictDateList = allDateList.stream().limit(15).toList();
         calcEndDate = allDateList.stream().skip(15).findFirst().orElse("20260201");
 
-        if (!idToDetailMap.isEmpty()) {
+        if (Objects.nonNull(detailArr[1])) {
             List<StrategyL1> allBaseL1List = getAllBaseL1s();
             Map<String, Function<Detail, Boolean>> codeToFunc = allBaseL1List.stream()
                     .collect(Collectors.toMap(BaseStrategy::getStrategyCode, StrategyL1::getFilterFunc));
@@ -410,7 +411,7 @@ public class CommonDataService {
                 Function<Detail, Double> getter = triple.getMiddle();
                 String typeKey = triple.getRight();
 
-                List<Double> values = idToDetailMap.values().stream()
+                List<Double> values = Arrays.stream(detailArr)
                         .filter(CommonDataService::isValidDetail)
                         .map(getter)
                         .filter(Objects::nonNull)

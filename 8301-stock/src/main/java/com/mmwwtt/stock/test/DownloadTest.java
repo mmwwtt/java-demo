@@ -7,6 +7,7 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.LoggingInterceptor;
 import com.mmwwtt.stock.convert.StockConverter;
 import com.mmwwtt.stock.convert.VoConvert;
+import com.mmwwtt.stock.dao.DetailDAO;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.Stock;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
@@ -63,6 +64,9 @@ public class DownloadTest {
 
     @Resource
     private StrategyL1ServiceImpl strategyL1Service;
+
+    @Resource
+    private DetailDAO detailDAO;
 
 
     private final ThreadPoolExecutor ioThreadPool = GlobalThreadPool.getIoThreadPool();
@@ -169,6 +173,7 @@ public class DownloadTest {
         strategyL1Service.remove(new QueryWrapper<>());
         strategyTmpService.remove(new QueryWrapper<>());
         strategyService.remove(new QueryWrapper<>());
+        detailDAO.resetAutoIncrement();
         log.info("清空表 end\n");
     }
 

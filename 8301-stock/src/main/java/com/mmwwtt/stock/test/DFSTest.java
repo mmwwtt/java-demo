@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.CommonDataService.codeToL1Map;
-import static com.mmwwtt.stock.service.CommonDataService.idToDetailMap;
+import static com.mmwwtt.stock.service.CommonDataService.detailArr;
 
 
 //todo  根据策略预测的时候也要加权处理
@@ -141,8 +141,8 @@ public class DFSTest {
 
             //计算并集中筛选字段的属性值
             StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1, strategyTmp, resDetailIdArr);
-            for (int detail : resDetailIdArr) {
-                resStrategyTmp.addToResult(idToDetailMap.get(detail));
+            for (int detailId : resDetailIdArr) {
+                resStrategyTmp.addToResult(detailArr[detailId]);
             }
             resStrategyTmp.fillFilterField(fildEnum);
 
@@ -209,7 +209,7 @@ public class DFSTest {
                 strategyTmp.setStrategyCodeSet(Arrays.stream(strategyTmp.getStrategyCode().split(" ")).filter(s -> !s.isEmpty()).collect(Collectors.toSet()));
                 List<int[]> detailArrList = strategyTmp.getStrategyCodeSet().stream().map(code -> codeToL1Map.get(code).getDetailIdArr()).toList();
                 int[] resDetailIds = retainAll(detailArrList);
-                List<Detail> details = Arrays.stream(resDetailIds).mapToObj(detailId -> idToDetailMap.get(detailId)).toList();
+                List<Detail> details = Arrays.stream(resDetailIds).mapToObj(detailId -> detailArr[detailId]).toList();
                 Strategy strategy = VoConvert.INSTANCE.convertTo(strategyTmp);
                 strategy.setDetails(details);
                 strategy.fillOtherData();
