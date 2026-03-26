@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
 import static com.mmwwtt.stock.service.CommonDataService.INIT_DATE_SIZE;
+import static com.mmwwtt.stock.service.CommonDataService.allDateList;
 
 /**
  * 策略胜率
@@ -101,15 +102,17 @@ public class StrategyTmp {
         Map<String, Integer> cntMap = new HashMap<>(INIT_DATE_SIZE);
         Map<String, Integer> idxMap = new HashMap<>(INIT_DATE_SIZE);
         Map<String, double[]> valuesMap = new HashMap<>(INIT_DATE_SIZE);
-        details.stream().map(Detail::getDealDate).distinct().forEach(date -> {
+        for (String date : allDateList) {
             cntMap.put(date, 0);
-            idxMap.put(date, 0);
-        });
+        }
         for (Detail detail : details) {
             cntMap.merge(detail.getDealDate(), 1, Integer::sum);
         }
-        cntMap.forEach((k, v) -> {
-            valuesMap.put(k, new double[v]);
+        cntMap.forEach((date, cnt) -> {
+            if (cnt != 0) {
+                valuesMap.put(date, new double[cnt]);
+                idxMap.put(date, 0);
+            }
         });
 
         for (Detail detail : details) {

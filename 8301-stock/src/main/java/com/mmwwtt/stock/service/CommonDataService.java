@@ -50,6 +50,7 @@ public class CommonDataService {
     public static List<String> stockCodeList = new ArrayList<>();
     public static String calcEndDate;
     public static List<String> predictDateList = new ArrayList<>();
+    public static List<String> allDateList = new ArrayList<>();
 
     public static int INIT_DATE_SIZE = 500;
 
@@ -92,12 +93,9 @@ public class CommonDataService {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
         log.info("开始设置Dfs截止日期");
-        predictDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
-                .stream().limit(15)
-                .map(Detail::getDealDate).toList();
-        calcEndDate = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>())
-                .stream().skip(15)
-                .map(Detail::getDealDate).findFirst().orElse("20260201");
+        allDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>()).stream().map(Detail::getDealDate).toList();
+        predictDateList = allDateList.stream().limit(15).toList();
+        calcEndDate = allDateList.stream().skip(15).findFirst().orElse("20260201");
 
         if (!idToDetailMap.isEmpty()) {
             List<StrategyL1> allBaseL1List = getAllBaseL1s();
