@@ -51,7 +51,7 @@ public class DFSTest {
     /**
      * md5和pair<level, idx>    层级 当前策略下标
      */
-    private static final Map<String, Integer> md5ToIdxMap = new ConcurrentHashMap<>(20000000);
+    private static final Map<String, Integer> md5ToIdxMap = new ConcurrentHashMap<>(200000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     public static List<StrategyL1> dfsStrategyL1s;
 
