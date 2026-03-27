@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.enums.FilterFildEnum;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
 import static com.mmwwtt.stock.service.CommonDataService.INIT_DATE_SIZE;
@@ -100,18 +101,18 @@ public class StrategyTmp {
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
         List<Double> dayValues = new ArrayList<>(INIT_DATE_SIZE);
-        Map<String, List<Double>> resultMap = details.stream()
-                .collect(Collectors.groupingBy(
-                        Detail::getDealDate,
-                        Collectors.mapping(
-                                detail -> filterFildEnum.getDetailGetter().apply(detail),
-                                Collectors.toList()
-                        )
-                ));
+        Function<Detail, Double> detailGetter = filterFildEnum.getDetailGetter();
+        Map<String, DoubleList> resultMap = new HashMap<>();
+        for (Detail detail : details) {
+            String key = detail.getDealDate();
+            Double value = detailGetter.apply(detail);
+            resultMap.computeIfAbsent(key, k -> new DoubleArrayList(1000)).add(value.doubleValue());
+        }
+
         resultMap.forEach((k, v) -> {
             double[] arr = new double[v.size()];
             for (int i = 0; i < v.size(); i++) {
-                arr[i] = v.get(i);
+                arr[i] = v.getDouble(i);
             }
             dayValues.add(getMiddle(arr));
         });
