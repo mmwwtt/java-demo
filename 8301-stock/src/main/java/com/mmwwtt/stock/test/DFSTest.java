@@ -156,7 +156,7 @@ public class DFSTest {
         }
         //取阈值最高的30条策略继续进行递归
         idxToTmpMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getPert)))
+                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getPert).reversed()))
                 .limit(30)
                 .forEach(entry -> {
                     StrategyTmp tmp = entry.getValue();
