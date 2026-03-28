@@ -105,7 +105,7 @@ public class DFSTest {
 
     private void buildByLevel(StrategyTmp strategyTmp, Integer parentIdx) {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
-        Map<Integer, StrategyTmp> idxToTmpMap = new HashMap<>(200);
+        Map<Integer, StrategyTmp> idxToTmpMap = new ConcurrentHashMap<>(200);
         for (int idx = parentIdx + 1; idx < dfsStrategyL1s.size(); idx++) {
 
             //已存在的策略  或者策略类型相同  则跳过
@@ -272,9 +272,9 @@ public class DFSTest {
             if (tmpBatch.isEmpty())
                 return;
             toSave = new ArrayList<>(tmpBatch);
+            strategyTmpService.saveBatch(toSave);
             tmpBatch.clear();
         }
-        strategyTmpService.saveBatch(toSave);
     }
 
 }
