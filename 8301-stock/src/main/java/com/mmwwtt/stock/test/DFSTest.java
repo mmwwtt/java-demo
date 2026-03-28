@@ -147,9 +147,9 @@ public class DFSTest {
             resStrategyTmp.fillFilterField(fildEnum);
 
             //进行阈值过滤 和 数据保存
-            if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
-                continue;
-            }
+//            if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
+//                continue;
+//            }
             //需要保存的数据的md5进行记录
             md5ToIdxMap.put(md5Key, idx);
             idxToTmpMap.put(idx, resStrategyTmp);

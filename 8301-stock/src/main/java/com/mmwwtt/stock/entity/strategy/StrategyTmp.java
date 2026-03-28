@@ -49,6 +49,11 @@ public class StrategyTmp {
      */
     private Double pert;
 
+    /**
+     * 最大回撤中位数
+     */
+    private Double rise5MinMiddle;
+
 
     @TableField(exist = false)
     private List<Detail> details = Collections.synchronizedList(new ArrayList<>(1000));

@@ -122,7 +122,7 @@ public class DownloadTest {
                                 || Objects.isNull(detail.getT10())
                                 || Objects.isNull(detail.getT10().getSixtyDayLine())
                                 || moreThan(detail.getRise0(), 0.097)
-                                || detail.getDealDate().compareTo("202505") < 0
+                                || detail.getDealDate().compareTo("202508") < 0
                                 || detail.getDealDate().compareTo(calcEndDate) > 0) {
                             continue;
                         }

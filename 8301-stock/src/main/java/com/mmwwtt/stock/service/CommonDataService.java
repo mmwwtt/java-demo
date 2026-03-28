@@ -79,7 +79,7 @@ public class CommonDataService {
         for (List<String> part : stockCodePartList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> part.forEach(stockCode -> {
                 List<Detail> details = detailService.getBySql(String.format("stock_code='%s'", stockCode));
-                details.removeIf(detail -> detail.getDealDate().compareTo("202505") < 0);
+                details.removeIf(detail -> detail.getDealDate().compareTo("202508") < 0);
                 details.sort(Comparator.comparing(Detail::getDealDate).reversed());
                 detailService.genAllDetail(details);
                 details.forEach(item -> detailArr[item.getDetailId()] = item);
@@ -418,7 +418,7 @@ public class CommonDataService {
                         .sorted()
                         .toList();
                 int[] idxArr = new int[]{0, 50000, 100000, 150000, 200000, 250000, 300000, 350000,
-                        400000, 450000, 500000, 550000, 600000, values.size() - 1};
+                        400000, 450000, values.size() - 1};
                 for (int i = 0; i < idxArr.length - 2; i++) {
                     double left = values.get(idxArr[i]);
                     double right = values.get(idxArr[i + 2]);
