@@ -8,12 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
-import static com.mmwwtt.stock.service.CommonDataService.INIT_DATE_SIZE;
 
 /**
  * 策略胜率
@@ -103,25 +104,23 @@ public class StrategyTmp {
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
-        List<Double> dayValues = new ArrayList<>(INIT_DATE_SIZE);
         Function<Detail, Double> detailGetter = filterFildEnum.getDetailGetter();
-        Map<String, List<Double>> resultMap = new HashMap<>(INIT_DATE_SIZE);
-        details.parallelStream().forEach(detail -> {
-            String key = detail.getDealDate();
-            Double value = detailGetter.apply(detail); // 假设 detailGetter 是 Function
-            resultMap.computeIfAbsent(key, k -> new ArrayList<>(1000)).add(value);
-        });
-        resultMap.forEach((k, v) -> {
-            double[] arr = new double[v.size()];
-            for (int i = 0; i < v.size(); i++) {
-                arr[i] = v.get(i);
-            }
-            dayValues.add(getMiddle(arr));
-        });
-
-        //再计算总体的平均数/中位数
-        pert = getMiddle(dayValues);
-        dateCnt = dayValues.size();
+        Pair<List<Double>, List<Double>> dayAvgLists = details.stream().collect(Collectors.teeing(
+                Collectors.groupingBy(
+                        Detail::getDealDate,
+                        Collectors.mapping(
+                                detailGetter,
+                                Collectors.filtering(Objects::nonNull, Collectors.averagingDouble(Double::doubleValue)))),
+                Collectors.groupingBy(
+                        Detail::getDealDate,
+                        Collectors.mapping(
+                                Detail::getRise5Min,
+                                Collectors.filtering(Objects::nonNull, Collectors.averagingDouble(Double::doubleValue)))),
+                (Map<String, Double> filterByDate, Map<String, Double> rise5MinByDate) ->
+                        Pair.of(new ArrayList<>(filterByDate.values()), new ArrayList<>(rise5MinByDate.values()))));
+        pert = getMiddle(dayAvgLists.getLeft());
+        rise5MinMiddle = getMiddle(dayAvgLists.getRight());
+        dateCnt = dayAvgLists.getLeft().size();
         detailCnt = detailIdArr.length;
     }
 

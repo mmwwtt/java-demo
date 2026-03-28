@@ -89,6 +89,8 @@ public class DFSTest {
                         strategyTmp.getStrategyTypeSet().add(strategyL1.getType());
                     }
                     buildByLevel(strategyTmp, finalI);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 } finally {
                     taskCnt.decrementAndGet();
                 }
@@ -170,6 +172,8 @@ public class DFSTest {
                         CompletableFuture.runAsync(() -> {
                             try {
                                 buildByLevel(tmp, idx);
+                            } catch (Exception e) {
+                               e.printStackTrace();
                             } finally {
                                 taskCnt.decrementAndGet();
                             }
