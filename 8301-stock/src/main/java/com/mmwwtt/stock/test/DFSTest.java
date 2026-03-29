@@ -61,7 +61,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE_03;
+    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE_025;
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -199,7 +199,7 @@ public class DFSTest {
         strategyTmpService.remove(new QueryWrapper<>());
         md5ToIdxMap.clear();
         dfsStrategyL1s = CommonDataService.strategyL1s.stream()
-                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.03))
+                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")
                         || item.getName().startsWith("T2")
