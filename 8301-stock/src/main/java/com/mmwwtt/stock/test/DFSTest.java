@@ -58,7 +58,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE;
+    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE_03;
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -160,7 +160,7 @@ public class DFSTest {
         //取阈值最高的30条策略继续进行递归
         idxToTmpMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getPert).reversed()))
-                .limit(15)
+                .limit(30)
                 .forEach(entry -> {
                     StrategyTmp tmp = entry.getValue();
                     Integer idx = entry.getKey();

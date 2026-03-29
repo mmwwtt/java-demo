@@ -17,13 +17,40 @@ import static com.mmwwtt.stock.common.CommonUtils.multiply;
 @Getter
 public enum FilterFildEnum implements BaseEnum {
 
-    RISE5_MAX_MIDDLE("rise5MaxMiddle", "最大五日涨幅中位数",
+    RISE5_MAX_MIDDLE_03("rise5MaxMiddle03", "最大五日涨幅中位数 l1域值0.03",
             Detail::getRise5Max,
             StrategyL1::getRise5MaxMiddle,
             Strategy::getRise5MaxMiddle,
             (StrategyTmp tmp) -> {
                 int level = tmp.getStrategyCodeSet().size();
                 if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
+                        || (level == 2 && (lessThan(tmp.getPert(), 0.06) || tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.065))
+                        || (level == 3 && (lessThan(tmp.getPert(), 0.07) || tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.055))
+                        || (level == 4 && (lessThan(tmp.getPert(), 0.08) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.05))
+                        || (level == 5 && (lessThan(tmp.getPert(), 0.09) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.05))
+                        || (level == 6 && (lessThan(tmp.getPert(), 0.10) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.05))
+                        || (level == 7 && (lessThan(tmp.getPert(), 0.11) || tmp.getDateCnt() < 50 || tmp.getRise5MinMiddle() < -0.045))
+                        || (level == 8 && (lessThan(tmp.getPert(), 0.12) || tmp.getDateCnt() < 50 || tmp.getRise5MinMiddle() < -0.045))
+                        || (level == 9 && (lessThan(tmp.getPert(), 0.125) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.04))
+                        || (level == 10 && (lessThan(tmp.getPert(), 0.13) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.04))
+                        || (level == 11 && (lessThan(tmp.getPert(), 0.135) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.04))
+                        || (level == 12 && (lessThan(tmp.getPert(), 0.14) || tmp.getDateCnt() < 40 || tmp.getRise5MinMiddle() < -0.04))
+                        || (level == 13 && (lessThan(tmp.getPert(), 0.145) || tmp.getDateCnt() < 35 || tmp.getRise5MinMiddle() < -0.04))
+                        || (level == 14 && (lessThan(tmp.getPert(), 0.15) || tmp.getDateCnt() < 30 || tmp.getRise5MinMiddle() < -0.04))
+                        || (level == 15 && (lessThan(tmp.getPert(), 0.155) || tmp.getDateCnt() < 30 || tmp.getRise5MinMiddle() < -0.04))) {
+                    return false;
+                }
+                return true;
+            },
+            "pert > 0.17"
+    ),
+    RISE5_MAX_MIDDLE_025("rise5MaxMiddle025", "最大五日涨幅中位数 l1域值0.025",
+            Detail::getRise5Max,
+            StrategyL1::getRise5MaxMiddle,
+            Strategy::getRise5MaxMiddle,
+            (StrategyTmp tmp) -> {
+                int level = tmp.getStrategyCodeSet().size();
+                if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.001))
                         || (level == 2 && (lessThan(tmp.getPert(), 0.06) || tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.065))
                         || (level == 3 && (lessThan(tmp.getPert(), 0.07) || tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.055))
                         || (level == 4 && (lessThan(tmp.getPert(), 0.08) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.05))
