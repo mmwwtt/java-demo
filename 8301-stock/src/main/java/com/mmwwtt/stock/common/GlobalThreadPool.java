@@ -12,7 +12,7 @@ public class GlobalThreadPool {
     //定义指定的线程池
     public static final ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
     public static final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
-    public static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
+    public static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(8);
     public static final ExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(100);
 
     //服务器的CPU核数
@@ -20,7 +20,7 @@ public class GlobalThreadPool {
 
 
     // 定义线程池的核心线程数
-    private static final int CORE_POOL_SIZE = CPU_CORE_SIZE + 1;
+    private static final int CORE_POOL_SIZE = CPU_CORE_SIZE - 1;
     // 定义线程池的最大线程数
     private static final int MAXIMUM_POOL_SIZE = 100;
     // 线程空闲存活时间

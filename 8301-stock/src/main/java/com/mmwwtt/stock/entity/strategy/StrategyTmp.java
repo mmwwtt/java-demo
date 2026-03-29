@@ -8,11 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
 
@@ -105,23 +103,48 @@ public class StrategyTmp {
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
         Function<Detail, Double> detailGetter = filterFildEnum.getDetailGetter();
-        Pair<List<Double>, List<Double>> dayAvgLists = details.stream().collect(Collectors.teeing(
-                Collectors.groupingBy(
-                        Detail::getDealDate,
-                        Collectors.mapping(
-                                detailGetter,
-                                Collectors.filtering(Objects::nonNull, Collectors.averagingDouble(Double::doubleValue)))),
-                Collectors.groupingBy(
-                        Detail::getDealDate,
-                        Collectors.mapping(
-                                Detail::getRise5Min,
-                                Collectors.filtering(Objects::nonNull, Collectors.averagingDouble(Double::doubleValue)))),
-                (Map<String, Double> filterByDate, Map<String, Double> rise5MinByDate) ->
-                        Pair.of(new ArrayList<>(filterByDate.values()), new ArrayList<>(rise5MinByDate.values()))));
-        pert = getMiddle(dayAvgLists.getLeft());
-        rise5MinMiddle = getMiddle(dayAvgLists.getRight());
-        dateCnt = dayAvgLists.getLeft().size();
+        Map<String, Sum> map = new HashMap<>(300);
+        for (Detail detail : details) {
+            Double pert = detailGetter.apply(detail);
+            if (pert == null) {
+                continue;
+            }
+            map.computeIfAbsent(detail.getDealDate(), k -> new Sum()).add(detailGetter.apply(detail), detail.getRise5Min());
+        }
+        double[] pertArr = new double[map.size()];
+        double[] rise5MinArr = new double[map.size()];
+        int i = 0;
+        for (Sum value : map.values()) {
+            pertArr[i] = value.getPertAvg();
+            rise5MinArr[i] = value.getRise5MinAvg();
+            i++;
+        }
+
+        pert = getMiddle(pertArr);
+        rise5MinMiddle = getMiddle(rise5MinArr);
+        dateCnt = map.size();
         detailCnt = detailIdArr.length;
+    }
+
+    @Data
+    class Sum {
+        double pertSum = 0;
+        double rise5MinSum = 0;
+        int cnt = 0;
+
+        public void add(double pert, double rise5Min) {
+            this.pertSum += pert;
+            this.rise5MinSum += rise5Min;
+            cnt++;
+        }
+
+        public double getPertAvg() {
+            return pertSum / cnt;
+        }
+
+        public double getRise5MinAvg() {
+            return rise5MinSum / cnt;
+        }
     }
 
     /**

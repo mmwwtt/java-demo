@@ -128,7 +128,7 @@ public class DFSTest {
 
             //交集为0 则跳过
             int[] resDetailIdArr = retainAll(strategyTmp.getDetailIdArr(), l1DetailIdArr);
-            if (resDetailIdArr.length <= 40) {
+            if (resDetailIdArr.length <= 30) {
                 continue;
             }
 
@@ -159,7 +159,7 @@ public class DFSTest {
         //取阈值最高的30条策略继续进行递归
         idxToTmpMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getPert).reversed()))
-                .limit(30)
+                .limit(15)
                 .forEach(entry -> {
                     StrategyTmp tmp = entry.getValue();
                     Integer idx = entry.getKey();

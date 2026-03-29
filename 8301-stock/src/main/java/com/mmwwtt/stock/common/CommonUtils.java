@@ -385,7 +385,7 @@ public class CommonUtils {
                 Objects.isNull(list2) || list2.length == 0) {
             return ArrayUtils.EMPTY_INT_ARRAY;
         }
-        boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 30;
+        boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 25;
         return isBig ? retainAllBinarySearch(list1, list2) : retainAllInOrder(list1, list2);
     }
 
