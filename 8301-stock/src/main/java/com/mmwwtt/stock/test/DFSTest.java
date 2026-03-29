@@ -3,6 +3,7 @@ package com.mmwwtt.stock.test;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.convert.VoConvert;
+import com.mmwwtt.stock.dao.StrategyTmpDAO;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
@@ -35,6 +36,9 @@ public class DFSTest {
 
     @Autowired
     private StrategyTmpServiceImpl strategyTmpService;
+
+    @Autowired
+    private StrategyTmpDAO strategyTmpDAO;
 
     @Autowired
     private StrategyServiceImpl strategyService;
@@ -209,8 +213,7 @@ public class DFSTest {
 
     private void dfsAfterDetail() throws ExecutionException, InterruptedException {
         strategyService.remove(new QueryWrapper<>());
-        String sql = fildEnum.getDfsAfterSql();
-        List<StrategyTmp> strategyTmps = strategyTmpService.getBySql(sql);
+        List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp();
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -223,7 +226,6 @@ public class DFSTest {
                 Strategy strategy = VoConvert.INSTANCE.convertTo(strategyTmp);
                 strategy.setDetails(details);
                 strategy.fillOtherData();
-                strategy.getDetails().clear();
                 resList.add(strategy);
             }, cpuThreadPool);
             futures.add(future);
