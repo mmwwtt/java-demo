@@ -158,7 +158,7 @@ public class DFSTest {
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
-            if (resDetailIdArr.length < 80) {
+            if (resDetailIdArr.length < 70) {
                 //需要保存的数据的md5进行记录
                 md5ToIdxMap.put(md5Key, idx);
             }
