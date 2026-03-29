@@ -24,8 +24,8 @@ public enum FilterFildEnum implements BaseEnum {
             (StrategyTmp tmp) -> {
                 int level = tmp.getStrategyCodeSet().size();
                 if (lessThan(tmp.getPert(), multiply(tmp.getParentPert(), 1.01))
-                        || (level == 2 && (lessThan(tmp.getPert(), 0.06) || tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.065))
-                        || (level == 3 && (lessThan(tmp.getPert(), 0.07) || tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.055))
+                        || (level == 2 && (lessThan(tmp.getPert(), 0.065) || tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.06))
+                        || (level == 3 && (lessThan(tmp.getPert(), 0.075) || tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.055))
                         || (level == 4 && (lessThan(tmp.getPert(), 0.08) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.05))
                         || (level == 5 && (lessThan(tmp.getPert(), 0.09) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.05))
                         || (level == 6 && (lessThan(tmp.getPert(), 0.10) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.05))
