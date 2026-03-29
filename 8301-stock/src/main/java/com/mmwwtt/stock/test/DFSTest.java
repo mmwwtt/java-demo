@@ -133,8 +133,9 @@ public class DFSTest {
 
             //新md5(level + md5)相同表示层级相同 且结果集也相同的数据
             // 当新md5存在， 如果idx>之前的idx 则 之后的后续递归遍历在之前就存在过，   需要过滤，避免多余判断
-            if (resDetailIdArr.length < 100) {
-                String md5Key = level + getMd5Key(resDetailIdArr);
+            String md5Key="";
+            if (resDetailIdArr.length < 80) {
+                 md5Key = level + getMd5Key(resDetailIdArr);
                 Integer beforeIdx = md5ToIdxMap.get(md5Key);
                 if (beforeIdx != null && beforeIdx <= idx) {
                     continue;
@@ -149,12 +150,15 @@ public class DFSTest {
                 resStrategyTmp.addToResult(detailArr[detailId]);
             }
             resStrategyTmp.fillFilterField(fildEnum);
-            // details 不参与入库(exist=false)，交集计算只用 detailIdArr；尽早清空降低 tmpBatch/递归期间的堆峰值
             resStrategyTmp.getDetails().clear();
 
             //进行阈值过滤 和 数据保存
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
+            }
+            if (resDetailIdArr.length < 80) {
+                //需要保存的数据的md5进行记录
+                md5ToIdxMap.put(md5Key, idx);
             }
             idxToTmpMap.put(idx, resStrategyTmp);
         }
