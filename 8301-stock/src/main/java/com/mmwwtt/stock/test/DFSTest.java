@@ -32,7 +32,7 @@ import static com.mmwwtt.stock.service.CommonDataService.detailArr;
 @Slf4j
 @SpringBootTest
 public class DFSTest {
-    private static final int BATCH_SAVE_SIZE = 1000;
+    private static final int BATCH_SAVE_SIZE = 100;
 
     @Autowired
     private StrategyTmpServiceImpl strategyTmpService;
@@ -158,17 +158,18 @@ public class DFSTest {
             idxToTmpMap.put(idx, resStrategyTmp);
         }
         //取阈值最高的30条策略继续进行递归
-        idxToTmpMap.entrySet().stream()
+        List<Map.Entry<Integer, StrategyTmp>> tmpList = idxToTmpMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getPert).reversed()))
-                .limit(30)
-                .forEach(entry -> {
+                .limit(30).toList();
+        idxToTmpMap.clear();
+        tmpList.forEach(entry -> {
                     StrategyTmp tmp = entry.getValue();
                     Integer idx = entry.getKey();
                     tmp.fillCode();
                     addToTmpBatch(tmp);
 
                     //递归 线程池有空余线程时用多线程处理
-                    if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize()) {
+                    if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize()*1.5) {
                         taskCnt.incrementAndGet();
                         CompletableFuture.runAsync(() -> {
                             try {
@@ -189,6 +190,7 @@ public class DFSTest {
     private void dfsInit() {
         log.info("dfs 初始化");
         strategyTmpService.remove(new QueryWrapper<>());
+        md5ToIdxMap.clear();
         dfsStrategyL1s = CommonDataService.strategyL1s.stream()
                 .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.03))
                 .filter(item -> item.getName().startsWith("T0")
