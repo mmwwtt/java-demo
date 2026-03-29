@@ -53,7 +53,7 @@ public class CommonDataService {
 
 
     public static String calcEndDate;
-    public static int INIT_DATE_SIZE = 500;
+    public static int INIT_DATE_SIZE = 200;
 
     @PostConstruct
     public void init() throws ExecutionException, InterruptedException {

@@ -23,8 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
-import static com.mmwwtt.stock.service.CommonDataService.codeToL1Map;
-import static com.mmwwtt.stock.service.CommonDataService.detailArr;
+import static com.mmwwtt.stock.service.CommonDataService.*;
 
 
 //todo  根据策略预测的时候也要加权处理
@@ -107,7 +106,7 @@ public class DFSTest {
 
     private void buildByLevel(StrategyTmp strategyTmp, Integer parentIdx) {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
-        Map<Integer, StrategyTmp> idxToTmpMap = new ConcurrentHashMap<>(200);
+        Map<Integer, StrategyTmp> idxToTmpMap = new ConcurrentHashMap<>(INIT_DATE_SIZE);
         for (int idx = parentIdx + 1; idx < dfsStrategyL1s.size(); idx++) {
 
             //已存在的策略  或者策略类型相同  则跳过
@@ -150,6 +149,8 @@ public class DFSTest {
                 resStrategyTmp.addToResult(detailArr[detailId]);
             }
             resStrategyTmp.fillFilterField(fildEnum);
+            // details 不参与入库(exist=false)，交集计算只用 detailIdArr；尽早清空降低 tmpBatch/递归期间的堆峰值
+            resStrategyTmp.getDetails().clear();
 
             //进行阈值过滤 和 数据保存
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
@@ -220,6 +221,7 @@ public class DFSTest {
                 Strategy strategy = VoConvert.INSTANCE.convertTo(strategyTmp);
                 strategy.setDetails(details);
                 strategy.fillOtherData();
+                strategy.getDetails().clear();
                 resList.add(strategy);
             }, cpuThreadPool);
             futures.add(future);
@@ -281,6 +283,9 @@ public class DFSTest {
             toSave = new ArrayList<>(tmpBatch);
             strategyTmpService.saveBatch(toSave);
             tmpBatch.clear();
+            for (StrategyTmp t : toSave) {
+                t.getDetails().clear();
+            }
         }
     }
 
