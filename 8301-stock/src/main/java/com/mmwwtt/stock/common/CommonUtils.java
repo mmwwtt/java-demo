@@ -385,7 +385,7 @@ public class CommonUtils {
                 Objects.isNull(list2) || list2.length == 0) {
             return ArrayUtils.EMPTY_INT_ARRAY;
         }
-        boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 25;
+        boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 20;
         return isBig ? retainAllBinarySearch(list1, list2) : retainAllInOrder(list1, list2);
     }
 
@@ -434,11 +434,13 @@ public class CommonUtils {
         }
 
         int arrIdx = 0;
+        int longIdx = 0;
         for (int num1 : shortArr) {
-            int index = Arrays.binarySearch(longArr, num1);
-            if (index >= 0) {
+            int numForLongIdx = binSerarch(longArr, longIdx,num1);
+            if (numForLongIdx >= 0) {
                 tmpArr[arrIdx] = num1;
                 arrIdx++;
+                longIdx = numForLongIdx;
             }
         }
         return Arrays.copyOfRange(tmpArr, 0, arrIdx);
@@ -482,5 +484,31 @@ public class CommonUtils {
             unionSet.add(detailId);
         }
         return retainArr.length * 1.0 / unionSet.size();
+    }
+
+    public static int binSerarch(int[] arr, int start_idx, int num) {
+        // 边界检查：如果数组为空，或者起始位置不合法
+        if (arr == null || start_idx < 0 || start_idx >= arr.length) {
+            return -1;
+        }
+
+        int left = start_idx;
+        int right = arr.length - 1;
+
+        // 二分查找主循环
+        while (left <= right) {
+            // 防止 (left + right) 溢出的写法
+            int mid = left + (right - left) / 2;
+
+            if (arr[mid] == num) {
+                return mid; // 找到了，返回下标
+            } else if (arr[mid] < num) {
+                left = mid + 1; // 目标在右半部分
+            } else {
+                right = mid - 1; // 目标在左半部分
+            }
+        }
+
+        return -1; // 没找到
     }
 }

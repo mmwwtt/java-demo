@@ -103,13 +103,23 @@ public class StrategyTmp {
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
         Function<Detail, Double> detailGetter = filterFildEnum.getDetailGetter();
-        Map<String, Sum> map = new HashMap<>(300);
+        Map<String, Sum> map = new HashMap<>(200);
         for (Detail detail : details) {
             Double pert = detailGetter.apply(detail);
             if (pert == null) {
                 continue;
             }
-            map.computeIfAbsent(detail.getDealDate(), k -> new Sum()).add(detailGetter.apply(detail), detail.getRise5Min());
+            Double rise5Min = detail.getRise5Min();
+            if (rise5Min == null) {
+                continue;
+            }
+            String dealDate = detail.getDealDate();
+            Sum sum = map.get(dealDate);
+            if (sum == null) {
+                sum = new Sum();
+                map.put(dealDate, sum);
+            }
+            sum.add(pert, rise5Min);
         }
         double[] pertArr = new double[map.size()];
         double[] rise5MinArr = new double[map.size()];
@@ -127,7 +137,7 @@ public class StrategyTmp {
     }
 
     @Data
-    class Sum {
+    private static class Sum {
         double pertSum = 0;
         double rise5MinSum = 0;
         int cnt = 0;

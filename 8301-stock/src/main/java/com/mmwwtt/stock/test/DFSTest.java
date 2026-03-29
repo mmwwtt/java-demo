@@ -134,12 +134,15 @@ public class DFSTest {
 
             //新md5(level + md5)相同表示层级相同 且结果集也相同的数据
             // 当新md5存在， 如果idx>之前的idx 则 之后的后续递归遍历在之前就存在过，   需要过滤，避免多余判断
-            String md5Key = level + getMd5Key(resDetailIdArr);
-            Integer beforeIdx = md5ToIdxMap.get(md5Key);
-            if (beforeIdx != null && beforeIdx <= idx) {
-                continue;
+            if (resDetailIdArr.length < 100) {
+                String md5Key = level + getMd5Key(resDetailIdArr);
+                Integer beforeIdx = md5ToIdxMap.get(md5Key);
+                if (beforeIdx != null && beforeIdx <= idx) {
+                    continue;
+                }
+                //需要保存的数据的md5进行记录
+                md5ToIdxMap.put(md5Key, idx);
             }
-
 
             //计算并集中筛选字段的属性值
             StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1, strategyTmp, resDetailIdArr);
@@ -152,8 +155,6 @@ public class DFSTest {
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
-            //需要保存的数据的md5进行记录
-            md5ToIdxMap.put(md5Key, idx);
             idxToTmpMap.put(idx, resStrategyTmp);
         }
         //取阈值最高的30条策略继续进行递归
@@ -173,7 +174,7 @@ public class DFSTest {
                             try {
                                 buildByLevel(tmp, idx);
                             } catch (Exception e) {
-                               e.printStackTrace();
+                                e.printStackTrace();
                             } finally {
                                 taskCnt.decrementAndGet();
                             }
