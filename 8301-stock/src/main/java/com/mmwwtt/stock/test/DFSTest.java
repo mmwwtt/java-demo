@@ -140,8 +140,6 @@ public class DFSTest {
                 if (beforeIdx != null && beforeIdx <= idx) {
                     continue;
                 }
-                //需要保存的数据的md5进行记录
-                md5ToIdxMap.put(md5Key, idx);
             }
 
             //计算并集中筛选字段的属性值
