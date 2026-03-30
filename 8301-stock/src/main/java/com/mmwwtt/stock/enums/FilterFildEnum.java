@@ -73,15 +73,15 @@ public enum FilterFildEnum implements BaseEnum {
                         || (level == 4 && (lessThan(tmp.getRise5MaxMiddle(), 0.07) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.04))
                         || (level == 5 && (lessThan(tmp.getRise5MaxMiddle(), 0.075) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.04))
                         || (level == 6 && (lessThan(tmp.getRise5MaxMiddle(), 0.08) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.04))
-                        || (level == 7 && (lessThan(tmp.getRise5MaxMiddle(), 0.9) || tmp.getDateCnt() < 50 || tmp.getRise5MinMiddle() < -0.035))
+                        || (level == 7 && (lessThan(tmp.getRise5MaxMiddle(), 0.09) || tmp.getDateCnt() < 50 || tmp.getRise5MinMiddle() < -0.035))
                         || (level == 8 && (lessThan(tmp.getRise5MaxMiddle(), 0.10) || tmp.getDateCnt() < 50 || tmp.getRise5MinMiddle() < -0.035))
-                        || (level == 9 && (lessThan(tmp.getRise5MaxMiddle(), 0.12) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))
-                        || (level == 10 && (lessThan(tmp.getRise5MaxMiddle(), 0.13) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))
-                        || (level == 11 && (lessThan(tmp.getRise5MaxMiddle(), 0.135) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))
-                        || (level == 12 && (lessThan(tmp.getRise5MaxMiddle(), 0.14) || tmp.getDateCnt() < 40 || tmp.getRise5MinMiddle() < -0.035))
-                        || (level == 13 && (lessThan(tmp.getRise5MaxMiddle(), 0.145) || tmp.getDateCnt() < 40 || tmp.getRise5MinMiddle() < -0.035))
-                        || (level == 14 && (lessThan(tmp.getRise5MaxMiddle(), 0.15) || tmp.getDateCnt() < 40 || tmp.getRise5MinMiddle() < -0.035))
-                        || (level == 15 && (lessThan(tmp.getRise5MaxMiddle(), 0.155) || tmp.getDateCnt() < 40 || tmp.getRise5MinMiddle() < -0.035))) {
+                        || (level == 9 && (lessThan(tmp.getRise5MaxMiddle(), 0.11) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))
+                        || (level == 10 && (lessThan(tmp.getRise5MaxMiddle(), 0.12) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))
+                        || (level == 11 && (lessThan(tmp.getRise5MaxMiddle(), 0.13) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))
+                        || (level == 12 && (lessThan(tmp.getRise5MaxMiddle(), 0.14) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))
+                        || (level == 13 && (lessThan(tmp.getRise5MaxMiddle(), 0.145) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))
+                        || (level == 14 && (lessThan(tmp.getRise5MaxMiddle(), 0.15) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))
+                        || (level == 15 && (lessThan(tmp.getRise5MaxMiddle(), 0.155) || tmp.getDateCnt() < 45 || tmp.getRise5MinMiddle() < -0.035))) {
                     return false;
                 }
                 return true;
