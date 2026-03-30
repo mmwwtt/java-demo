@@ -241,7 +241,8 @@ public class DFSTest {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Strategy strategy2 : resList) {
                     if (Objects.equals(strategy1.getStrategyId(), strategy2.getStrategyId())
-                            || !strategy2.getIsActive()) {
+                            || !strategy2.getIsActive() || strategy1.getDetailCnt() < strategy2.getDetailCnt() * 0.94
+                            || strategy2.getDetailCnt() < strategy1.getDetailCnt() * 0.94) {
                         continue;
                     }
                     double repeatPerc = getRepeatPerc(strategy1.getDetailIdArr(), strategy2.getDetailIdArr());

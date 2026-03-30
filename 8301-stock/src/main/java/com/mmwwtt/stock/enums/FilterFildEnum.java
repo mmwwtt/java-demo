@@ -47,7 +47,6 @@ public enum FilterFildEnum implements BaseEnum {
                         || (level == 3 && (tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.04))
                         || (level == 4 && (tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.035))
                         || (level == 5 && (tmp.getDateCnt() < 60 || tmp.getRise5MinMiddle() < -0.030))
-                        || level >= 6
                         || (level == 6 && (lessThan(tmp.getRise5MaxMiddle(), 0.09) || tmp.getDateCnt() < 55 || tmp.getRise5MinMiddle() < -0.045))
                         || (level == 7 && (lessThan(tmp.getRise5MaxMiddle(), 0.10) || tmp.getDateCnt() < 50 || tmp.getRise5MinMiddle() < -0.04))
                         || (level == 8 && (lessThan(tmp.getRise5MaxMiddle(), 0.11) || tmp.getDateCnt() < 50 || tmp.getRise5MinMiddle() < -0.04))
