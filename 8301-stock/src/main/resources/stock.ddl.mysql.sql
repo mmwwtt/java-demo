@@ -223,13 +223,13 @@ CREATE TABLE strategy_l1_t
 DROP TABLE IF EXISTS strategy_tmp_t;
 CREATE TABLE strategy_tmp_t
 (
-    strategy_id   INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    strategy_code VARCHAR(200) COMMENT '策略编码',
-    date_cnt      INT(8) COMMENT '有符合数据的日期天数',
-    detail_cnt    INT(8) COMMENT '有符合数据的详情数',
-    pert          DECIMAL(8, 4) COMMENT '用于过滤判断的临时属性',
-    rise5_min_middle          DECIMAL(8, 4) COMMENT '最大回撤中位数',
-    level         INT(4) comment '策略层数'
+    strategy_id      INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_code    VARCHAR(200) COMMENT '策略编码',
+    date_cnt         INT(8) COMMENT '有符合数据的日期天数',
+    detail_cnt       INT(8) COMMENT '有符合数据的详情数',
+    rise5_max_middle DECIMAL(8, 4) COMMENT '最大涨幅中位数',
+    rise5_min_middle DECIMAL(8, 4) COMMENT '最大回撤中位数',
+    level            INT(4) comment '策略层数'
 ) COMMENT '策略中间表';
 
 

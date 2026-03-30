@@ -86,7 +86,8 @@ public class DFSTest {
             CompletableFuture.runAsync(() -> {
                 try {
                     StrategyTmp strategyTmp = VoConvert.INSTANCE.convertTo(strategyL1);
-                    strategyTmp.setPert(fildEnum.getStrategyL1Getter().apply(strategyL1));
+                    strategyTmp.setRise5MaxMiddle(strategyL1.getRise5MaxMiddle());
+                    strategyTmp.setRise5MinMiddle(strategyL1.getRise5MinMiddle());
                     strategyTmp.getStrategyCodeSet().add(strategyTmp.getStrategyCode());
                     if (Objects.nonNull(strategyL1.getType())) {
                         strategyTmp.getStrategyTypeSet().add(strategyL1.getType());
@@ -137,9 +138,9 @@ public class DFSTest {
 
             //新md5(level + md5)相同表示层级相同 且结果集也相同的数据
             // 当新md5存在， 如果idx>之前的idx 则 之后的后续递归遍历在之前就存在过，   需要过滤，避免多余判断
-            String md5Key="";
+            String md5Key = "";
             if (resDetailIdArr.length < 80) {
-                 md5Key = level + getMd5Key(resDetailIdArr);
+                md5Key = level + getMd5Key(resDetailIdArr);
                 Integer beforeIdx = md5ToIdxMap.get(md5Key);
                 if (beforeIdx != null && beforeIdx <= idx) {
                     continue;
@@ -166,31 +167,31 @@ public class DFSTest {
         }
         //取阈值最高的30条策略继续进行递归
         List<Map.Entry<Integer, StrategyTmp>> tmpList = idxToTmpMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getPert).reversed()))
-                .limit(30).toList();
+                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getRise5MaxMiddle).reversed()))
+                .limit(20).toList();
         idxToTmpMap.clear();
         tmpList.forEach(entry -> {
-                    StrategyTmp tmp = entry.getValue();
-                    Integer idx = entry.getKey();
-                    tmp.fillCode();
-                    addToTmpBatch(tmp);
+            StrategyTmp tmp = entry.getValue();
+            Integer idx = entry.getKey();
+            tmp.fillCode();
+            addToTmpBatch(tmp);
 
-                    //递归 线程池有空余线程时用多线程处理
-                    if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize()*1.5) {
-                        taskCnt.incrementAndGet();
-                        CompletableFuture.runAsync(() -> {
-                            try {
-                                buildByLevel(tmp, idx);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            } finally {
-                                taskCnt.decrementAndGet();
-                            }
-                        }, cpuThreadPool);
-                    } else {
+            //递归 线程池有空余线程时用多线程处理
+            if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize() * 1.5) {
+                taskCnt.incrementAndGet();
+                CompletableFuture.runAsync(() -> {
+                    try {
                         buildByLevel(tmp, idx);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        taskCnt.decrementAndGet();
                     }
-                });
+                }, cpuThreadPool);
+            } else {
+                buildByLevel(tmp, idx);
+            }
+        });
 
     }
 
@@ -245,8 +246,8 @@ public class DFSTest {
                     }
                     double repeatPerc = getRepeatPerc(strategy1.getDetailIdArr(), strategy2.getDetailIdArr());
                     if (moreThan(repeatPerc, 0.95)) {
-                        Double pert1 = fildEnum.getStrategyGetter().apply(strategy1);
-                        Double pert2 = fildEnum.getStrategyGetter().apply(strategy2);
+                        Double pert1 = strategy1.getRise5MaxMiddle();
+                        Double pert2 = strategy2.getRise5MaxMiddle();
                         if (isEquals(pert1, pert2)) {
                             if (strategy1.getDateCnt() > strategy2.getDateCnt()) {
                                 strategy2.setIsActive(false);

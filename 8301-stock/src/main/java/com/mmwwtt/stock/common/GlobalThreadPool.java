@@ -36,12 +36,6 @@ public class GlobalThreadPool {
     // 线程池实例，使用volatile保证可见性以及禁止指令重排序
     private static volatile ThreadPoolExecutor cpuThreadPool;
 
-    private static volatile ThreadPoolExecutor middleThreadPool2;
-
-    private static volatile ThreadPoolExecutor middleThreadPool3;
-
-    private static volatile ThreadPoolExecutor middleThreadPool4;
-
     private static volatile ThreadPoolExecutor priorityThreadPool;
 
     // 获取线程池实例的静态方法，用双重校验的单例模式

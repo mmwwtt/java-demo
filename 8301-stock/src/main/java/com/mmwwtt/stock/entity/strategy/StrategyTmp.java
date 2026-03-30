@@ -46,7 +46,7 @@ public class StrategyTmp {
     /**
      * 用于过滤数据的 字段阈值
      */
-    private Double pert;
+    private Double rise5MaxMiddle;
 
     /**
      * 最大回撤中位数
@@ -61,7 +61,10 @@ public class StrategyTmp {
     private Set<String> parentWinStrategyCodeSet;
 
     @TableField(exist = false)
-    private Double parentPert;
+    private Double parentRise5MaxMiddle;
+
+    @TableField(exist = false)
+    private Double parentRise5MinMiddle;
 
     /**
      * 符合数据的id Array   需要从小到大排序，便于两个策略取交集的算法使用
@@ -102,10 +105,9 @@ public class StrategyTmp {
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
     public void fillFilterField(FilterFildEnum filterFildEnum) {
-        Function<Detail, Double> detailGetter = filterFildEnum.getDetailGetter();
         Map<String, Sum> map = new HashMap<>(200);
         for (Detail detail : details) {
-            Double pert = detailGetter.apply(detail);
+            Double pert = detail.getRise5Max();
             if (pert == null) {
                 continue;
             }
@@ -121,16 +123,16 @@ public class StrategyTmp {
             }
             sum.add(pert, rise5Min);
         }
-        double[] pertArr = new double[map.size()];
+        double[] rise5MaxArr = new double[map.size()];
         double[] rise5MinArr = new double[map.size()];
         int i = 0;
         for (Sum value : map.values()) {
-            pertArr[i] = value.getPertAvg();
+            rise5MaxArr[i] = value.getRise5MaxAvg();
             rise5MinArr[i] = value.getRise5MinAvg();
             i++;
         }
 
-        pert = getMiddle(pertArr);
+        rise5MaxMiddle = getMiddle(rise5MaxArr);
         rise5MinMiddle = getMiddle(rise5MinArr);
         dateCnt = map.size();
         detailCnt = detailIdArr.length;
@@ -138,18 +140,18 @@ public class StrategyTmp {
 
     @Data
     private static class Sum {
-        double pertSum = 0;
+        double rise5MaxSum = 0;
         double rise5MinSum = 0;
         int cnt = 0;
 
         public void add(double pert, double rise5Min) {
-            this.pertSum += pert;
+            this.rise5MaxSum += pert;
             this.rise5MinSum += rise5Min;
             cnt++;
         }
 
-        public double getPertAvg() {
-            return pertSum / cnt;
+        public double getRise5MaxAvg() {
+            return rise5MaxSum / cnt;
         }
 
         public double getRise5MinAvg() {
@@ -176,7 +178,8 @@ public class StrategyTmp {
                        StrategyTmp parentStrategyTmp, int[] detailIdArr) {
         this.strategyCode = strategyL1.getStrategyCode();
         this.parentWinStrategyCodeSet = parentStrategyTmp.getStrategyCodeSet();
-        this.parentPert = parentStrategyTmp.getPert();
+        this.parentRise5MaxMiddle = parentStrategyTmp.getRise5MaxMiddle();
+        this.parentRise5MinMiddle = parentStrategyTmp.getRise5MinMiddle();
         this.detailIdArr = Arrays.stream(detailIdArr).sorted().toArray();
 
         strategyCodeSet.add(strategyL1.getStrategyCode());

@@ -49,7 +49,7 @@ public class InfoTest {
         //options.addArguments("--headless"); // 如果需要无头模式（后台运行），取消注释此行
 
         WebDriver driver = new ChromeDriver(options);
-        String filePath = "src/main/resources/file/预测的股票.txt";
+        String filePath = "src/main/resources/file/财联社电报.txt";
         File file = new File(filePath);
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
@@ -68,7 +68,7 @@ public class InfoTest {
 
             //懒加载剩余内容
             JavascriptExecutor js = (JavascriptExecutor) driver;
-            for (int i = 1; i <= 40; i++) {
+            for (int i = 1; i <= 20; i++) {
                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
                 Thread.sleep(500);
             }

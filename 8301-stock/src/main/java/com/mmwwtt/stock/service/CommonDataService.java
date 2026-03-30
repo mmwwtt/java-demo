@@ -417,7 +417,7 @@ public class CommonDataService {
                         .sorted()
                         .toList();
                 int[] idxArr = new int[]{0, 50000, 100000, 150000, 200000, 250000, 300000, 350000,
-                        400000, 450000, values.size() - 1};
+                        400000, values.size() - 1};
                 for (int i = 0; i < idxArr.length - 2; i++) {
                     double left = values.get(idxArr[i]);
                     double right = values.get(idxArr[i + 2]);
