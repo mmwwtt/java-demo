@@ -105,6 +105,9 @@ public class CommonDataService {
             for (Integer l1Id : l1IdList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     StrategyL1 strategyL1 = strategyL1Service.getById(l1Id);
+                    if (strategyL1.getDetailIdArr().length < 100) {
+                        return;
+                    }
                     int[] ids = new int[strategyL1.getDetailIdArray().size()];
                     for (int i = 0; i < strategyL1.getDetailIdArray().size(); i++) {
                         ids[i] = strategyL1.getDetailIdArray().getIntValue(i);
