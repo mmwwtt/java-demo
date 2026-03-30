@@ -51,10 +51,6 @@ public class DFSTest {
      */
     private final List<StrategyTmp> tmpBatch = Collections.synchronizedList(new ArrayList<>());
 
-    /**
-     * md5和pair<level, idx>    层级 当前策略下标
-     */
-    private static final Map<String, Integer> md5ToIdxMap = new ConcurrentHashMap<>(200000);
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     public static List<StrategyL1> dfsStrategyL1s;
 
@@ -105,7 +101,6 @@ public class DFSTest {
             Thread.sleep(10000);
         }
         flushWinBatch();
-        log.info("md5Map数量 ： {}", md5ToIdxMap.size());
     }
 
 
@@ -136,16 +131,6 @@ public class DFSTest {
                 continue;
             }
 
-            //新md5(level + md5)相同表示层级相同 且结果集也相同的数据
-            // 当新md5存在， 如果idx>之前的idx 则 之后的后续递归遍历在之前就存在过，   需要过滤，避免多余判断
-            String md5Key = "";
-            if (resDetailIdArr.length < 80) {
-                md5Key = level + getMd5Key(resDetailIdArr);
-                Integer beforeIdx = md5ToIdxMap.get(md5Key);
-                if (beforeIdx != null && beforeIdx <= idx) {
-                    continue;
-                }
-            }
 
             //计算并集中筛选字段的属性值
             StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1, strategyTmp, resDetailIdArr);
@@ -159,10 +144,7 @@ public class DFSTest {
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
-            if (resDetailIdArr.length < 70) {
-                //需要保存的数据的md5进行记录
-                md5ToIdxMap.put(md5Key, idx);
-            }
+
             idxToTmpMap.put(idx, resStrategyTmp);
         }
         //取阈值最高的30条策略继续进行递归
@@ -198,15 +180,11 @@ public class DFSTest {
     private void dfsInit() {
         log.info("dfs 初始化");
         strategyTmpService.remove(new QueryWrapper<>());
-        md5ToIdxMap.clear();
         dfsStrategyL1s = CommonDataService.strategyL1s.stream()
                 .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")
-                        || item.getName().startsWith("T2")
-                        || item.getName().startsWith("T3")
-                        || item.getName().startsWith("T4")
-                        || item.getName().startsWith("T5"))
+                        || item.getName().startsWith("T2"))
                 .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIdArray().size()))
                 .toList();
         log.info("dfs 初始化结束");
