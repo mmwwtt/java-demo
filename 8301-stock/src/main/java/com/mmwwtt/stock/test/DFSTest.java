@@ -57,7 +57,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE_025;
+    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE_0251;
 
     @Test
     @DisplayName("DFS深度遍历")
