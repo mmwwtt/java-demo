@@ -44,14 +44,14 @@ public class StrategyTmp {
     private Integer detailCnt;
 
     /**
-     * 用于过滤数据的 字段阈值
+     * 用于过滤数据的 涨幅阈值
      */
-    private Double rise5MaxMiddle;
+    private Double maxMiddle;
 
     /**
-     * 最大回撤中位数
+     * 用于过滤数据的 回撤阈值
      */
-    private Double rise5MinMiddle;
+    private Double minMiddle;
 
 
     @TableField(exist = false)
@@ -61,10 +61,10 @@ public class StrategyTmp {
     private Set<String> parentWinStrategyCodeSet;
 
     @TableField(exist = false)
-    private Double parentRise5MaxMiddle;
+    private Double parentMaxMiddle;
 
     @TableField(exist = false)
-    private Double parentRise5MinMiddle;
+    private Double parentMinMiddle;
 
     /**
      * 符合数据的id Array   需要从小到大排序，便于两个策略取交集的算法使用
@@ -104,15 +104,15 @@ public class StrategyTmp {
      * 只计算 字段的中位涨幅 和平均涨幅
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
-    public void fillFilterField(FilterFildEnum filterFildEnum) {
+    public void fillFilterField(FilterFildEnum fildEnum) {
         Map<String, Sum> map = new HashMap<>(200);
         for (Detail detail : details) {
-            Double pert = detail.getRise5Max();
-            if (pert == null) {
+            Double riseMax = fildEnum.getDetailMaxGetter().apply(detail);
+            if (riseMax == null) {
                 continue;
             }
-            Double rise5Min = detail.getRise5Min();
-            if (rise5Min == null) {
+            Double riseMin = fildEnum.getDetailMinGetter().apply(detail);
+            if (riseMin == null) {
                 continue;
             }
             String dealDate = detail.getDealDate();
@@ -121,7 +121,7 @@ public class StrategyTmp {
                 sum = new Sum();
                 map.put(dealDate, sum);
             }
-            sum.add(pert, rise5Min);
+            sum.add(riseMax, riseMin);
         }
         double[] rise5MaxArr = new double[map.size()];
         double[] rise5MinArr = new double[map.size()];
@@ -132,8 +132,8 @@ public class StrategyTmp {
             i++;
         }
 
-        rise5MaxMiddle = getMiddle(rise5MaxArr);
-        rise5MinMiddle = getMiddle(rise5MinArr);
+        maxMiddle = getMiddle(rise5MaxArr);
+        minMiddle = getMiddle(rise5MinArr);
         dateCnt = map.size();
         detailCnt = detailIdArr.length;
     }
@@ -178,8 +178,8 @@ public class StrategyTmp {
                        StrategyTmp parentStrategyTmp, int[] detailIdArr) {
         this.strategyCode = strategyL1.getStrategyCode();
         this.parentWinStrategyCodeSet = parentStrategyTmp.getStrategyCodeSet();
-        this.parentRise5MaxMiddle = parentStrategyTmp.getRise5MaxMiddle();
-        this.parentRise5MinMiddle = parentStrategyTmp.getRise5MinMiddle();
+        this.parentMaxMiddle = parentStrategyTmp.getMaxMiddle();
+        this.parentMinMiddle = parentStrategyTmp.getMinMiddle();
         this.detailIdArr = Arrays.stream(detailIdArr).sorted().toArray();
 
         strategyCodeSet.add(strategyL1.getStrategyCode());

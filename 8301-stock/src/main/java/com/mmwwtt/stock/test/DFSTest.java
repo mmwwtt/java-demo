@@ -82,8 +82,8 @@ public class DFSTest {
             CompletableFuture.runAsync(() -> {
                 try {
                     StrategyTmp strategyTmp = VoConvert.INSTANCE.convertTo(strategyL1);
-                    strategyTmp.setRise5MaxMiddle(strategyL1.getRise5MaxMiddle());
-                    strategyTmp.setRise5MinMiddle(strategyL1.getRise5MinMiddle());
+                    strategyTmp.setMaxMiddle(strategyL1.getRise5MaxMiddle());
+                    strategyTmp.setMinMiddle(strategyL1.getRise5MinMiddle());
                     strategyTmp.getStrategyCodeSet().add(strategyTmp.getStrategyCode());
                     if (Objects.nonNull(strategyL1.getType())) {
                         strategyTmp.getStrategyTypeSet().add(strategyL1.getType());
@@ -149,7 +149,7 @@ public class DFSTest {
         }
         //取阈值最高的30条策略继续进行递归
         List<Map.Entry<Integer, StrategyTmp>> tmpList = idxToTmpMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getRise5MaxMiddle).reversed()))
+                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getMaxMiddle).reversed()))
                 .limit(30).toList();
         boolean isContinue = level + 1 <= fildEnum.getLevelLimit();
         idxToTmpMap.clear();

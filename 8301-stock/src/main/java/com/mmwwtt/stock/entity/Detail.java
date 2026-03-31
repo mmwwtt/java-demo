@@ -335,6 +335,8 @@ public class Detail {
      */
     private Double rise0;
     private Double rise1;
+    private Double rise1Max;
+    private Double rise1Min;
     private Double rise2;
     private Double rise3;
     private Double rise3Max;
@@ -646,6 +648,8 @@ public class Detail {
             Detail cur = list.get(i);
             if (i - 1 >= 0) {
                 cur.setRise1(getRise(list.get(i - 1).getEndPrice(), cur.getEndPrice()));
+                cur.setRise1Max(getRise(list.get(i - 1).getHighPrice(), cur.getEndPrice()));
+                cur.setRise1Min(getRise(list.get(i - 1).getLowPrice(), cur.getEndPrice()));
             }
             if (i - 2 >= 0) {
                 cur.setRise2(getRise(list.get(i - 2).getEndPrice(), cur.getEndPrice()));

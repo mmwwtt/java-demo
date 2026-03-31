@@ -86,6 +86,11 @@ public class BaseStrategy {
     protected Double rise20Middle;
 
     /**
+     * 1日最大中位数涨幅
+     */
+    protected Double rise1MaxMiddle;
+
+    /**
      * 3日最大中位数涨幅
      */
     protected Double rise3MaxMiddle;
@@ -103,6 +108,11 @@ public class BaseStrategy {
      * 20日最大中位数涨幅
      */
     protected Double rise20MaxMiddle;
+
+    /**
+     * 3日最大中位数跌幅
+     */
+    protected Double rise1MinMiddle;
 
     /**
      * 3日最大中位数跌幅
@@ -146,6 +156,8 @@ public class BaseStrategy {
     protected List<Double> rise20Middles = new ArrayList<>(INIT_DATE_SIZE);
 
     @TableField(exist = false)
+    protected List<Double> rise1MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
+    @TableField(exist = false)
     protected List<Double> rise3MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
     protected List<Double> rise5MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
@@ -154,6 +166,8 @@ public class BaseStrategy {
     @TableField(exist = false)
     protected List<Double> rise20MaxMiddles = new ArrayList<>(INIT_DATE_SIZE);
 
+    @TableField(exist = false)
+    protected List<Double> rise1MinMiddles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
     protected List<Double> rise3MinMiddles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
@@ -204,6 +218,9 @@ public class BaseStrategy {
         dateToDetailListMap.forEach((date, details) -> {
             //统计每日中符合策略的stock的涨幅
             List<Double> curRise1s = new ArrayList<>(INIT_DATE_SIZE);
+
+            List<Double> curRise1Maxs = new ArrayList<>(INIT_DATE_SIZE);
+            List<Double> curRise1Mins = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise2s = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise3s = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise3Maxs = new ArrayList<>(INIT_DATE_SIZE);
@@ -221,6 +238,8 @@ public class BaseStrategy {
             for (Detail detail : details) {
                 if (Objects.nonNull(detail.getNext1())) {
                     curRise1s.add(detail.getRise1());
+                    curRise1Maxs.add(detail.getRise1Max());
+                    curRise1Mins.add(detail.getRise1Min());
                 }
                 if (Objects.nonNull(detail.getNext2())) {
                     curRise2s.add(detail.getRise2());
@@ -253,6 +272,12 @@ public class BaseStrategy {
             //算出每日中符合策略的stock的   平均  和中位数
             if (CollectionUtils.isNotEmpty(curRise1s)) {
                 rise1Middles.add(getMiddle(curRise1s));
+            }
+            if (CollectionUtils.isNotEmpty(curRise1Maxs)) {
+                rise1MaxMiddles.add(getMiddle(curRise1Maxs));
+            }
+            if (CollectionUtils.isNotEmpty(curRise1Mins)) {
+                rise1MinMiddles.add(getMiddle(curRise1Mins));
             }
             if (CollectionUtils.isNotEmpty(curRise2s)) {
                 rise2Middles.add(getMiddle(curRise2s));
@@ -300,6 +325,8 @@ public class BaseStrategy {
         });
         //算出策略的存在符合数据的日期的   平均  和中位数
         rise1Middle = getMiddle(rise1Middles);
+        rise1MaxMiddle = getMiddle(rise1MaxMiddles);
+        rise1MinMiddle = getMiddle(rise1MinMiddles);
         rise2Middle = getMiddle(rise2Middles);
         rise3Middle = getMiddle(rise3Middles);
         rise3MaxMiddle = getMiddle(rise3MaxMiddles);
