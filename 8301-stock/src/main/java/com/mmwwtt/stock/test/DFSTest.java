@@ -127,7 +127,7 @@ public class DFSTest {
 
             //交集为0 则跳过
             int[] resDetailIdArr = retainAll(strategyTmp.getDetailIdArr(), l1DetailIdArr);
-            if (resDetailIdArr.length <= 30) {
+            if (resDetailIdArr.length < 50) {
                 continue;
             }
 
@@ -150,14 +150,17 @@ public class DFSTest {
         //取阈值最高的30条策略继续进行递归
         List<Map.Entry<Integer, StrategyTmp>> tmpList = idxToTmpMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getRise5MaxMiddle).reversed()))
-                .limit(20).toList();
+                .limit(30).toList();
+        boolean isContinue = level + 1 <= fildEnum.getLevelLimit();
         idxToTmpMap.clear();
         tmpList.forEach(entry -> {
             StrategyTmp tmp = entry.getValue();
             Integer idx = entry.getKey();
             tmp.fillCode();
             addToTmpBatch(tmp);
-
+            if(!isContinue) {
+                return;
+            }
             //递归 线程池有空余线程时用多线程处理
             if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize() * 1.5) {
                 taskCnt.incrementAndGet();

@@ -3,7 +3,6 @@ package com.mmwwtt.stock.common;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -343,36 +342,6 @@ public class CommonUtils {
      */
     public static double getRise(double price1, double price2) {
         return divide(subtract(price1, price2), price2);
-    }
-
-    /**
-     * 不能有null
-     * 返回 128 位紧凑 key，用于 md5ToLevelMap，不分配 String，适合几十万 key 的大 map
-     */
-    public static String getMd5Key(int[] arr) {
-        try {
-            // 1. 将 int[] 转换为 byte[] (每个 int 4字节)
-            byte[] input = new byte[arr.length * 4];
-            for (int i = 0; i < arr.length; i++) {
-                input[i * 4] = (byte) (arr[i] >> 24);
-                input[i * 4 + 1] = (byte) (arr[i] >> 16);
-                input[i * 4 + 2] = (byte) (arr[i] >> 8);
-                input[i * 4 + 3] = (byte) (arr[i]);
-            }
-
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(input);
-
-            StringBuilder sb = new StringBuilder();
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b));
-            }
-            String fullMD5 = sb.toString();
-
-            return fullMD5.substring(0, 8);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**

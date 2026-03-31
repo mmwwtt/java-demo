@@ -188,7 +188,7 @@ public class BaseStrategy {
                 .map(strategyCode -> codeToL1Map.containsKey(strategyCode)?
                         codeToL1Map.get(strategyCode).getName(): name)
                 .collect(Collectors.joining("\n"));
-        List<Integer> detailIdList = details.stream().filter(Objects::nonNull).map(Detail::getDetailId)
+        List<Integer> detailIdList = details.stream().map(Detail::getDetailId)
                 .sorted(Comparator.comparing(Integer::intValue)).toList();
         if (Objects.isNull(detailIdArray)) {
             detailIdArray = new JSONArray(detailIdList);
@@ -199,7 +199,7 @@ public class BaseStrategy {
 
         //填充其他相关数据
         Map<String, List<Detail>> dateToDetailListMap = details.stream()
-                .filter(Objects::nonNull).collect(Collectors.groupingBy(Detail::getDealDate));
+                .collect(Collectors.groupingBy(Detail::getDealDate));
 
         dateToDetailListMap.forEach((date, details) -> {
             //统计每日中符合策略的stock的涨幅
