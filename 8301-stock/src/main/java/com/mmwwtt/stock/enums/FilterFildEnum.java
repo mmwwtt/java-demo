@@ -31,9 +31,9 @@ public enum FilterFildEnum implements BaseEnum {
                         || (level == 5 && (lessThan(tmp.getMaxMiddle(), 0.07) || tmp.getDateCnt() < 55 || tmp.getMinMiddle() < -0.040))
                         || (level == 6 && (lessThan(tmp.getMaxMiddle(), 0.075) || tmp.getDateCnt() < 55 || tmp.getMinMiddle() < -0.040))
                         || (level == 7 && (lessThan(tmp.getMaxMiddle(), 0.08) || tmp.getDateCnt() < 55 || tmp.getMinMiddle() < -0.040))
-                        || (level == 8 && (lessThan(tmp.getMaxMiddle(), 0.110) || tmp.getDateCnt() < 50 || tmp.getMinMiddle() < -0.040))
-                        || (level == 9 && (lessThan(tmp.getMaxMiddle(), 0.120) || tmp.getDateCnt() < 50 || tmp.getMinMiddle() < -0.040))
-                        || (level == 10 && (lessThan(tmp.getMaxMiddle(), 0.13) || tmp.getDateCnt() < 50 || tmp.getMinMiddle() < -0.040))
+                        || (level == 8 && (lessThan(tmp.getMaxMiddle(), 0.085) || tmp.getDateCnt() < 50 || tmp.getMinMiddle() < -0.040))
+                        || (level == 9 && (lessThan(tmp.getMaxMiddle(), 0.09) || tmp.getDateCnt() < 50 || tmp.getMinMiddle() < -0.040))
+                        || (level == 10 && (lessThan(tmp.getMaxMiddle(), 0.95) || tmp.getDateCnt() < 50 || tmp.getMinMiddle() < -0.040))
                 ) {
                     return false;
                 }

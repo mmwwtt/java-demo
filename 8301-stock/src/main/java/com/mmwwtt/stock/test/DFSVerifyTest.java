@@ -48,7 +48,7 @@ public class DFSVerifyTest {
     @PostConstruct
     public void init() {
         //String sql = "rise5_max_middle > 0.15 and rise5_middle > rise3_middle*2";
-        String sql = "rise5_max_middle > 0.11 and rise5_max_middle < 0.12";
+        String sql = "rise5_max_middle > 0.10 and rise5_max_middle < 0.12";
         strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
