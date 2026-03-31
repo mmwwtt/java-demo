@@ -48,7 +48,7 @@ public class DFSVerifyTest {
     @PostConstruct
     public void init() {
         //String sql = "rise5_max_middle > 0.15 and rise5_middle > rise3_middle*2";
-        String sql = "rise5_max_middle > 0.15";
+        String sql = "rise5_max_middle > 0.11 and rise5_max_middle < 0.12";
         strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
@@ -99,11 +99,6 @@ public class DFSVerifyTest {
                 for (Strategy strategyWin : strategies) {
                     List<Function<Detail, Boolean>> filterFuncs = strategyWin.getStrategyCodeSet().stream()
                             .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
-                    try {
-                        filterFuncs.stream().allMatch(item -> item.apply(detail));
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
                     boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                     if (res) {
                         Pair<List<Detail>, Map<Integer, Double>> pair =
