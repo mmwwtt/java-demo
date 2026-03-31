@@ -6,7 +6,6 @@ import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.strategy.Strategy;
 import com.mmwwtt.stock.service.impl.DetailServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,32 +41,40 @@ public class DFSVerifyTest {
     private DetailServiceImpl detailService;
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
-    private static List<Strategy> strategies;
-
-    // rise5  rise5_max_middle > 0.16
-    @PostConstruct
-    public void init() {
-        //String sql = "rise5_max_middle > 0.15 and rise5_middle > rise3_middle*2";
-       // String sql = "rise5_max_middle > 0.10 and rise5_max_middle < 0.12";
-        String sql = "rise5_max_middle > 0.14";
-        strategies = strategyService.getBySql(sql)
-                .stream()
-                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
-                .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
-                .toList();
-    }
-
     @Test
     @DisplayName("验证策略")
     public void verifyPredictResByFiveMax() {
-        log.info("\n\n");
-        verifyPredictRes(Detail::getRise5, Detail::getRise5Max);
+        List<String> sqlList = Arrays.asList(
+                "rise5_max_middle > 0.13",
+                "rise5_max_middle > 0.13 and is_active = true",
+                "rise5_max_middle > 0.14",
+                "rise5_max_middle > 0.14 and is_active = true",
+                "rise5_max_middle > 0.15",
+                "rise5_max_middle > 0.15 and is_active = true",
+                "rise5_max_middle > 0.16",
+                "rise5_max_middle > 0.16 and is_active = true");
+        for (String sql : sqlList) {
+            log.info("\n\n");
+            log.info("条件： {}",sql);
+            List<Strategy> strategies = strategyService.getBySql(sql)
+                    .stream()
+                    .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
+                    .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
+                    .toList();
+            verifyPredictRes(strategies,Detail::getRise5, Detail::getRise5Max);
+        }
     }
 
 
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
+        String sql = "rise5_max_middle > 0.15 and is_active = true";
+        List<Strategy> strategies = strategyService.getBySql(sql)
+                .stream()
+                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
+                .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
+                .toList();
         predict("20260324", strategies, false, 1.2);
     }
 
@@ -79,7 +86,8 @@ public class DFSVerifyTest {
     }
 
 
-    public void verifyPredictRes(Function<Detail, Double> riseGetter,
+    public void verifyPredictRes(List<Strategy> strategies,
+                                 Function<Detail, Double> riseGetter,
                                  Function<Detail, Double> riseMaxGetter) {
         List<Double> fiveMaxDateAvgList = new ArrayList<>();
         List<Double> fiveDateAvgList = new ArrayList<>();
@@ -134,7 +142,7 @@ public class DFSVerifyTest {
             Double weightSum = sum(detailIdToWeightMap.values().stream().toList());
             double riseMaxsDateAvg = divide(sum(riseMaxs), weightSum);
             double risesDateAvg = divide(sum(rises), weightSum);
-            log.info("日期：{}   5日平均涨幅：{}%   5日最高平均涨幅：{}%  \n",
+            log.info("日期：{}   5日平均涨幅：{}%   5日最高平均涨幅：{}%",
                     date, String.format("%.3f", risesDateAvg * 100),
                     String.format("%.3f", riseMaxsDateAvg * 100));
 
