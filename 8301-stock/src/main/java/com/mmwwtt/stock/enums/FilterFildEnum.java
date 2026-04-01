@@ -53,55 +53,55 @@ public enum FilterFildEnum implements BaseEnum {
                 }
                 switch (level) {
                     case 2:
-                        if (tmp.getDateCnt() < 80 || tmp.getMinMiddle() < -0.1
+                        if (tmp.getDateCnt() < 90 || tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.065) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.55 < 0)) {
                             return false;
                         }
                         break;
                     case 3:
-                        if (tmp.getDateCnt() < 80 || tmp.getMinMiddle() < -0.1
+                        if (tmp.getDateCnt() < 90 || tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.075) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.7 < 0)) {
                             return false;
                         }
                         break;
                     case 4:
-                        if (tmp.getDateCnt() < 80 || tmp.getMinMiddle() < -0.1
+                        if (tmp.getDateCnt() < 90 || tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.08) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.0 < 0)) {
                             return false;
                         }
                         break;
                     case 5:
-                        if (tmp.getDateCnt() < 75 || tmp.getMinMiddle() < -0.1
+                        if (tmp.getDateCnt() < 85 || tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.095) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.4 < 0)) {
                             return false;
                         }
                         break;
                     case 6:
-                        if (tmp.getDateCnt() < 75 || tmp.getMinMiddle() < -0.1
+                        if (tmp.getDateCnt() < 85 || tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.105) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.5 < 0)) {
                             return false;
                         }
                         break;
                     case 7:
-                        if (tmp.getDateCnt() < 75 || tmp.getMinMiddle() < -0.1
+                        if (tmp.getDateCnt() < 85 || tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.115) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.6 < 0)) {
                             return false;
                         }
                         break;
                     case 8:
-                        if (tmp.getDateCnt() < 70 || tmp.getMinMiddle() < -0.1
+                        if (tmp.getDateCnt() < 80 || tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.12) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.7 < 0)) {
                             return false;
                         }
                         break;
                     case 9:
-                        if (tmp.getDateCnt() < 70 || tmp.getMinMiddle() < -0.1
+                        if (tmp.getDateCnt() < 80 || tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.15) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.8 < 0)) {
                             return false;
                         }
                         break;
                     case 10:
-                        if (tmp.getDateCnt() < 70 || tmp.getMinMiddle() < -0.1
+                        if (tmp.getDateCnt() < 80 || tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.13) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 3.0 < 0)) {
                             return false;
                         }

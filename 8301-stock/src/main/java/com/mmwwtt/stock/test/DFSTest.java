@@ -94,7 +94,7 @@ public class DFSTest {
                 } finally {
                     taskCnt.decrementAndGet();
                 }
-            }, cpuThreadPool);
+            }, singleThreadPool);
         }
         while (taskCnt.get() != 0) {
             log.info("任务数 taskCnt:{}", taskCnt.get());
@@ -162,7 +162,7 @@ public class DFSTest {
                 return;
             }
             //递归 线程池有空余线程时用多线程处理
-            if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize() * 1.5) {
+            if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize() ) {
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
                     try {
