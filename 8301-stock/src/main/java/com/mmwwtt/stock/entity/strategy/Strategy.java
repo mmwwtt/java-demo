@@ -26,6 +26,7 @@ public class Strategy extends BaseStrategy {
      */
     private Boolean isActive = true;
 
+
     /**
      * 有符合数据的详情数
      */
