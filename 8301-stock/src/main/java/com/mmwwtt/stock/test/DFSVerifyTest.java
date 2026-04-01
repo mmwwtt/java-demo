@@ -45,6 +45,7 @@ public class DFSVerifyTest {
     @DisplayName("验证策略")
     public void verifyPredictResByFiveMax() {
         List<String> sqlList = Arrays.asList(
+                "rise4_middle<rise5_middle and rise3_middle<rise4_middle and rise5_middle>0.01 ",
                 "rise5_max_middle > 0.10",
                 "rise5_max_middle > 0.10 and is_active = true",
                 "rise5_max_middle > 0.11",
