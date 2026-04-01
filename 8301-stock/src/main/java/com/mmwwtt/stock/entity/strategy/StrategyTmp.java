@@ -107,15 +107,16 @@ public class StrategyTmp {
     }
 
     public void fillDateSumMap() {
+        dateCnt = 0;
         for (Detail detail : details) {
             String dealDate = detail.getDealDate();
             Sum sum = dateSumMap.get(dealDate);
             if (sum == null) {
                 sum = new Sum();
                 dateSumMap.put(dealDate, sum);
+                dateCnt++;
             }
         }
-        dateCnt = dateSumMap.size();
         detailCnt = detailIdArr.length;
     }
 
