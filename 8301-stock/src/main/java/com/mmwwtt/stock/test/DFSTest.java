@@ -94,7 +94,7 @@ public class DFSTest {
                 } finally {
                     taskCnt.decrementAndGet();
                 }
-            }, singleThreadPool);
+            }, cpuThreadPool);
         }
         while (taskCnt.get() != 0) {
             log.info("任务数 taskCnt:{}", taskCnt.get());
@@ -153,7 +153,7 @@ public class DFSTest {
         //取阈值最高的30条策略继续进行递归
         List<Map.Entry<Integer, StrategyTmp>> tmpList = idxToTmpMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getMaxMiddle).reversed()))
-                .limit(50).toList();
+                .limit(70).toList();
         boolean isContinue = level + 1 <= fildEnum.getLevelLimit();
         idxToTmpMap.clear();
         tmpList.forEach(entry -> {
@@ -165,7 +165,7 @@ public class DFSTest {
                 return;
             }
             //递归 线程池有空余线程时用多线程处理
-            if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize() ) {
+            if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize()-1 ) {
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
                     try {

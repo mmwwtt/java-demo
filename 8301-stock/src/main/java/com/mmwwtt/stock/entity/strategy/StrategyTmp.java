@@ -36,7 +36,7 @@ public class StrategyTmp {
     /**
      * 有符合数据的日期天数
      */
-    private Integer dateCnt;
+    private int dateCnt = 0;
 
     /**
      * 有符合数据的日期天数
@@ -90,12 +90,13 @@ public class StrategyTmp {
     private Integer level;
 
     @TableField(exist = false)
-    private  Map<String, Sum> dateSumMap = new HashMap<>(200);
+    private Map<String, Sum> dateSumMap = new HashMap<>(200);
 
     public void clearCacheDate() {
         this.dateSumMap.clear();
         this.details.clear();
     }
+
     /**
      * 将结果累加到数据中
      */
@@ -107,7 +108,6 @@ public class StrategyTmp {
     }
 
     public void fillDateSumMap() {
-        dateCnt = 0;
         for (Detail detail : details) {
             String dealDate = detail.getDealDate();
             Sum sum = dateSumMap.get(dealDate);

@@ -18,7 +18,7 @@ public enum FilterFildEnum implements BaseEnum {
 
 
     RISE5_MAX_MIDDLE_025("rise5MaxMiddle025", "最大5日涨幅中位数 l1域值0.025",
-            10,
+            13,
             Detail::getRise5Max,
             Detail::getRise5Min,
             StrategyL1::getRise5MaxMiddle,
@@ -33,7 +33,10 @@ public enum FilterFildEnum implements BaseEnum {
                         || (level == 7 && tmp.getDateCnt() < 70)
                         || (level == 8 && tmp.getDateCnt() < 60)
                         || (level == 9 && tmp.getDateCnt() < 60)
-                        || (level == 10 && tmp.getDateCnt() < 60)) {
+                        || (level == 10 && tmp.getDateCnt() < 60)
+                        || (level == 11 && tmp.getDateCnt() < 50)
+                        || (level == 12 && tmp.getDateCnt() < 50)
+                        || (level == 13 && tmp.getDateCnt() < 50)) {
                     return false;
                 }
                 return true;
@@ -96,6 +99,24 @@ public enum FilterFildEnum implements BaseEnum {
                     case 10:
                         if (tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.12) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.4 < 0)) {
+                            return false;
+                        }
+                        break;
+                    case 11:
+                        if (tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.125) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.5 < 0)) {
+                            return false;
+                        }
+                        break;
+                    case 12:
+                        if (tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.13) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.6 < 0)) {
+                            return false;
+                        }
+                        break;
+                    case 13:
+                        if (tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.135) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.7 < 0)) {
                             return false;
                         }
                         break;
