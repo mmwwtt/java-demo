@@ -16,36 +16,29 @@ import static com.mmwwtt.stock.common.CommonUtils.multiply;
 @Getter
 public enum FilterFildEnum implements BaseEnum {
 
-    RISE5_MAX_MIDDLE_025("rise5MaxMiddle025", "最大五日涨幅中位数 l1域值0.025",
-            10,
+
+    RISE5_MAX_MIDDLE_025("rise5MaxMiddle025", "最大5日涨幅中位数 l1域值0.025",
+            5,
             Detail::getRise5Max,
             Detail::getRise5Min,
             StrategyL1::getRise5MaxMiddle,
             StrategyL1::getRise5MinMiddle,
             (StrategyTmp tmp) -> {
                 int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMaxMiddle(), multiply(tmp.getParentMaxMiddle(), 1.001))
-                        || (level == 2 && (lessThan(tmp.getMaxMiddle(), 0.040) || tmp.getDateCnt() < 60 || tmp.getMinMiddle() < -0.040))
-                        || (level == 3 && (lessThan(tmp.getMaxMiddle(), 0.055) || tmp.getDateCnt() < 60 || tmp.getMinMiddle() < -0.038))
-                        || (level == 4 && (lessThan(tmp.getMaxMiddle(), 0.065) || tmp.getDateCnt() < 60 || tmp.getMinMiddle() < -0.038))
-                        || (level == 5 && (lessThan(tmp.getMaxMiddle(), 0.075) || tmp.getDateCnt() < 55 || tmp.getMinMiddle() < -0.038))
-                        || (level == 6 && (lessThan(tmp.getMaxMiddle(), 0.085) || tmp.getDateCnt() < 55 || tmp.getMinMiddle() < -0.038))
-                        || (level == 7 && (lessThan(tmp.getMaxMiddle(), 0.09) || tmp.getDateCnt() < 55 || tmp.getMinMiddle() < -0.038))
-                        || (level == 8 && (lessThan(tmp.getMaxMiddle(), 0.095) || tmp.getDateCnt() < 50 || tmp.getMinMiddle() < -0.038))
-                        || (level == 9 && (lessThan(tmp.getMaxMiddle(), 0.10) || tmp.getDateCnt() < 50 || tmp.getMinMiddle() < -0.038))
-                        || (level == 10 && (lessThan(tmp.getMaxMiddle(), 0.105) || tmp.getDateCnt() < 50 || tmp.getMinMiddle() < -0.038))
-                ) {
+                if((level == 2 && tmp.getDateCnt()<90)
+                ||(level == 3 && tmp.getDateCnt()<90)
+                ||(level == 4 && tmp.getDateCnt()<90)
+                ||(level == 5 && tmp.getDateCnt()<85)
+                ||(level == 6 && tmp.getDateCnt()<85)
+                ||(level == 7 && tmp.getDateCnt()<85)
+                ||(level == 8 && tmp.getDateCnt()<80)
+                ||(level == 9 && tmp.getDateCnt()<80)
+                ||(level == 10 && tmp.getDateCnt()<80)) {
                     return false;
                 }
                 return true;
-            }
-    ),
-    RISE5_MAX_MIDDLE_0251("rise5MaxMiddle025", "最大五日涨幅中位数 l1域值0.025",
-            10,
-            Detail::getRise5Max,
-            Detail::getRise5Min,
-            StrategyL1::getRise5MaxMiddle,
-            StrategyL1::getRise5MinMiddle,
+            },
+
             (StrategyTmp tmp) -> {
                 int level = tmp.getStrategyCodeSet().size();
                 if (lessThan(tmp.getMaxMiddle(), multiply(tmp.getParentMaxMiddle(), 1.001))) {
@@ -53,56 +46,56 @@ public enum FilterFildEnum implements BaseEnum {
                 }
                 switch (level) {
                     case 2:
-                        if (tmp.getDateCnt() < 90 || tmp.getMinMiddle() < -0.1
+                        if ( tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.065) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.55 < 0)) {
                             return false;
                         }
                         break;
                     case 3:
-                        if (tmp.getDateCnt() < 90 || tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.075) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.7 < 0)) {
+                        if ( tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.080) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.7 < 0)) {
                             return false;
                         }
                         break;
                     case 4:
-                        if (tmp.getDateCnt() < 90 || tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.08) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.0 < 0)) {
+                        if (tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.09) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.8 < 0)) {
                             return false;
                         }
                         break;
                     case 5:
-                        if (tmp.getDateCnt() < 85 || tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.095) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.4 < 0)) {
+                        if ( tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.095) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.9 < 0)) {
                             return false;
                         }
                         break;
                     case 6:
-                        if (tmp.getDateCnt() < 85 || tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.105) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.5 < 0)) {
+                        if ( tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.105) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.0 < 0)) {
                             return false;
                         }
                         break;
                     case 7:
-                        if (tmp.getDateCnt() < 85 || tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.115) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.6 < 0)) {
+                        if ( tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.115) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.1 < 0)) {
                             return false;
                         }
                         break;
                     case 8:
-                        if (tmp.getDateCnt() < 80 || tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.12) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.7 < 0)) {
+                        if ( tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.12) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.2 < 0)) {
                             return false;
                         }
                         break;
                     case 9:
-                        if (tmp.getDateCnt() < 80 || tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.15) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.8 < 0)) {
+                        if ( tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.125) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.3 < 0)) {
                             return false;
                         }
                         break;
                     case 10:
-                        if (tmp.getDateCnt() < 80 || tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.13) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 3.0 < 0)) {
+                        if ( tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.13) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.4 < 0)) {
                             return false;
                         }
                         break;
@@ -111,7 +104,7 @@ public enum FilterFildEnum implements BaseEnum {
                 }
                 return true;
             }
-    ),
+    )
     ;
     private final String code;
     private final String desc;
@@ -123,6 +116,8 @@ public enum FilterFildEnum implements BaseEnum {
     /**
      * 策略过滤，是否符合 ture则保留， false则抛弃
      */
+    private final Function<StrategyTmp, Boolean> isCntConf;
     private final Function<StrategyTmp, Boolean> isConformity;
+
 
 }

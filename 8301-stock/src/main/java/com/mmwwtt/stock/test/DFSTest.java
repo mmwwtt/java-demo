@@ -57,7 +57,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE_0251;
+    public static FilterFildEnum fildEnum = FilterFildEnum.RISE5_MAX_MIDDLE_025;
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -127,9 +127,6 @@ public class DFSTest {
 
             //交集为0 则跳过
             int[] resDetailIdArr = retainAll(strategyTmp.getDetailIdArr(), l1DetailIdArr);
-            if (resDetailIdArr.length < 50) {
-                continue;
-            }
 
 
             //计算并集中筛选字段的属性值
@@ -137,8 +134,14 @@ public class DFSTest {
             for (int detailId : resDetailIdArr) {
                 resStrategyTmp.addToResult(detailArr[detailId]);
             }
+
+            resStrategyTmp.fillDateSumMap();
+            //进行天数过滤
+            if (!fildEnum.getIsCntConf().apply(resStrategyTmp)) {
+                continue;
+            }
             resStrategyTmp.fillFilterField(fildEnum);
-            resStrategyTmp.getDetails().clear();
+            resStrategyTmp.clearCacheDate();
 
             //进行阈值过滤 和 数据保存
             if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
@@ -150,7 +153,7 @@ public class DFSTest {
         //取阈值最高的30条策略继续进行递归
         List<Map.Entry<Integer, StrategyTmp>> tmpList = idxToTmpMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getMaxMiddle).reversed()))
-                .limit(30).toList();
+                .limit(50).toList();
         boolean isContinue = level + 1 <= fildEnum.getLevelLimit();
         idxToTmpMap.clear();
         tmpList.forEach(entry -> {

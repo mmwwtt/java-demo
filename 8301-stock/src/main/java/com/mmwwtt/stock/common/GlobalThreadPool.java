@@ -1,7 +1,6 @@
 package com.mmwwtt.stock.common;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.concurrent.*;
 
@@ -21,8 +20,7 @@ public class GlobalThreadPool {
 
 
     // 定义线程池的核心线程数
-    @Value("${stock.corePoolSize:0}")
-    private static int CORE_POOL_SIZE;
+    private static int CORE_POOL_SIZE = CPU_CORE_SIZE;
     // 定义线程池的最大线程数
     private static final int MAXIMUM_POOL_SIZE = 100;
     // 线程空闲存活时间
@@ -40,11 +38,6 @@ public class GlobalThreadPool {
 
     private static volatile ThreadPoolExecutor priorityThreadPool;
 
-    static {
-        if (CORE_POOL_SIZE == 0) {
-            CORE_POOL_SIZE = CPU_CORE_SIZE + 1;
-        }
-    }
 
     // 获取线程池实例的静态方法，用双重校验的单例模式
     public static ThreadPoolExecutor getCpuThreadPool() {

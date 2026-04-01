@@ -89,6 +89,13 @@ public class StrategyTmp {
 
     private Integer level;
 
+    @TableField(exist = false)
+    private  Map<String, Sum> dateSumMap = new HashMap<>(200);
+
+    public void clearCacheDate() {
+        this.dateSumMap.clear();
+        this.details.clear();
+    }
     /**
      * 将结果累加到数据中
      */
@@ -99,13 +106,26 @@ public class StrategyTmp {
         details.add(detail);
     }
 
+    public void fillDateSumMap() {
+        for (Detail detail : details) {
+            String dealDate = detail.getDealDate();
+            Sum sum = dateSumMap.get(dealDate);
+            if (sum == null) {
+                sum = new Sum();
+                dateSumMap.put(dealDate, sum);
+            }
+        }
+        dateCnt = dateSumMap.size();
+        detailCnt = detailIdArr.length;
+    }
+
+
     /**
      * 填充数据
      * 只计算 字段的中位涨幅 和平均涨幅
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
     public void fillFilterField(FilterFildEnum fildEnum) {
-        Map<String, Sum> map = new HashMap<>(200);
         for (Detail detail : details) {
             Double riseMax = fildEnum.getDetailMaxGetter().apply(detail);
             if (riseMax == null) {
@@ -116,17 +136,12 @@ public class StrategyTmp {
                 continue;
             }
             String dealDate = detail.getDealDate();
-            Sum sum = map.get(dealDate);
-            if (sum == null) {
-                sum = new Sum();
-                map.put(dealDate, sum);
-            }
-            sum.add(riseMax, riseMin);
+            dateSumMap.get(dealDate).add(riseMax, riseMin);
         }
-        double[] rise5MaxArr = new double[map.size()];
-        double[] rise5MinArr = new double[map.size()];
+        double[] rise5MaxArr = new double[dateSumMap.size()];
+        double[] rise5MinArr = new double[dateSumMap.size()];
         int i = 0;
-        for (Sum value : map.values()) {
+        for (Sum value : dateSumMap.values()) {
             rise5MaxArr[i] = value.getRise5MaxAvg();
             rise5MinArr[i] = value.getRise5MinAvg();
             i++;
@@ -134,7 +149,7 @@ public class StrategyTmp {
 
         maxMiddle = getMiddle(rise5MaxArr);
         minMiddle = getMiddle(rise5MinArr);
-        dateCnt = map.size();
+        dateCnt = dateSumMap.size();
         detailCnt = detailIdArr.length;
     }
 

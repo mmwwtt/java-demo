@@ -22,6 +22,3 @@ logging:
   level:
     org.springframework.boot.autoconfigure: INFO
     org.springframework.boot.autoconfigure.condition: INFO
-
-stock:
-  corePoolSize: 16
