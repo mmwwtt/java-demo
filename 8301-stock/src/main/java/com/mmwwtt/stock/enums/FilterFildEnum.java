@@ -18,22 +18,22 @@ public enum FilterFildEnum implements BaseEnum {
 
 
     RISE5_MAX_MIDDLE_025("rise5MaxMiddle025", "最大5日涨幅中位数 l1域值0.025",
-            5,
+            10,
             Detail::getRise5Max,
             Detail::getRise5Min,
             StrategyL1::getRise5MaxMiddle,
             StrategyL1::getRise5MinMiddle,
             (StrategyTmp tmp) -> {
                 int level = tmp.getStrategyCodeSet().size();
-                if((level == 2 && tmp.getDateCnt()<90)
-                ||(level == 3 && tmp.getDateCnt()<90)
-                ||(level == 4 && tmp.getDateCnt()<90)
-                ||(level == 5 && tmp.getDateCnt()<85)
-                ||(level == 6 && tmp.getDateCnt()<85)
-                ||(level == 7 && tmp.getDateCnt()<85)
-                ||(level == 8 && tmp.getDateCnt()<80)
-                ||(level == 9 && tmp.getDateCnt()<80)
-                ||(level == 10 && tmp.getDateCnt()<80)) {
+                if ((level == 2 && tmp.getDateCnt() < 80)
+                        || (level == 3 && tmp.getDateCnt() < 80)
+                        || (level == 4 && tmp.getDateCnt() < 80)
+                        || (level == 5 && tmp.getDateCnt() < 70)
+                        || (level == 6 && tmp.getDateCnt() < 70)
+                        || (level == 7 && tmp.getDateCnt() < 70)
+                        || (level == 8 && tmp.getDateCnt() < 60)
+                        || (level == 9 && tmp.getDateCnt() < 60)
+                        || (level == 10 && tmp.getDateCnt() < 60)) {
                     return false;
                 }
                 return true;
@@ -46,13 +46,13 @@ public enum FilterFildEnum implements BaseEnum {
                 }
                 switch (level) {
                     case 2:
-                        if ( tmp.getMinMiddle() < -0.1
+                        if (tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.065) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.55 < 0)) {
                             return false;
                         }
                         break;
                     case 3:
-                        if ( tmp.getMinMiddle() < -0.1
+                        if (tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.080) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.7 < 0)) {
                             return false;
                         }
@@ -64,38 +64,38 @@ public enum FilterFildEnum implements BaseEnum {
                         }
                         break;
                     case 5:
-                        if ( tmp.getMinMiddle() < -0.1
+                        if (tmp.getMinMiddle() < -0.1
                                 || (lessThan(tmp.getMaxMiddle(), 0.095) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.9 < 0)) {
                             return false;
                         }
                         break;
                     case 6:
-                        if ( tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.105) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.0 < 0)) {
+                        if (tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.10) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.0 < 0)) {
                             return false;
                         }
                         break;
                     case 7:
-                        if ( tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.115) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.1 < 0)) {
+                        if (tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.105) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.1 < 0)) {
                             return false;
                         }
                         break;
                     case 8:
-                        if ( tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.12) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.2 < 0)) {
+                        if (tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.11) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.2 < 0)) {
                             return false;
                         }
                         break;
                     case 9:
-                        if ( tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.125) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.3 < 0)) {
+                        if (tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.115) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.3 < 0)) {
                             return false;
                         }
                         break;
                     case 10:
-                        if ( tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.13) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.4 < 0)) {
+                        if (tmp.getMinMiddle() < -0.1
+                                || (lessThan(tmp.getMaxMiddle(), 0.12) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.4 < 0)) {
                             return false;
                         }
                         break;
@@ -104,8 +104,7 @@ public enum FilterFildEnum implements BaseEnum {
                 }
                 return true;
             }
-    )
-    ;
+    );
     private final String code;
     private final String desc;
     private final int levelLimit;

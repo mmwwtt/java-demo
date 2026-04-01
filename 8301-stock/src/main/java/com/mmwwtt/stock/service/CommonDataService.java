@@ -144,110 +144,121 @@ public class CommonDataService {
 
                 // 金叉: 当天 DIF 上穿 DEA，且前3天持续 DIF<DEA，避免今天死叉明天金叉的反复跳动
                 new StrategyL1("00020", "DIF线上穿DEA线_金叉", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4)
-                            || Objects.isNull(t3.getDif()) || Objects.isNull(t3.getDea()) || Objects.isNull(t4.getDea())) {
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
                         return false;
                     }
                     return moreThan(t0.getDif(), t0.getDea())
                             && lessThan(t1.getDif(), t1.getDea())
                             && lessThan(t2.getDif(), t2.getDea())
                             && lessThan(t3.getDif(), t3.getDea())
-                            && lessThan(t4.getDif(), t4.getDea());
+                            && lessThan(t4.getDif(), t4.getDea())
+                            && lessThan(t5.getDif(), t5.getDea());
                 }),
 
                 // 上穿过: 前3天持续在均线下方，避免今天下穿明天上穿的反复跳动
                 new StrategyL1("00021", "上穿过5日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    Double line = t0.getFiveDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
+                    return moreThan(t0.getHighPrice(), t0.getFiveDayLine()) && lessThan(t0.getLowPrice(), t0.getFiveDayLine())
+                            && lessThan(t1.getHighPrice(), t1.getFiveDayLine()) && lessThan(t2.getHighPrice(), t2.getFiveDayLine())
+                            && lessThan(t3.getHighPrice(), t3.getFiveDayLine()) && lessThan(t4.getHighPrice(), t4.getFiveDayLine())
+                            && lessThan(t5.getHighPrice(), t5.getFiveDayLine());
                 }),
                 new StrategyL1("00022", "上穿过10日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    Double line = t0.getTenDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
+                    return moreThan(t0.getHighPrice(), t0.getTenDayLine()) && lessThan(t0.getLowPrice(), t0.getTenDayLine())
+                            && lessThan(t1.getHighPrice(), t1.getTenDayLine()) && lessThan(t2.getHighPrice(), t2.getTenDayLine())
+                            && lessThan(t3.getHighPrice(), t3.getTenDayLine()) && lessThan(t4.getHighPrice(), t4.getTenDayLine())
+                            && lessThan(t5.getHighPrice(), t5.getTenDayLine());
                 }),
                 new StrategyL1("00023", "上穿过20日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    Double line = t0.getTwentyDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
+                    return moreThan(t0.getHighPrice(), t0.getTwentyDayLine()) && lessThan(t0.getLowPrice(), t0.getTwentyDayLine())
+                            && lessThan(t1.getHighPrice(), t1.getTwentyDayLine()) && lessThan(t2.getHighPrice(), t2.getTwentyDayLine())
+                            && lessThan(t3.getHighPrice(), t3.getTwentyDayLine()) && lessThan(t4.getHighPrice(), t4.getTwentyDayLine())
+                            && lessThan(t5.getHighPrice(), t5.getTwentyDayLine());
                 }),
                 new StrategyL1("00024", "上穿过40日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
                     Double line = t0.getFortyDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    return moreThan(t0.getHighPrice(), t0.getFortyDayLine()) && lessThan(t0.getLowPrice(), t0.getFortyDayLine())
+                            && lessThan(t1.getHighPrice(), t1.getFortyDayLine()) && lessThan(t2.getHighPrice(), t2.getFortyDayLine())
+                            && lessThan(t3.getHighPrice(), t3.getFortyDayLine()) && lessThan(t4.getHighPrice(), t4.getFortyDayLine())
+                            && lessThan(t5.getHighPrice(), t5.getFortyDayLine());
                 }),
                 new StrategyL1("00025", "上穿过60日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    Double line = t0.getSixtyDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && lessThan(t1.getHighPrice(), line) && lessThan(t2.getHighPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
+                    return moreThan(t0.getHighPrice(), t0.getSixtyDayLine()) && lessThan(t0.getLowPrice(), t0.getSixtyDayLine())
+                            && lessThan(t1.getHighPrice(), t1.getSixtyDayLine()) && lessThan(t2.getHighPrice(), t2.getSixtyDayLine())
+                            && lessThan(t3.getHighPrice(), t3.getSixtyDayLine()) && lessThan(t4.getHighPrice(), t4.getSixtyDayLine())
+                            && lessThan(t4.getHighPrice(), t5.getSixtyDayLine());
                 }),
 
                 // 下穿过: 前3天持续在均线上方，避免今天上穿明天下穿的反复跳动
                 new StrategyL1("00026", "下穿过5日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    Double line = t0.getFiveDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
+                    return moreThan(t0.getHighPrice(), t0.getFiveDayLine()) && lessThan(t0.getLowPrice(), t0.getFiveDayLine())
+                            && moreThan(t1.getLowPrice(), t1.getFiveDayLine()) && moreThan(t2.getLowPrice(), t2.getFiveDayLine())
+                            && moreThan(t3.getHighPrice(), t3.getFiveDayLine()) && moreThan(t4.getHighPrice(), t4.getFiveDayLine())
+                            && moreThan(t5.getHighPrice(), t5.getFiveDayLine());
                 }),
                 new StrategyL1("00027", "下穿过10日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    Double line = t0.getTenDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
+                    return moreThan(t0.getHighPrice(), t0.getTenDayLine()) && lessThan(t0.getLowPrice(), t0.getTenDayLine())
+                            && moreThan(t1.getLowPrice(), t1.getTenDayLine()) && moreThan(t2.getLowPrice(), t2.getTenDayLine())
+                            && moreThan(t3.getHighPrice(), t3.getTenDayLine()) && moreThan(t4.getHighPrice(), t4.getTenDayLine())
+                            && moreThan(t5.getHighPrice(), t5.getTenDayLine());
                 }),
                 new StrategyL1("00028", "下穿过20日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    Double line = t0.getTwentyDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
+                    return moreThan(t0.getHighPrice(), t0.getTwentyDayLine()) && lessThan(t0.getLowPrice(), t0.getTwentyDayLine())
+                            && moreThan(t1.getLowPrice(), t1.getTwentyDayLine()) && moreThan(t2.getLowPrice(), t2.getTwentyDayLine())
+                            && moreThan(t3.getHighPrice(), t3.getTwentyDayLine()) && moreThan(t4.getHighPrice(), t4.getTwentyDayLine())
+                            && moreThan(t5.getHighPrice(), t5.getTwentyDayLine());
                 }),
                 new StrategyL1("00029", "下穿过40日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    Double line = t0.getFortyDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
+                    return moreThan(t0.getHighPrice(), t0.getFortyDayLine()) && lessThan(t0.getLowPrice(), t0.getFortyDayLine())
+                            && moreThan(t1.getLowPrice(), t0.getFortyDayLine()) && moreThan(t2.getLowPrice(), t0.getFortyDayLine())
+                            && moreThan(t3.getHighPrice(), t0.getFortyDayLine()) && moreThan(t4.getHighPrice(), t0.getFortyDayLine())
+                            && moreThan(t5.getHighPrice(), t0.getFortyDayLine());
                 }),
                 new StrategyL1("00030", "下穿过60日线", (Detail t0) -> {
-                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4();
-                    Double line = t0.getSixtyDayLine();
-                    return Objects.nonNull(t1) && Objects.nonNull(t2) && Objects.nonNull(t3)
-                            && Objects.nonNull(t4) && Objects.nonNull(line)
-                            && moreThan(t0.getHighPrice(), line) && lessThan(t0.getLowPrice(), line)
-                            && moreThan(t1.getLowPrice(), line) && moreThan(t2.getLowPrice(), line)
-                            && lessThan(t3.getHighPrice(), line) && lessThan(t4.getHighPrice(), line);
+                    Detail t1 = t0.getT1(), t2 = t0.getT2(), t3 = t0.getT3(), t4 = t0.getT4(), t5 = t0.getT5();
+                    if (Objects.isNull(t1) || Objects.isNull(t2) || Objects.isNull(t3) || Objects.isNull(t4) || Objects.isNull(t5)) {
+                        return false;
+                    }
+                    return moreThan(t0.getHighPrice(), t0.getSixtyDayLine()) && lessThan(t0.getLowPrice(), t0.getSixtyDayLine())
+                            && moreThan(t1.getLowPrice(), t0.getSixtyDayLine()) && moreThan(t2.getLowPrice(), t0.getSixtyDayLine())
+                            && moreThan(t3.getHighPrice(), t0.getSixtyDayLine()) && moreThan(t4.getHighPrice(), t0.getSixtyDayLine())
+                            && moreThan(t5.getHighPrice(), t0.getSixtyDayLine());
                 }),
 
 
