@@ -236,7 +236,7 @@ public enum FilterFildEnum implements BaseEnum {
             }
     ),
     RISE1_MAX_MIDDLE("rise3MaxMiddle", "最大3日涨幅中位数",
-            2,
+            3,
             Detail::getRise3Max,
             Detail::getRise3Min,
             StrategyL1::getRise3MaxMiddle,

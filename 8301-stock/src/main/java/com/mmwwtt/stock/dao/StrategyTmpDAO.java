@@ -15,7 +15,7 @@ public interface StrategyTmpDAO extends BaseMapper<StrategyTmp> {
      */
     @Select("SELECT strategy_id,strategy_code,date_cnt,detail_cnt,max_middle,level\n" +
             "FROM (SELECT strategy_id, strategy_code,date_cnt,detail_cnt,max_middle,level,\n" +
-            "    ROW_NUMBER() OVER (PARTITION BY level ORDER BY max_middle DESC) AS rn FROM strategy_tmp_t where level >3 ) sub\n" +
+            "    ROW_NUMBER() OVER (PARTITION BY level ORDER BY max_middle DESC) AS rn FROM strategy_tmp_t where level >=2 ) sub\n" +
             "WHERE rn <= 500;")
     List<StrategyTmp> getAfterTmp();
 }
