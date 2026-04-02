@@ -45,23 +45,30 @@ public class DFSVerifyTest {
     @DisplayName("验证策略")
     public void verifyPredictResByFiveMax() {
         List<String> sqlList = Arrays.asList(
-                "rise5_max_middle > 0.07",
-                "rise5_max_middle > 0.07 and is_active = true",
-                "rise5_max_middle > 0.08",
-                "rise5_max_middle > 0.08 and is_active = true",
-                "rise5_max_middle > 0.09",
-                "rise5_max_middle > 0.09 and is_active = true",
-                "rise5_max_middle > 0.10",
-                "rise5_max_middle > 0.10 and is_active = true",
-                "rise5_max_middle > 0.11",
-                "rise5_max_middle > 0.11 and is_active = true",
-                "rise5_max_middle > 0.12",
-                "rise5_max_middle > 0.12 and is_active = true",
-                "rise5_max_middle > 0.13",
-                "rise5_max_middle > 0.13 and is_active = true",
-                "rise5_max_middle > 0.14",
-                "rise5_max_middle > 0.14 and is_active = true",
-                "rise5_max_middle > 0.14 and  rise5_max_middle <0.15",
+                "rise5_max_middle > 0.03 and rise5_max_middle < 0.04",
+                "rise5_max_middle > 0.03 and rise5_max_middle < 0.04 and is_active = true",
+                "rise5_max_middle > 0.04 and rise5_max_middle < 0.05",
+                "rise5_max_middle > 0.04 and rise5_max_middle < 0.05 and is_active = true",
+                "rise5_max_middle > 0.05 and rise5_max_middle < 0.06",
+                "rise5_max_middle > 0.05 and rise5_max_middle < 0.06 and is_active = true",
+                "rise5_max_middle > 0.06 and rise5_max_middle < 0.07",
+                "rise5_max_middle > 0.06 and rise5_max_middle < 0.07 and is_active = true",
+                "rise5_max_middle > 0.07 and rise5_max_middle < 0.08",
+                "rise5_max_middle > 0.07 and rise5_max_middle < 0.08 and is_active = true",
+                "rise5_max_middle > 0.08 and rise5_max_middle < 0.09",
+                "rise5_max_middle > 0.08 and rise5_max_middle < 0.09 and is_active = true",
+                "rise5_max_middle > 0.09 and rise5_max_middle < 0.10",
+                "rise5_max_middle > 0.09 and rise5_max_middle < 0.10 and is_active = true",
+                "rise5_max_middle > 0.10 and rise5_max_middle < 0.11",
+                "rise5_max_middle > 0.10 and rise5_max_middle < 0.11 and is_active = true",
+                "rise5_max_middle > 0.11 and rise5_max_middle < 0.12",
+                "rise5_max_middle > 0.11 and rise5_max_middle < 0.12 and is_active = true",
+                "rise5_max_middle > 0.12 and rise5_max_middle < 0.13",
+                "rise5_max_middle > 0.12 and rise5_max_middle < 0.13 and is_active = true",
+                "rise5_max_middle > 0.13 and rise5_max_middle < 0.14",
+                "rise5_max_middle > 0.13 and rise5_max_middle < 0.14 and is_active = true",
+                "rise5_max_middle > 0.14 and rise5_max_middle < 0.15",
+                "rise5_max_middle > 0.14 and rise5_max_middle < 0.15 and is_active = true",
                 "rise5_max_middle > 0.15",
                 "rise5_max_middle > 0.15 and rise5_middle*1.3 > rise4_middle",
                 "rise5_max_middle > 0.15 and is_active = true",
@@ -122,7 +129,7 @@ public class DFSVerifyTest {
                     boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                     if (res) {
                         Pair<List<Detail>, Map<Integer, Double>> pair =
-                                dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(), new HashMap<>()));
+                                dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(), new ConcurrentHashMap<>()));
                         //详情id-权重map
                         Map<Integer, Double> detailIdToWeightMap = pair.getRight();
                         if (!detailIdToWeightMap.containsKey(detail.getDetailId())) {
@@ -177,10 +184,10 @@ public class DFSVerifyTest {
                     date,
                     String.format("%.3f", rise1DateAvg * 100),
                     String.format("%.3f", rise1MaxDateAvg * 100),
-                    String.format("%.3f", rise3MaxDateAvg * 100),
                     String.format("%.3f", rise3DateAvg * 100),
-                    String.format("%.3f", rise5MaxDateAvg * 100),
-                    String.format("%.3f", rise5DateAvg * 100));
+                    String.format("%.3f", rise3MaxDateAvg * 100),
+                    String.format("%.3f", rise5DateAvg * 100),
+                    String.format("%.3f", rise5MaxDateAvg * 100));
             rise1MaxDateAvgSum += rise1MaxDateAvg;
             rise1DateAvgSum += rise1DateAvg;
             rise3MaxDateAvgSum += rise3MaxDateAvg;

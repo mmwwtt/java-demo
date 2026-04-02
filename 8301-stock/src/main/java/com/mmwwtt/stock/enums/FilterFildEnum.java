@@ -235,12 +235,12 @@ public enum FilterFildEnum implements BaseEnum {
                 return true;
             }
     ),
-    RISE1_MAX_MIDDLE("rise3MaxMiddle", "最大3日涨幅中位数",
-            3,
-            Detail::getRise3Max,
-            Detail::getRise3Min,
-            StrategyL1::getRise3MaxMiddle,
-            StrategyL1::getRise3MinMiddle,
+    RISE1_MAX_MIDDLE("rise1MaxMiddle", "最大1日涨幅中位数",
+            7,
+            Detail::getRise1Max,
+            Detail::getRise1Min,
+            StrategyL1::getRise1MaxMiddle,
+            StrategyL1::getRise1MinMiddle,
             (StrategyTmp tmp) -> {
                 int level = tmp.getStrategyCodeSet().size();
                 if ((level == 2 && tmp.getDateCnt() < 80)
@@ -268,37 +268,37 @@ public enum FilterFildEnum implements BaseEnum {
                 switch (level) {
                     case 2:
                         if (tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.03) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.55 < 0)) {
+                                || (lessThan(tmp.getMaxMiddle(), 0.025) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.55 < 0)) {
                             return false;
                         }
                         break;
                     case 3:
                         if (tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.06) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.7 < 0)) {
+                                || (lessThan(tmp.getMaxMiddle(), 0.035) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.7 < 0)) {
                             return false;
                         }
                         break;
                     case 4:
                         if (tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.07) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.8 < 0)) {
+                                || (lessThan(tmp.getMaxMiddle(), 0.045) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.8 < 0)) {
                             return false;
                         }
                         break;
                     case 5:
                         if (tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.08) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.9 < 0)) {
+                                || (lessThan(tmp.getMaxMiddle(), 0.055) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 1.9 < 0)) {
                             return false;
                         }
                         break;
                     case 6:
                         if (tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.9) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.0 < 0)) {
+                                || (lessThan(tmp.getMaxMiddle(), 0.06) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.0 < 0)) {
                             return false;
                         }
                         break;
                     case 7:
                         if (tmp.getMinMiddle() < -0.1
-                                || (lessThan(tmp.getMaxMiddle(), 0.10) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.1 < 0)) {
+                                || (lessThan(tmp.getMaxMiddle(), 0.065) && tmp.getMaxMiddle() + tmp.getMinMiddle() * 2.1 < 0)) {
                             return false;
                         }
                         break;

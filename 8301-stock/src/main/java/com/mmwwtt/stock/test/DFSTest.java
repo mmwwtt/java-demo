@@ -82,8 +82,8 @@ public class DFSTest {
             CompletableFuture.runAsync(() -> {
                 try {
                     StrategyTmp strategyTmp = VoConvert.INSTANCE.convertTo(strategyL1);
-                    strategyTmp.setMaxMiddle(strategyL1.getRise5MaxMiddle());
-                    strategyTmp.setMinMiddle(strategyL1.getRise5MinMiddle());
+                    strategyTmp.setMaxMiddle(fildEnum.getL1MaxGetter().apply(strategyL1));
+                    strategyTmp.setMinMiddle(fildEnum.getL1MinGetter().apply(strategyL1));
                     strategyTmp.getStrategyCodeSet().add(strategyTmp.getStrategyCode());
                     if (Objects.nonNull(strategyL1.getType())) {
                         strategyTmp.getStrategyTypeSet().add(strategyL1.getType());
