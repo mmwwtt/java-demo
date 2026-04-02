@@ -195,6 +195,9 @@ public class DFSVerifyTest {
             rise5MaxDateAvgSum += rise5MaxDateAvg;
             rise5DateAvgSum += rise5DateAvg;
         }
+        if (isEquals(0d, rise1DateAvgSum)) {
+            return;
+        }
         log.info("平均1日最高涨幅 {}%", String.format("%.3f", rise1MaxDateAvgSum / predictDateList.size() * 100));
         log.info("平均1日涨幅 {}%", String.format("%.3f", rise1DateAvgSum / predictDateList.size() * 100));
         log.info("平均3日最高涨幅 {}%", String.format("%.3f", rise3MaxDateAvgSum / predictDateList.size() * 100));
