@@ -90,6 +90,16 @@ public class DownloadTest {
         NOW_DATA = LocalDate.now().format(formatter);
     }
 
+    @Test
+    @DisplayName("集成每日数据")
+    public void buildCurDateDetail() throws ExecutionException, InterruptedException {
+        try {
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 
     @Test
     @DisplayName("从0开始构建数据")
@@ -228,6 +238,52 @@ public class DownloadTest {
                     details.forEach(item -> item.calc());
                     Detail.calc(details);
                     detailService.saveBatch(details);
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        log.info("下载股票详细数据  end \n\n\n");
+    }
+
+    @Test
+    @DisplayName("调接口获取每日详细数据-增量")
+    public void downCurDateDetail() throws InterruptedException, ExecutionException {
+        List<Stock> stockList = stockService.list();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+
+
+
+                    Map<String, String> map1 = new HashMap<>();
+                    map1.put(LICENCE, BI_YING_LICENCE);
+                    map1.put(STOCK_CODE, stock.getCode());
+                    map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
+                    map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
+                    map1.put(START_DATA, "20250101");
+                    map1.put(END_DATA, NOW_DATA);
+                    map1.put(MAX_SIZE, "350");
+                    log.info("获取详情数据-{}", stock.getCode());
+                    List<DetailVO> detailVOS = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<DetailVO>>() {
+                    });
+                    if (Objects.isNull(detailVOS)) {
+                        continue;
+                    }
+                    detailVOS = detailVOS.stream()
+                            .peek(item -> item.setStockCode(stock.getCode()))
+                            .filter(item -> item.getSf() == 0)
+                            .collect(Collectors.toList());
+                    List<Detail> details = voConvert.convertToDetail(detailVOS);
+                    details.sort(Comparator.comparing(Detail::getDealDate).reversed());
+                    details.forEach(item -> item.calc());
+                    Detail.calc(details);
+                    detailService.saveBatch(details);
+
+
+
                 }
             }, ioThreadPool);
             futures.add(future);

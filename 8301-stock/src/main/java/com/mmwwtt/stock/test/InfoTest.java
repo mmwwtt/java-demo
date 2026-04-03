@@ -65,10 +65,15 @@ public class InfoTest {
             WebElement btn = driver.findElement(By.xpath("//div[normalize-space()='加载更多']"));
             btn.click();
             Thread.sleep(1000);
-
+            WebElement btn1 = driver.findElement(By.xpath("//a[normalize-space()='加红']"));
+            btn1.click();
+            Thread.sleep(1000);
+            WebElement btn2 = driver.findElement(By.xpath("//div[normalize-space()='加载更多']"));
+            btn2.click();
+            Thread.sleep(1000);
             //懒加载剩余内容
             JavascriptExecutor js = (JavascriptExecutor) driver;
-            for (int i = 1; i <= 20; i++) {
+            for (int i = 1; i <= 5; i++) {
                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
                 Thread.sleep(500);
             }
