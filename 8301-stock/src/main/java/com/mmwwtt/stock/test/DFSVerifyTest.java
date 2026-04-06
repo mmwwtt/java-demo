@@ -91,13 +91,13 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        String sql = "rise5_max_middle > 0.15 and is_active = true";
+        String sql = "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ";
         List<Strategy> strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
                 .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
                 .toList();
-        predict("20260324", strategies, false, 1.2);
+        predict("20260403", strategies, false, 1.2);
     }
 
 

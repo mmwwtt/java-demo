@@ -85,7 +85,6 @@ public class CommonDataService {
                 codeToDetailMap.put(stockCode, details);
                 details.removeIf(detail -> Objects.isNull(detail) || Objects.isNull(detail.getT5())
                         || Objects.isNull(detail.getT5().getSixtyDayLine())
-                        || Objects.isNull(detail.getNext1())
                         || moreThan(detail.getRise0(), 0.097));
             }), ioThreadPool);
             futures.add(future);
