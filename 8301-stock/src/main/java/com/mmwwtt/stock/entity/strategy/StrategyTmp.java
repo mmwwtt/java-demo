@@ -3,7 +3,7 @@ package com.mmwwtt.stock.entity.strategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.mmwwtt.stock.entity.Detail;
-import com.mmwwtt.stock.enums.FilterFildEnum;
+import com.mmwwtt.stock.enums.FilterFieldEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -95,7 +95,7 @@ public class StrategyTmp {
     /**
      * 过滤策略枚举编码
      */
-    private String fidleEnumCode;
+    private String fieldEnumCode;
 
     @TableField(exist = false)
     private Map<String, Sum> dateSumMap = new HashMap<>(200);
@@ -134,7 +134,7 @@ public class StrategyTmp {
      * 只计算 字段的中位涨幅 和平均涨幅
      * 先统计单日的中位数和平均数，  再根据日的中位数和平均数计算总体的中位数和平均数
      */
-    public void fillFilterField(FilterFildEnum fildEnum) {
+    public void fillFilterField(FilterFieldEnum fildEnum) {
         for (Detail detail : details) {
             Double riseMax = fildEnum.getDetailMaxGetter().apply(detail);
             if (riseMax == null) {

@@ -29,7 +29,7 @@ public class Strategy extends BaseStrategy {
     /**
      * 过滤策略枚举编码
      */
-    private String fidleEnumCode;
+    private String fieldEnumCode;
 
     /**
      * 有符合数据的详情数

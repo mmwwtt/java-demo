@@ -234,7 +234,7 @@ CREATE TABLE strategy_tmp_t
     max_middle       DECIMAL(8, 4) COMMENT '最大涨幅中位数',
     min_middle       DECIMAL(8, 4) COMMENT '最大回撤中位数',
     level            INT(4) comment '策略层数',
-    filter_enum_code VARCHAR(200) COMMENT '过滤枚举编码'
+    field_enum_code VARCHAR(200) COMMENT '过滤枚举编码'
 ) COMMENT '策略中间表';
 
 
@@ -266,5 +266,5 @@ CREATE TABLE strategy_t
     rise20_max_middle DECIMAL(8, 4) COMMENT '20日最大中位数涨幅',
     rise20_min_middle DECIMAL(8, 4) COMMENT '20日最大中位数跌幅',
     level             INT(4) comment '策略层数',
-    filter_enum_code  VARCHAR(200) COMMENT '过滤枚举编码'
+    field_enum_code  VARCHAR(200) COMMENT '过滤枚举编码'
 ) COMMENT '策略结果表';

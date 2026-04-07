@@ -14,11 +14,11 @@ import static com.mmwwtt.stock.common.CommonUtils.multiply;
 
 @AllArgsConstructor
 @Getter
-public enum FilterFildEnum implements BaseEnum {
+public enum FilterFieldEnum implements BaseEnum {
 
 
     RISE5_MAX_MIDDLE_025("rise5MaxMiddle025", "最大5日涨幅中位数 l1域值0.025",
-            13,
+            13,30,
             Detail::getRise5Max,
             Detail::getRise5Min,
             StrategyL1::getRise5MaxMiddle,
@@ -127,7 +127,7 @@ public enum FilterFildEnum implements BaseEnum {
             }
     ),
     RISE3_MAX_MIDDLE("rise3MaxMiddle", "最大3日涨幅中位数",
-            15,
+            15,30,
             Detail::getRise3Max,
             Detail::getRise3Min,
             StrategyL1::getRise3MaxMiddle,
@@ -238,7 +238,7 @@ public enum FilterFildEnum implements BaseEnum {
 
 
     RISE1_MAX_MIDDLE_50_DAY("rise1MaxMiddle50Day", "最大1日涨幅中位数",
-            7,
+            7,70,
             Detail::getRise1Max,
             Detail::getRise1Min,
             StrategyL1::getRise1MaxMiddle,
@@ -348,7 +348,7 @@ public enum FilterFildEnum implements BaseEnum {
     ),
 
     RISE1_MAX_MIDDLE_40_DAY("rise1MaxMiddle40Day", "最大1日涨幅中位数",
-                             7,
+                             7,70,
                      Detail::getRise1Max,
                      Detail::getRise1Min,
                      StrategyL1::getRise1MaxMiddle,
@@ -458,7 +458,7 @@ public enum FilterFildEnum implements BaseEnum {
 
 
     RISE1_MAX_MIDDLE_30_DAY("rise1MaxMiddle30Day", "最大1日涨幅中位数",
-                                    7,
+                                    7,70,
                             Detail::getRise1Max,
                             Detail::getRise1Min,
                             StrategyL1::getRise1MaxMiddle,
@@ -572,6 +572,7 @@ public enum FilterFildEnum implements BaseEnum {
     private final String code;
     private final String desc;
     private final int levelLimit;
+    private final int topLimit;
     private final Function<Detail, Double> detailMaxGetter;
     private final Function<Detail, Double> detailMinGetter;
     private final Function<StrategyL1, Double> l1MaxGetter;
