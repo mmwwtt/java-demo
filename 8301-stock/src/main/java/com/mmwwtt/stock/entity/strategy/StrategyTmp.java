@@ -87,7 +87,15 @@ public class StrategyTmp {
     @TableField(exist = false)
     private List<Function<Detail, Boolean>> filterFuncs = new ArrayList<>();
 
+    /**
+     * 层级
+     */
     private Integer level;
+
+    /**
+     * 过滤策略枚举编码
+     */
+    private String fidleEnumCode;
 
     @TableField(exist = false)
     private Map<String, Sum> dateSumMap = new HashMap<>(200);

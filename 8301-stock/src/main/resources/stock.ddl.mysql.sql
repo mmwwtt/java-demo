@@ -227,13 +227,14 @@ CREATE TABLE strategy_l1_t
 DROP TABLE IF EXISTS strategy_tmp_t;
 CREATE TABLE strategy_tmp_t
 (
-    strategy_id   INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    strategy_code VARCHAR(200) COMMENT '策略编码',
-    date_cnt      INT(8) COMMENT '有符合数据的日期天数',
-    detail_cnt    INT(8) COMMENT '有符合数据的详情数',
-    max_middle    DECIMAL(8, 4) COMMENT '最大涨幅中位数',
-    min_middle    DECIMAL(8, 4) COMMENT '最大回撤中位数',
-    level         INT(4) comment '策略层数'
+    strategy_id      INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    strategy_code    VARCHAR(200) COMMENT '策略编码',
+    date_cnt         INT(8) COMMENT '有符合数据的日期天数',
+    detail_cnt       INT(8) COMMENT '有符合数据的详情数',
+    max_middle       DECIMAL(8, 4) COMMENT '最大涨幅中位数',
+    min_middle       DECIMAL(8, 4) COMMENT '最大回撤中位数',
+    level            INT(4) comment '策略层数',
+    filter_enum_code VARCHAR(200) COMMENT '过滤枚举编码'
 ) COMMENT '策略中间表';
 
 
@@ -264,5 +265,6 @@ CREATE TABLE strategy_t
     rise20_middle     DECIMAL(8, 4) COMMENT '20日中位数涨幅',
     rise20_max_middle DECIMAL(8, 4) COMMENT '20日最大中位数涨幅',
     rise20_min_middle DECIMAL(8, 4) COMMENT '20日最大中位数跌幅',
-    level             INT(4) comment '策略层数'
+    level             INT(4) comment '策略层数',
+    filter_enum_code  VARCHAR(200) COMMENT '过滤枚举编码'
 ) COMMENT '策略结果表';

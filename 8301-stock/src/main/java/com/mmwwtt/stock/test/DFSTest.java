@@ -85,6 +85,7 @@ public class DFSTest {
                     strategyTmp.setMaxMiddle(fildEnum.getL1MaxGetter().apply(strategyL1));
                     strategyTmp.setMinMiddle(fildEnum.getL1MinGetter().apply(strategyL1));
                     strategyTmp.getStrategyCodeSet().add(strategyTmp.getStrategyCode());
+                    strategyTmp.setFidleEnumCode(fildEnum.getCode());
                     if (Objects.nonNull(strategyL1.getType())) {
                         strategyTmp.getStrategyTypeSet().add(strategyL1.getType());
                     }
@@ -131,6 +132,7 @@ public class DFSTest {
 
             //计算并集中筛选字段的属性值
             StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1, strategyTmp, resDetailIdArr);
+            strategyTmp.setFidleEnumCode(fildEnum.getCode());
             for (int detailId : resDetailIdArr) {
                 resStrategyTmp.addToResult(detailArr[detailId]);
             }
@@ -185,7 +187,9 @@ public class DFSTest {
 
     private void dfsInit() {
         log.info("dfs 初始化");
-        strategyTmpService.remove(new QueryWrapper<>());
+        QueryWrapper<StrategyTmp> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("filter_enum_code", fildEnum.getCode());
+        strategyTmpService.remove(queryWrapper);
         dfsStrategyL1s = CommonDataService.strategyL1s.stream()
                 .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
                 .filter(item -> item.getName().startsWith("T0")

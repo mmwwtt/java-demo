@@ -26,6 +26,10 @@ public class Strategy extends BaseStrategy {
      */
     private Boolean isActive = true;
 
+    /**
+     * 过滤策略枚举编码
+     */
+    private String fidleEnumCode;
 
     /**
      * 有符合数据的详情数
