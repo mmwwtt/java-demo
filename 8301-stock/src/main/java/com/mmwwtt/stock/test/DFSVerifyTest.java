@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.CommonDataService.*;
@@ -74,7 +75,8 @@ public class DFSVerifyTest {
                 "rise5_max_middle > 0.15 and is_active = true",
                 "rise5_max_middle > 0.16",
                 "rise5_max_middle > 0.16 and is_active = true",
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ");
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ",
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active= true");
         for (String sql : sqlList) {
             log.info("\n\n");
             log.info("条件： {}", sql);
@@ -91,7 +93,7 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        String sql = "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ";
+        String sql = "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active= true";
         List<Strategy> strategies = strategyService.getBySql(sql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
@@ -232,7 +234,6 @@ public class DFSVerifyTest {
         Map<Strategy, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Map<String, Detail> codeToDetailMap = detailService.getCodeToCurDetailMap(curDate);
-        Set<String> stockCodeSet = ConcurrentHashMap.newKeySet();
         for (Strategy strategy : strategys) {
             List<Function<Detail, Boolean>> filterFuncs = Arrays.stream(strategy.getStrategyCode().split(" "))
                     .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
@@ -240,8 +241,7 @@ public class DFSVerifyTest {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
                         Detail detail = codeToDetailMap.get(stockCode);
-                        if (stockCodeSet.contains(stockCode)
-                                || Objects.isNull(detail) || Objects.isNull(detail.getT5())
+                        if (Objects.isNull(detail) || Objects.isNull(detail.getT5())
                                 || Objects.isNull(detail.getT5().getSixtyDayLine())
                                 || moreThan(detail.getRise0(), 0.097)) {
                             continue;
@@ -251,7 +251,6 @@ public class DFSVerifyTest {
                         }
                         boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                         if (res) {
-                            stockCodeSet.add(stockCode);
                             double pert = detail.getRise0() != null ? detail.getRise0() : 0;
                             strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>()))
                                     .add(stockCode + " " + pert);
@@ -269,7 +268,8 @@ public class DFSVerifyTest {
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
-
+        Map<String, Long> stockToCntMap = strategyToStockMap.values().stream().flatMap(List::stream)
+                .collect(Collectors.groupingBy(item -> item, Collectors.counting()));
         try (FileOutputStream fos = new FileOutputStream(file, false)) {
             fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
             List<Strategy> resStrategies = strategyToStockMap.keySet().stream()
@@ -277,13 +277,20 @@ public class DFSVerifyTest {
             for (Strategy strategy : resStrategies) {
                 List<String> resStockList = strategyToStockMap.get(strategy);
                 String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高中位数涨幅：%4f \n",
-                        strategy.getDateCnt(), strategy.getName(),
-                        strategy.getRise5MaxMiddle());
+                        strategy.getDateCnt(), strategy.getName(), strategy.getRise5MaxMiddle());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {
                     fos.write((s + "\n").getBytes());
                 }
             }
+            fos.write(( "\n\n").getBytes());
+            stockToCntMap.forEach((k,v) -> {
+                try {
+                    fos.write((k + "     :   "  + v+ "\n").getBytes());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (IOException ignored) {
         }
 
