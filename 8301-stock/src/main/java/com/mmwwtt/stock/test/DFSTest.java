@@ -57,7 +57,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFieldEnum fildEnum = FilterFieldEnum.RISE1_MAX_MIDDLE_50_DAY;
+    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE1_MAX_MIDDLE_50_DAY;
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -82,10 +82,10 @@ public class DFSTest {
             CompletableFuture.runAsync(() -> {
                 try {
                     StrategyTmp strategyTmp = VoConvert.INSTANCE.convertTo(strategyL1);
-                    strategyTmp.setMaxMiddle(fildEnum.getL1MaxGetter().apply(strategyL1));
-                    strategyTmp.setMinMiddle(fildEnum.getL1MinGetter().apply(strategyL1));
+                    strategyTmp.setMaxMiddle(fieldEnum.getL1MaxGetter().apply(strategyL1));
+                    strategyTmp.setMinMiddle(fieldEnum.getL1MinGetter().apply(strategyL1));
                     strategyTmp.getStrategyCodeSet().add(strategyTmp.getStrategyCode());
-                    strategyTmp.setFieldEnumCode(fildEnum.getCode());
+                    strategyTmp.setFieldEnumCode(fieldEnum.getCode());
                     if (Objects.nonNull(strategyL1.getType())) {
                         strategyTmp.getStrategyTypeSet().add(strategyL1.getType());
                     }
@@ -132,21 +132,21 @@ public class DFSTest {
 
             //计算并集中筛选字段的属性值
             StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1, strategyTmp, resDetailIdArr);
-            resStrategyTmp.setFieldEnumCode(fildEnum.getCode());
+            resStrategyTmp.setFieldEnumCode(fieldEnum.getCode());
             for (int detailId : resDetailIdArr) {
                 resStrategyTmp.addToResult(detailArr[detailId]);
             }
 
             resStrategyTmp.fillDateSumMap();
             //进行天数过滤
-            if (!fildEnum.getIsCntConf().apply(resStrategyTmp)) {
+            if (!fieldEnum.getIsCntConf().apply(resStrategyTmp)) {
                 continue;
             }
-            resStrategyTmp.fillFilterField(fildEnum);
+            resStrategyTmp.fillFilterField(fieldEnum);
             resStrategyTmp.clearCacheDate();
 
             //进行阈值过滤 和 数据保存
-            if (!fildEnum.getIsConformity().apply(resStrategyTmp)) {
+            if (!fieldEnum.getIsConformity().apply(resStrategyTmp)) {
                 continue;
             }
 
@@ -155,8 +155,8 @@ public class DFSTest {
         //取阈值最高的30条策略继续进行递归
         List<Map.Entry<Integer, StrategyTmp>> tmpList = idxToTmpMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getMaxMiddle).reversed()))
-                .limit(fildEnum.getTopLimit()).toList();
-        boolean isContinue = level + 1 <= fildEnum.getLevelLimit();
+                .limit(fieldEnum.getTopLimit()).toList();
+        boolean isContinue = level + 1 <= fieldEnum.getLevelLimit();
         idxToTmpMap.clear();
         tmpList.forEach(entry -> {
             StrategyTmp tmp = entry.getValue();
@@ -188,7 +188,7 @@ public class DFSTest {
     private void dfsInit() {
         log.info("dfs 初始化");
         QueryWrapper<StrategyTmp> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("field_enum_code", fildEnum.getCode());
+        queryWrapper.eq("field_enum_code", fieldEnum.getCode());
         strategyTmpService.remove(queryWrapper);
         dfsStrategyL1s = CommonDataService.strategyL1s.stream()
                 .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
@@ -201,7 +201,9 @@ public class DFSTest {
     }
 
     private void dfsAfterDetail() throws ExecutionException, InterruptedException {
-        strategyService.remove(new QueryWrapper<>());
+        QueryWrapper<Strategy> wrapper = new QueryWrapper<>();
+        wrapper.eq("field_enum_code", fieldEnum.getCode());
+        strategyService.remove(wrapper);
         List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp();
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
