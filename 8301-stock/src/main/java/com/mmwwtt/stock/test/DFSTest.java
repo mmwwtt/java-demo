@@ -57,7 +57,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE1_MAX_MIDDLE_50_DAY;
+    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE1_MAX_MIDDLE_40_DAY;
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -215,6 +215,7 @@ public class DFSTest {
                 int[] resDetailIds = retainAll(detailArrList);
                 List<Detail> details = Arrays.stream(resDetailIds).mapToObj(detailId -> detailArr[detailId]).toList();
                 Strategy strategy = VoConvert.INSTANCE.convertTo(strategyTmp);
+                strategy.setStrategyId(null);
                 strategy.setDetails(details);
                 strategy.fillOtherData();
                 resList.add(strategy);
@@ -222,7 +223,6 @@ public class DFSTest {
             futures.add(future);
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
-
         strategyService.saveBatch(resList);
 
         //当两个策略重复度高达95%时， 字段阈值高的有效， 低的则改成失效状态  从而避免策略重复

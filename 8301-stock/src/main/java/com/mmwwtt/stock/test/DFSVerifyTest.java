@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.CommonDataService.*;
+import static com.mmwwtt.stock.test.DFSTest.fieldEnum;
 
 /**
  * DFS结果验证
@@ -78,9 +79,10 @@ public class DFSVerifyTest {
                 "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ",
                 "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active= true");
         for (String sql : sqlList) {
+            String newSql = sql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
             log.info("\n\n");
-            log.info("条件： {}", sql);
-            List<Strategy> strategies = strategyService.getBySql(sql)
+            log.info("条件： {}", newSql);
+            List<Strategy> strategies = strategyService.getBySql(newSql)
                     .stream()
                     .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
                     .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
@@ -94,7 +96,8 @@ public class DFSVerifyTest {
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
         String sql = "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active= true";
-        List<Strategy> strategies = strategyService.getBySql(sql)
+        String newSql = sql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
+        List<Strategy> strategies = strategyService.getBySql(newSql)
                 .stream()
                 .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
                 .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
@@ -283,10 +286,10 @@ public class DFSVerifyTest {
                     fos.write((s + "\n").getBytes());
                 }
             }
-            fos.write(( "\n\n").getBytes());
-            stockToCntMap.forEach((k,v) -> {
+            fos.write(("\n\n").getBytes());
+            stockToCntMap.forEach((k, v) -> {
                 try {
-                    fos.write((k + "     :   "  + v+ "\n").getBytes());
+                    fos.write((k + "     :   " + v + "\n").getBytes());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
