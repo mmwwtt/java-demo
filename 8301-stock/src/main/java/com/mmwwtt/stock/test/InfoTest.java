@@ -46,7 +46,7 @@ public class InfoTest {
     public void builInfo() {
         System.setProperty("webdriver.chrome.driver", "D:\\1.moweitao\\1.java\\chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
-        //options.addArguments("--headless"); // 如果需要无头模式（后台运行），取消注释此行
+        options.addArguments("--headless"); // 如果需要无头模式（后台运行），取消注释此行
 
         WebDriver driver = new ChromeDriver(options);
         String filePath = "src/main/resources/file/财联社电报.txt";
