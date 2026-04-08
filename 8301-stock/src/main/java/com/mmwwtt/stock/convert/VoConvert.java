@@ -52,7 +52,7 @@ public interface VoConvert {
 
 
     @Mappings({
-            @Mapping(target = "stockCode", source = "detailVO.stockCode"),
+            @Mapping(target = "stockCode", source = "detailVO.dm"),
             @Mapping(target = "dealDate", source = "detailVO.t"),
             @Mapping(target = "startPrice", source = "detailVO.o"),
             @Mapping(target = "highPrice", source = "detailVO.h"),
@@ -63,6 +63,8 @@ public interface VoConvert {
             @Mapping(target = "lastPrice", source = "detailVO.yc")
     })
     Detail convertToDetail(DetailOnTimeVO detailVO);
+
+    List<Detail> convertToDetailList(List<DetailOnTimeVO> list);
 
     @AfterMapping
     default void afterFunc(@MappingTarget Detail detail) {

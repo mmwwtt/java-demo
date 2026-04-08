@@ -1,6 +1,5 @@
 package com.mmwwtt.stock.test;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.mmwwtt.stock.common.GlobalThreadPool;
@@ -93,8 +92,7 @@ public class DownloadTest {
     @Test
     @DisplayName("集成当日的数据")
     public void buildCurDateDetail() throws ExecutionException, InterruptedException {
-        String date = "";
-
+        downDetailOnTime();
     }
 
     @Test
@@ -230,6 +228,52 @@ public class DownloadTest {
     }
 
 
+    /**
+     * 获取今天最新的详情数据
+     */
+    public void downDetailOnTime() throws InterruptedException, ExecutionException {
+        Map<String, String> map1 = new HashMap<>();
+        map1.put(LICENCE, BI_YING_LICENCE);
+        List<DetailOnTimeVO> detailVOS = getResponse(ON_TIME_DATA_URL, map1, new ParameterizedTypeReference<List<DetailOnTimeVO>>() {
+        });
+        List<Detail> details = voConvert.convertToDetailList(detailVOS);
+        List<List<Detail>> parts = Lists.partition(details, 50);
+
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (List<Detail> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Detail detail : part) {
+                    QueryWrapper<Detail> wrapper = new QueryWrapper<>();
+                    wrapper.likeRight("stock_code", detail.getStockCode());
+                    List<Detail> source = detailService.list(wrapper);
+                    if(CollectionUtils.isEmpty(source)) {
+                        continue;
+                    }
+                    List<Integer> removeIds = new ArrayList<>();
+                    source.removeIf(item -> {
+                        if (Objects.equals(detail.getDealDate().substring(0,8), item.getDealDate().substring(0,8))) {
+                            removeIds.add(item.getDetailId());
+                            return true;
+                        }
+                        return false;
+                    });
+                    detailService.removeByIds(removeIds);
+                    source.add(detail);
+
+                    source.sort(Comparator.comparing(Detail::getDealDate).reversed());
+                    source.forEach(item -> item.calc());
+                    Detail.calc(source);
+                    source = source.stream().limit(65).collect(Collectors.toList());
+                    detailService.saveBatch(source.stream().filter(item -> Objects.isNull(item.getDetailId())).toList());
+                    detailService.updateBatchById(source.stream().filter(item -> Objects.nonNull(item.getDetailId())).toList());
+                }
+            }, cpuThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        log.info("下载股票详细数据  end \n\n\n");
+    }
+
     private <T> T getResponse(String url, Map<String, String> paramMap, ParameterizedTypeReference<T> reference) {
         int cnt = 1;
         while (true) {
@@ -273,28 +317,5 @@ public class DownloadTest {
                 && !stock.getName().contains("ST")).toList();
         stockService.saveBatch(stockList);
         log.info("下载股票列表数据 end");
-    }
-
-    @Test
-    @DisplayName("验证数据下载接口")
-    public void getDataTest() {
-        String stockCode = "605162.SH";
-        Map<String, String> map1 = new HashMap<>();
-        map1.put(LICENCE, BI_YING_LICENCE);
-        map1.put(STOCK_CODE, stockCode);
-        map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
-        map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
-        map1.put(START_DATA, "20251201");
-        map1.put(END_DATA, NOW_DATA);
-        map1.put(MAX_SIZE, "350");
-        List<DetailVO> detailVOS = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<DetailVO>>() {
-        });
-
-        Map<String, String> map2 = new HashMap<>();
-        map2.put(LICENCE, BI_YING_LICENCE);
-        map2.put(STOCK_CODE, stockCode.split("\\.")[0]);
-        DetailOnTimeVO detailOnTimeVO = getResponse(ON_TIME_DATA_URL, map2, new ParameterizedTypeReference<DetailOnTimeVO>() {
-        });
-        log.info("获取单个代码的数据结束：{}", JSONObject.toJSONString(detailVOS));
     }
 }

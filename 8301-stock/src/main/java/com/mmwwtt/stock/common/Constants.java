@@ -67,7 +67,7 @@ public class Constants {
     /**
      * 获取实时数据的url(交易中)
      */
-    public static final String ON_TIME_DATA_URL = "https://api.biyingapi.com/hsrl/ssjy/{stockCode}/{licence}";
+    public static final String ON_TIME_DATA_URL = "https://all.biyingapi.com/hsrl/real/all/{licence}";
 
     public static final String REAL_TIME_URL = "https://api.biyingapi.com/hsstock/real/time/{stockCode}/{licence}";
 

@@ -10,6 +10,11 @@ public class DetailOnTimeVO {
     private String t;
 
     /**
+     * 股票代码
+     */
+    private String dm;
+
+    /**
      * 开盘价
      */
     private double o;
@@ -55,6 +60,6 @@ public class DetailOnTimeVO {
     private String stockCode;
 
     public void setT(String t){
-        this.t = t.substring(0, 10);
+        this.t = t.substring(0, 10).replaceAll("-", "");
     }
 }
