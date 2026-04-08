@@ -882,6 +882,6 @@ public class Detail {
 
     @Override
     public String toString() {
-        return detailId.toString();
+        return stockCode + "_" + dealDate;
     }
 }
