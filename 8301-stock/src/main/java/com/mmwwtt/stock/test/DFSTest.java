@@ -258,7 +258,7 @@ public class DFSTest {
             futures.add(future);
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
-        strategyService.saveOrUpdateBatch(resList);
+        strategyService.updateBatchById(resList);
     }
 
 

@@ -219,7 +219,8 @@ public class DownloadTest {
                     source.forEach(item -> item.calc());
                     Detail.calc(source);
 
-                    detailService.saveOrUpdateBatch(source);
+                    detailService.saveBatch(source.stream().filter(item -> Objects.isNull(item.getDetailId())).toList());
+                    detailService.updateBatchById(source.stream().filter(item -> Objects.nonNull(item.getDetailId())).toList());
                 }
             }, cpuThreadPool);
             futures.add(future);
