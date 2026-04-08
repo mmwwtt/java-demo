@@ -218,7 +218,6 @@ public class BaseStrategy {
         dateToDetailListMap.forEach((date, details) -> {
             //统计每日中符合策略的stock的涨幅
             List<Double> curRise1s = new ArrayList<>(INIT_DATE_SIZE);
-
             List<Double> curRise1Maxs = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise1Mins = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise2s = new ArrayList<>(INIT_DATE_SIZE);
@@ -235,6 +234,7 @@ public class BaseStrategy {
             List<Double> curRise20s = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise20Maxs = new ArrayList<>(INIT_DATE_SIZE);
             List<Double> curRise20Mins = new ArrayList<>(INIT_DATE_SIZE);
+
             for (Detail detail : details) {
                 if (Objects.nonNull(detail.getNext1())) {
                     curRise1s.add(detail.getRise1());
@@ -271,58 +271,59 @@ public class BaseStrategy {
 
             //算出每日中符合策略的stock的   平均  和中位数
             if (CollectionUtils.isNotEmpty(curRise1s)) {
-                rise1Middles.add(getMiddle(curRise1s));
+                rise1Middles.add(getAverage(curRise1s));
             }
             if (CollectionUtils.isNotEmpty(curRise1Maxs)) {
-                rise1MaxMiddles.add(getMiddle(curRise1Maxs));
+                rise1MaxMiddles.add(getAverage(curRise1Maxs));
             }
             if (CollectionUtils.isNotEmpty(curRise1Mins)) {
-                rise1MinMiddles.add(getMiddle(curRise1Mins));
+                rise1MinMiddles.add(getAverage(curRise1Mins));
             }
             if (CollectionUtils.isNotEmpty(curRise2s)) {
-                rise2Middles.add(getMiddle(curRise2s));
+                rise2Middles.add(getAverage(curRise2s));
             }
             if (CollectionUtils.isNotEmpty(curRise3s)) {
-                rise3Middles.add(getMiddle(curRise3s));
+                rise3Middles.add(getAverage(curRise3s));
             }
             if (CollectionUtils.isNotEmpty(curRise3Maxs)) {
-                rise3MaxMiddles.add(getMiddle(curRise3Maxs));
+                rise3MaxMiddles.add(getAverage(curRise3Maxs));
             }
             if (CollectionUtils.isNotEmpty(curRise3Mins)) {
-                rise3MinMiddles.add(getMiddle(curRise3Mins));
+                rise3MinMiddles.add(getAverage(curRise3Mins));
             }
             if (CollectionUtils.isNotEmpty(curRise4s)) {
-                rise4Middles.add(getMiddle(curRise4s));
+                rise4Middles.add(getAverage(curRise4s));
             }
             if (CollectionUtils.isNotEmpty(curRise5s)) {
-                rise5Middles.add(getMiddle(curRise5s));
+                rise5Middles.add(getAverage(curRise5s));
             }
             if (CollectionUtils.isNotEmpty(curRise5Maxs)) {
-                rise5MaxMiddles.add(getMiddle(curRise5Maxs));
+                rise5MaxMiddles.add(getAverage(curRise5Maxs));
             }
             if (CollectionUtils.isNotEmpty(curRise5Mins)) {
-                rise5MinMiddles.add(getMiddle(curRise5Mins));
+                rise5MinMiddles.add(getAverage(curRise5Mins));
             }
             if (CollectionUtils.isNotEmpty(curRise10s)) {
-                rise10Middles.add(getMiddle(curRise10s));
+                rise10Middles.add(getAverage(curRise10s));
             }
             if (CollectionUtils.isNotEmpty(curRise10Maxs)) {
-                rise10MaxMiddles.add(getMiddle(curRise10Maxs));
+                rise10MaxMiddles.add(getAverage(curRise10Maxs));
             }
             if (CollectionUtils.isNotEmpty(curRise10Mins)) {
-                rise10MinMiddles.add(getMiddle(curRise10Mins));
+                rise10MinMiddles.add(getAverage(curRise10Mins));
             }
             if (CollectionUtils.isNotEmpty(curRise20s)) {
-                rise20Middles.add(getMiddle(curRise20s));
+                rise20Middles.add(getAverage(curRise20s));
             }
             if (CollectionUtils.isNotEmpty(curRise20Maxs)) {
-                rise20MaxMiddles.add(getMiddle(curRise20Maxs));
+                rise20MaxMiddles.add(getAverage(curRise20Maxs));
             }
             if (CollectionUtils.isNotEmpty(curRise20Mins)) {
-                rise20MinMiddles.add(getMiddle(curRise20Mins));
+                rise20MinMiddles.add(getAverage(curRise20Mins));
             }
-
         });
+
+
         //算出策略的存在符合数据的日期的   平均  和中位数
         rise1Middle = getMiddle(rise1Middles);
         rise1MaxMiddle = getMiddle(rise1MaxMiddles);
