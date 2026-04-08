@@ -139,7 +139,7 @@ public class BaseStrategy {
      * 临时属性
      */
     @TableField(exist = false)
-    protected List<Detail> details = Collections.synchronizedList(new ArrayList<>(50000));
+    protected List<Detail> details = Collections.synchronizedList(new ArrayList<>(500));
     @TableField(exist = false)
     protected List<Double> rise1Middles = new ArrayList<>(INIT_DATE_SIZE);
     @TableField(exist = false)
