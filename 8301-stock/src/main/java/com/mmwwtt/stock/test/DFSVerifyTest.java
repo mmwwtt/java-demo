@@ -121,7 +121,7 @@ public class DFSVerifyTest {
     }
 
 
-    public void verifyPredictRes(List<Strategy> strategies) {
+    public void verifyPredictRes(List<Strategy> strategies, Map<String, Detail> detailMap) {
         //日期    详情列表   详情-权重
         Map<String, Pair<List<Detail>, Map<Integer, Double>>> dataToDetailsMap = new ConcurrentHashMap<>();
 
