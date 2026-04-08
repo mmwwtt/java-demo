@@ -192,8 +192,9 @@ public class DownloadTest {
                     if (Objects.isNull(detailVOS)) {
                         continue;
                     }
+                    String stockCode = stock.getCode().substring(0, 6);
                     detailVOS = detailVOS.stream()
-                            .peek(item -> item.setStockCode(stock.getCode()))
+                            .peek(item -> item.setStockCode(stockCode))
                             .filter(item -> item.getSf() == 0)
                             .collect(Collectors.toList());
                     List<Detail> details = voConvert.convertToDetail(detailVOS);
@@ -220,7 +221,7 @@ public class DownloadTest {
                     detailService.saveBatch(source.stream().filter(item -> Objects.isNull(item.getDetailId())).toList());
                     detailService.updateBatchById(source.stream().filter(item -> Objects.nonNull(item.getDetailId())).toList());
                 }
-            }, cpuThreadPool);
+            }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
@@ -267,7 +268,7 @@ public class DownloadTest {
                     detailService.saveBatch(source.stream().filter(item -> Objects.isNull(item.getDetailId())).toList());
                     detailService.updateBatchById(source.stream().filter(item -> Objects.nonNull(item.getDetailId())).toList());
                 }
-            }, cpuThreadPool);
+            }, ioThreadPool);
             futures.add(future);
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
