@@ -238,7 +238,7 @@ public enum FilterFieldEnum implements BaseEnum {
 
 
     RISE1_MAX_MIDDLE_50_DAY("rise1MaxMiddle50Day", "最大1日涨幅中位数",
-            7,70,
+            13,70,
             Detail::getRise1Max,
             Detail::getRise1Min,
             StrategyL1::getRise1MaxMiddle,
@@ -348,7 +348,7 @@ public enum FilterFieldEnum implements BaseEnum {
     ),
 
     RISE1_MAX_MIDDLE_40_DAY("rise1MaxMiddle40Day", "最大1日涨幅中位数",
-                             7,70,
+                             13,70,
                      Detail::getRise1Max,
                      Detail::getRise1Min,
                      StrategyL1::getRise1MaxMiddle,
@@ -458,7 +458,7 @@ public enum FilterFieldEnum implements BaseEnum {
 
 
     RISE1_MAX_MIDDLE_30_DAY("rise1MaxMiddle30Day", "最大1日涨幅中位数",
-                                    7,70,
+                                    13,70,
                             Detail::getRise1Max,
                             Detail::getRise1Min,
                             StrategyL1::getRise1MaxMiddle,

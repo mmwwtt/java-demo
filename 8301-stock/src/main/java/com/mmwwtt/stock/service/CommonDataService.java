@@ -10,7 +10,6 @@ import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.service.impl.DetailServiceImpl;
 import com.mmwwtt.stock.service.impl.StockServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyL1ServiceImpl;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Triple;
@@ -55,7 +54,6 @@ public class CommonDataService {
     public static String calcEndDate;
     public static int INIT_DATE_SIZE = 200;
 
-    @PostConstruct
     public void init() throws ExecutionException, InterruptedException {
         log.info("初始化开始");
         detailArr = new Detail[1200000];
@@ -96,33 +94,32 @@ public class CommonDataService {
         predictDateList = allDateList.stream().limit(15).toList();
         calcEndDate = allDateList.stream().skip(15).findFirst().orElse("20260201");
 
-        if (Objects.nonNull(detailArr[1])) {
-            List<StrategyL1> allBaseL1List = getAllBaseL1s();
-            Map<String, Function<Detail, Boolean>> codeToFunc = allBaseL1List.stream()
-                    .collect(Collectors.toMap(BaseStrategy::getStrategyCode, StrategyL1::getFilterFunc));
-            List<Integer> l1IdList = strategyL1Service.getIdList();
-            for (Integer l1Id : l1IdList) {
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                    StrategyL1 strategyL1 = strategyL1Service.getById(l1Id);
-                    if (strategyL1.getDetailIdArray().size() < 100) {
-                        return;
-                    }
-                    int[] ids = new int[strategyL1.getDetailIdArray().size()];
-                    for (int i = 0; i < strategyL1.getDetailIdArray().size(); i++) {
-                        ids[i] = strategyL1.getDetailIdArray().getIntValue(i);
-                    }
-                    ids = Arrays.stream(ids).sorted().toArray();
-                    strategyL1.setDetailIdArr(ids);
-                    strategyL1.fillCodeSet();
-                    strategyL1.setFilterFunc(codeToFunc.get(strategyL1.getStrategyCode()));
-                    strategyL1s.add(strategyL1);
-                    codeToL1Map.put(strategyL1.getStrategyCode(), strategyL1);
-                }, cpuThreadPool);
-                futures.add(future);
-            }
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
-            log.info("l1层base策略生成结束");
+        List<StrategyL1> allBaseL1List = getAllBaseL1s();
+        Map<String, Function<Detail, Boolean>> codeToFunc = allBaseL1List.stream()
+                .collect(Collectors.toMap(BaseStrategy::getStrategyCode, StrategyL1::getFilterFunc));
+        List<Integer> l1IdList = strategyL1Service.getIdList();
+        for (Integer l1Id : l1IdList) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                StrategyL1 strategyL1 = strategyL1Service.getById(l1Id);
+                if (strategyL1.getDetailIdArray().size() < 100) {
+                    return;
+                }
+                int[] ids = new int[strategyL1.getDetailIdArray().size()];
+                for (int i = 0; i < strategyL1.getDetailIdArray().size(); i++) {
+                    ids[i] = strategyL1.getDetailIdArray().getIntValue(i);
+                }
+                ids = Arrays.stream(ids).sorted().toArray();
+                strategyL1.setDetailIdArr(ids);
+                strategyL1.fillCodeSet();
+                strategyL1.setFilterFunc(codeToFunc.get(strategyL1.getStrategyCode()));
+                strategyL1s.add(strategyL1);
+                codeToL1Map.put(strategyL1.getStrategyCode(), strategyL1);
+            }, cpuThreadPool);
+            futures.add(future);
         }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        log.info("l1层base策略生成结束");
+
 
         log.info("初始化结束");
     }
@@ -429,8 +426,9 @@ public class CommonDataService {
                         .filter(Objects::nonNull)
                         .sorted()
                         .toList();
-                int[] idxArr = new int[]{0, 50000, 100000, 150000, 200000, 250000, 300000, 350000,
-                        400000, values.size() - 1};
+                int batch = values.size() / 16;
+                int[] idxArr = new int[]{0, batch, batch * 2, batch * 3, batch * 4, batch * 4, batch * 6, batch * 7,
+                        batch * 8, batch * 9, batch * 10, batch * 11, batch * 12, batch * 13, batch * 14, batch * 15, values.size() - 1};
                 for (int i = 0; i < idxArr.length - 2; i++) {
                     double left = values.get(idxArr[i]);
                     double right = values.get(idxArr[i + 2]);

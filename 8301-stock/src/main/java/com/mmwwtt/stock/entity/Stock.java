@@ -26,4 +26,8 @@ public class Stock {
      */
     private String name;
 
+    public String getCode() {
+        return code.substring(0, 6);
+    }
+
 }

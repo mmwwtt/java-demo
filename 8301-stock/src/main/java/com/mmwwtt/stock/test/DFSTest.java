@@ -12,10 +12,10 @@ import com.mmwwtt.stock.enums.FilterFieldEnum;
 import com.mmwwtt.stock.service.CommonDataService;
 import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
@@ -34,14 +34,17 @@ import static com.mmwwtt.stock.service.CommonDataService.*;
 public class DFSTest {
     private static final int BATCH_SAVE_SIZE = 100;
 
-    @Autowired
+    @Resource
     private StrategyTmpServiceImpl strategyTmpService;
 
-    @Autowired
+    @Resource
     private StrategyTmpDAO strategyTmpDAO;
 
-    @Autowired
+    @Resource
     private StrategyServiceImpl strategyService;
+
+    @Resource
+    private CommonDataService commonDataService;
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
     private final ExecutorService singleThreadPool = GlobalThreadPool.singleThreadPool;
@@ -62,6 +65,7 @@ public class DFSTest {
     @Test
     @DisplayName("DFS深度遍历")
     public void dfs() throws InterruptedException, ExecutionException {
+        commonDataService.init();
         DfsMain();
         dfsAfterDetail();
     }
@@ -70,10 +74,11 @@ public class DFSTest {
     @Test
     @DisplayName("重新填充dfs遍历后的数据，生成最终数据")
     public void dfsAfter() throws ExecutionException, InterruptedException {
+        commonDataService.init();
         dfsAfterDetail();
     }
 
-    public void DfsMain() throws InterruptedException {
+    public void DfsMain() throws InterruptedException, ExecutionException {
         dfsInit();
         for (int i = 0; i < dfsStrategyL1s.size(); i++) {
             StrategyL1 strategyL1 = dfsStrategyL1s.get(i);
@@ -185,7 +190,7 @@ public class DFSTest {
 
     }
 
-    private void dfsInit() {
+    private void dfsInit() throws ExecutionException, InterruptedException {
         log.info("dfs 初始化");
         QueryWrapper<StrategyTmp> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("field_enum_code", fieldEnum.getCode());

@@ -4,6 +4,7 @@ import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUtils;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.strategy.Strategy;
+import com.mmwwtt.stock.service.CommonDataService;
 import com.mmwwtt.stock.service.impl.DetailServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import jakarta.annotation.Resource;
@@ -41,11 +42,15 @@ public class DFSVerifyTest {
 
     @Resource
     private DetailServiceImpl detailService;
+
+    @Resource
+    private CommonDataService commonDataService;
+
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     @Test
     @DisplayName("验证策略")
-    public void verifyPredictResByFiveMax() {
+    public void verifyPredictResByFiveMax() throws ExecutionException, InterruptedException {
         List<String> sqlList = Arrays.asList(
                 "rise5_max_middle > 0.03 and rise5_max_middle < 0.04",
                 "rise5_max_middle > 0.03 and rise5_max_middle < 0.04 and is_active = true",
@@ -78,6 +83,7 @@ public class DFSVerifyTest {
                 "rise5_max_middle > 0.16 and is_active = true",
                 "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ",
                 "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active= true");
+        commonDataService.init();
         for (String sql : sqlList) {
             String newSql = sql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
             log.info("\n\n");
@@ -95,6 +101,7 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
+        commonDataService.init();
         String sql = "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active= true";
         String newSql = sql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
         List<Strategy> strategies = strategyService.getBySql(newSql)
@@ -108,7 +115,8 @@ public class DFSVerifyTest {
 
     @Test
     @DisplayName("根据策略绘制蜡烛图")
-    public void startCalc3() {
+    public void startCalc3() throws ExecutionException, InterruptedException {
+        commonDataService.init();
         buildImg(201281);
     }
 

@@ -117,6 +117,7 @@ public class DownloadTest {
     @DisplayName("重新生成L1曾策略")
     @Test
     public void buildStrategyL1() throws ExecutionException, InterruptedException {
+        commonDataService.init();
         strategyL1Service.remove(new QueryWrapper<>());
         List<StrategyL1> allBaseL1 = CommonDataService.getAllBaseL1s();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -192,7 +193,7 @@ public class DownloadTest {
                     if (Objects.isNull(detailVOS)) {
                         continue;
                     }
-                    String stockCode = stock.getCode().substring(0, 6);
+                    String stockCode = stock.getCode();
                     detailVOS = detailVOS.stream()
                             .peek(item -> item.setStockCode(stockCode))
                             .filter(item -> item.getSf() == 0)
