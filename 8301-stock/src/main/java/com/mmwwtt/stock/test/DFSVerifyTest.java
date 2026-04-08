@@ -81,8 +81,23 @@ public class DFSVerifyTest {
                 "rise5_max_middle > 0.15 and is_active = true",
                 "rise5_max_middle > 0.16",
                 "rise5_max_middle > 0.16 and is_active = true",
+
                 "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ",
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active = true");
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active = true",
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.02 and is_active = true",
+
+                //目前最好
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.03 and is_active = true",
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.04 and is_active = true",
+
+                "rise1_middle < rise3_middle and rise3_middle < rise5_middle and rise5_middle > 0.01 ",
+                "rise1_middle < rise3_middle and rise3_middle < rise5_middle and rise5_middle > 0.01 and is_active = true",
+
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise2_middle < rise3_middle " +
+                        "and rise1_middle < rise2_middle and rise5_middle > 0.01 ",
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise2_middle < rise3_middle " +
+                        "and rise1_middle < rise2_middle and rise5_middle > 0.01 and is_active = true"
+        );
         commonDataService.init();
         for (String sql : sqlList) {
             String newSql = sql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
@@ -215,8 +230,8 @@ public class DFSVerifyTest {
         }
         log.info("平均1日最高涨幅 {}%", String.format("%.3f", rise1MaxDateAvgSum / dateCnt * 100));
         log.info("平均1日涨幅 {}%", String.format("%.3f", rise1DateAvgSum / dateCnt * 100));
-        log.info("平均3日最高涨幅 {}%", String.format("%.3f", rise3MaxDateAvgSum / dateCnt* 100));
-        log.info("平均3日涨幅 {}%", String.format("%.3f", rise3DateAvgSum / dateCnt* 100));
+        log.info("平均3日最高涨幅 {}%", String.format("%.3f", rise3MaxDateAvgSum / dateCnt * 100));
+        log.info("平均3日涨幅 {}%", String.format("%.3f", rise3DateAvgSum / dateCnt * 100));
         log.info("平均5日最高涨幅 {}%", String.format("%.3f", rise5MaxDateAvgSum / dateCnt * 100));
         log.info("平均5日涨幅 {}%", String.format("%.3f", rise5DateAvgSum / dateCnt * 100));
     }
