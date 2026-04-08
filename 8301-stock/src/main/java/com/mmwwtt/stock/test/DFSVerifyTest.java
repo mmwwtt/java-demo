@@ -159,11 +159,13 @@ public class DFSVerifyTest {
         double rise3DateAvgSum = 0;
         double rise5MaxDateAvgSum = 0;
         double rise5DateAvgSum = 0;
+        int dateCnt = 0;
         for (String date : predictDateList) {
             Pair<List<Detail>, Map<Integer, Double>> pair = dataToDetailsMap.getOrDefault(date, null);
             if (Objects.isNull(pair)) {
                 continue;
             }
+            dateCnt++;
             List<Detail> details = pair.getLeft();
             Map<Integer, Double> detailIdToWeightMap = pair.getRight();
             if (CollectionUtils.isEmpty(details)) {
@@ -211,12 +213,12 @@ public class DFSVerifyTest {
         if (isEquals(0d, rise1DateAvgSum)) {
             return;
         }
-        log.info("平均1日最高涨幅 {}%", String.format("%.3f", rise1MaxDateAvgSum / predictDateList.size() * 100));
-        log.info("平均1日涨幅 {}%", String.format("%.3f", rise1DateAvgSum / predictDateList.size() * 100));
-        log.info("平均3日最高涨幅 {}%", String.format("%.3f", rise3MaxDateAvgSum / predictDateList.size() * 100));
-        log.info("平均3日涨幅 {}%", String.format("%.3f", rise3DateAvgSum / predictDateList.size() * 100));
-        log.info("平均5日最高涨幅 {}%", String.format("%.3f", rise5MaxDateAvgSum / predictDateList.size() * 100));
-        log.info("平均5日涨幅 {}%", String.format("%.3f", rise5DateAvgSum / predictDateList.size() * 100));
+        log.info("平均1日最高涨幅 {}%", String.format("%.3f", rise1MaxDateAvgSum / dateCnt * 100));
+        log.info("平均1日涨幅 {}%", String.format("%.3f", rise1DateAvgSum / dateCnt * 100));
+        log.info("平均3日最高涨幅 {}%", String.format("%.3f", rise3MaxDateAvgSum / dateCnt* 100));
+        log.info("平均3日涨幅 {}%", String.format("%.3f", rise3DateAvgSum / dateCnt* 100));
+        log.info("平均5日最高涨幅 {}%", String.format("%.3f", rise5MaxDateAvgSum / dateCnt * 100));
+        log.info("平均5日涨幅 {}%", String.format("%.3f", rise5DateAvgSum / dateCnt * 100));
     }
 
     private void buildImg(Integer strategyId) {
