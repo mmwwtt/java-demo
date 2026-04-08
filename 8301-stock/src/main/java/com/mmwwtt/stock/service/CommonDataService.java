@@ -90,7 +90,7 @@ public class CommonDataService {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
         log.info("开始设置Dfs截止日期");
-        allDateList = codeToDetailMap.getOrDefault("000001.SZ", new ArrayList<>()).stream().map(Detail::getDealDate).toList();
+        allDateList = codeToDetailMap.getOrDefault("000001", new ArrayList<>()).stream().map(Detail::getDealDate).toList();
         predictDateList = allDateList.stream().limit(15).toList();
         calcEndDate = allDateList.stream().skip(15).findFirst().orElse("20260201");
 

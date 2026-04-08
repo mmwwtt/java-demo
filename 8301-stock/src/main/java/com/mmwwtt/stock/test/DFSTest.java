@@ -241,21 +241,23 @@ public class DFSTest {
                         continue;
                     }
                     double repeatPerc = getRepeatPerc(strategy1.getDetailIdArr(), strategy2.getDetailIdArr());
-                    if (moreThan(repeatPerc, 0.95)) {
+                    if (moreThan(repeatPerc, 0.9)) {
                         Double pert1 = strategy1.getRise5MaxMiddle();
                         Double pert2 = strategy2.getRise5MaxMiddle();
+                        if (moreThan(pert1, pert2)) {
+                            strategy2.setIsActive(false);
+                            continue;
+                        }
+                        if (lessThan(pert1, pert2)) {
+                            strategy1.setIsActive(false);
+                            continue;
+                        }
                         if (isEquals(pert1, pert2)) {
                             if (strategy1.getDateCnt() > strategy2.getDateCnt()) {
                                 strategy2.setIsActive(false);
                             } else {
                                 strategy1.setIsActive(false);
                             }
-                        }
-                        if (moreThan(pert1, pert2)) {
-                            strategy2.setIsActive(false);
-                        }
-                        if (lessThan(pert1, pert2)) {
-                            strategy1.setIsActive(false);
                         }
                     }
                 }

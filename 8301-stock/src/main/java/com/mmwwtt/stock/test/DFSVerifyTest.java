@@ -82,7 +82,7 @@ public class DFSVerifyTest {
                 "rise5_max_middle > 0.16",
                 "rise5_max_middle > 0.16 and is_active = true",
                 "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ",
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active= true");
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active = true");
         commonDataService.init();
         for (String sql : sqlList) {
             String newSql = sql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
@@ -136,8 +136,8 @@ public class DFSVerifyTest {
                         || moreThan(detail.getRise0(), 0.097)) {
                     continue;
                 }
-                for (Strategy strategyWin : strategies) {
-                    List<Function<Detail, Boolean>> filterFuncs = strategyWin.getStrategyCodeSet().stream()
+                for (Strategy strategy : strategies) {
+                    List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
                             .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
                     boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                     if (res) {
