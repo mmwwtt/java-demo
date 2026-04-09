@@ -81,20 +81,37 @@ public class DFSVerifyTest {
                 "rise5_max_middle > 0.15 and is_active = true",
                 "rise5_max_middle > 0.16",
                 "rise5_max_middle > 0.16 and is_active = true",
+
                 "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ",
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active = true");
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active = true",
+                //好
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.02 and is_active = true",
+
+                //目前最好
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.03 and is_active = true",
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.04 and is_active = true",
+
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise3_middle > 0.0  and rise5_middle>0 and is_active = true",
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise1_middle > 0.0 and rise3_middle > 0.0  and rise5_middle>0 and is_active = true",
+
+                "rise1_middle < rise3_middle and rise3_middle < rise5_middle and rise5_middle > 0.01 ",
+                "rise1_middle < rise3_middle and rise3_middle < rise5_middle and rise5_middle > 0.01 and is_active = true",
+
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise2_middle < rise3_middle " +
+                        "and rise1_middle < rise2_middle and rise5_middle > 0.01 ",
+                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise2_middle < rise3_middle " +
+                        "and rise1_middle < rise2_middle and rise5_middle > 0.01 and is_active = true"
+        );
         commonDataService.init();
-        for (String sql : sqlList) {
-            String newSql = sql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
-            log.info("\n\n");
-            log.info("条件： {}", newSql);
-            List<Strategy> strategies = strategyService.getBySql(newSql)
-                    .stream()
-                    .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
-                    .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
-                    .toList();
-            verifyPredictRes(strategies);
-        }
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        sqlList.forEach(item -> {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                String newSql = item + " and field_enum_code = '" + fieldEnum.getCode() + "'";
+                verifyPredictRes(newSql);
+            }, cpuThreadPool);
+            futures.add(future);
+        });
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
     }
 
 
@@ -121,12 +138,18 @@ public class DFSVerifyTest {
     }
 
 
-    public void verifyPredictRes(List<Strategy> strategies, Map<String, Detail> detailMap) {
+    public void verifyPredictRes(String sql) {
+        List<Strategy> strategies = strategyService.getBySql(sql)
+                .stream()
+                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
+                .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
+                .toList();
+
         //日期    详情列表   详情-权重
         Map<String, Pair<List<Detail>, Map<Integer, Double>>> dataToDetailsMap = new ConcurrentHashMap<>();
 
-        codeToDetailMap.entrySet().parallelStream().forEach(entry -> {
-            for (Detail detail : entry.getValue()) {
+        codeToDetailMap.forEach((key, value) -> {
+            for (Detail detail : value) {
                 if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
                     break;
                 }
@@ -159,11 +182,16 @@ public class DFSVerifyTest {
         double rise3DateAvgSum = 0;
         double rise5MaxDateAvgSum = 0;
         double rise5DateAvgSum = 0;
+        int dateCnt = 0;
+        StringBuilder logStr = new StringBuilder();
+        logStr.append("\n\n");
+        logStr.append(String.format("条件： %s", sql));
         for (String date : predictDateList) {
             Pair<List<Detail>, Map<Integer, Double>> pair = dataToDetailsMap.getOrDefault(date, null);
             if (Objects.isNull(pair)) {
                 continue;
             }
+            dateCnt++;
             List<Detail> details = pair.getLeft();
             Map<Integer, Double> detailIdToWeightMap = pair.getRight();
             if (CollectionUtils.isEmpty(details)) {
@@ -176,31 +204,40 @@ public class DFSVerifyTest {
             double rise5MaxSum = 0;
             double rise5Sum = 0;
             for (Detail detail : details) {
-                rise1MaxSum += detail.getRise1Max() * detailIdToWeightMap.get(detail.getDetailId());
-                rise1Sum += detail.getRise1() * detailIdToWeightMap.get(detail.getDetailId());
-                rise3MaxSum += detail.getRise3Max() * detailIdToWeightMap.get(detail.getDetailId());
-                rise3Sum += detail.getRise3() * detailIdToWeightMap.get(detail.getDetailId());
-                rise5MaxSum += detail.getRise5Max() * detailIdToWeightMap.get(detail.getDetailId());
-                rise5Sum += detail.getRise5() * detailIdToWeightMap.get(detail.getDetailId());
+//                rise1MaxSum += detail.getRise1Max() * detailIdToWeightMap.get(detail.getDetailId());
+//                rise1Sum += detail.getRise1() * detailIdToWeightMap.get(detail.getDetailId());
+//                rise3MaxSum += detail.getRise3Max() * detailIdToWeightMap.get(detail.getDetailId());
+//                rise3Sum += detail.getRise3() * detailIdToWeightMap.get(detail.getDetailId());
+//                rise5MaxSum += detail.getRise5Max() * detailIdToWeightMap.get(detail.getDetailId());
+//                rise5Sum += detail.getRise5() * detailIdToWeightMap.get(detail.getDetailId());
+
+                rise1MaxSum += detail.getRise1Max();
+                rise1Sum += detail.getRise1();
+                rise3MaxSum += detail.getRise3Max();
+                rise3Sum += detail.getRise3();
+                rise5MaxSum += detail.getRise5Max();
+                rise5Sum += detail.getRise5();
             }
-            Double weightSum = sum(detailIdToWeightMap.values().stream().toList());
-            double rise1MaxDateAvg = divide(rise1MaxSum, weightSum);
-            double rise1DateAvg = divide(rise1Sum, weightSum);
-            double rise3MaxDateAvg = divide(rise3MaxSum, weightSum);
-            double rise3DateAvg = divide(rise3Sum, weightSum);
-            double rise5MaxDateAvg = divide(rise5MaxSum, weightSum);
-            double rise5DateAvg = divide(rise5Sum, weightSum);
-            log.info("\n 日期：{}\n   " +
-                            "1日平均涨幅：{}%   1日最高平均涨幅：{}%\n" +
-                            "3日平均涨幅：{}%   3日最高平均涨幅：{}%\n" +
-                            "5日平均涨幅：{}%   5日最高平均涨幅：{}%\n",
-                    date,
-                    String.format("%.3f", rise1DateAvg * 100),
-                    String.format("%.3f", rise1MaxDateAvg * 100),
-                    String.format("%.3f", rise3DateAvg * 100),
-                    String.format("%.3f", rise3MaxDateAvg * 100),
-                    String.format("%.3f", rise5DateAvg * 100),
-                    String.format("%.3f", rise5MaxDateAvg * 100));
+//            Double weightSum = sum(detailIdToWeightMap.values().stream().toList());
+//            double rise1MaxDateAvg = divide(rise1MaxSum, weightSum);
+//            double rise1DateAvg = divide(rise1Sum, weightSum);
+//            double rise3MaxDateAvg = divide(rise3MaxSum, weightSum);
+//            double rise3DateAvg = divide(rise3Sum, weightSum);
+//            double rise5MaxDateAvg = divide(rise5MaxSum, weightSum);
+//            double rise5DateAvg = divide(rise5Sum, weightSum);
+            int size = detailIdToWeightMap.values().size();
+            double rise1MaxDateAvg = divide(rise1MaxSum, size);
+            double rise1DateAvg = divide(rise1Sum, size);
+            double rise3MaxDateAvg = divide(rise3MaxSum, size);
+            double rise3DateAvg = divide(rise3Sum, size);
+            double rise5MaxDateAvg = divide(rise5MaxSum, size);
+            double rise5DateAvg = divide(rise5Sum, size);
+            logStr.append(String.format("\n 日期：%s\n   " +
+                            "1日平均涨幅：%.3f%%    1日最高平均涨幅：%.3f%% \n" +
+                            "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" +
+                            "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n",
+                    date, rise1DateAvg * 100, rise1MaxDateAvg * 100, rise3DateAvg * 100,
+                    rise3MaxDateAvg * 100, rise5DateAvg * 100, rise5MaxDateAvg * 100));
             rise1MaxDateAvgSum += rise1MaxDateAvg;
             rise1DateAvgSum += rise1DateAvg;
             rise3MaxDateAvgSum += rise3MaxDateAvg;
@@ -211,12 +248,14 @@ public class DFSVerifyTest {
         if (isEquals(0d, rise1DateAvgSum)) {
             return;
         }
-        log.info("平均1日最高涨幅 {}%", String.format("%.3f", rise1MaxDateAvgSum / predictDateList.size() * 100));
-        log.info("平均1日涨幅 {}%", String.format("%.3f", rise1DateAvgSum / predictDateList.size() * 100));
-        log.info("平均3日最高涨幅 {}%", String.format("%.3f", rise3MaxDateAvgSum / predictDateList.size() * 100));
-        log.info("平均3日涨幅 {}%", String.format("%.3f", rise3DateAvgSum / predictDateList.size() * 100));
-        log.info("平均5日最高涨幅 {}%", String.format("%.3f", rise5MaxDateAvgSum / predictDateList.size() * 100));
-        log.info("平均5日涨幅 {}%", String.format("%.3f", rise5DateAvgSum / predictDateList.size() * 100));
+        logStr.append(String.format("\n平均1日最高涨幅 %.3f%%", rise1MaxDateAvgSum / dateCnt * 100));
+        logStr.append(String.format("\n平均1日涨幅 %.3f%%", rise1DateAvgSum / dateCnt * 100));
+        logStr.append(String.format("\n平均3日最高涨幅 %.3f%%", rise3MaxDateAvgSum / dateCnt * 100));
+        logStr.append(String.format("\n平均3日涨幅 %.3f%%", rise3DateAvgSum / dateCnt * 100));
+        logStr.append(String.format("\n平均5日最高涨幅 %.3f%%", rise5MaxDateAvgSum / dateCnt * 100));
+        logStr.append(String.format("\n平均5日涨幅 %.3f%%", rise5DateAvgSum / dateCnt * 100));
+        log.info(logStr.toString());
+        dataToDetailsMap.clear();
     }
 
     private void buildImg(Integer strategyId) {
