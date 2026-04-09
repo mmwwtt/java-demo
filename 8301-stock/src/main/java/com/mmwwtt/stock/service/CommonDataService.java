@@ -408,7 +408,7 @@ public class CommonDataService {
         triples.add(Triple.of("20均线波动率", Detail::getVolatility20, "volatility20"));
         triples.add(Triple.of("20均线斜率", Detail::getMa20Slope, "ma20Slope"));
         triples.add(Triple.of("ATR14波动率", Detail::getAtr14, "atr14"));
-
+        triples.add(Triple.of("开盘时的涨跌幅", Detail::getStartPert, "startPert"));
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         int startCode = 20000;
         for (Triple<String, Function<Detail, Double>, String> triple : triples) {

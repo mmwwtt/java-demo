@@ -595,6 +595,11 @@ public class Detail {
 
 
     /**
+     * 开盘时的涨跌幅
+     */
+    private Double startPert;
+
+    /**
      * 在拉取数据的时候就进行计算  并保存到数据库中，避免之后重复计算
      */
     public void calc() {
@@ -603,6 +608,7 @@ public class Detail {
         downShadowLen = divide(Math.abs(subtract(lowPrice, min(startPrice, endPrice))), lastPrice);
         allLen = divide(Math.abs(subtract(highPrice, lowPrice)), lastPrice);
         upShadowPert = isEquals(allLen, 0.0) ? 0 : divide(upShadowLen, allLen);
+        startPert = divide(subtract(startPert, lastPrice), lastPrice);
         downShadowPert = isEquals(allLen, 0.0) ? 0 : divide(downShadowLen, allLen);
         entityPert = isEquals(allLen, 0.0) ? 0 : divide(entityLen, allLen);
         isUp = moreThan(endPrice, lastPrice);
