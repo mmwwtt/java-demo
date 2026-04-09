@@ -60,7 +60,7 @@ public class StrategyTmp {
     private Set<String> parentWinStrategyCodeSet;
 
     @TableField(exist = false)
-    private Double parentMaxMiddle;
+    private Double parentMiddle;
 
     @TableField(exist = false)
     private Double parentMinMiddle;
@@ -201,7 +201,7 @@ public class StrategyTmp {
                        StrategyTmp parentStrategyTmp, int[] detailIdArr) {
         this.strategyCode = strategyL1.getStrategyCode();
         this.parentWinStrategyCodeSet = parentStrategyTmp.getStrategyCodeSet();
-        this.parentMaxMiddle = parentStrategyTmp.getMiddle();
+        this.parentMiddle = parentStrategyTmp.getMiddle();
         this.parentMinMiddle = parentStrategyTmp.getMinMiddle();
         this.detailIdArr = Arrays.stream(detailIdArr).sorted().toArray();
 

@@ -233,7 +233,7 @@ CREATE TABLE strategy_tmp_t
     strategy_code   VARCHAR(200) COMMENT '策略编码',
     date_cnt        INT(8) COMMENT '有符合数据的日期天数',
     detail_cnt      INT(8) COMMENT '有符合数据的详情数',
-    max_middle      DECIMAL(8, 4) COMMENT '最大涨幅中位数',
+    middle      DECIMAL(8, 4) COMMENT '最大涨幅中位数',
     min_middle      DECIMAL(8, 4) COMMENT '最大回撤中位数',
     level           INT(4) comment '策略层数',
     field_enum_code VARCHAR(200) COMMENT '过滤枚举编码'
