@@ -273,7 +273,7 @@ public class CommonUtils {
      * 计算中位数，O(n) 平均时间复杂度，基于 QuickSelect 算法
      * 与 getMiddle 语义一致：奇数取中间，偶数取高位中位数
      */
-    public static double getMiddle(List<Double> list) {
+    public static double getMiddleNum(List<Double> list) {
         if (CollectionUtils.isEmpty(list)) {
             return 0;
         }
@@ -283,7 +283,7 @@ public class CommonUtils {
             Double value = list.get(i);
             arr[i] = (value == null) ? 0.0 : value;
         }
-        return getMiddle(arr);
+        return getMiddleNum(arr);
     }
 
     /**
@@ -291,7 +291,7 @@ public class CommonUtils {
      * 计算中位数，O(n) 平均时间复杂度，基于 QuickSelect 算法
      * 不修改原数组,无需排序
      */
-    public static double getMiddle(double[] arr) {
+    public static double getMiddleNum(double[] arr) {
         if (arr == null || arr.length == 0) {
             return 0;
         }

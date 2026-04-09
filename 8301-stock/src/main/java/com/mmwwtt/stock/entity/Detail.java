@@ -608,7 +608,7 @@ public class Detail {
         downShadowLen = divide(Math.abs(subtract(lowPrice, min(startPrice, endPrice))), lastPrice);
         allLen = divide(Math.abs(subtract(highPrice, lowPrice)), lastPrice);
         upShadowPert = isEquals(allLen, 0.0) ? 0 : divide(upShadowLen, allLen);
-        startPert = divide(subtract(startPert, lastPrice), lastPrice);
+        startPert = divide(subtract(startPrice, lastPrice), lastPrice);
         downShadowPert = isEquals(allLen, 0.0) ? 0 : divide(downShadowLen, allLen);
         entityPert = isEquals(allLen, 0.0) ? 0 : divide(entityLen, allLen);
         isUp = moreThan(endPrice, lastPrice);

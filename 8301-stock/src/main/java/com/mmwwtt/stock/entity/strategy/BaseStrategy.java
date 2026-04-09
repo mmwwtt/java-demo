@@ -325,22 +325,22 @@ public class BaseStrategy {
 
 
         //算出策略的存在符合数据的日期的   平均  和中位数
-        rise1Middle = getMiddle(rise1Middles);
-        rise1MaxMiddle = getMiddle(rise1MaxMiddles);
-        rise1MinMiddle = getMiddle(rise1MinMiddles);
-        rise2Middle = getMiddle(rise2Middles);
-        rise3Middle = getMiddle(rise3Middles);
-        rise3MaxMiddle = getMiddle(rise3MaxMiddles);
-        rise3MinMiddle = getMiddle(rise3MinMiddles);
-        rise4Middle = getMiddle(rise4Middles);
-        rise5Middle = getMiddle(rise5Middles);
-        rise5MaxMiddle = getMiddle(rise5MaxMiddles);
-        rise5MinMiddle = getMiddle(rise5MinMiddles);
-        rise10Middle = getMiddle(rise10Middles);
-        rise10MaxMiddle = getMiddle(rise10MaxMiddles);
-        rise10MinMiddle = getMiddle(rise10MinMiddles);
-        rise20Middle = getMiddle(rise20Middles);
-        rise20MaxMiddle = getMiddle(rise20MaxMiddles);
-        rise20MinMiddle = getMiddle(rise20MinMiddles);
+        rise1Middle = getMiddleNum(rise1Middles);
+        rise1MaxMiddle = getMiddleNum(rise1MaxMiddles);
+        rise1MinMiddle = getMiddleNum(rise1MinMiddles);
+        rise2Middle = getMiddleNum(rise2Middles);
+        rise3Middle = getMiddleNum(rise3Middles);
+        rise3MaxMiddle = getMiddleNum(rise3MaxMiddles);
+        rise3MinMiddle = getMiddleNum(rise3MinMiddles);
+        rise4Middle = getMiddleNum(rise4Middles);
+        rise5Middle = getMiddleNum(rise5Middles);
+        rise5MaxMiddle = getMiddleNum(rise5MaxMiddles);
+        rise5MinMiddle = getMiddleNum(rise5MinMiddles);
+        rise10Middle = getMiddleNum(rise10Middles);
+        rise10MaxMiddle = getMiddleNum(rise10MaxMiddles);
+        rise10MinMiddle = getMiddleNum(rise10MinMiddles);
+        rise20Middle = getMiddleNum(rise20Middles);
+        rise20MaxMiddle = getMiddleNum(rise20MaxMiddles);
+        rise20MinMiddle = getMiddleNum(rise20MinMiddles);
     }
 }

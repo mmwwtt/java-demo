@@ -60,7 +60,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MAX_MIDDLE_50_DAY;
+    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MAX_MIDDLE_30_DAY;
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -87,8 +87,8 @@ public class DFSTest {
             CompletableFuture.runAsync(() -> {
                 try {
                     StrategyTmp strategyTmp = VoConvert.INSTANCE.convertTo(strategyL1);
-                    strategyTmp.setMaxMiddle(fieldEnum.getL1MaxGetter().apply(strategyL1));
-                    strategyTmp.setMinMiddle(fieldEnum.getL1MinGetter().apply(strategyL1));
+                    strategyTmp.setMiddle(fieldEnum.getL1MiddleGetter().apply(strategyL1));
+                    strategyTmp.setMinMiddle(fieldEnum.getL1MinMiddleGetter().apply(strategyL1));
                     strategyTmp.getStrategyCodeSet().add(strategyTmp.getStrategyCode());
                     strategyTmp.setFieldEnumCode(fieldEnum.getCode());
                     if (Objects.nonNull(strategyL1.getType())) {
@@ -159,7 +159,7 @@ public class DFSTest {
         }
         //取阈值最高的30条策略继续进行递归
         List<Map.Entry<Integer, StrategyTmp>> tmpList = idxToTmpMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getMaxMiddle).reversed()))
+                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getMiddle).reversed()))
                 .limit(fieldEnum.getTopLimit()).toList();
         boolean isContinue = level + 1 <= fieldEnum.getLevelLimit();
         idxToTmpMap.clear();
@@ -209,7 +209,7 @@ public class DFSTest {
         QueryWrapper<Strategy> wrapper = new QueryWrapper<>();
         wrapper.eq("field_enum_code", fieldEnum.getCode());
         strategyService.remove(wrapper);
-        List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp();
+        List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp(fieldEnum.getCode());
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
         List<CompletableFuture<Void>> futures = new ArrayList<>();

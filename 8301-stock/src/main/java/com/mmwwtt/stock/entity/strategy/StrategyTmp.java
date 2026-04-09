@@ -2,6 +2,7 @@ package com.mmwwtt.stock.entity.strategy;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.mmwwtt.stock.common.CommonUtils;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.enums.FilterFieldEnum;
 import lombok.AllArgsConstructor;
@@ -11,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.function.Function;
-
-import static com.mmwwtt.stock.common.CommonUtils.getMiddle;
 
 /**
  * 策略胜率
@@ -46,7 +45,7 @@ public class StrategyTmp {
     /**
      * 用于过滤数据的 涨幅阈值
      */
-    private Double maxMiddle;
+    private Double middle;
 
     /**
      * 用于过滤数据的 回撤阈值
@@ -136,11 +135,11 @@ public class StrategyTmp {
      */
     public void fillFilterField(FilterFieldEnum fildEnum) {
         for (Detail detail : details) {
-            Double riseMax = fildEnum.getDetailMaxGetter().apply(detail);
+            Double riseMax = fildEnum.getDetailMiddleGetter().apply(detail);
             if (riseMax == null) {
                 continue;
             }
-            Double riseMin = fildEnum.getDetailMinGetter().apply(detail);
+            Double riseMin = fildEnum.getDetailMinMiddleGetter().apply(detail);
             if (riseMin == null) {
                 continue;
             }
@@ -156,8 +155,8 @@ public class StrategyTmp {
             i++;
         }
 
-        maxMiddle = getMiddle(rise5MaxArr);
-        minMiddle = getMiddle(rise5MinArr);
+        middle = CommonUtils.getMiddleNum(rise5MaxArr);
+        minMiddle = CommonUtils.getMiddleNum(rise5MinArr);
         dateCnt = dateSumMap.size();
         detailCnt = detailIdArr.length;
     }
@@ -202,7 +201,7 @@ public class StrategyTmp {
                        StrategyTmp parentStrategyTmp, int[] detailIdArr) {
         this.strategyCode = strategyL1.getStrategyCode();
         this.parentWinStrategyCodeSet = parentStrategyTmp.getStrategyCodeSet();
-        this.parentMaxMiddle = parentStrategyTmp.getMaxMiddle();
+        this.parentMaxMiddle = parentStrategyTmp.getMiddle();
         this.parentMinMiddle = parentStrategyTmp.getMinMiddle();
         this.detailIdArr = Arrays.stream(detailIdArr).sorted().toArray();
 
