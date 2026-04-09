@@ -126,7 +126,7 @@ public enum FilterFieldEnum implements BaseEnum {
                 return true;
             }
     ),
-    RISE3_MAX_MIDDLE("rise3MaxMiddle", "最大3日涨幅中位数",
+    RISE3_MAX_MIDDLE_50_DAY("rise3MaxMiddle50Day", "最大3日涨幅中位数",
             15,70,
             Detail::getRise3Max,
             Detail::getRise3Min,
