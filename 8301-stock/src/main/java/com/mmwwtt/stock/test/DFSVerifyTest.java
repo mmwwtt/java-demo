@@ -51,66 +51,44 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("验证策略")
     public void verifyPredictResByFiveMax() throws ExecutionException, InterruptedException {
-        List<String> sqlList = Arrays.asList(
-//                "rise5_max_middle > 0.03 and rise5_max_middle < 0.04",
-//                "rise5_max_middle > 0.03 and rise5_max_middle < 0.04 and is_active = true",
-//                "rise5_max_middle > 0.04 and rise5_max_middle < 0.05",
-//                "rise5_max_middle > 0.04 and rise5_max_middle < 0.05 and is_active = true",
-//                "rise5_max_middle > 0.05 and rise5_max_middle < 0.06",
-//                "rise5_max_middle > 0.05 and rise5_max_middle < 0.06 and is_active = true",
-//                "rise5_max_middle > 0.06 and rise5_max_middle < 0.07",
-//                "rise5_max_middle > 0.06 and rise5_max_middle < 0.07 and is_active = true",
-//                "rise5_max_middle > 0.07 and rise5_max_middle < 0.08",
-//                "rise5_max_middle > 0.07 and rise5_max_middle < 0.08 and is_active = true",
-//                "rise5_max_middle > 0.08 and rise5_max_middle < 0.09",
-//                "rise5_max_middle > 0.08 and rise5_max_middle < 0.09 and is_active = true",
-//                "rise5_max_middle > 0.09 and rise5_max_middle < 0.10",
-//                "rise5_max_middle > 0.09 and rise5_max_middle < 0.10 and is_active = true",
-//                "rise5_max_middle > 0.10 and rise5_max_middle < 0.11",
-//                "rise5_max_middle > 0.10 and rise5_max_middle < 0.11 and is_active = true",
-//                "rise5_max_middle > 0.11 and rise5_max_middle < 0.12",
-//                "rise5_max_middle > 0.11 and rise5_max_middle < 0.12 and is_active = true",
-//                "rise5_max_middle > 0.12 and rise5_max_middle < 0.13",
-//                "rise5_max_middle > 0.12 and rise5_max_middle < 0.13 and is_active = true",
-//                "rise5_max_middle > 0.13 and rise5_max_middle < 0.14",
-//                "rise5_max_middle > 0.13 and rise5_max_middle < 0.14 and is_active = true",
-//                "rise5_max_middle > 0.14 and rise5_max_middle < 0.15",
-//                "rise5_max_middle > 0.14 and rise5_max_middle < 0.15 and is_active = true",
-//                "rise5_max_middle > 0.15",
-//                "rise5_max_middle > 0.15 and rise5_middle*1.3 > rise4_middle",
-//                "rise5_max_middle > 0.15 and is_active = true",
-//                "rise5_max_middle > 0.16",
-//                "rise5_max_middle > 0.16 and is_active = true",
-
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 ",
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active = true",
-                //好
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.02 and is_active = true",
-
-                //目前最好
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.03 and is_active = true",
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.04 and is_active = true",
-
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise3_middle > 0.0  and rise5_middle>0 and is_active = true",
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise1_middle > 0.0 and rise3_middle > 0.0  and rise5_middle>0 and is_active = true",
-
-                "rise1_middle < rise3_middle and rise3_middle < rise5_middle and rise5_middle > 0.01 ",
-                "rise1_middle < rise3_middle and rise3_middle < rise5_middle and rise5_middle > 0.01 and is_active = true",
-
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise2_middle < rise3_middle " +
-                        "and rise1_middle < rise2_middle and rise5_middle > 0.01 ",
-                "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise2_middle < rise3_middle " +
-                        "and rise1_middle < rise2_middle and rise5_middle > 0.01 and is_active = true"
+        List<String> baseSqlList = Arrays.asList(
+                "1=1",
+                "rise3_middle < rise4_middle  and rise4_middle < rise5_middle",
+                "rise1_middle < rise3_middle and rise3_middle < rise5_middle",
+                "rise1_middle < rise2_middle and rise2_middle < rise3_middle  " +
+                        "and rise3_middle < rise4_middle and rise4_middle < rise5_middle"
         );
         commonDataService.init();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        sqlList.forEach(item -> {
+        List<String> rangeList = Arrays.asList(
+                " and  0.01  <rise5_middle  and  rise5_middle <0.02",
+                " and  0.02  <rise5_middle  and  rise5_middle <0.03",
+                " and  0.03  <rise5_middle  and  rise5_middle <0.04",
+                " and  0.04  <rise5_middle  and  rise5_middle <0.05",
+                " and  0.05  <rise5_middle  and  rise5_middle <0.06",
+                " and  0.06  <rise5_middle  and  rise5_middle <0.07",
+                " and  0.07  <rise5_middle  and  rise5_middle <0.08",
+                " and  0.08  <rise5_middle  and  rise5_middle <0.09",
+                " and  0.09  <rise5_middle  and  rise5_middle <0.10",
+                " and  0.10  <rise5_middle",
+                " and  0.01  <rise3_middle  and  rise3_middle <0.02",
+                " and  0.02  <rise3_middle  and  rise3_middle <0.03",
+                " and  0.03  <rise3_middle  and  rise3_middle <0.04",
+                " and  0.04  <rise3_middle  and  rise3_middle <0.05",
+                " and  0.05  <rise3_middle  and  rise3_middle <0.06",
+                " and  0.06  <rise3_middle  and  rise3_middle <0.07",
+                " and  0.07  <rise3_middle  and  rise3_middle <0.08",
+                " and  0.08  <rise3_middle  and  rise3_middle <0.09",
+                " and  0.09  <rise3_middle  and  rise3_middle <0.10",
+                " and  0.10  <rise3_middle"
+        );
+        baseSqlList.forEach(baseSql -> rangeList.forEach(rangeSql -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                String newSql = item + " and field_enum_code = '" + fieldEnum.getCode() + "'";
+                String newSql = baseSql + rangeSql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
                 verifyPredictRes(newSql);
             }, cpuThreadPool);
             futures.add(future);
-        });
+        }));
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
     }
 

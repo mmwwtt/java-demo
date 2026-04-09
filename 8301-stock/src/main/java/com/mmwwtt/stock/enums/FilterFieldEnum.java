@@ -410,7 +410,7 @@ public enum FilterFieldEnum implements BaseEnum {
 
 
     RISE3_MIDDLE_30_DAY("rise3Middle30Day", "3日涨幅中位数",
-            13, 70,
+            13, 100,
             Detail::getRise3,
             Detail::getRise3Min,
             StrategyL1::getRise3Middle,

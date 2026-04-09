@@ -17,6 +17,6 @@ public interface StrategyTmpDAO extends BaseMapper<StrategyTmp> {
             "FROM (SELECT strategy_id, strategy_code,date_cnt,detail_cnt,middle,level,field_enum_code,\n" +
             "    ROW_NUMBER() OVER (PARTITION BY level ORDER BY middle DESC) AS rn FROM strategy_tmp_t " +
             "where level >=2 AND field_enum_code = #{fieldEnumCode}) sub\n" +
-            "WHERE rn <= 500;")
-    List<StrategyTmp> getAfterTmp(String fieldEnumCode);
+            "WHERE rn <= #{limit};")
+    List<StrategyTmp> getAfterTmp(String fieldEnumCode, int limit);
 }

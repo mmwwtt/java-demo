@@ -209,7 +209,7 @@ public class DFSTest {
         QueryWrapper<Strategy> wrapper = new QueryWrapper<>();
         wrapper.eq("field_enum_code", fieldEnum.getCode());
         strategyService.remove(wrapper);
-        List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp(fieldEnum.getCode());
+        List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp(fieldEnum.getCode(),1000);
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -228,7 +228,6 @@ public class DFSTest {
             futures.add(future);
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
-        strategyService.saveBatch(resList);
 
         //当两个策略重复度高达95%时， 字段阈值高的有效， 低的则改成失效状态  从而避免策略重复
         futures = new ArrayList<>();
@@ -265,7 +264,8 @@ public class DFSTest {
             futures.add(future);
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
-        strategyService.updateBatchById(resList);
+        List<Strategy> res = resList.stream().filter(Strategy::getIsActive).toList();
+        strategyService.saveBatch(res);
     }
 
 
