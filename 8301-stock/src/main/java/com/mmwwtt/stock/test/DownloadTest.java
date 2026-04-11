@@ -99,7 +99,7 @@ public class DownloadTest {
     @DisplayName("增量集成指定日期的数据 左闭右闭")
     public void buildDateDetail() throws ExecutionException, InterruptedException {
         //downDetail("20260409", "20260409");
-        downDetail("20260401", NOW_DATA);
+        downDetail("20260406", NOW_DATA);
         commonDataService.init();
         buildStrategyL1();
     }

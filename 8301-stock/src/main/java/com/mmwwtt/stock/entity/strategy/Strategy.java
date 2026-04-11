@@ -1,5 +1,6 @@
 package com.mmwwtt.stock.entity.strategy;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class Strategy extends BaseStrategy {
     /**
      * 是否有效， 当两个策略重复度高达95%时， 字段阈值高的有效， 低的则改成失效状态
      */
+    @TableField(exist = false)
     private Boolean isActive = true;
 
     /**

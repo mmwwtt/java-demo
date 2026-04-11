@@ -127,11 +127,12 @@ public class CommonDataService {
 
     /**
      * 返回最基础的l1策略
+     * 00是关于天的散的
+     * 10是关于天的手动设置范围的
+     * 20是关于天的自动计算范围的
      */
     public static List<StrategyL1> getAllBaseL1s() throws ExecutionException, InterruptedException {
         List<StrategyL1> baseL1s = Collections.synchronizedList(new ArrayList<>(2000));
-
-
         baseL1s.addAll(Arrays.asList(
                 new StrategyL1("00004", "二连红",
                         (Detail t0) -> t0.getIsRed() && t0.getT1().getIsRed()),

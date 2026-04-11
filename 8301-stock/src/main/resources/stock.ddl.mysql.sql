@@ -135,7 +135,7 @@ CREATE TABLE detail_t
     ma20_slope               decimal(10, 4) comment 'RSI相对强弱指标(14日)',
     volatility20             decimal(10, 4) comment '20日波动率',
     volume_price_divergence  INT4 comment '量价背离信号',
-    start_pert              decimal(10, 4) COMMENT '开盘时的涨跌幅,高开还是低走'
+    start_pert               decimal(10, 4) COMMENT '开盘时的涨跌幅,高开还是低走'
 ) COMMENT '股票详情表';
 create index stockCode on detail_t (stock_code);
 
@@ -189,7 +189,7 @@ CREATE TABLE week_detail_t
     dif                     decimal(10, 4) COMMENT 'MACD相关指标',
     dea                     decimal(10, 4) COMMENT 'MACD相关指标',
     macd                    decimal(10, 4) COMMENT 'MACD相关指标',
-    ma_align_bull_score     INT4 comment ' 均线多头排列强度(0~4)',
+    ma_align_bull_score     INT4 comment '均线多头排列强度(0~4)',
     ma_align_bear_score     INT4 comment '均线空头排列强度(0~4)',
     volume_price_divergence INT4 comment '量价背离信号',
     start_pert              decimal(10, 4) COMMENT '开盘时的涨跌幅,高开还是低走'
@@ -233,7 +233,7 @@ CREATE TABLE strategy_tmp_t
     strategy_code   VARCHAR(200) COMMENT '策略编码',
     date_cnt        INT(8) COMMENT '有符合数据的日期天数',
     detail_cnt      INT(8) COMMENT '有符合数据的详情数',
-    middle      DECIMAL(8, 4) COMMENT '最大涨幅中位数',
+    middle          DECIMAL(8, 4) COMMENT '最大涨幅中位数',
     min_middle      DECIMAL(8, 4) COMMENT '最大回撤中位数',
     level           INT(4) comment '策略层数',
     field_enum_code VARCHAR(200) COMMENT '过滤枚举编码'
@@ -249,7 +249,6 @@ CREATE TABLE strategy_t
     detail_id_array   JSON COMMENT '符合条件的详情id列表',
     detail_cnt        INT(8) COMMENT '符合条件的详情数量',
     date_cnt          INT(8) COMMENT '有符合数据的日期天数',
-    is_active         boolean comment '策略是否有效(如何和其他重复度高则根据 规则决定是否失效)',
     rise1_middle      DECIMAL(8, 4) COMMENT '1日中位数涨幅',
     rise1_max_middle  DECIMAL(8, 4) COMMENT '1日最大中位数涨幅',
     rise1_min_middle  DECIMAL(8, 4) COMMENT '1日最大中位数跌幅',
