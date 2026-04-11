@@ -11,7 +11,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -89,7 +88,7 @@ public class DFSVerifyTest {
         baseSqlList.forEach(baseSql -> rangeList.forEach(rangeSql -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 String newSql = baseSql + rangeSql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
-                verifyPredictRes(newSql, null);
+                verifyPredictRes(newSql);
             }, cpuThreadPool);
             futures.add(future);
         }));
@@ -105,7 +104,7 @@ public class DFSVerifyTest {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         parts.forEach(part -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                part.forEach(strategy -> verifyPredictRes(null, Collections.singletonList(strategy)));
+                part.forEach(this::verifyPredictRes);
                 strategyService.updateBatchById(part);
             }, cpuThreadPool);
             futures.add(future);
@@ -136,20 +135,8 @@ public class DFSVerifyTest {
         buildImg(201281);
     }
 
-
-    public void verifyPredictRes(String sql, List<Strategy> strategies) {
-        if (StringUtils.isNotBlank(sql)) {
-            strategies = strategyService.getBySql(sql)
-                    .stream()
-                    .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
-                    .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
-                    .toList();
-        }
-
-        //日期    详情列表   详情-权重
-        Map<String, Pair<List<Detail>, Map<Integer, Double>>> dataToDetailsMap = new ConcurrentHashMap<>();
-
-        List<Strategy> finalStrategies = strategies;
+    public void verifyPredictRes(Strategy strategy) {
+        Map<String, List<Detail>> dataToDetailsMap = new ConcurrentHashMap<>();
         codeToDetailMap.forEach((key, value) -> {
             for (Detail detail : value) {
                 if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
@@ -161,7 +148,78 @@ public class DFSVerifyTest {
                         || moreThan(detail.getRise0(), 0.097)) {
                     continue;
                 }
-                for (Strategy strategy : finalStrategies) {
+                List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
+                        .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
+                boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
+                if (res) {
+                    dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(detail);
+                }
+            }
+        });
+        double rise3MaxDateAvgSum = 0;
+        double rise3DateAvgSum = 0;
+        double rise5MaxDateAvgSum = 0;
+        double rise5DateAvgSum = 0;
+        int dateCnt = 0;
+        for (String date : predictDateList) {
+            List<Detail> details = dataToDetailsMap.getOrDefault(date, null);
+            if (Objects.isNull(details)) {
+                continue;
+            }
+            dateCnt++;
+            double rise3MaxSum = 0;
+            double rise3Sum = 0;
+            double rise5MaxSum = 0;
+            double rise5Sum = 0;
+            for (Detail detail : details) {
+                rise3MaxSum += detail.getRise3Max();
+                rise3Sum += detail.getRise3();
+                rise5MaxSum += detail.getRise5Max();
+                rise5Sum += detail.getRise5();
+            }
+            int size = details.size();
+            double rise3MaxDateAvg = divide(rise3MaxSum, size);
+            double rise3DateAvg = divide(rise3Sum, size);
+            double rise5MaxDateAvg = divide(rise5MaxSum, size);
+            double rise5DateAvg = divide(rise5Sum, size);
+            rise3MaxDateAvgSum += rise3MaxDateAvg;
+            rise3DateAvgSum += rise3DateAvg;
+            rise5MaxDateAvgSum += rise5MaxDateAvg;
+            rise5DateAvgSum += rise5DateAvg;
+        }
+        if (isEquals(0d, rise3DateAvgSum)) {
+            return;
+        }
+        strategy.setDateCnt(dateCnt);
+        strategy.setPredictRise3Avg(rise3DateAvgSum / dateCnt);
+        strategy.setPredictRise3MaxAvg(rise3MaxDateAvgSum / dateCnt);
+        strategy.setPredictRise5Avg(rise5DateAvgSum / dateCnt);
+        strategy.setPredictRise5MaxAvg(rise5MaxDateAvgSum / dateCnt);
+        dataToDetailsMap.clear();
+    }
+
+
+    public void verifyPredictRes(String sql) {
+        List<Strategy> strategies = strategyService.getBySql(sql)
+                .stream()
+                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
+                .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
+                .toList();
+        //日期    详情列表   详情-权重
+        Map<String, Pair<List<Detail>, Map<Integer, Double>>> dataToDetailsMap = new ConcurrentHashMap<>();
+
+        codeToDetailMap.forEach((key, value) -> {
+            for (Detail detail : value) {
+                if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
+                    break;
+                }
+                if (Objects.isNull(detail.getRise5Max())
+                        || Objects.isNull(detail.getT10())
+                        || Objects.isNull(detail.getT10().getSixtyDayLine())
+                        || moreThan(detail.getRise0(), 0.097)) {
+                    continue;
+                }
+                for (Strategy strategy : strategies) {
                     List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
                             .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
                     boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
@@ -193,12 +251,12 @@ public class DFSVerifyTest {
             if (Objects.isNull(pair)) {
                 continue;
             }
-            dateCnt++;
             List<Detail> details = pair.getLeft();
             Map<Integer, Double> detailIdToWeightMap = pair.getRight();
             if (CollectionUtils.isEmpty(details)) {
                 continue;
             }
+            dateCnt++;
             double rise1MaxSum = 0;
             double rise1Sum = 0;
             double rise3MaxSum = 0;

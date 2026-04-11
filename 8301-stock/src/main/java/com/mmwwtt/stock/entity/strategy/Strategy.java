@@ -34,6 +34,29 @@ public class Strategy extends BaseStrategy {
     private String fieldEnumCode;
 
     /**
+     * 能预测的天数统计
+     */
+    private Integer predictDateCnt;
+
+    /**
+     * 预测的3日平均涨幅
+     */
+    private Double predictRise3Avg;
+
+    /**
+     * 预测的3日最高平均涨幅
+     */
+    private Double predictRise3MaxAvg;
+    /**
+     * 预测的5日平均涨幅
+     */
+    private Double predictRise5Avg;
+    /**
+     * 预测的5日最高平均涨幅
+     */
+    private Double predictRise5MaxAvg;
+
+    /**
      * 有符合数据的详情数
      */
     private Integer detailCnt;
