@@ -99,7 +99,8 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("计算每个策略的预测结果")
     public void calcPredictstrategy() throws ExecutionException, InterruptedException {
-        List<Strategy> strategyList = strategyService.getBySql("field_enum_code = '" + fieldEnum.getCode());
+        commonDataService.init();
+        List<Strategy> strategyList = strategyService.getBySql("field_enum_code = '" + fieldEnum.getCode() + "'");
         List<List<Strategy>> parts = ListUtils.partition(strategyList, 100);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         parts.forEach(part -> {
@@ -136,6 +137,7 @@ public class DFSVerifyTest {
     }
 
     public void verifyPredictRes(Strategy strategy) {
+        strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
         Map<String, List<Detail>> dataToDetailsMap = new ConcurrentHashMap<>();
         codeToDetailMap.forEach((key, value) -> {
             for (Detail detail : value) {
@@ -150,6 +152,9 @@ public class DFSVerifyTest {
                 }
                 List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
                         .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
+                if(CollectionUtils.isEmpty(filterFuncs)) {
+                    continue;
+                }
                 boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                 if (res) {
                     dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(detail);
@@ -163,7 +168,7 @@ public class DFSVerifyTest {
         int dateCnt = 0;
         for (String date : predictDateList) {
             List<Detail> details = dataToDetailsMap.getOrDefault(date, null);
-            if (Objects.isNull(details)) {
+            if (CollectionUtils.isEmpty(details)) {
                 continue;
             }
             dateCnt++;
@@ -190,7 +195,7 @@ public class DFSVerifyTest {
         if (isEquals(0d, rise3DateAvgSum)) {
             return;
         }
-        strategy.setDateCnt(dateCnt);
+        strategy.setPredictDateCnt(dateCnt);
         strategy.setPredictRise3Avg(rise3DateAvgSum / dateCnt);
         strategy.setPredictRise3MaxAvg(rise3MaxDateAvgSum / dateCnt);
         strategy.setPredictRise5Avg(rise5DateAvgSum / dateCnt);

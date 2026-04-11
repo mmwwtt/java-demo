@@ -213,8 +213,8 @@ CREATE TABLE strategy_t
     level                   INT(4) comment '策略层数',
     field_enum_code         VARCHAR(200) COMMENT '过滤枚举编码',
     predict_date_cnt        INT(4) comment '能预测的天数统计',
-    predict_rise3_middle    DECIMAL(8, 4) COMMENT '预测的3日平均涨幅',
-    predict_rise3Max_middle DECIMAL(8, 4) COMMENT '预测的3日最高平均涨幅',
-    predict_rise5_middle    DECIMAL(8, 4) COMMENT '预测的5日平均涨幅',
-    predict_rise5Max_middle DECIMAL(8, 4) COMMENT '预测的5日最高平均涨幅'
+    predict_rise3_avg    DECIMAL(8, 4) COMMENT '预测的3日平均涨幅',
+    predict_rise3_max_avg DECIMAL(8, 4) COMMENT '预测的3日最高平均涨幅',
+    predict_rise5_avg    DECIMAL(8, 4) COMMENT '预测的5日平均涨幅',
+    predict_rise5_max_avg DECIMAL(8, 4) COMMENT '预测的5日最高平均涨幅'
 ) COMMENT '策略结果表';
