@@ -140,62 +140,6 @@ CREATE TABLE detail_t
 create index stockCode on detail_t (stock_code);
 
 
-DROP TABLE IF EXISTS week_detail_t;
-CREATE TABLE week_detail_t
-(
-    week_detail_Id          INT(8)         NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    stock_code              VARCHAR(16)    NOT NULL COMMENT '股票代码',
-    deal_date               VARCHAR(16)    NOT NULL COMMENT '交易日期',
-    start_price             decimal(10, 4) NOT NULL COMMENT '开盘价',
-    high_price              decimal(10, 4) NOT NULL COMMENT '最高价',
-    low_price               decimal(10, 4) NOT NULL COMMENT '最低价',
-    end_price               decimal(10, 4) NOT NULL COMMENT '收盘价',
-    deal_quantity           decimal(20, 4) NOT NULL COMMENT '成交量',
-    deal_price              decimal(20, 4) NOT NULL COMMENT '成交额',
-    last_price              decimal(10, 4) NOT NULL COMMENT '前收盘价',
-    up_shadow_len           decimal(10, 4) COMMENT '上影线长度',
-    up_shadow_pert          decimal(10, 4) COMMENT '上影线站总长的百分比',
-    down_shadow_len         decimal(10, 4) COMMENT '下影线长度',
-    down_shadow_pert        decimal(10, 4) COMMENT '下影线站总长的百分比',
-    entity_len              decimal(10, 4) COMMENT '实体长度',
-    entity_pert             decimal(10, 4) COMMENT '实体占总长的百分比',
-    all_len                 decimal(10, 4) COMMENT '总长',
-    five_day_line           decimal(10, 4) COMMENT '5日线',
-    five_high               decimal(10, 4) COMMENT '5日最高',
-    five_low                decimal(10, 4) COMMENT '5日最低',
-    five_day_deal_quantity  decimal(20, 4) COMMENT '5日均量',
-    five_high_date          varchar(64) COMMENT '5日最高日期',
-    five_low_date           varchar(64) COMMENT '5日最低日期',
-    five_is_up              boolean COMMENT '是否处于5日中的上涨',
-    pert_division_quantity  decimal(20, 15) COMMENT '涨跌成交比',
-    is_up                   boolean COMMENT '是否上涨',
-    is_down                 boolean COMMENT '是否下跌',
-    is_red                  boolean COMMENT '是否为阳线',
-    is_green                boolean COMMENT '是否为阴线',
-    is_balance              boolean COMMENT '开盘价是否等于收盘价',
-    is_ten_star             boolean COMMENT '是否为十字星',
-    rise0                   decimal(10, 4) NOT NULL COMMENT '当天涨跌幅',
-    rise1                   decimal(10, 4) COMMENT '当天收盘到1天后的涨幅',
-    rise2                   decimal(10, 4) COMMENT '当天收盘到2天后的涨幅',
-    rise3                   decimal(10, 4) COMMENT '当天收盘到3天后的涨幅',
-    rise3_max               decimal(10, 4) COMMENT '当天收盘到3天内最高的涨幅',
-    rise3_min               decimal(10, 4) COMMENT '当天收盘到3天内最低的涨幅(回调)',
-    rise4                   decimal(10, 4) COMMENT '当天收盘到4天后的涨幅',
-    rise5                   decimal(10, 4) COMMENT '当天收盘到5天后的涨幅',
-    rise5_max               decimal(10, 4) COMMENT '当天收盘到5天内最高的涨幅',
-    rise5_min               decimal(10, 4) COMMENT '当天收盘到5天内最低的涨幅(回调)',
-    ema12                   decimal(10, 4) COMMENT 'MACD相关指标',
-    ema26                   decimal(10, 4) COMMENT 'MACD相关指标',
-    dif                     decimal(10, 4) COMMENT 'MACD相关指标',
-    dea                     decimal(10, 4) COMMENT 'MACD相关指标',
-    macd                    decimal(10, 4) COMMENT 'MACD相关指标',
-    ma_align_bull_score     INT4 comment '均线多头排列强度(0~4)',
-    ma_align_bear_score     INT4 comment '均线空头排列强度(0~4)',
-    volume_price_divergence INT4 comment '量价背离信号',
-    start_pert              decimal(10, 4) COMMENT '开盘时的涨跌幅,高开还是低走'
-) COMMENT '股票详情表';
-create index stockCode on week_detail_t (stock_code);
-
 
 DROP TABLE IF EXISTS strategy_l1_t;
 CREATE TABLE strategy_l1_t
@@ -236,7 +180,11 @@ CREATE TABLE strategy_tmp_t
     middle          DECIMAL(8, 4) COMMENT '最大涨幅中位数',
     min_middle      DECIMAL(8, 4) COMMENT '最大回撤中位数',
     level           INT(4) comment '策略层数',
-    field_enum_code VARCHAR(200) COMMENT '过滤枚举编码'
+    field_enum_code VARCHAR(200) COMMENT '过滤枚举编码',
+    rise3_middle    DECIMAL(8, 4) COMMENT '预测的3日平均涨幅',
+    rise3Max_middle DECIMAL(8, 4) COMMENT '预测的3日最高平均涨幅',
+    rise5_middle    DECIMAL(8, 4) COMMENT '预测的5日平均涨幅',
+    rise5Max_middle DECIMAL(8, 4) COMMENT '预测的5日最高平均涨幅'
 ) COMMENT '策略中间表';
 
 

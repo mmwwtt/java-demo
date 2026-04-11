@@ -10,6 +10,8 @@ import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,7 +52,7 @@ public class DFSVerifyTest {
 
     @Test
     @DisplayName("验证策略")
-    public void verifyPredictResByFiveMax() throws ExecutionException, InterruptedException {
+    public void verifyPredict() throws ExecutionException, InterruptedException {
         List<String> baseSqlList = Arrays.asList(
                 "1=1",
                 "rise3_middle < rise4_middle  and rise4_middle < rise5_middle",
@@ -58,8 +60,6 @@ public class DFSVerifyTest {
                 "rise1_middle < rise2_middle and rise2_middle < rise3_middle  " +
                         "and rise3_middle < rise4_middle and rise4_middle < rise5_middle"
         );
-        commonDataService.init();
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<String> rangeList = Arrays.asList(
                 " and  0.01  <rise5_middle  and  rise5_middle <0.02",
                 " and  0.02  <rise5_middle  and  rise5_middle <0.03",
@@ -82,13 +82,34 @@ public class DFSVerifyTest {
                 " and  0.09  <rise3_middle  and  rise3_middle <0.10",
                 " and  0.10  <rise3_middle"
         );
+
+        commonDataService.init();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
         baseSqlList.forEach(baseSql -> rangeList.forEach(rangeSql -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 String newSql = baseSql + rangeSql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
-                verifyPredictRes(newSql);
+                verifyPredictRes(newSql, null);
             }, cpuThreadPool);
             futures.add(future);
         }));
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+    }
+
+
+    @Test
+    @DisplayName("计算每个策略的预测结果")
+    public void calcPredictstrategy() throws ExecutionException, InterruptedException {
+        List<Strategy> strategyList = strategyService.getBySql("field_enum_code = '" + fieldEnum.getCode());
+        List<List<Strategy>> parts = ListUtils.partition(strategyList, 100);
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        parts.forEach(part -> {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                part.forEach(strategy -> verifyPredictRes(null, Collections.singletonList(strategy)));
+                strategyService.updateBatchById(part);
+            }, cpuThreadPool);
+            futures.add(future);
+        });
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
     }
 
@@ -116,16 +137,19 @@ public class DFSVerifyTest {
     }
 
 
-    public void verifyPredictRes(String sql) {
-        List<Strategy> strategies = strategyService.getBySql(sql)
-                .stream()
-                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
-                .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
-                .toList();
+    public void verifyPredictRes(String sql, List<Strategy> strategies) {
+        if (StringUtils.isNotBlank(sql)) {
+            strategies = strategyService.getBySql(sql)
+                    .stream()
+                    .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
+                    .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
+                    .toList();
+        }
 
         //日期    详情列表   详情-权重
         Map<String, Pair<List<Detail>, Map<Integer, Double>>> dataToDetailsMap = new ConcurrentHashMap<>();
 
+        List<Strategy> finalStrategies = strategies;
         codeToDetailMap.forEach((key, value) -> {
             for (Detail detail : value) {
                 if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
@@ -137,7 +161,7 @@ public class DFSVerifyTest {
                         || moreThan(detail.getRise0(), 0.097)) {
                     continue;
                 }
-                for (Strategy strategy : strategies) {
+                for (Strategy strategy : finalStrategies) {
                     List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
                             .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
                     boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
