@@ -77,7 +77,7 @@ public class DFSVerifyTest {
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
         commonDataService.init();
-        String sql = " rise3_avg>0.01";
+        String sql = " rise3_avg > 0.04";
         List<Query> queryList = queryService.getBySql(sql);
         List<Strategy> strategies = new ArrayList<>();
         Set<Integer> strategyIdSet = new HashSet<>();
@@ -92,7 +92,7 @@ public class DFSVerifyTest {
                 strategies.add(strategy);
             }
         }
-        predict("202604010", strategies, false, 1.2);
+        predict("20260410", strategies, false, 1.2);
     }
 
 
@@ -266,7 +266,8 @@ public class DFSVerifyTest {
                         boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                         if (res) {
                             double pert = detail.getRise0() != null ? detail.getRise0() : 0;
-                            strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>())).add(stockCode + " " + pert);
+                            strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>()))
+                                    .add("               " +stockCode + "                    " + pert);
                         }
                     }
                 }, cpuThreadPool);
