@@ -17,3 +17,7 @@ select strategy_id,strategy_code,name,type,cnt,rise1_middle,rise1_max_middle,ris
 from strategy_l1_t
 where name like 'T5%'
 order by rise5_max_middle desc
+
+
+select * from strategy_t
+where predict_rise3_avg <0

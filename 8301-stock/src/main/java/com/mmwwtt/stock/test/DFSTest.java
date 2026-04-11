@@ -14,6 +14,8 @@ import com.mmwwtt.stock.service.impl.StrategyServiceImpl;
 import com.mmwwtt.stock.service.impl.StrategyTmpServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mmwwtt.stock.common.CommonUtils.*;
@@ -60,7 +63,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE1_MAX_MIDDLE_30_DAY;
+    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MIDDLE_40_DAY;
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -190,13 +193,12 @@ public class DFSTest {
 
     }
 
-    private void dfsInit() throws ExecutionException, InterruptedException {
+    private void dfsInit() {
         log.info("dfs 初始化");
         QueryWrapper<StrategyTmp> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("field_enum_code", fieldEnum.getCode());
         strategyTmpService.remove(queryWrapper);
         dfsStrategyL1s = CommonDataService.strategyL1s.stream()
-                .filter(item -> moreThan(item.getRise5MaxMiddle(), 0.025))
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")
                         || item.getName().startsWith("T2"))
@@ -209,7 +211,7 @@ public class DFSTest {
         QueryWrapper<Strategy> wrapper = new QueryWrapper<>();
         wrapper.eq("field_enum_code", fieldEnum.getCode());
         strategyService.remove(wrapper);
-        List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp(fieldEnum.getCode(),1000);
+        List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp(fieldEnum.getCode(), 2000);
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
         //统计每个策略符合的detail  对各种属性进行填充
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -234,8 +236,9 @@ public class DFSTest {
         for (Strategy strategy1 : resList) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Strategy strategy2 : resList) {
-                    if (Objects.equals(strategy1.getStrategyId(), strategy2.getStrategyId())
-                            || !strategy2.getIsActive() || strategy1.getDetailCnt() < strategy2.getDetailCnt() * 0.94
+                    if (Objects.equals(strategy1.getStrategyCode(), strategy2.getStrategyCode())
+                            || !strategy1.getIsActive() || !strategy2.getIsActive()
+                            || strategy1.getDetailCnt() < strategy2.getDetailCnt() * 0.94
                             || strategy2.getDetailCnt() < strategy1.getDetailCnt() * 0.94) {
                         continue;
                     }
@@ -266,6 +269,17 @@ public class DFSTest {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
         List<Strategy> res = resList.stream().filter(Strategy::getIsActive).toList();
         strategyService.saveBatch(res);
+
+        List<List<Strategy>> parts = ListUtils.partition(res, 100);
+        futures = new ArrayList<>();
+        for (List<Strategy> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                part.forEach(this::verifyPredictRes);
+                strategyService.saveBatch(part);
+            }, cpuThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
     }
 
 
@@ -292,4 +306,71 @@ public class DFSTest {
         }
     }
 
+
+    public void verifyPredictRes(Strategy strategy) {
+        strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
+        Map<String, List<Detail>> dataToDetailsMap = new ConcurrentHashMap<>();
+        codeToDetailMap.forEach((key, value) -> {
+            for (Detail detail : value) {
+                if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
+                    break;
+                }
+                if (Objects.isNull(detail.getRise5Max())
+                        || Objects.isNull(detail.getT10())
+                        || Objects.isNull(detail.getT10().getSixtyDayLine())
+                        || moreThan(detail.getRise0(), 0.097)) {
+                    continue;
+                }
+                List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
+                        .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
+                if (CollectionUtils.isEmpty(filterFuncs)) {
+                    continue;
+                }
+                boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
+                if (res) {
+                    dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(detail);
+                }
+            }
+        });
+        double rise3MaxDateAvgSum = 0;
+        double rise3DateAvgSum = 0;
+        double rise5MaxDateAvgSum = 0;
+        double rise5DateAvgSum = 0;
+        int dateCnt = 0;
+        for (String date : predictDateList) {
+            List<Detail> details = dataToDetailsMap.getOrDefault(date, null);
+            if (CollectionUtils.isEmpty(details)) {
+                continue;
+            }
+            dateCnt++;
+            double rise3MaxSum = 0;
+            double rise3Sum = 0;
+            double rise5MaxSum = 0;
+            double rise5Sum = 0;
+            for (Detail detail : details) {
+                rise3MaxSum += detail.getRise3Max();
+                rise3Sum += detail.getRise3();
+                rise5MaxSum += detail.getRise5Max();
+                rise5Sum += detail.getRise5();
+            }
+            int size = details.size();
+            double rise3MaxDateAvg = divide(rise3MaxSum, size);
+            double rise3DateAvg = divide(rise3Sum, size);
+            double rise5MaxDateAvg = divide(rise5MaxSum, size);
+            double rise5DateAvg = divide(rise5Sum, size);
+            rise3MaxDateAvgSum += rise3MaxDateAvg;
+            rise3DateAvgSum += rise3DateAvg;
+            rise5MaxDateAvgSum += rise5MaxDateAvg;
+            rise5DateAvgSum += rise5DateAvg;
+        }
+        if (isEquals(0d, rise3DateAvgSum)) {
+            return;
+        }
+        strategy.setPredictDateCnt(dateCnt);
+        strategy.setPredictRise3Avg(rise3DateAvgSum / dateCnt);
+        strategy.setPredictRise3MaxAvg(rise3MaxDateAvgSum / dateCnt);
+        strategy.setPredictRise5Avg(rise5DateAvgSum / dateCnt);
+        strategy.setPredictRise5MaxAvg(rise5MaxDateAvgSum / dateCnt);
+        dataToDetailsMap.clear();
+    }
 }
