@@ -224,7 +224,7 @@ DROP TABLE IF EXISTS query_t;
 CREATE TABLE query_t
 (
     query_id             INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
-    sql_str              VARCHAR(200) COMMENT 'sql条件',
+    sql_str              VARCHAR(2000) COMMENT 'sql条件',
     date_cnt             INT(4) comment '能预测的天数统计',
     rise3_avg            DECIMAL(8, 4) COMMENT '预测的3日平均涨幅',
     rise3_max_avg        DECIMAL(8, 4) COMMENT '预测的3日最高平均涨幅',
@@ -235,5 +235,5 @@ CREATE TABLE query_t
     rise3_max_weight_avg DECIMAL(8, 4) COMMENT '预测的3日最高平均涨幅(加权后)',
     rise5_weight_avg     DECIMAL(8, 4) COMMENT '预测的5日平均涨幅(加权后)',
     rise5_max_weight_avg DECIMAL(8, 4) COMMENT '预测的5日最高平均涨幅(加权后)',
-    weight_other_data    VARCHAR(2000) COMMENT '每日的预测结果(加权后)'
+    other_weight_data    VARCHAR(2000) COMMENT '每日的预测结果(加权后)'
 ) COMMENT '策略结果表';

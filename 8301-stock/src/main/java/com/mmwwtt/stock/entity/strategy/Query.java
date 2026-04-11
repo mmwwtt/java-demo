@@ -52,23 +52,23 @@ public class Query {
     /**
      * 预测的3日平均涨幅（加权后）
      */
-    private Double weightRise3Avg;
+    private Double rise3WeightAvg;
 
     /**
      * 预测的3日最高平均涨幅(加权后)
      */
-    private Double weightRise3MaxAvg;
+    private Double rise3MaxWeightAvg;
     /**
      * 预测的5日平均涨幅(加权后)
      */
-    private Double weightRise5Avg;
+    private Double rise5WeightAvg;
     /**
      * 预测的5日最高平均涨幅(加权后)
      */
-    private Double weightRise5MaxAvg;
+    private Double rise5MaxWeightAvg;
 
     /**
      * 统计的每日信息(加权后)
      */
-    private String weightOtherData;
+    private String otherWeightData;
 }

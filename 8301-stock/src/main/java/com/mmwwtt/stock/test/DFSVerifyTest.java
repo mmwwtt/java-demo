@@ -1,5 +1,6 @@
 package com.mmwwtt.stock.test;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.stock.common.GlobalThreadPool;
 import com.mmwwtt.stock.common.StockGuiUtils;
 import com.mmwwtt.stock.entity.Detail;
@@ -66,19 +67,19 @@ public class DFSVerifyTest {
                 "rise5_middle > rise10_middle"
         );
         List<String> rangeList = Arrays.asList(
-//                " and  0.01  <rise5_middle  and  rise5_middle <0.02",
-//                " and  0.02  <rise5_middle  and  rise5_middle <0.03",
-//                " and  0.03  <rise5_middle  and  rise5_middle <0.04",
-//                " and  0.04  <rise5_middle  and  rise5_middle <0.05",
+                " and  0.01  <rise5_middle  and  rise5_middle <0.02",
+                " and  0.02  <rise5_middle  and  rise5_middle <0.03",
+                " and  0.03  <rise5_middle  and  rise5_middle <0.04",
+                " and  0.04  <rise5_middle  and  rise5_middle <0.05",
                 " and  0.05  <rise5_middle  and  rise5_middle <0.06",
                 " and  0.06  <rise5_middle  and  rise5_middle <0.07",
                 " and  0.07  <rise5_middle  and  rise5_middle <0.08",
                 " and  0.08  <rise5_middle  and  rise5_middle <0.09",
                 " and  0.09  <rise5_middle  and  rise5_middle <0.10",
                 " and  0.10  <rise5_middle",
-//                " and  0.01  <rise3_middle  and  rise3_middle <0.02",
-//                " and  0.02  <rise3_middle  and  rise3_middle <0.03",
-//                " and  0.03  <rise3_middle  and  rise3_middle <0.04",
+                " and  0.01  <rise3_middle  and  rise3_middle <0.02",
+                " and  0.02  <rise3_middle  and  rise3_middle <0.03",
+                " and  0.03  <rise3_middle  and  rise3_middle <0.04",
                 " and  0.04  <rise3_middle  and  rise3_middle <0.05",
                 " and  0.05  <rise3_middle  and  rise3_middle <0.06",
                 " and  0.06  <rise3_middle  and  rise3_middle <0.07",
@@ -89,8 +90,8 @@ public class DFSVerifyTest {
         );
 
         commonDataService.init();
+        queryService.remove(new QueryWrapper<>());
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-
         baseSqlList.forEach(baseSql -> rangeList.forEach(rangeSql -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 String newSql = baseSql + rangeSql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
@@ -164,14 +165,14 @@ public class DFSVerifyTest {
 
 
         //统计策略的预测结果 分不加权和加权
-        double rise3MaxDateAvgSum = 0;
         double rise3DateAvgSum = 0;
-        double rise5MaxDateAvgSum = 0;
+        double rise3MaxDateAvgSum = 0;
         double rise5DateAvgSum = 0;
-        double rise3MaxDateWeightAvgSum = 0;
+        double rise5MaxDateAvgSum = 0;
         double rise3DateWeightAvgSum = 0;
-        double rise5MaxDateWeightAvgSum = 0;
+        double rise3MaxDateWeightAvgSum = 0;
         double rise5DateWeightAvgSum = 0;
+        double rise5MaxDateWeightAvgSum = 0;
         int dateCnt = 0;
         StringBuilder logStr = new StringBuilder("\n\n").append(String.format("条件： %s", sql));
         StringBuilder weightLogStr = new StringBuilder("加权后\n\n").append(String.format("条件： %s", sql));
@@ -186,37 +187,38 @@ public class DFSVerifyTest {
                 continue;
             }
             dateCnt++;
-            double rise3MaxSum = 0;
             double rise3Sum = 0;
-            double rise5MaxSum = 0;
+            double rise3MaxSum = 0;
             double rise5Sum = 0;
-            double rise3MaxWeightSum = 0;
+            double rise5MaxSum = 0;
             double rise3WeightSum = 0;
-            double rise5MaxWeightSum = 0;
+            double rise3MaxWeightSum = 0;
             double rise5WeightSum = 0;
+            double rise5MaxWeightSum = 0;
             for (Detail detail : details) {
-                rise3MaxWeightSum += detail.getRise3Max() * detailIdToWeightMap.get(detail.getDetailId());
                 rise3WeightSum += detail.getRise3() * detailIdToWeightMap.get(detail.getDetailId());
-                rise5MaxWeightSum += detail.getRise5Max() * detailIdToWeightMap.get(detail.getDetailId());
+                rise3MaxWeightSum += detail.getRise3Max() * detailIdToWeightMap.get(detail.getDetailId());
                 rise5WeightSum += detail.getRise5() * detailIdToWeightMap.get(detail.getDetailId());
+                rise5MaxWeightSum += detail.getRise5Max() * detailIdToWeightMap.get(detail.getDetailId());
 
-                rise3MaxSum += detail.getRise3Max();
+
                 rise3Sum += detail.getRise3();
-                rise5MaxSum += detail.getRise5Max();
+                rise3MaxSum += detail.getRise3Max();
                 rise5Sum += detail.getRise5();
+                rise5MaxSum += detail.getRise5Max();
             }
 
             //不加权的计算
             int size = detailIdToWeightMap.size();
-            double rise3MaxDateAvg = divide(rise3MaxSum, size);
             double rise3DateAvg = divide(rise3Sum, size);
-            double rise5MaxDateAvg = divide(rise5MaxSum, size);
+            double rise3MaxDateAvg = divide(rise3MaxSum, size);
             double rise5DateAvg = divide(rise5Sum, size);
-            rise3MaxDateAvgSum += rise3MaxDateAvg;
+            double rise5MaxDateAvg = divide(rise5MaxSum, size);
             rise3DateAvgSum += rise3DateAvg;
-            rise5MaxDateAvgSum += rise5MaxDateAvg;
+            rise3MaxDateAvgSum += rise3MaxDateAvg;
             rise5DateAvgSum += rise5DateAvg;
-            logStr.append(String.format("\n 日期：%s\n   " +
+            rise5MaxDateAvgSum += rise5MaxDateAvg;
+            logStr.append(String.format("\n日期：%s\n" +
                             "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" +
                             "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n",
                     date, rise3DateAvg * 100, rise3MaxDateAvg * 100,
@@ -250,11 +252,12 @@ public class DFSVerifyTest {
         query.setRise5MaxAvg(rise5MaxDateAvgSum / dateCnt);
         query.setOtherData(logStr.toString());
 
-        query.setWeightRise3Avg(rise3DateWeightAvgSum / dateCnt);
-        query.setWeightRise3MaxAvg(rise3MaxDateWeightAvgSum / dateCnt);
-        query.setWeightRise5Avg(rise5DateWeightAvgSum / dateCnt);
-        query.setWeightRise5MaxAvg(rise5MaxDateWeightAvgSum / dateCnt);
-        query.setWeightOtherData(weightLogStr.toString());
+        query.setRise3WeightAvg(rise3DateWeightAvgSum / dateCnt);
+        query.setRise3MaxWeightAvg(rise3MaxDateWeightAvgSum / dateCnt);
+        query.setRise5WeightAvg(rise5DateWeightAvgSum / dateCnt);
+        query.setRise5MaxWeightAvg(rise5MaxDateWeightAvgSum / dateCnt);
+        query.setOtherWeightData(weightLogStr.toString());
+        queryService.save(query);
         dataToDetailsMap.clear();
     }
 

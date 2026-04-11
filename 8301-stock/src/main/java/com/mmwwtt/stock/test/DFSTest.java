@@ -81,7 +81,7 @@ public class DFSTest {
         dfsAfterDetail();
     }
 
-    public void DfsMain() throws InterruptedException, ExecutionException {
+    public void DfsMain() throws InterruptedException {
         dfsInit();
         for (int i = 0; i < dfsStrategyL1s.size(); i++) {
             StrategyL1 strategyL1 = dfsStrategyL1s.get(i);
@@ -268,7 +268,6 @@ public class DFSTest {
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
         List<Strategy> res = resList.stream().filter(Strategy::getIsActive).toList();
-        strategyService.saveBatch(res);
 
         List<List<Strategy>> parts = ListUtils.partition(res, 100);
         futures = new ArrayList<>();
@@ -332,10 +331,11 @@ public class DFSTest {
                 }
             }
         });
-        double rise3MaxDateAvgSum = 0;
+
         double rise3DateAvgSum = 0;
-        double rise5MaxDateAvgSum = 0;
+        double rise3MaxDateAvgSum = 0;
         double rise5DateAvgSum = 0;
+        double rise5MaxDateAvgSum = 0;
         int dateCnt = 0;
         for (String date : predictDateList) {
             List<Detail> details = dataToDetailsMap.getOrDefault(date, null);
@@ -343,25 +343,27 @@ public class DFSTest {
                 continue;
             }
             dateCnt++;
-            double rise3MaxSum = 0;
             double rise3Sum = 0;
-            double rise5MaxSum = 0;
+            double rise3MaxSum = 0;
             double rise5Sum = 0;
+            double rise5MaxSum = 0;
             for (Detail detail : details) {
-                rise3MaxSum += detail.getRise3Max();
+
                 rise3Sum += detail.getRise3();
-                rise5MaxSum += detail.getRise5Max();
+                rise3MaxSum += detail.getRise3Max();
+
                 rise5Sum += detail.getRise5();
+                rise5MaxSum += detail.getRise5Max();
             }
             int size = details.size();
-            double rise3MaxDateAvg = divide(rise3MaxSum, size);
             double rise3DateAvg = divide(rise3Sum, size);
-            double rise5MaxDateAvg = divide(rise5MaxSum, size);
+            double rise3MaxDateAvg = divide(rise3MaxSum, size);
             double rise5DateAvg = divide(rise5Sum, size);
-            rise3MaxDateAvgSum += rise3MaxDateAvg;
+            double rise5MaxDateAvg = divide(rise5MaxSum, size);
             rise3DateAvgSum += rise3DateAvg;
-            rise5MaxDateAvgSum += rise5MaxDateAvg;
+            rise3MaxDateAvgSum += rise3MaxDateAvg;
             rise5DateAvgSum += rise5DateAvg;
+            rise5MaxDateAvgSum += rise5MaxDateAvg;
         }
         if (isEquals(0d, rise3DateAvgSum)) {
             return;
