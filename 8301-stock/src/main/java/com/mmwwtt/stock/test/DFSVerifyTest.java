@@ -57,37 +57,8 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("验证策略")
     public void verifyPredict() throws ExecutionException, InterruptedException {
-        List<String> baseSqlList = Arrays.asList(
-                "1=1",
-                "rise3_middle < rise4_middle  and rise4_middle < rise5_middle",
-                "rise1_middle < rise3_middle and rise3_middle < rise5_middle",
-                "rise1_middle < rise2_middle and rise2_middle < rise3_middle  " +
-                        "and rise3_middle < rise4_middle and rise4_middle < rise5_middle",
-                "rise3_middle > rise5_middle",
-                "rise5_middle > rise10_middle"
-        );
-        List<String> rangeList = Arrays.asList(
-                " and  0.01  <rise5_middle  and  rise5_middle <0.02",
-                " and  0.02  <rise5_middle  and  rise5_middle <0.03",
-                " and  0.03  <rise5_middle  and  rise5_middle <0.04",
-                " and  0.04  <rise5_middle  and  rise5_middle <0.05",
-                " and  0.05  <rise5_middle  and  rise5_middle <0.06",
-                " and  0.06  <rise5_middle  and  rise5_middle <0.07",
-                " and  0.07  <rise5_middle  and  rise5_middle <0.08",
-                " and  0.08  <rise5_middle  and  rise5_middle <0.09",
-                " and  0.09  <rise5_middle  and  rise5_middle <0.10",
-                " and  0.10  <rise5_middle",
-                " and  0.01  <rise3_middle  and  rise3_middle <0.02",
-                " and  0.02  <rise3_middle  and  rise3_middle <0.03",
-                " and  0.03  <rise3_middle  and  rise3_middle <0.04",
-                " and  0.04  <rise3_middle  and  rise3_middle <0.05",
-                " and  0.05  <rise3_middle  and  rise3_middle <0.06",
-                " and  0.06  <rise3_middle  and  rise3_middle <0.07",
-                " and  0.07  <rise3_middle  and  rise3_middle <0.08",
-                " and  0.08  <rise3_middle  and  rise3_middle <0.09",
-                " and  0.09  <rise3_middle  and  rise3_middle <0.10",
-                " and  0.10  <rise3_middle"
-        );
+        List<String> baseSqlList = Arrays.asList("1=1", "rise3_middle < rise4_middle  and rise4_middle < rise5_middle", "rise1_middle < rise3_middle and rise3_middle < rise5_middle", "rise1_middle < rise2_middle and rise2_middle < rise3_middle  " + "and rise3_middle < rise4_middle and rise4_middle < rise5_middle", "rise3_middle > rise5_middle", "rise5_middle > rise10_middle");
+        List<String> rangeList = Arrays.asList(" and  0.01  <rise5_middle  and  rise5_middle <0.02", " and  0.02  <rise5_middle  and  rise5_middle <0.03", " and  0.03  <rise5_middle  and  rise5_middle <0.04", " and  0.04  <rise5_middle  and  rise5_middle <0.05", " and  0.05  <rise5_middle  and  rise5_middle <0.06", " and  0.06  <rise5_middle  and  rise5_middle <0.07", " and  0.07  <rise5_middle  and  rise5_middle <0.08", " and  0.08  <rise5_middle  and  rise5_middle <0.09", " and  0.09  <rise5_middle  and  rise5_middle <0.10", " and  0.10  <rise5_middle", " and  0.01  <rise3_middle  and  rise3_middle <0.02", " and  0.02  <rise3_middle  and  rise3_middle <0.03", " and  0.03  <rise3_middle  and  rise3_middle <0.04", " and  0.04  <rise3_middle  and  rise3_middle <0.05", " and  0.05  <rise3_middle  and  rise3_middle <0.06", " and  0.06  <rise3_middle  and  rise3_middle <0.07", " and  0.07  <rise3_middle  and  rise3_middle <0.08", " and  0.08  <rise3_middle  and  rise3_middle <0.09", " and  0.09  <rise3_middle  and  rise3_middle <0.10", " and  0.10  <rise3_middle");
 
         commonDataService.init();
         queryService.remove(new QueryWrapper<>());
@@ -106,14 +77,22 @@ public class DFSVerifyTest {
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
         commonDataService.init();
-        String sql = "rise4_middle < rise5_middle and rise3_middle < rise4_middle and rise5_middle > 0.01 and is_active= true";
-        String newSql = sql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
-        List<Strategy> strategies = strategyService.getBySql(newSql)
-                .stream()
-                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
-                .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
-                .toList();
-        predict("20260403", strategies, false, 1.2);
+        String sql = " rise3_avg>0.01";
+        List<Query> queryList = queryService.getBySql(sql);
+        List<Strategy> strategies = new ArrayList<>();
+        Set<Integer> strategyIdSet = new HashSet<>();
+        for (Query query : queryList) {
+            List<Strategy> tmpLit = strategyService.getBySql(query.getSqlStr());
+            for (Strategy strategy : tmpLit) {
+                if (strategyIdSet.contains(strategy.getStrategyId())) {
+                    continue;
+                }
+                strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
+                strategyIdSet.add(strategy.getStrategyId());
+                strategies.add(strategy);
+            }
+        }
+        predict("202604010", strategies, false, 1.2);
     }
 
 
@@ -126,11 +105,7 @@ public class DFSVerifyTest {
 
 
     public void verifyPredictRes(String sql) {
-        List<Strategy> strategies = strategyService.getBySql(sql)
-                .stream()
-                .peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" "))))
-                .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed())
-                .toList();
+        List<Strategy> strategies = strategyService.getBySql(sql).stream().peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" ")))).sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed()).toList();
         //日期    详情列表   详情-权重
         Map<String, Pair<List<Detail>, Map<Integer, Double>>> dataToDetailsMap = new ConcurrentHashMap<>();
 
@@ -139,19 +114,14 @@ public class DFSVerifyTest {
                 if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
                     break;
                 }
-                if (Objects.isNull(detail.getRise5Max())
-                        || Objects.isNull(detail.getT10())
-                        || Objects.isNull(detail.getT10().getSixtyDayLine())
-                        || moreThan(detail.getRise0(), 0.097)) {
+                if (Objects.isNull(detail.getRise5Max()) || Objects.isNull(detail.getT10()) || Objects.isNull(detail.getT10().getSixtyDayLine()) || moreThan(detail.getRise0(), 0.097)) {
                     continue;
                 }
                 for (Strategy strategy : strategies) {
-                    List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
-                            .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
+                    List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream().map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
                     boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                     if (res) {
-                        Pair<List<Detail>, Map<Integer, Double>> pair =
-                                dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(), new ConcurrentHashMap<>()));
+                        Pair<List<Detail>, Map<Integer, Double>> pair = dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(), new ConcurrentHashMap<>()));
                         //详情id-权重map
                         Map<Integer, Double> detailIdToWeightMap = pair.getRight();
                         if (!detailIdToWeightMap.containsKey(detail.getDetailId())) {
@@ -218,11 +188,7 @@ public class DFSVerifyTest {
             rise3MaxDateAvgSum += rise3MaxDateAvg;
             rise5DateAvgSum += rise5DateAvg;
             rise5MaxDateAvgSum += rise5MaxDateAvg;
-            logStr.append(String.format("\n日期：%s\n" +
-                            "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" +
-                            "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n",
-                    date, rise3DateAvg * 100, rise3MaxDateAvg * 100,
-                    rise5DateAvg * 100, rise5MaxDateAvg * 100));
+            logStr.append(String.format("\n日期：%s\n" + "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" + "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n", date, rise3DateAvg * 100, rise3MaxDateAvg * 100, rise5DateAvg * 100, rise5MaxDateAvg * 100));
 
             //加权后的计算
             Double weightSum = sum(detailIdToWeightMap.values().stream().toList());
@@ -234,11 +200,7 @@ public class DFSVerifyTest {
             rise3MaxDateWeightAvgSum += rise3MaxDateWeightAvg;
             rise5DateWeightAvgSum += rise5DateWeightAvg;
             rise5MaxDateWeightAvgSum += rise5MaxDateWeightAvg;
-            weightLogStr.append(String.format("\n 日期：%s\n   " +
-                            "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" +
-                            "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n",
-                    date, rise3DateWeightAvg * 100, rise3MaxDateWeightAvg * 100,
-                    rise5DateWeightAvg * 100, rise5MaxDateWeightAvg * 100));
+            weightLogStr.append(String.format("\n 日期：%s\n   " + "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" + "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n", date, rise3DateWeightAvg * 100, rise3MaxDateWeightAvg * 100, rise5DateWeightAvg * 100, rise5MaxDateWeightAvg * 100));
         }
         if (isEquals(0d, rise3DateAvgSum)) {
             return;
@@ -288,15 +250,14 @@ public class DFSVerifyTest {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Map<String, Detail> codeToDetailMap = detailService.getCodeToCurDetailMap(curDate);
         for (Strategy strategy : strategys) {
-            List<Function<Detail, Boolean>> filterFuncs = Arrays.stream(strategy.getStrategyCode().split(" "))
+            List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
                     .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
             for (List<String> part : stockCodePartList) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     for (String stockCode : part) {
                         Detail detail = codeToDetailMap.get(stockCode);
                         if (Objects.isNull(detail) || Objects.isNull(detail.getT5())
-                                || Objects.isNull(detail.getT5().getSixtyDayLine())
-                                || moreThan(detail.getRise0(), 0.097)) {
+                                || Objects.isNull(detail.getT5().getSixtyDayLine()) || moreThan(detail.getRise0(), 0.097)) {
                             continue;
                         }
                         if (isOnTime) {
@@ -305,8 +266,7 @@ public class DFSVerifyTest {
                         boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                         if (res) {
                             double pert = detail.getRise0() != null ? detail.getRise0() : 0;
-                            strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>()))
-                                    .add(stockCode + " " + pert);
+                            strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>())).add(stockCode + " " + pert);
                         }
                     }
                 }, cpuThreadPool);
@@ -321,16 +281,13 @@ public class DFSVerifyTest {
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
-        Map<String, Long> stockToCntMap = strategyToStockMap.values().stream().flatMap(List::stream)
-                .collect(Collectors.groupingBy(item -> item, Collectors.counting()));
+        Map<String, Long> stockToCntMap = strategyToStockMap.values().stream().flatMap(List::stream).collect(Collectors.groupingBy(item -> item, Collectors.counting()));
         try (FileOutputStream fos = new FileOutputStream(file, false)) {
             fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
-            List<Strategy> resStrategies = strategyToStockMap.keySet().stream()
-                    .sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed()).toList();
+            List<Strategy> resStrategies = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed()).toList();
             for (Strategy strategy : resStrategies) {
                 List<String> resStockList = strategyToStockMap.get(strategy);
-                String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高中位数涨幅：%4f \n",
-                        strategy.getDateCnt(), strategy.getName(), strategy.getRise5MaxMiddle());
+                String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高中位数涨幅：%4f \n", strategy.getDateCnt(), strategy.getName(), strategy.getRise5MaxMiddle());
                 fos.write(str.getBytes());
                 for (String s : resStockList) {
                     fos.write((s + "\n").getBytes());
