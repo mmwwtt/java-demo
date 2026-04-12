@@ -63,7 +63,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MIDDLE_40_DAY;
+    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MAX_MIDDLE_50_DAY;
 
     @Test
     @DisplayName("DFS深度遍历")
