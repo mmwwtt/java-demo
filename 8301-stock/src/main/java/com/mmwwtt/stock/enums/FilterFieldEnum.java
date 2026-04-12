@@ -5,8 +5,12 @@ import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.entity.strategy.StrategyL1;
 import com.mmwwtt.stock.entity.strategy.StrategyTmp;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 import static com.mmwwtt.stock.common.CommonUtils.lessThan;
@@ -17,889 +21,222 @@ import static com.mmwwtt.stock.common.CommonUtils.multiply;
 public enum FilterFieldEnum implements BaseEnum {
 
 
-    RISE5_MAX_MIDDLE_025("rise5MaxMiddle025", "最大5日涨幅中位数 l1域值0.025",
+    RISE5_MAX_MIDDLE_50DAY("rise5MaxMiddle50Day", "最大5日涨幅中位数(50天)",
             13, 30,
             Detail::getRise5Max,
             Detail::getRise5Min,
             StrategyL1::getRise5MaxMiddle,
             StrategyL1::getRise5MinMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if ((level == 2 && tmp.getDateCnt() < 80)
-                        || (level == 3 && tmp.getDateCnt() < 80)
-                        || (level == 4 && tmp.getDateCnt() < 80)
-                        || (level == 5 && tmp.getDateCnt() < 70)
-                        || (level == 6 && tmp.getDateCnt() < 70)
-                        || (level == 7 && tmp.getDateCnt() < 70)
-                        || (level == 8 && tmp.getDateCnt() < 60)
-                        || (level == 9 && tmp.getDateCnt() < 60)
-                        || (level == 10 && tmp.getDateCnt() < 60)
-                        || (level == 11 && tmp.getDateCnt() < 50)
-                        || (level == 12 && tmp.getDateCnt() < 50)
-                        || (level == 13 && tmp.getDateCnt() < 50)) {
-                    return false;
-                }
-                return true;
-            },
-
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001)) || tmp.getMinMiddle() < -0.1) {
-                    return false;
-                }
-                switch (level) {
-                    case 2:
-                        if (lessThan(tmp.getMiddle(), 0.065) && tmp.getMiddle() + tmp.getMinMiddle() * 1.55 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 3:
-                        if (lessThan(tmp.getMiddle(), 0.080) && tmp.getMiddle() + tmp.getMinMiddle() * 1.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 4:
-                        if (lessThan(tmp.getMiddle(), 0.09) && tmp.getMiddle() + tmp.getMinMiddle() * 1.8 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 5:
-                        if (lessThan(tmp.getMiddle(), 0.095) && tmp.getMiddle() + tmp.getMinMiddle() * 1.9 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 6:
-                        if (lessThan(tmp.getMiddle(), 0.10) && tmp.getMiddle() + tmp.getMinMiddle() * 2.0 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 7:
-                        if (lessThan(tmp.getMiddle(), 0.105) && tmp.getMiddle() + tmp.getMinMiddle() * 2.1 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 8:
-                        if (lessThan(tmp.getMiddle(), 0.11) && tmp.getMiddle() + tmp.getMinMiddle() * 2.2 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 9:
-                        if (lessThan(tmp.getMiddle(), 0.115) && tmp.getMiddle() + tmp.getMinMiddle() * 2.3 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 10:
-                        if (lessThan(tmp.getMiddle(), 0.12) && tmp.getMiddle() + tmp.getMinMiddle() * 2.4 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 11:
-                        if (lessThan(tmp.getMiddle(), 0.125) && tmp.getMiddle() + tmp.getMinMiddle() * 2.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 12:
-                        if (lessThan(tmp.getMiddle(), 0.13) && tmp.getMiddle() + tmp.getMinMiddle() * 2.6 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 13:
-                        if (lessThan(tmp.getMiddle(), 0.135) && tmp.getMiddle() + tmp.getMinMiddle() * 2.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 80, 0.065, 1.55),
+                    new Cond(3, 80, 0.080, 1.70),
+                    new Cond(4, 80, 0.090, 1.80),
+                    new Cond(5, 70, 0.095, 1.90),
+                    new Cond(6, 70, 0.100, 2.00),
+                    new Cond(7, 70, 0.105, 2.10),
+                    new Cond(8, 60, 0.110, 2.20),
+                    new Cond(9, 60, 0.115, 2.30),
+                    new Cond(10, 60, 0.120, 2.40),
+                    new Cond(11, 50, 0.125, 2.50),
+                    new Cond(12, 50, 0.130, 2.60),
+                    new Cond(13, 50, 0.135, 2.70))
     ),
-    RISE3_MAX_MIDDLE_50_DAY("rise3MaxMiddle50Day", "最大3日涨幅中位数",
+    RISE3_MAX_MIDDLE_50_DAY("rise3MaxMiddle50Day", "最大3日涨幅中位数(50天)",
             15, 70,
             Detail::getRise3Max,
             Detail::getRise3Min,
             StrategyL1::getRise3MaxMiddle,
             StrategyL1::getRise3MinMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if ((level == 2 && tmp.getDateCnt() < 80)
-                        || (level == 3 && tmp.getDateCnt() < 80)
-                        || (level == 4 && tmp.getDateCnt() < 80)
-                        || (level == 5 && tmp.getDateCnt() < 70)
-                        || (level == 6 && tmp.getDateCnt() < 70)
-                        || (level == 7 && tmp.getDateCnt() < 70)
-                        || (level == 8 && tmp.getDateCnt() < 60)
-                        || (level == 9 && tmp.getDateCnt() < 60)
-                        || (level == 10 && tmp.getDateCnt() < 60)
-                        || (level == 11 && tmp.getDateCnt() < 50)
-                        || (level == 12 && tmp.getDateCnt() < 50)
-                        || (level == 13 && tmp.getDateCnt() < 50)) {
-                    return false;
-                }
-                return true;
-            },
-
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001)) ||tmp.getMinMiddle() < -0.1) {
-                    return false;
-                }
-                switch (level) {
-                    case 2:
-                        if (lessThan(tmp.getMiddle(), 0.045) && tmp.getMiddle() + tmp.getMinMiddle() * 1.55 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 3:
-                        if (lessThan(tmp.getMiddle(), 0.06) && tmp.getMiddle() + tmp.getMinMiddle() * 1.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 4:
-                        if (lessThan(tmp.getMiddle(), 0.07) && tmp.getMiddle() + tmp.getMinMiddle() * 1.8 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 5:
-                        if (lessThan(tmp.getMiddle(), 0.08) && tmp.getMiddle() + tmp.getMinMiddle() * 1.9 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 6:
-                        if (lessThan(tmp.getMiddle(), 0.9) && tmp.getMiddle() + tmp.getMinMiddle() * 2.0 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 7:
-                        if (lessThan(tmp.getMiddle(), 0.10) && tmp.getMiddle() + tmp.getMinMiddle() * 2.1 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 8:
-                        if (lessThan(tmp.getMiddle(), 0.11) && tmp.getMiddle() + tmp.getMinMiddle() * 2.2 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 9:
-                        if (lessThan(tmp.getMiddle(), 0.115) && tmp.getMiddle() + tmp.getMinMiddle() * 2.3 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 10:
-                        if (lessThan(tmp.getMiddle(), 0.12) && tmp.getMiddle() + tmp.getMinMiddle() * 2.4 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 11:
-                        if (lessThan(tmp.getMiddle(), 0.125) && tmp.getMiddle() + tmp.getMinMiddle() * 2.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 12:
-                        if (lessThan(tmp.getMiddle(), 0.13) && tmp.getMiddle() + tmp.getMinMiddle() * 2.6 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 13:
-                        if (lessThan(tmp.getMiddle(), 0.135) && tmp.getMiddle() + tmp.getMinMiddle() * 2.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 80, 0.045, 1.55),
+                    new Cond(3, 80, 0.060, 1.70),
+                    new Cond(4, 80, 0.070, 1.80),
+                    new Cond(5, 70, 0.080, 1.90),
+                    new Cond(6, 70, 0.090, 2.00),
+                    new Cond(7, 70, 0.100, 2.10),
+                    new Cond(8, 60, 0.110, 2.20),
+                    new Cond(9, 60, 0.115, 2.30),
+                    new Cond(10, 60, 0.120, 2.40),
+                    new Cond(11, 50, 0.125, 2.50),
+                    new Cond(12, 50, 0.130, 2.60),
+                    new Cond(13, 50, 0.135, 2.70))
     ),
 
-    RISE3_MAX_MIDDLE_40_DAY("rise3MaxMiddle40Day", "最大3日涨幅中位数",
+    RISE3_MAX_MIDDLE_40_DAY("rise3MaxMiddle40Day", "最大3日涨幅中位数(40天)",
             15, 70,
             Detail::getRise3Max,
             Detail::getRise3Min,
             StrategyL1::getRise3MaxMiddle,
             StrategyL1::getRise3MinMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if ((level == 2 && tmp.getDateCnt() < 70)
-                        || (level == 3 && tmp.getDateCnt() < 70)
-                        || (level == 4 && tmp.getDateCnt() < 70)
-                        || (level == 5 && tmp.getDateCnt() < 60)
-                        || (level == 6 && tmp.getDateCnt() < 60)
-                        || (level == 7 && tmp.getDateCnt() < 60)
-                        || (level == 8 && tmp.getDateCnt() < 50)
-                        || (level == 9 && tmp.getDateCnt() < 50)
-                        || (level == 10 && tmp.getDateCnt() < 50)
-                        || (level == 11 && tmp.getDateCnt() < 40)
-                        || (level == 12 && tmp.getDateCnt() < 40)
-                        || (level == 13 && tmp.getDateCnt() < 40)) {
-                    return false;
-                }
-                return true;
-            },
-
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001))||tmp.getMinMiddle() < -0.1) {
-                    return false;
-                }
-                switch (level) {
-                    case 2:
-                        if (lessThan(tmp.getMiddle(), 0.045) && tmp.getMiddle() + tmp.getMinMiddle() * 1.55 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 3:
-                        if (lessThan(tmp.getMiddle(), 0.06) && tmp.getMiddle() + tmp.getMinMiddle() * 1.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 4:
-                        if (lessThan(tmp.getMiddle(), 0.07) && tmp.getMiddle() + tmp.getMinMiddle() * 1.8 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 5:
-                        if (lessThan(tmp.getMiddle(), 0.08) && tmp.getMiddle() + tmp.getMinMiddle() * 1.9 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 6:
-                        if (lessThan(tmp.getMiddle(), 0.9) && tmp.getMiddle() + tmp.getMinMiddle() * 2.0 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 7:
-                        if (lessThan(tmp.getMiddle(), 0.10) && tmp.getMiddle() + tmp.getMinMiddle() * 2.1 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 8:
-                        if (lessThan(tmp.getMiddle(), 0.11) && tmp.getMiddle() + tmp.getMinMiddle() * 2.2 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 9:
-                        if (lessThan(tmp.getMiddle(), 0.115) && tmp.getMiddle() + tmp.getMinMiddle() * 2.3 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 10:
-                        if (lessThan(tmp.getMiddle(), 0.12) && tmp.getMiddle() + tmp.getMinMiddle() * 2.4 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 11:
-                        if (lessThan(tmp.getMiddle(), 0.125) && tmp.getMiddle() + tmp.getMinMiddle() * 2.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 12:
-                        if (lessThan(tmp.getMiddle(), 0.13) && tmp.getMiddle() + tmp.getMinMiddle() * 2.6 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 13:
-                        if (lessThan(tmp.getMiddle(), 0.135) && tmp.getMiddle() + tmp.getMinMiddle() * 2.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 70, 0.045, 1.55),
+                    new Cond(3, 70, 0.060, 1.70),
+                    new Cond(4, 70, 0.070, 1.80),
+                    new Cond(5, 60, 0.080, 1.90),
+                    new Cond(6, 60, 0.090, 2.00),
+                    new Cond(7, 60, 0.100, 2.10),
+                    new Cond(8, 50, 0.110, 2.20),
+                    new Cond(9, 50, 0.115, 2.30),
+                    new Cond(10, 50, 0.120, 2.40),
+                    new Cond(11, 40, 0.125, 2.50),
+                    new Cond(12, 40, 0.130, 2.60),
+                    new Cond(13, 40, 0.135, 2.70))
     ),
-
-    RISE3_MAX_MIDDLE_30_DAY("rise3MaxMiddle30Day", "最大3日涨幅中位数",
+    RISE3_MAX_MIDDLE_30_DAY("rise3MaxMiddle30Day", "最大3日涨幅中位数(30天)",
             15, 70,
             Detail::getRise3Max,
             Detail::getRise3Min,
             StrategyL1::getRise3MaxMiddle,
             StrategyL1::getRise3MinMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if ((level == 2 && tmp.getDateCnt() < 60)
-                        || (level == 3 && tmp.getDateCnt() < 60)
-                        || (level == 4 && tmp.getDateCnt() < 60)
-                        || (level == 5 && tmp.getDateCnt() < 50)
-                        || (level == 6 && tmp.getDateCnt() < 50)
-                        || (level == 7 && tmp.getDateCnt() < 50)
-                        || (level == 8 && tmp.getDateCnt() < 40)
-                        || (level == 9 && tmp.getDateCnt() < 40)
-                        || (level == 10 && tmp.getDateCnt() < 40)
-                        || (level == 11 && tmp.getDateCnt() < 30)
-                        || (level == 12 && tmp.getDateCnt() < 30)
-                        || (level == 13 && tmp.getDateCnt() < 30)) {
-                    return false;
-                }
-                return true;
-            },
-
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001)) ||tmp.getMinMiddle() < -0.1) {
-                    return false;
-                }
-                switch (level) {
-                    case 2:
-                        if (lessThan(tmp.getMiddle(), 0.045) && tmp.getMiddle() + tmp.getMinMiddle() * 1.55 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 3:
-                        if (lessThan(tmp.getMiddle(), 0.06) && tmp.getMiddle() + tmp.getMinMiddle() * 1.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 4:
-                        if (lessThan(tmp.getMiddle(), 0.07) && tmp.getMiddle() + tmp.getMinMiddle() * 1.8 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 5:
-                        if (lessThan(tmp.getMiddle(), 0.08) && tmp.getMiddle() + tmp.getMinMiddle() * 1.9 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 6:
-                        if (lessThan(tmp.getMiddle(), 0.9) && tmp.getMiddle() + tmp.getMinMiddle() * 2.0 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 7:
-                        if (lessThan(tmp.getMiddle(), 0.10) && tmp.getMiddle() + tmp.getMinMiddle() * 2.1 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 8:
-                        if (lessThan(tmp.getMiddle(), 0.11) && tmp.getMiddle() + tmp.getMinMiddle() * 2.2 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 9:
-                        if (lessThan(tmp.getMiddle(), 0.115) && tmp.getMiddle() + tmp.getMinMiddle() * 2.3 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 10:
-                        if (lessThan(tmp.getMiddle(), 0.12) && tmp.getMiddle() + tmp.getMinMiddle() * 2.4 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 11:
-                        if (lessThan(tmp.getMiddle(), 0.125) && tmp.getMiddle() + tmp.getMinMiddle() * 2.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 12:
-                        if (lessThan(tmp.getMiddle(), 0.13) && tmp.getMiddle() + tmp.getMinMiddle() * 2.6 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 13:
-                        if (lessThan(tmp.getMiddle(), 0.135) && tmp.getMiddle() + tmp.getMinMiddle() * 2.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 60, 0.045, 1.55),
+                    new Cond(3, 60, 0.060, 1.70),
+                    new Cond(4, 60, 0.070, 1.80),
+                    new Cond(5, 50, 0.090, 1.90),
+                    new Cond(6, 50, 0.090, 2.00),
+                    new Cond(7, 50, 0.100, 2.10),
+                    new Cond(8, 40, 0.110, 2.20),
+                    new Cond(9, 40, 0.115, 2.30),
+                    new Cond(10, 40, 0.120, 2.40),
+                    new Cond(11, 30, 0.125, 2.50),
+                    new Cond(12, 30, 0.130, 2.60),
+                    new Cond(13, 30, 0.135, 2.70))
     ),
 
-
-    RISE3_MIDDLE_40_DAY("rise3Middle40Day", "3日涨幅中位数",
+    RISE3_MIDDLE_50_DAY("rise3Middle50Day", "3日涨幅中位数(50天)",
             13, 100,
             Detail::getRise3,
             Detail::getRise3Min,
             StrategyL1::getRise3Middle,
             StrategyL1::getRise3MinMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if ((level == 2 && tmp.getDateCnt() < 70)
-                        || (level == 3 && tmp.getDateCnt() < 70)
-                        || (level == 4 && tmp.getDateCnt() < 70)
-                        || (level == 5 && tmp.getDateCnt() < 60)
-                        || (level == 6 && tmp.getDateCnt() < 60)
-                        || (level == 7 && tmp.getDateCnt() < 60)
-                        || (level == 8 && tmp.getDateCnt() < 50)
-                        || (level == 9 && tmp.getDateCnt() < 50)
-                        || (level == 10 && tmp.getDateCnt() < 50)
-                        || (level == 11 && tmp.getDateCnt() < 40)
-                        || (level == 12 && tmp.getDateCnt() < 40)
-                        || (level == 13 && tmp.getDateCnt() < 40)) {
-                    return false;
-                }
-                return true;
-            },
-
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001)) || tmp.getMinMiddle() < -0.1) {
-                    return false;
-                }
-                switch (level) {
-                    case 2:
-                        if (lessThan(tmp.getMiddle(), 0.007) && tmp.getMiddle() + tmp.getMinMiddle() * 0.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 3:
-                        if (lessThan(tmp.getMiddle(), 0.010) && tmp.getMiddle() + tmp.getMinMiddle() * 0.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 4:
-                        if (lessThan(tmp.getMiddle(), 0.015) && tmp.getMiddle() + tmp.getMinMiddle() * 0.8 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 5:
-                        if (lessThan(tmp.getMiddle(), 0.020) && tmp.getMiddle() + tmp.getMinMiddle() * 0.9 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 6:
-                        if (lessThan(tmp.getMiddle(), 0.025) && tmp.getMiddle() + tmp.getMinMiddle() * 1.0 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 7:
-                        if (lessThan(tmp.getMiddle(), 0.030) && tmp.getMiddle() + tmp.getMinMiddle() * 1.1 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 8:
-                        if (lessThan(tmp.getMiddle(), 0.035) && tmp.getMiddle() + tmp.getMinMiddle() * 1.2 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 9:
-                        if (lessThan(tmp.getMiddle(), 0.04) && tmp.getMiddle() + tmp.getMinMiddle() * 1.3 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 10:
-                        if (lessThan(tmp.getMiddle(), 0.045) && tmp.getMiddle() + tmp.getMinMiddle() * 1.4 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 11:
-                        if (lessThan(tmp.getMiddle(), 0.05) && tmp.getMiddle() + tmp.getMinMiddle() * 1.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 12:
-                        if (lessThan(tmp.getMiddle(), 0.055) && tmp.getMiddle() + tmp.getMinMiddle() * 1.6 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 13:
-                        if (lessThan(tmp.getMiddle(), 0.06) && tmp.getMiddle() + tmp.getMinMiddle() * 1.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 80, 0.007, 0.50),
+                    new Cond(3, 80, 0.010, 0.70),
+                    new Cond(4, 80, 0.015, 0.80),
+                    new Cond(5, 70, 0.020, 0.90),
+                    new Cond(6, 70, 0.025, 1.00),
+                    new Cond(7, 70, 0.030, 1.10),
+                    new Cond(8, 60, 0.035, 1.20),
+                    new Cond(9, 60, 0.040, 1.30),
+                    new Cond(10, 60, 0.045, 1.40),
+                    new Cond(11, 50, 0.050, 1.50),
+                    new Cond(12, 50, 0.055, 1.60),
+                    new Cond(13, 50, 0.060, 1.70))
     ),
 
 
-
-    RISE3_MIDDLE_30_DAY("rise3Middle30Day", "3日涨幅中位数",
+    RISE3_MIDDLE_40_DAY("rise3Middle40Day", "3日涨幅中位数(40天)",
             13, 100,
             Detail::getRise3,
             Detail::getRise3Min,
             StrategyL1::getRise3Middle,
             StrategyL1::getRise3MinMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if ((level == 2 && tmp.getDateCnt() < 60)
-                        || (level == 3 && tmp.getDateCnt() < 60)
-                        || (level == 4 && tmp.getDateCnt() < 60)
-                        || (level == 5 && tmp.getDateCnt() < 50)
-                        || (level == 6 && tmp.getDateCnt() < 50)
-                        || (level == 7 && tmp.getDateCnt() < 50)
-                        || (level == 8 && tmp.getDateCnt() < 40)
-                        || (level == 9 && tmp.getDateCnt() < 40)
-                        || (level == 10 && tmp.getDateCnt() < 40)
-                        || (level == 11 && tmp.getDateCnt() < 30)
-                        || (level == 12 && tmp.getDateCnt() < 30)
-                        || (level == 13 && tmp.getDateCnt() < 30)) {
-                    return false;
-                }
-                return true;
-            },
-
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001)) || tmp.getMinMiddle() < -0.1) {
-                    return false;
-                }
-                switch (level) {
-                    case 2:
-                        if (lessThan(tmp.getMiddle(), 0.007) && tmp.getMiddle() + tmp.getMinMiddle() * 0.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 3:
-                        if (lessThan(tmp.getMiddle(), 0.010) && tmp.getMiddle() + tmp.getMinMiddle() * 0.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 4:
-                        if (lessThan(tmp.getMiddle(), 0.015) && tmp.getMiddle() + tmp.getMinMiddle() * 0.8 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 5:
-                        if (lessThan(tmp.getMiddle(), 0.020) && tmp.getMiddle() + tmp.getMinMiddle() * 0.9 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 6:
-                        if (lessThan(tmp.getMiddle(), 0.025) && tmp.getMiddle() + tmp.getMinMiddle() * 1.0 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 7:
-                        if (lessThan(tmp.getMiddle(), 0.030) && tmp.getMiddle() + tmp.getMinMiddle() * 1.1 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 8:
-                        if (lessThan(tmp.getMiddle(), 0.035) && tmp.getMiddle() + tmp.getMinMiddle() * 1.2 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 9:
-                        if (lessThan(tmp.getMiddle(), 0.04) && tmp.getMiddle() + tmp.getMinMiddle() * 1.3 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 10:
-                        if (lessThan(tmp.getMiddle(), 0.045) && tmp.getMiddle() + tmp.getMinMiddle() * 1.4 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 11:
-                        if (lessThan(tmp.getMiddle(), 0.05) && tmp.getMiddle() + tmp.getMinMiddle() * 1.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 12:
-                        if (lessThan(tmp.getMiddle(), 0.055) && tmp.getMiddle() + tmp.getMinMiddle() * 1.6 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 13:
-                        if (lessThan(tmp.getMiddle(), 0.06) && tmp.getMiddle() + tmp.getMinMiddle() * 1.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 70, 0.007, 0.50),
+                    new Cond(3, 70, 0.010, 0.70),
+                    new Cond(4, 70, 0.015, 0.80),
+                    new Cond(5, 60, 0.020, 0.90),
+                    new Cond(6, 60, 0.025, 1.00),
+                    new Cond(7, 60, 0.030, 1.10),
+                    new Cond(8, 50, 0.035, 1.20),
+                    new Cond(9, 50, 0.040, 1.30),
+                    new Cond(10, 50, 0.045, 1.40),
+                    new Cond(11, 40, 0.050, 1.50),
+                    new Cond(12, 40, 0.055, 1.60),
+                    new Cond(13, 40, 0.060, 1.70))
     ),
 
 
-    RISE1_MAX_MIDDLE_50_DAY("rise1MaxMiddle50Day", "最大1日涨幅中位数",
+    RISE3_MIDDLE_30_DAY("rise3Middle30Day", "3日涨幅中位数(30天)",
+            13, 100,
+            Detail::getRise3,
+            Detail::getRise3Min,
+            StrategyL1::getRise3Middle,
+            StrategyL1::getRise3MinMiddle,
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 60, 0.007, 0.50),
+                    new Cond(3, 60, 0.010, 0.70),
+                    new Cond(4, 60, 0.015, 0.80),
+                    new Cond(5, 50, 0.020, 0.90),
+                    new Cond(6, 50, 0.025, 1.00),
+                    new Cond(7, 50, 0.030, 1.10),
+                    new Cond(8, 40, 0.035, 1.20),
+                    new Cond(9, 40, 0.040, 1.30),
+                    new Cond(10, 40, 0.045, 1.40),
+                    new Cond(11, 30, 0.050, 1.50),
+                    new Cond(12, 30, 0.055, 1.60),
+                    new Cond(13, 30, 0.060, 1.70))
+    ),
+
+
+    RISE1_MAX_MIDDLE_50_DAY("rise1MaxMiddle50Day", "最大1日涨幅中位数(50天)",
             13, 70,
             Detail::getRise1Max,
             Detail::getRise1Min,
             StrategyL1::getRise1MaxMiddle,
             StrategyL1::getRise1MinMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if ((level == 2 && tmp.getDateCnt() < 80)
-                        || (level == 3 && tmp.getDateCnt() < 80)
-                        || (level == 4 && tmp.getDateCnt() < 80)
-                        || (level == 5 && tmp.getDateCnt() < 70)
-                        || (level == 6 && tmp.getDateCnt() < 70)
-                        || (level == 7 && tmp.getDateCnt() < 70)
-                        || (level == 8 && tmp.getDateCnt() < 60)
-                        || (level == 9 && tmp.getDateCnt() < 60)
-                        || (level == 10 && tmp.getDateCnt() < 60)
-                        || (level == 11 && tmp.getDateCnt() < 50)
-                        || (level == 12 && tmp.getDateCnt() < 50)
-                        || (level == 13 && tmp.getDateCnt() < 50)) {
-                    return false;
-                }
-                return true;
-            },
-
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001))||tmp.getMinMiddle() < -0.1) {
-                    return false;
-                }
-                switch (level) {
-                    case 2:
-                        if (lessThan(tmp.getMiddle(), 0.025) && tmp.getMiddle() + tmp.getMinMiddle() * 1.55 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 3:
-                        if (lessThan(tmp.getMiddle(), 0.035) && tmp.getMiddle() + tmp.getMinMiddle() * 1.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 4:
-                        if (lessThan(tmp.getMiddle(), 0.045) && tmp.getMiddle() + tmp.getMinMiddle() * 1.8 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 5:
-                        if (lessThan(tmp.getMiddle(), 0.055) && tmp.getMiddle() + tmp.getMinMiddle() * 1.9 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 6:
-                        if (lessThan(tmp.getMiddle(), 0.06) && tmp.getMiddle() + tmp.getMinMiddle() * 2.0 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 7:
-                        if (lessThan(tmp.getMiddle(), 0.065) && tmp.getMiddle() + tmp.getMinMiddle() * 2.1 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 8:
-                        if (lessThan(tmp.getMiddle(), 0.11) && tmp.getMiddle() + tmp.getMinMiddle() * 2.2 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 9:
-                        if (lessThan(tmp.getMiddle(), 0.115) && tmp.getMiddle() + tmp.getMinMiddle() * 2.3 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 10:
-                        if (lessThan(tmp.getMiddle(), 0.12) && tmp.getMiddle() + tmp.getMinMiddle() * 2.4 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 11:
-                        if (lessThan(tmp.getMiddle(), 0.125) && tmp.getMiddle() + tmp.getMinMiddle() * 2.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 12:
-                        if (lessThan(tmp.getMiddle(), 0.13) && tmp.getMiddle() + tmp.getMinMiddle() * 2.6 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 13:
-                        if (lessThan(tmp.getMiddle(), 0.135) && tmp.getMiddle() + tmp.getMinMiddle() * 2.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 80, 0.025, 1.55),
+                    new Cond(3, 80, 0.035, 1.70),
+                    new Cond(4, 80, 0.045, 1.80),
+                    new Cond(5, 70, 0.055, 1.90),
+                    new Cond(6, 70, 0.060, 2.00),
+                    new Cond(7, 70, 0.065, 2.10),
+                    new Cond(8, 60, 0.070, 2.20),
+                    new Cond(9, 60, 0.075, 2.30),
+                    new Cond(10, 60, 0.080, 2.40),
+                    new Cond(11, 50, 0.085, 2.50),
+                    new Cond(12, 50, 0.090, 2.60),
+                    new Cond(13, 50, 0.095, 2.70))
     ),
 
-    RISE1_MAX_MIDDLE_40_DAY("rise1MaxMiddle40Day", "最大1日涨幅中位数",
+    RISE1_MAX_MIDDLE_40_DAY("rise1MaxMiddle40Day", "最大1日涨幅中位数(40天)",
             13, 70,
             Detail::getRise1Max,
             Detail::getRise1Min,
             StrategyL1::getRise1MaxMiddle,
             StrategyL1::getRise1MinMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if ((level == 2 && tmp.getDateCnt() < 70)
-                        || (level == 3 && tmp.getDateCnt() < 70)
-                        || (level == 4 && tmp.getDateCnt() < 70)
-                        || (level == 5 && tmp.getDateCnt() < 60)
-                        || (level == 6 && tmp.getDateCnt() < 60)
-                        || (level == 7 && tmp.getDateCnt() < 60)
-                        || (level == 8 && tmp.getDateCnt() < 50)
-                        || (level == 9 && tmp.getDateCnt() < 50)
-                        || (level == 10 && tmp.getDateCnt() < 50)
-                        || (level == 11 && tmp.getDateCnt() < 40)
-                        || (level == 12 && tmp.getDateCnt() < 40)
-                        || (level == 13 && tmp.getDateCnt() < 40)) {
-                    return false;
-                }
-                return true;
-            },
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 70, 0.025, 1.55),
+                    new Cond(3, 70, 0.035, 1.70),
+                    new Cond(4, 70, 0.045, 1.80),
+                    new Cond(5, 60, 0.055, 1.90),
+                    new Cond(6, 60, 0.060, 2.00),
+                    new Cond(7, 60, 0.065, 2.10),
+                    new Cond(8, 50, 0.070, 2.20),
+                    new Cond(9, 50, 0.075, 2.30),
+                    new Cond(10, 50, 0.080, 2.40),
+                    new Cond(11, 40, 0.085, 2.50),
+                    new Cond(12, 40, 0.090, 2.60),
+                    new Cond(13, 40, 0.095, 2.70))
 
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001))||tmp.getMinMiddle() < -0.1) {
-                    return false;
-                }
-                switch (level) {
-                    case 2:
-                        if (lessThan(tmp.getMiddle(), 0.025) && tmp.getMiddle() + tmp.getMinMiddle() * 1.55 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 3:
-                        if (lessThan(tmp.getMiddle(), 0.035) && tmp.getMiddle() + tmp.getMinMiddle() * 1.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 4:
-                        if (lessThan(tmp.getMiddle(), 0.045) && tmp.getMiddle() + tmp.getMinMiddle() * 1.8 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 5:
-                        if (lessThan(tmp.getMiddle(), 0.055) && tmp.getMiddle() + tmp.getMinMiddle() * 1.9 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 6:
-                        if (lessThan(tmp.getMiddle(), 0.06) && tmp.getMiddle() + tmp.getMinMiddle() * 2.0 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 7:
-                        if (lessThan(tmp.getMiddle(), 0.065) && tmp.getMiddle() + tmp.getMinMiddle() * 2.1 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 8:
-                        if (lessThan(tmp.getMiddle(), 0.11) && tmp.getMiddle() + tmp.getMinMiddle() * 2.2 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 9:
-                        if (lessThan(tmp.getMiddle(), 0.115) && tmp.getMiddle() + tmp.getMinMiddle() * 2.3 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 10:
-                        if (lessThan(tmp.getMiddle(), 0.12) && tmp.getMiddle() + tmp.getMinMiddle() * 2.4 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 11:
-                        if (lessThan(tmp.getMiddle(), 0.125) && tmp.getMiddle() + tmp.getMinMiddle() * 2.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 12:
-                        if (lessThan(tmp.getMiddle(), 0.13) && tmp.getMiddle() + tmp.getMinMiddle() * 2.6 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 13:
-                        if (lessThan(tmp.getMiddle(), 0.135) && tmp.getMiddle() + tmp.getMinMiddle() * 2.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }),
+    ),
 
 
-    RISE1_MAX_MIDDLE_30_DAY("rise1MaxMiddle30Day", "最大1日涨幅中位数",
+    RISE1_MAX_MIDDLE_30_DAY("rise1MaxMiddle30Day", "最大1日涨幅中位数(30天)",
             13, 100,
             Detail::getRise1Max,
             Detail::getRise1Min,
             StrategyL1::getRise1MaxMiddle,
             StrategyL1::getRise1MinMiddle,
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if ((level == 2 && tmp.getDateCnt() < 60)
-                        || (level == 3 && tmp.getDateCnt() < 60)
-                        || (level == 4 && tmp.getDateCnt() < 60)
-                        || (level == 5 && tmp.getDateCnt() < 50)
-                        || (level == 6 && tmp.getDateCnt() < 50)
-                        || (level == 7 && tmp.getDateCnt() < 50)
-                        || (level == 8 && tmp.getDateCnt() < 40)
-                        || (level == 9 && tmp.getDateCnt() < 40)
-                        || (level == 10 && tmp.getDateCnt() < 40)
-                        || (level == 11 && tmp.getDateCnt() < 30)
-                        || (level == 12 && tmp.getDateCnt() < 30)
-                        || (level == 13 && tmp.getDateCnt() < 30)) {
-                    return false;
-                }
-                return true;
-            },
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 60, 0.025, 1.55),
+                    new Cond(3, 60, 0.035, 1.70),
+                    new Cond(4, 60, 0.045, 1.80),
+                    new Cond(5, 50, 0.055, 1.90),
+                    new Cond(6, 50, 0.060, 2.00),
+                    new Cond(7, 50, 0.065, 2.10),
+                    new Cond(8, 40, 0.070, 2.20),
+                    new Cond(9, 40, 0.075, 2.30),
+                    new Cond(10, 40, 0.080, 2.40),
+                    new Cond(11, 30, 0.085, 2.50),
+                    new Cond(12, 30, 0.090, 2.60),
+                    new Cond(13, 30, 0.095, 2.70))
 
-            (StrategyTmp tmp) -> {
-                int level = tmp.getStrategyCodeSet().size();
-                if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001))||tmp.getMinMiddle() < -0.1) {
-                    return false;
-                }
-                switch (level) {
-                    case 2:
-                        if (lessThan(tmp.getMiddle(), 0.025) && tmp.getMiddle() + tmp.getMinMiddle() * 1.55 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 3:
-                        if (lessThan(tmp.getMiddle(), 0.035) && tmp.getMiddle() + tmp.getMinMiddle() * 1.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 4:
-                        if (lessThan(tmp.getMiddle(), 0.045) && tmp.getMiddle() + tmp.getMinMiddle() * 1.8 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 5:
-                        if (lessThan(tmp.getMiddle(), 0.055) && tmp.getMiddle() + tmp.getMinMiddle() * 1.9 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 6:
-                        if (lessThan(tmp.getMiddle(), 0.06) && tmp.getMiddle() + tmp.getMinMiddle() * 2.0 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 7:
-                        if (lessThan(tmp.getMiddle(), 0.065) && tmp.getMiddle() + tmp.getMinMiddle() * 2.1 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 8:
-                        if (lessThan(tmp.getMiddle(), 0.11) && tmp.getMiddle() + tmp.getMinMiddle() * 2.2 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 9:
-                        if (lessThan(tmp.getMiddle(), 0.115) && tmp.getMiddle() + tmp.getMinMiddle() * 2.3 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 10:
-                        if (lessThan(tmp.getMiddle(), 0.12) && tmp.getMiddle() + tmp.getMinMiddle() * 2.4 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 11:
-                        if (lessThan(tmp.getMiddle(), 0.125) && tmp.getMiddle() + tmp.getMinMiddle() * 2.5 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 12:
-                        if (lessThan(tmp.getMiddle(), 0.13) && tmp.getMiddle() + tmp.getMinMiddle() * 2.6 < 0) {
-                            return false;
-                        }
-                        break;
-                    case 13:
-                        if (lessThan(tmp.getMiddle(), 0.135) && tmp.getMiddle() + tmp.getMinMiddle() * 2.7 < 0) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            });
+    ),
+
+
+    ;
     private final String code;
     private final String desc;
     private final int levelLimit;
@@ -909,10 +246,48 @@ public enum FilterFieldEnum implements BaseEnum {
     private final Function<StrategyL1, Double> l1MiddleGetter;
     private final Function<StrategyL1, Double> l1MinMiddleGetter;
     /**
-     * 策略过滤，是否符合 ture则保留， false则抛弃
+     * 用于策略过滤的条件
      */
-    private final Function<StrategyTmp, Boolean> isCntConf;
-    private final Function<StrategyTmp, Boolean> isConformity;
+    private final List<Cond> conds;
 
 
+    /**
+     * 策略过滤，是否符合 true则保留， false则抛弃
+     * 日期过滤
+     */
+    public boolean checkDateCnt(StrategyTmp tmp) {
+        int level = tmp.getStrategyCodeSet().size();
+        Cond cond = conds.get(level);
+        return tmp.getDateCnt() >= cond.getDateCntLimit();
+    }
+
+    /**
+     * 策略过滤，是否符合 true则保留， false则抛弃
+     * 阈值过滤
+     */
+    public boolean checkLimit(StrategyTmp tmp) {
+        int level = tmp.getStrategyCodeSet().size();
+        Cond cond = conds.get(level);
+        if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001)) || tmp.getMinMiddle() < -0.1) {
+            return false;
+        }
+        if (lessThan(tmp.getMiddle(), cond.getMiddleLimit())
+                && tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() < 0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 条件阈值
+     */
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private static class Cond {
+        private Integer level;
+        private Integer DateCntLimit;
+        private Double middleLimit;
+        private Double minMiddleLimit;
+    }
 }

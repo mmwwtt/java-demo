@@ -147,14 +147,14 @@ public class DFSTest {
 
             resStrategyTmp.fillDateSumMap();
             //进行天数过滤
-            if (!fieldEnum.getIsCntConf().apply(resStrategyTmp)) {
+            if (!fieldEnum.checkDateCnt(resStrategyTmp)) {
                 continue;
             }
             resStrategyTmp.fillFilterField(fieldEnum);
             resStrategyTmp.clearCacheDate();
 
             //进行阈值过滤 和 数据保存
-            if (!fieldEnum.getIsConformity().apply(resStrategyTmp)) {
+            if (!fieldEnum.checkLimit(resStrategyTmp)) {
                 continue;
             }
 
