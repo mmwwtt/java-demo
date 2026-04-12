@@ -77,24 +77,41 @@ public class DFSVerifyTest {
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
         commonDataService.init();
-        String sql = " rise3_avg > 0.04";
-        List<Query> queryList = queryService.getBySql(sql);
-        List<Strategy> strategies = new ArrayList<>();
-        Set<Integer> strategyIdSet = new HashSet<>();
-        for (Query query : queryList) {
-            List<Strategy> tmpLit = strategyService.getBySql(query.getSqlStr());
-            for (Strategy strategy : tmpLit) {
-                if (strategyIdSet.contains(strategy.getStrategyId())) {
-                    continue;
-                }
-                strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
-                strategyIdSet.add(strategy.getStrategyId());
-                strategies.add(strategy);
-            }
-        }
-        predict("20260410", strategies, false, 1.2);
-    }
+        List<String> sqlList = Arrays.asList(
+                " rise3_avg > 0.10",
+                " rise3_avg > 0.09 and rise3_avg <= 0.10",
+                " rise3_avg > 0.08 and rise3_avg <= 0.9",
+                " rise3_avg > 0.07 and rise3_avg <= 0.8",
+                " rise3_avg > 0.06 and rise3_avg <= 0.7",
+                " rise3_avg > 0.05 and rise3_avg <= 0.6",
+                " rise3_avg > 0.04 and rise3_avg <= 0.5");
+        String filePath = "src/main/resources/file/预测的股票.txt";
 
+        File file = new File(filePath);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+        try (FileOutputStream fos = new FileOutputStream(file, false)) {
+        } catch (IOException ignored) {
+        }
+        for (String sql : sqlList) {
+            List<Query> queryList = queryService.getBySql(sql);
+            List<Strategy> strategies = new ArrayList<>();
+            Set<Integer> strategyIdSet = new HashSet<>();
+            for (Query query : queryList) {
+                List<Strategy> tmpLit = strategyService.getBySql(query.getSqlStr());
+                for (Strategy strategy : tmpLit) {
+                    if (strategyIdSet.contains(strategy.getStrategyId())) {
+                        continue;
+                    }
+                    strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
+                    strategyIdSet.add(strategy.getStrategyId());
+                    strategies.add(strategy);
+                }
+            }
+            predict("20260410", strategies, sql, false, 1.2);
+        }
+    }
 
     @Test
     @DisplayName("根据策略绘制蜡烛图")
@@ -245,7 +262,8 @@ public class DFSVerifyTest {
     /**
      * 预测明日股票
      */
-    public void predict(String curDate, List<Strategy> strategys, boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
+    public void predict(String curDate, List<Strategy> strategys, String sql,
+                        boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
         Map<Strategy, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Map<String, Detail> codeToDetailMap = detailService.getCodeToCurDetailMap(curDate);
@@ -267,7 +285,7 @@ public class DFSVerifyTest {
                         if (res) {
                             double pert = detail.getRise0() != null ? detail.getRise0() : 0;
                             strategyToStockMap.computeIfAbsent(strategy, k -> Collections.synchronizedList(new ArrayList<>()))
-                                    .add("               " +stockCode + "                    " + pert);
+                                    .add(stockCode + "                    " + pert);
                         }
                     }
                 }, cpuThreadPool);
@@ -283,21 +301,12 @@ public class DFSVerifyTest {
             file.getParentFile().mkdirs();
         }
         Map<String, Long> stockToCntMap = strategyToStockMap.values().stream().flatMap(List::stream).collect(Collectors.groupingBy(item -> item, Collectors.counting()));
-        try (FileOutputStream fos = new FileOutputStream(file, false)) {
-            fos.write(String.format("\n\n\n\n\n\n%s\n", getDateStr()).getBytes());
-            List<Strategy> resStrategies = strategyToStockMap.keySet().stream().sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed()).toList();
-            for (Strategy strategy : resStrategies) {
-                List<String> resStockList = strategyToStockMap.get(strategy);
-                String str = String.format("\n\n历史总数：%d  策略：%s \n5日最高中位数涨幅：%4f \n", strategy.getDateCnt(), strategy.getName(), strategy.getRise5MaxMiddle());
-                fos.write(str.getBytes());
-                for (String s : resStockList) {
-                    fos.write((s + "\n").getBytes());
-                }
-            }
+        try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(("\n\n").getBytes());
+            fos.write(("sql:" + sql + "\n").getBytes());
             stockToCntMap.forEach((k, v) -> {
                 try {
-                    fos.write((k + "     :   " + v + "\n").getBytes());
+                    fos.write(("       " + k + "     :   " + v + "\n").getBytes());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
