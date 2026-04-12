@@ -654,43 +654,39 @@ public class Detail {
             Detail cur = list.get(i);
             if (i - 1 >= 0) {
                 cur.setRise1(getRise(list.get(i - 1).getEndPrice(), cur.getEndPrice()));
-                cur.setRise1Max(getRise(list.get(i - 1).getHighPrice(), cur.getEndPrice()));
-                cur.setRise1Min(getRise(list.get(i - 1).getLowPrice(), cur.getEndPrice()));
+                cur.setRise1Max(getRise(list.get(i - 1).getEndPrice(), cur.getEndPrice()));
+                cur.setRise1Min(getRise(list.get(i - 1).getEndPrice(), cur.getEndPrice()));
             }
             if (i - 2 >= 0) {
                 cur.setRise2(getRise(list.get(i - 2).getEndPrice(), cur.getEndPrice()));
             }
             if (i - 3 >= 0) {
                 cur.setRise3(getRise(list.get(i - 3).getEndPrice(), cur.getEndPrice()));
-                List<Double> highPriceList = list.subList(i - 3, i).stream().map(Detail::getHighPrice).toList();
-                List<Double> lowPriceList = list.subList(i - 3, i).stream().map(Detail::getLowPrice).toList();
-                cur.setRise3Max(getRise(max(highPriceList), cur.getEndPrice()));
-                cur.setRise3Min(getRise(min(lowPriceList), cur.getEndPrice()));
+                List<Double> endPriceList = list.subList(i - 3, i).stream().map(Detail::getEndPrice).toList();
+                cur.setRise3Max(getRise(max(endPriceList), cur.getEndPrice()));
+                cur.setRise3Min(getRise(min(endPriceList), cur.getEndPrice()));
             }
             if (i - 4 >= 0) {
                 cur.setRise4(getRise(list.get(i - 4).getEndPrice(), cur.getEndPrice()));
             }
             if (i - 5 >= 0) {
                 cur.setRise5(getRise(list.get(i - 5).getEndPrice(), cur.getEndPrice()));
-                List<Double> highPriceList = list.subList(i - 5, i).stream().map(Detail::getHighPrice).toList();
-                List<Double> lowPriceList = list.subList(i - 5, i).stream().map(Detail::getLowPrice).toList();
-                cur.setRise5Max(getRise(max(highPriceList), cur.getEndPrice()));
-                cur.setRise5Min(getRise(min(lowPriceList), cur.getEndPrice()));
+                List<Double> endPriceList = list.subList(i - 5, i).stream().map(Detail::getEndPrice).toList();
+                cur.setRise5Max(getRise(max(endPriceList), cur.getEndPrice()));
+                cur.setRise5Min(getRise(min(endPriceList), cur.getEndPrice()));
             }
 
             if (i - 10 >= 0) {
                 cur.setRise10(getRise(list.get(i - 10).getEndPrice(), cur.getEndPrice()));
-                List<Double> highPriceList = list.subList(i - 10, i).stream().map(Detail::getHighPrice).toList();
-                List<Double> lowPriceList = list.subList(i - 10, i).stream().map(Detail::getLowPrice).toList();
-                cur.setRise10Max(getRise(max(highPriceList), cur.getEndPrice()));
-                cur.setRise10Min(getRise(min(lowPriceList), cur.getEndPrice()));
+                List<Double> endPriceList = list.subList(i - 10, i).stream().map(Detail::getEndPrice).toList();
+                cur.setRise10Max(getRise(max(endPriceList), cur.getEndPrice()));
+                cur.setRise10Min(getRise(min(endPriceList), cur.getEndPrice()));
             }
             if (i - 20 >= 0) {
                 cur.setRise20(getRise(list.get(i - 20).getEndPrice(), cur.getEndPrice()));
-                List<Double> highPriceList = list.subList(i - 20, i).stream().map(Detail::getHighPrice).toList();
-                List<Double> lowPriceList = list.subList(i - 20, i).stream().map(Detail::getLowPrice).toList();
-                cur.setRise20Max(getRise(max(highPriceList), cur.getEndPrice()));
-                cur.setRise20Min(getRise(min(lowPriceList), cur.getEndPrice()));
+                List<Double> endPriceList = list.subList(i - 20, i).stream().map(Detail::getEndPrice).toList();
+                cur.setRise20Max(getRise(max(endPriceList), cur.getEndPrice()));
+                cur.setRise20Min(getRise(min(endPriceList), cur.getEndPrice()));
             }
 
             calcIsUp(list, i, 5, cur::setFiveDayLine, cur::setFiveDayDealQuantity, cur::setFiveHigh, cur::setFiveLow,
