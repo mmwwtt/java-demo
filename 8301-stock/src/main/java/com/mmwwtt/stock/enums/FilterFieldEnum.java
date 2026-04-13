@@ -41,15 +41,15 @@ public enum FilterFieldEnum implements BaseEnum {
                     new Cond(13, 50, 0.135, 2.70))
     ),
     RISE3_MAX_MIDDLE_50_DAY("rise3MaxMiddle50Day", "最大3日涨幅中位数(50天)",
-            3, 100,
+            5, 70,
             Detail::getRise3Max,
             Detail::getRise3Min,
             StrategyL1::getRise3MaxMiddle,
             StrategyL1::getRise3MinMiddle,
             Arrays.asList(new Cond(), new Cond(),
-                    new Cond(2, 80, 0.025, 2.00),
-                    new Cond(3, 80, 0.035, 2.50),
-                    new Cond(4, 80, 0.070, 3.10),
+                    new Cond(2, 80, 0.025, 2.10),
+                    new Cond(3, 80, 0.035, 1.80),
+                    new Cond(4, 80, 0.040, 1.80),
                     new Cond(5, 70, 0.080, 3.20),
                     new Cond(6, 70, 0.090, 3.30),
                     new Cond(7, 70, 0.100, 3.40),
@@ -109,18 +109,18 @@ public enum FilterFieldEnum implements BaseEnum {
             StrategyL1::getRise3Middle,
             StrategyL1::getRise3MinMiddle,
             Arrays.asList(new Cond(), new Cond(),
-                    new Cond(2, 70, 0.007, 1.60),
-                    new Cond(3, 70, 0.010, 1.70),
-                    new Cond(4, 70, 0.015, 1.80),
-                    new Cond(5, 60, 0.020, 1.90),
-                    new Cond(6, 60, 0.025, 2.00),
-                    new Cond(7, 60, 0.030, 2.10),
-                    new Cond(8, 50, 0.035, 2.20),
-                    new Cond(9, 50, 0.040, 2.30),
-                    new Cond(10, 50, 0.045, 2.40),
-                    new Cond(11, 40, 0.050, 2.50),
-                    new Cond(12, 40, 0.055, 2.60),
-                    new Cond(13, 40, 0.060, 2.70))
+                    new Cond(2, 80, 0.0075, 1.50),
+                    new Cond(3, 80, 0.015, 1.30),
+                    new Cond(4, 80, 0.020, 1.50),
+                    new Cond(5, 70, 0.025, 1.50),
+                    new Cond(6, 70, 0.030, 1.50),
+                    new Cond(7, 70, 0.035, 1.50),
+                    new Cond(8, 60, 0.040, 1.50),
+                    new Cond(9, 60, 0.045, 1.50),
+                    new Cond(10, 60, 0.050, 1.50),
+                    new Cond(11, 50, 0.055, 1.50),
+                    new Cond(12, 50, 0.060, 1.50),
+                    new Cond(13, 50, 0.065, 1.50))
     ),
 
 
@@ -206,8 +206,8 @@ public enum FilterFieldEnum implements BaseEnum {
         if (moreThan(tmp.getMiddle(), cond.getMiddleLimit())) {
             return true;
         }
-        if (moreThan(tmp.getMiddle(), cond.getMiddleLimit() - 0.005)
-                && tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() < 0) {
+        if (moreThan(tmp.getMiddle(), cond.getMiddleLimit() - 0.015)
+                && tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() > 0) {
             return true;
         }
         return false;
