@@ -23,8 +23,15 @@ select * from strategy_t
 where predict_rise3_avg <0;
 
 select * from strategy_tmp_t
-where field_enum_code='rise3Middle40Day'
-and level = 2
-and middle > 0.008
+where field_enum_code='rise3MaxMiddle50Day'
+and level = 3
+and middle >= 0.030
+
+
+select * from strategy_tmp_t
+where field_enum_code='rise3MaxMiddle50Day'
+  and level = 2
+  and middle < 0.026
+  and middle + min_middle*2>0
 
 and middle + min_middle*1.6>0

@@ -13,8 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.mmwwtt.stock.common.CommonUtils.lessThan;
-import static com.mmwwtt.stock.common.CommonUtils.multiply;
+import static com.mmwwtt.stock.common.CommonUtils.*;
 
 @AllArgsConstructor
 @Getter
@@ -42,14 +41,14 @@ public enum FilterFieldEnum implements BaseEnum {
                     new Cond(13, 50, 0.135, 2.70))
     ),
     RISE3_MAX_MIDDLE_50_DAY("rise3MaxMiddle50Day", "最大3日涨幅中位数(50天)",
-            15, 70,
+            3, 100,
             Detail::getRise3Max,
             Detail::getRise3Min,
             StrategyL1::getRise3MaxMiddle,
             StrategyL1::getRise3MinMiddle,
             Arrays.asList(new Cond(), new Cond(),
-                    new Cond(2, 80, 0.045, 2.00),
-                    new Cond(3, 80, 0.060, 3.00),
+                    new Cond(2, 80, 0.025, 2.00),
+                    new Cond(3, 80, 0.035, 2.50),
                     new Cond(4, 80, 0.070, 3.10),
                     new Cond(5, 70, 0.080, 3.20),
                     new Cond(6, 70, 0.090, 3.30),
@@ -126,7 +125,7 @@ public enum FilterFieldEnum implements BaseEnum {
 
 
     RISE3_MIDDLE_40_DAY("rise3Middle40Day", "3日涨幅中位数(40天)",
-            13, 100,
+            13, 70,
             Detail::getRise3,
             Detail::getRise3Min,
             StrategyL1::getRise3Middle,
@@ -169,7 +168,6 @@ public enum FilterFieldEnum implements BaseEnum {
     ),
 
 
-
     ;
     private final String code;
     private final String desc;
@@ -205,11 +203,14 @@ public enum FilterFieldEnum implements BaseEnum {
         if (lessThan(tmp.getMiddle(), multiply(tmp.getParentMiddle(), 1.001)) || tmp.getMinMiddle() < -0.1) {
             return false;
         }
-        if (lessThan(tmp.getMiddle(), cond.getMiddleLimit())
-                && tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() < 0) {
-            return false;
+        if (moreThan(tmp.getMiddle(), cond.getMiddleLimit())) {
+            return true;
         }
-        return true;
+        if (moreThan(tmp.getMiddle(), cond.getMiddleLimit() - 0.005)
+                && tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() < 0) {
+            return true;
+        }
+        return false;
     }
 
     /**
