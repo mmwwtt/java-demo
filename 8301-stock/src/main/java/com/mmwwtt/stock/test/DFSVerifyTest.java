@@ -57,8 +57,52 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("验证策略 生成query条件数据")
     public void verifyPredict() throws ExecutionException, InterruptedException {
-        List<String> baseSqlList = Arrays.asList("1=1", "rise3_middle < rise4_middle  and rise4_middle < rise5_middle", "rise1_middle < rise3_middle and rise3_middle < rise5_middle", "rise1_middle < rise2_middle and rise2_middle < rise3_middle  " + "and rise3_middle < rise4_middle and rise4_middle < rise5_middle", "rise3_middle > rise5_middle", "rise5_middle > rise10_middle");
-        List<String> rangeList = Arrays.asList(" and  0.01  <rise5_middle  and  rise5_middle <0.02", " and  0.02  <rise5_middle  and  rise5_middle <0.03", " and  0.03  <rise5_middle  and  rise5_middle <0.04", " and  0.04  <rise5_middle  and  rise5_middle <0.05", " and  0.05  <rise5_middle  and  rise5_middle <0.06", " and  0.06  <rise5_middle  and  rise5_middle <0.07", " and  0.07  <rise5_middle  and  rise5_middle <0.08", " and  0.08  <rise5_middle  and  rise5_middle <0.09", " and  0.09  <rise5_middle  and  rise5_middle <0.10", " and  0.10  <rise5_middle", " and  0.01  <rise3_middle  and  rise3_middle <0.02", " and  0.02  <rise3_middle  and  rise3_middle <0.03", " and  0.03  <rise3_middle  and  rise3_middle <0.04", " and  0.04  <rise3_middle  and  rise3_middle <0.05", " and  0.05  <rise3_middle  and  rise3_middle <0.06", " and  0.06  <rise3_middle  and  rise3_middle <0.07", " and  0.07  <rise3_middle  and  rise3_middle <0.08", " and  0.08  <rise3_middle  and  rise3_middle <0.09", " and  0.09  <rise3_middle  and  rise3_middle <0.10", " and  0.10  <rise3_middle");
+        List<String> baseSqlList = Arrays.asList(
+                "1=1",
+                "rise3_middle < rise4_middle  and rise4_middle < rise5_middle",
+                "rise1_middle < rise3_middle and rise3_middle < rise5_middle",
+                "rise1_middle < rise2_middle and rise2_middle < rise3_middle" +
+                        " and rise3_middle < rise4_middle and rise4_middle < rise5_middle",
+
+                "rise3_middle * 1.1 < rise4_middle  and rise4_middle * 1.1 < rise5_middle",
+                "rise1_middle * 1.1 < rise3_middle and rise3_middle * 1.1 < rise5_middle",
+                "rise1_middle * 1.1 < rise2_middle and rise2_middle  * 1.1< rise3_middle" +
+                        " and rise3_middle * 1.1 < rise4_middle * 1.1 and rise4_middle * 1.1 < rise5_middle",
+
+                "rise3_middle * 1.2 < rise4_middle and rise4_middle * 1.2 < rise5_middle",
+                "rise1_middle * 1.2 < rise3_middle and rise3_middle * 1.2 < rise5_middle",
+                "rise1_middle * 1.2 < rise2_middle and rise2_middle * 1.2< rise3_middle" +
+                        " and rise3_middle * 1.2 < rise4_middle * 1.2 and rise4_middle * 1.2 < rise5_middle",
+
+                "rise3_middle > rise5_middle",
+                "rise3_middle > rise5_middle*1.25",
+                "rise3_middle > rise5_middle*1.5",
+                "rise5_middle > rise10_middle",
+                "rise5_middle > rise10_middle*1.25",
+                "rise5_middle > rise10_middle*1.5"
+        );
+        List<String> rangeList = Arrays.asList(
+                " and  0.01  < rise5_middle  and  rise5_middle <= 0.02",
+                " and  0.02  < rise5_middle  and  rise5_middle <= 0.03",
+                " and  0.03  < rise5_middle  and  rise5_middle <= 0.04",
+                " and  0.04  < rise5_middle  and  rise5_middle <= 0.05",
+                " and  0.05  < rise5_middle  and  rise5_middle <= 0.06",
+                " and  0.06  < rise5_middle  and  rise5_middle <= 0.07",
+                " and  0.07  < rise5_middle  and  rise5_middle <= 0.08",
+                " and  0.08  < rise5_middle  and  rise5_middle <= 0.09",
+                " and  0.09  < rise5_middle  and  rise5_middle <= 0.10",
+                " and  0.10  < rise5_middle",
+                " and  0.01  < rise3_middle  and  rise3_middle <= 0.02",
+                " and  0.02  < rise3_middle  and  rise3_middle <= 0.03",
+                " and  0.03  < rise3_middle  and  rise3_middle <= 0.04",
+                " and  0.04  < rise3_middle  and  rise3_middle <= 0.05",
+                " and  0.05  < rise3_middle  and  rise3_middle <= 0.06",
+                " and  0.06  < rise3_middle  and  rise3_middle <= 0.07",
+                " and  0.07  < rise3_middle  and  rise3_middle <= 0.08",
+                " and  0.08  < rise3_middle  and  rise3_middle <= 0.09",
+                " and  0.09  < rise3_middle  and  rise3_middle <= 0.10",
+                " and  0.10  < rise3_middle"
+        );
 
         commonDataService.init();
         queryService.remove(new QueryWrapper<>());
@@ -78,7 +122,9 @@ public class DFSVerifyTest {
     public void predict() throws InterruptedException, ExecutionException {
         commonDataService.init();
         List<String> sqlList = Arrays.asList(
-                " rise3_avg > 0.10",
+                " rise3_avg > 0.12",
+                " rise3_avg > 0.11 and rise3_avg <= 0.12",
+                " rise3_avg > 0.10 and rise3_avg <= 0.11",
                 " rise3_avg > 0.09 and rise3_avg <= 0.10",
                 " rise3_avg > 0.08 and rise3_avg <= 0.09",
                 " rise3_avg > 0.07 and rise3_avg <= 0.08",
@@ -302,6 +348,9 @@ public class DFSVerifyTest {
             file.getParentFile().mkdirs();
         }
         Map<String, Long> stockToCntMap = strategyToStockMap.values().stream().flatMap(List::stream).collect(Collectors.groupingBy(item -> item, Collectors.counting()));
+        if(stockToCntMap.isEmpty()) {
+            return;
+        }
         try (FileOutputStream fos = new FileOutputStream(file, true)) {
             fos.write(("\n\n").getBytes());
             fos.write(("sql:" + sql + "\n").getBytes());
