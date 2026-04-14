@@ -80,11 +80,12 @@ public class DFSVerifyTest {
         List<String> sqlList = Arrays.asList(
                 " rise3_avg > 0.10",
                 " rise3_avg > 0.09 and rise3_avg <= 0.10",
-                " rise3_avg > 0.08 and rise3_avg <= 0.9",
-                " rise3_avg > 0.07 and rise3_avg <= 0.8",
-                " rise3_avg > 0.06 and rise3_avg <= 0.7",
-                " rise3_avg > 0.05 and rise3_avg <= 0.6",
-                " rise3_avg > 0.04 and rise3_avg <= 0.5");
+                " rise3_avg > 0.08 and rise3_avg <= 0.09",
+                " rise3_avg > 0.07 and rise3_avg <= 0.08",
+                " rise3_avg > 0.06 and rise3_avg <= 0.07",
+                " rise3_avg > 0.05 and rise3_avg <= 0.06",
+                " rise3_avg > 0.04 and rise3_avg <= 0.05",
+                " rise3_avg > 0.03 and rise3_avg <= 0.04");
         String filePath = "src/main/resources/file/预测的股票.txt";
 
         File file = new File(filePath);
@@ -109,7 +110,7 @@ public class DFSVerifyTest {
                     strategies.add(strategy);
                 }
             }
-            predict("20260410", strategies, sql, false, 1.2);
+            predict("20260414", strategies, sql, false, 1.2);
         }
     }
 

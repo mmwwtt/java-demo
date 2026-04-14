@@ -104,7 +104,6 @@ public enum FilterFieldEnum implements BaseEnum {
 //
 
 
-
     RISE3_MIDDLE_50_DAY("rise3Middle50Day", "3日涨幅中位数(50天)",
             13, 100,
             Detail::getRise3,
@@ -134,21 +133,21 @@ public enum FilterFieldEnum implements BaseEnum {
             StrategyL1::getRise3Middle,
             StrategyL1::getRise3MinMiddle,
             Arrays.asList(new Cond(), new Cond(),
-                    new Cond(2, 60, 0.007, 0.9),
-                    new Cond(3, 60, 0.010, 0.90),
-                    new Cond(4, 60, 0.015, 0.90),
-                    new Cond(5, 50, 0.020, 0.90),
-                    new Cond(6, 50, 0.035, 0.90),
-                    new Cond(7, 50, 0.030, 1.00),
-                    new Cond(8, 40, 0.035, 1.10),
-                    new Cond(9, 40, 0.040, 1.20),
-                    new Cond(10, 40, 0.045, 1.30),
-                    new Cond(11, 30, 0.050, 1.40),
-                    new Cond(12, 30, 0.055, 1.50),
-                    new Cond(13, 30, 0.060, 1.60))
+                    new Cond(2, 60, 0.007, 1.6),
+                    new Cond(3, 60, 0.010, 1.70),
+                    new Cond(4, 60, 0.015, 1.80),
+                    new Cond(5, 50, 0.020, 1.90),
+                    new Cond(6, 50, 0.035, 2.00),
+                    new Cond(7, 50, 0.030, 2.10),
+                    new Cond(8, 40, 0.035, 2.20),
+                    new Cond(9, 40, 0.040, 2.30),
+                    new Cond(10, 40, 0.045, 2.40),
+                    new Cond(11, 30, 0.050, 2.50),
+                    new Cond(12, 30, 0.055, 2.60),
+                    new Cond(13, 30, 0.060, 2.70))
     ),
 
-//
+    //
 //    RISE3_MIDDLE_40_DAY("rise3Middle40Day", "3日涨幅中位数(40天)",
 //            13, 70,
 //            Detail::getRise3,
@@ -171,26 +170,26 @@ public enum FilterFieldEnum implements BaseEnum {
 //    ),
 //
 //
-//    RISE3_MIDDLE_30_DAY("rise3Middle30Day", "3日涨幅中位数(30天)",
-//            13, 100,
-//            Detail::getRise3,
-//            Detail::getRise3Min,
-//            StrategyL1::getRise3Middle,
-//            StrategyL1::getRise3MinMiddle,
-//            Arrays.asList(new Cond(), new Cond(),
-//                    new Cond(2, 70, 0.007, 1.60),
-//                    new Cond(3, 70, 0.010, 1.70),
-//                    new Cond(4, 70, 0.015, 1.80),
-//                    new Cond(5, 60, 0.020, 1.90),
-//                    new Cond(6, 60, 0.025, 2.00),
-//                    new Cond(7, 60, 0.030, 2.10),
-//                    new Cond(8, 50, 0.035, 2.20),
-//                    new Cond(9, 50, 0.040, 2.30),
-//                    new Cond(10, 50, 0.045, 2.40),
-//                    new Cond(11, 40, 0.050, 2.50),
-//                    new Cond(12, 40, 0.055, 2.60),
-//                    new Cond(13, 40, 0.060, 2.70))
-//    ),
+    RISE3_MIDDLE_30_DAY("rise3Middle30Day", "3日涨幅中位数(30天)",
+            13, 100,
+            Detail::getRise3,
+            Detail::getRise3Min,
+            StrategyL1::getRise3Middle,
+            StrategyL1::getRise3MinMiddle,
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 60, 0.007, 1.6),
+                    new Cond(3, 60, 0.010, 1.70),
+                    new Cond(4, 60, 0.015, 1.80),
+                    new Cond(5, 50, 0.020, 1.90),
+                    new Cond(6, 50, 0.035, 2.00),
+                    new Cond(7, 50, 0.030, 2.10),
+                    new Cond(8, 40, 0.035, 2.20),
+                    new Cond(9, 40, 0.040, 2.30),
+                    new Cond(10, 40, 0.045, 2.40),
+                    new Cond(11, 30, 0.050, 2.50),
+                    new Cond(12, 30, 0.055, 2.60),
+                    new Cond(13, 30, 0.060, 2.70))
+    ),
 
 
     ;
@@ -231,10 +230,10 @@ public enum FilterFieldEnum implements BaseEnum {
         if (moreThan(tmp.getMiddle(), cond.getMiddleLimit())) {
             return true;
         }
-//        if (moreThan(tmp.getMiddle(), cond.getMiddleLimit() - 0.015)
-//                && tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() > 0) {
-//            return true;
-//        }
+        if (moreThan(tmp.getMiddle(), cond.getMiddleLimit() - 0.01)
+                && tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() > 0) {
+            return true;
+        }
         if (tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() > 0) {
             return true;
         }
