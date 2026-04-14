@@ -55,7 +55,7 @@ public class DFSVerifyTest {
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
 
     @Test
-    @DisplayName("验证策略")
+    @DisplayName("验证策略 生成query条件数据")
     public void verifyPredict() throws ExecutionException, InterruptedException {
         List<String> baseSqlList = Arrays.asList("1=1", "rise3_middle < rise4_middle  and rise4_middle < rise5_middle", "rise1_middle < rise3_middle and rise3_middle < rise5_middle", "rise1_middle < rise2_middle and rise2_middle < rise3_middle  " + "and rise3_middle < rise4_middle and rise4_middle < rise5_middle", "rise3_middle > rise5_middle", "rise5_middle > rise10_middle");
         List<String> rangeList = Arrays.asList(" and  0.01  <rise5_middle  and  rise5_middle <0.02", " and  0.02  <rise5_middle  and  rise5_middle <0.03", " and  0.03  <rise5_middle  and  rise5_middle <0.04", " and  0.04  <rise5_middle  and  rise5_middle <0.05", " and  0.05  <rise5_middle  and  rise5_middle <0.06", " and  0.06  <rise5_middle  and  rise5_middle <0.07", " and  0.07  <rise5_middle  and  rise5_middle <0.08", " and  0.08  <rise5_middle  and  rise5_middle <0.09", " and  0.09  <rise5_middle  and  rise5_middle <0.10", " and  0.10  <rise5_middle", " and  0.01  <rise3_middle  and  rise3_middle <0.02", " and  0.02  <rise3_middle  and  rise3_middle <0.03", " and  0.03  <rise3_middle  and  rise3_middle <0.04", " and  0.04  <rise3_middle  and  rise3_middle <0.05", " and  0.05  <rise3_middle  and  rise3_middle <0.06", " and  0.06  <rise3_middle  and  rise3_middle <0.07", " and  0.07  <rise3_middle  and  rise3_middle <0.08", " and  0.08  <rise3_middle  and  rise3_middle <0.09", " and  0.09  <rise3_middle  and  rise3_middle <0.10", " and  0.10  <rise3_middle");

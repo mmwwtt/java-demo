@@ -16,8 +16,22 @@ select strategy_id,strategy_code,name,type,cnt,rise1_middle,rise1_max_middle,ris
        rise10_max_middle
 from strategy_l1_t
 where name like 'T5%'
-order by rise5_max_middle desc
+order by rise5_max_middle desc;
 
 
 select * from strategy_t
-where predict_rise3_avg <0
+where predict_rise3_avg <0;
+
+select * from strategy_tmp_t
+where field_enum_code='rise3Middle50Day'
+and level = 5
+and middle >= 0.0075
+
+
+select * from strategy_tmp_t
+where field_enum_code='rise3Middle50Day'
+  and level = 2
+  and middle < 0.01
+  and middle + min_middle*1.>0
+
+and middle + min_middle*1.6>0
