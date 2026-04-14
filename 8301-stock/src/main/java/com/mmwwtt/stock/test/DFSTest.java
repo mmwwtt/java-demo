@@ -63,7 +63,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MIDDLE_50_DAY;
+    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MIDDLE_50_DAY_TMP;
 
     @Test
     @DisplayName("DFS深度遍历")
@@ -115,7 +115,7 @@ public class DFSTest {
 
     private void buildByLevel(StrategyTmp strategyTmp, Integer parentIdx) {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
-        Map<Integer, StrategyTmp> idxToTmpMap = new ConcurrentHashMap<>(INIT_DATE_SIZE);
+        List<StrategyTmp> resTmpList = Collections.synchronizedList(new ArrayList<>(100));
         for (int idx = parentIdx + 1; idx < dfsStrategyL1s.size(); idx++) {
 
             //已存在的策略  或者策略类型相同  则跳过
@@ -139,7 +139,7 @@ public class DFSTest {
 
 
             //计算并集中筛选字段的属性值
-            StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1, strategyTmp, resDetailIdArr);
+            StrategyTmp resStrategyTmp = new StrategyTmp(strategyL1, strategyTmp, resDetailIdArr, idx);
             resStrategyTmp.setFieldEnumCode(fieldEnum.getCode());
             for (int detailId : resDetailIdArr) {
                 resStrategyTmp.addToResult(detailArr[detailId]);
@@ -157,18 +157,14 @@ public class DFSTest {
             if (!fieldEnum.checkLimit(resStrategyTmp)) {
                 continue;
             }
-
-            idxToTmpMap.put(idx, resStrategyTmp);
+            resTmpList.add(resStrategyTmp);
         }
         //取阈值最高的30条策略继续进行递归
-        List<Map.Entry<Integer, StrategyTmp>> tmpList = idxToTmpMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.comparing(StrategyTmp::getMiddle).reversed()))
+        resTmpList = resTmpList.stream()
+                .sorted(Comparator.comparing(StrategyTmp::getMiddle).reversed())
                 .limit(fieldEnum.getTopLimit()).toList();
         boolean isContinue = level + 1 <= fieldEnum.getLevelLimit();
-        idxToTmpMap.clear();
-        tmpList.forEach(entry -> {
-            StrategyTmp tmp = entry.getValue();
-            Integer idx = entry.getKey();
+        resTmpList.forEach(tmp -> {
             tmp.fillCode();
             addToTmpBatch(tmp);
             if (!isContinue) {
@@ -179,7 +175,7 @@ public class DFSTest {
                 taskCnt.incrementAndGet();
                 CompletableFuture.runAsync(() -> {
                     try {
-                        buildByLevel(tmp, idx);
+                        buildByLevel(tmp, tmp.getDfsIdx());
                     } catch (Exception e) {
                         e.printStackTrace();
                     } finally {
@@ -187,7 +183,7 @@ public class DFSTest {
                     }
                 }, cpuThreadPool);
             } else {
-                buildByLevel(tmp, idx);
+                buildByLevel(tmp, tmp.getDfsIdx());
             }
         });
 

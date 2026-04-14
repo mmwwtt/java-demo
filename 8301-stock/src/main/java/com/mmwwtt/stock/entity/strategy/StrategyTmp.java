@@ -87,6 +87,13 @@ public class StrategyTmp {
     private List<Function<Detail, Boolean>> filterFuncs = new ArrayList<>();
 
     /**
+     * 遍历时的索引id
+     */
+    @TableField(exist = false)
+    private int dfsIdx;
+
+
+    /**
      * 层级
      */
     private Integer level;
@@ -95,6 +102,7 @@ public class StrategyTmp {
      * 过滤策略枚举编码
      */
     private String fieldEnumCode;
+
 
     @TableField(exist = false)
     private Map<String, Sum> dateSumMap = new HashMap<>(200);
@@ -197,8 +205,9 @@ public class StrategyTmp {
         this.strategyCode = unionCode.toString();
     }
 
-    public StrategyTmp(StrategyL1 strategyL1,
-                       StrategyTmp parentStrategyTmp, int[] detailIdArr) {
+    public StrategyTmp(StrategyL1 strategyL1, StrategyTmp parentStrategyTmp,
+                       int[] detailIdArr, Integer dfsIdx) {
+        this.dfsIdx = dfsIdx;
         this.strategyCode = strategyL1.getStrategyCode();
         this.parentWinStrategyCodeSet = parentStrategyTmp.getStrategyCodeSet();
         this.parentMiddle = parentStrategyTmp.getMiddle();
