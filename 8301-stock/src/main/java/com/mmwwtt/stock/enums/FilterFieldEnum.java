@@ -230,10 +230,10 @@ public enum FilterFieldEnum implements BaseEnum {
         if (moreThan(tmp.getMiddle(), cond.getMiddleLimit())) {
             return true;
         }
-        if (moreThan(tmp.getMiddle(), cond.getMiddleLimit() - 0.01)
-                && tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() > 0) {
-            return true;
-        }
+//        if (moreThan(tmp.getMiddle(), cond.getMiddleLimit() - 0.015)
+//                && tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() > 0) {
+//            return true;
+//        }
         if (tmp.getMiddle() + tmp.getMinMiddle() * cond.getMinMiddleLimit() > 0) {
             return true;
         }
