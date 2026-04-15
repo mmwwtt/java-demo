@@ -51,14 +51,15 @@ public class DFSTest {
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
     private final ExecutorService singleThreadPool = GlobalThreadPool.singleThreadPool;
-
+    private final ThreadPoolExecutor size2ThreadPool = GlobalThreadPool.getSize2ThreadPool();
     /**
      * 收集待保存的 StrategyWin，批量写入减少 DB 往返
      */
     private final List<StrategyTmp> tmpBatch = Collections.synchronizedList(new ArrayList<>());
 
     private final AtomicInteger taskCnt = new AtomicInteger(0);
-    public static List<StrategyL1> dfsStrategyL1s;
+    public static List<StrategyL1> l1s;
+    public static String l1Days;
 
     /**
      * DFS 过滤策略
@@ -66,15 +67,32 @@ public class DFSTest {
     public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MIDDLE_50_DAY_TMP;
 
     @Test
-    @DisplayName("DFS深度遍历")
-    public void dfs() throws InterruptedException, ExecutionException {
+    @DisplayName("3天 DFS深度遍历")
+    public void day3Dfs() throws InterruptedException, ExecutionException {
         commonDataService.init();
+        l1Days = "3";
+        l1s = CommonDataService.strategyL1s.stream()
+                .filter(item -> item.getName().startsWith("T0")
+                        || item.getName().startsWith("T1")
+                        || item.getName().startsWith("T2"))
+                .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIdArray().size()))
+                .toList();
         DfsMain();
         dfsAfterDetail();
     }
 
-
-
+    @Test
+    @DisplayName("1天 DFS深度遍历")
+    public void day1Dfs() throws InterruptedException, ExecutionException {
+        commonDataService.init();
+        l1Days = "1";
+        l1s = CommonDataService.strategyL1s.stream()
+                .filter(item -> item.getName().startsWith("T0"))
+                .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIdArray().size()))
+                .toList();
+        DfsMain();
+        dfsAfterDetail();
+    }
 
 
     @Test
@@ -84,10 +102,11 @@ public class DFSTest {
         dfsAfterDetail();
     }
 
+
     public void DfsMain() throws InterruptedException {
         dfsInit();
-        for (int i = 0; i < dfsStrategyL1s.size(); i++) {
-            StrategyL1 strategyL1 = dfsStrategyL1s.get(i);
+        for (int i = 0; i < l1s.size(); i++) {
+            StrategyL1 strategyL1 = l1s.get(i);
             int finalI = i;
             taskCnt.incrementAndGet();
             CompletableFuture.runAsync(() -> {
@@ -106,7 +125,7 @@ public class DFSTest {
                 } finally {
                     taskCnt.decrementAndGet();
                 }
-            }, cpuThreadPool);
+            }, size2ThreadPool);
         }
         while (taskCnt.get() != 0) {
             log.info("任务数 taskCnt:{}", taskCnt.get());
@@ -119,10 +138,10 @@ public class DFSTest {
     private void buildByLevel(StrategyTmp strategyTmp, Integer parentIdx) {
         int level = strategyTmp.getStrategyCodeSet().size() + 1;
         List<StrategyTmp> resTmpList = Collections.synchronizedList(new ArrayList<>(100));
-        for (int idx = parentIdx + 1; idx < dfsStrategyL1s.size(); idx++) {
+        for (int idx = parentIdx + 1; idx < l1s.size(); idx++) {
 
             //已存在的策略  或者策略类型相同  则跳过
-            StrategyL1 strategyL1 = dfsStrategyL1s.get(idx);
+            StrategyL1 strategyL1 = l1s.get(idx);
             if (strategyTmp.getStrategyCodeSet().contains(strategyL1.getStrategyCode())) {
                 continue;
             }
@@ -184,7 +203,7 @@ public class DFSTest {
                     } finally {
                         taskCnt.decrementAndGet();
                     }
-                }, cpuThreadPool);
+                }, size2ThreadPool);
             } else {
                 buildByLevel(tmp, tmp.getDfsIdx());
             }
@@ -196,18 +215,14 @@ public class DFSTest {
         log.info("dfs 初始化");
         QueryWrapper<StrategyTmp> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("field_enum_code", fieldEnum.getCode());
+        queryWrapper.eq("l1_days", l1Days);
         strategyTmpService.remove(queryWrapper);
-        dfsStrategyL1s = CommonDataService.strategyL1s.stream()
-                .filter(item -> item.getName().startsWith("T0")
-                        || item.getName().startsWith("T1")
-                        || item.getName().startsWith("T2"))
-                .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIdArray().size()))
-                .toList();
         log.info("dfs 初始化结束");
     }
 
     private void dfsAfterDetail() throws ExecutionException, InterruptedException {
         QueryWrapper<Strategy> wrapper = new QueryWrapper<>();
+        wrapper.eq("field_enum_code", fieldEnum.getCode());
         wrapper.eq("field_enum_code", fieldEnum.getCode());
         strategyService.remove(wrapper);
         List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp(fieldEnum.getCode(), 2000);

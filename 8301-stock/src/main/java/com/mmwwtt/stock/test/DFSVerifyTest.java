@@ -103,14 +103,17 @@ public class DFSVerifyTest {
                 " and  0.09  < rise3_middle  and  rise3_middle <= 0.10",
                 " and  0.10  < rise3_middle"
         );
+        List<String> l1DaysList = Arrays.asList("1", "3");
 
         commonDataService.init();
         queryService.remove(new QueryWrapper<>());
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         baseSqlList.forEach(baseSql -> rangeList.forEach(rangeSql -> {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                String newSql = baseSql + rangeSql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
-                verifyPredictRes(newSql);
+                for (String l1Days : l1DaysList) {
+                    String newSql = baseSql + rangeSql + " and field_enum_code = '" + fieldEnum.getCode() + "'";
+                    verifyPredictRes(newSql, l1Days);
+                }
             }, cpuThreadPool);
             futures.add(future);
         }));
@@ -133,30 +136,34 @@ public class DFSVerifyTest {
                 " rise3_avg > 0.04 and rise3_avg <= 0.05",
                 " rise3_avg > 0.03 and rise3_avg <= 0.04");
         String filePath = "src/main/resources/file/预测的股票.txt";
-
+        List<String> l1DaysList = Arrays.asList("1", "3");
         File file = new File(filePath);
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
         try (FileOutputStream fos = new FileOutputStream(file, false)) {
-        } catch (IOException ignored) {
-        }
-        for (String sql : sqlList) {
-            List<Query> queryList = queryService.getBySql(sql);
-            List<Strategy> strategies = new ArrayList<>();
-            Set<Integer> strategyIdSet = new HashSet<>();
-            for (Query query : queryList) {
-                List<Strategy> tmpLit = strategyService.getBySql(query.getSqlStr());
-                for (Strategy strategy : tmpLit) {
-                    if (strategyIdSet.contains(strategy.getStrategyId())) {
-                        continue;
+            for (String l1Days : l1DaysList) {
+                fos.write(("\n\nl1_days = " + l1Days + "\n").getBytes());
+                for (String sql : sqlList) {
+                    sql = sql + String.format("and field_enum_code = '%s' and l1_days = '%s' ", fieldEnum.getCode(), l1Days);
+                    List<Query> queryList = queryService.getBySql(sql);
+                    List<Strategy> strategies = new ArrayList<>();
+                    Set<Integer> strategyIdSet = new HashSet<>();
+                    for (Query query : queryList) {
+                        List<Strategy> tmpLit = strategyService.getBySql(query.getSqlStr());
+                        for (Strategy strategy : tmpLit) {
+                            if (strategyIdSet.contains(strategy.getStrategyId())) {
+                                continue;
+                            }
+                            strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
+                            strategyIdSet.add(strategy.getStrategyId());
+                            strategies.add(strategy);
+                        }
                     }
-                    strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
-                    strategyIdSet.add(strategy.getStrategyId());
-                    strategies.add(strategy);
+                    predict("20260414", strategies, sql, false, 1.2, fos);
                 }
             }
-            predict("20260414", strategies, sql, false, 1.2);
+        } catch (IOException ignored) {
         }
     }
 
@@ -168,8 +175,10 @@ public class DFSVerifyTest {
     }
 
 
-    public void verifyPredictRes(String sql) {
-        List<Strategy> strategies = strategyService.getBySql(sql).stream().peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" ")))).sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed()).toList();
+    public void verifyPredictRes(String sql, String l1Days) {
+        sql = sql + String.format(" and l1_days = %s", l1Days);
+        List<Strategy> strategies =
+                strategyService.getBySql(sql).stream().peek(item -> item.getStrategyCodeSet().addAll(List.of(item.getStrategyCode().split(" ")))).sorted(Comparator.comparing(Strategy::getRise5MaxMiddle).reversed()).toList();
         //日期    详情列表   详情-权重
         Map<String, Pair<List<Detail>, Map<Integer, Double>>> dataToDetailsMap = new ConcurrentHashMap<>();
 
@@ -185,7 +194,8 @@ public class DFSVerifyTest {
                     List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream().map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
                     boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                     if (res) {
-                        Pair<List<Detail>, Map<Integer, Double>> pair = dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(), new ConcurrentHashMap<>()));
+                        Pair<List<Detail>, Map<Integer, Double>> pair = dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> Pair.of(new ArrayList<>(),
+                                new ConcurrentHashMap<>()));
                         //详情id-权重map
                         Map<Integer, Double> detailIdToWeightMap = pair.getRight();
                         if (!detailIdToWeightMap.containsKey(detail.getDetailId())) {
@@ -252,7 +262,8 @@ public class DFSVerifyTest {
             rise3MaxDateAvgSum += rise3MaxDateAvg;
             rise5DateAvgSum += rise5DateAvg;
             rise5MaxDateAvgSum += rise5MaxDateAvg;
-            logStr.append(String.format("\n日期：%s\n" + "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" + "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n", date, rise3DateAvg * 100, rise3MaxDateAvg * 100, rise5DateAvg * 100, rise5MaxDateAvg * 100));
+            logStr.append(String.format("\n日期：%s\n" + "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" + "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n", date, rise3DateAvg * 100,
+                    rise3MaxDateAvg * 100, rise5DateAvg * 100, rise5MaxDateAvg * 100));
 
             //加权后的计算
             Double weightSum = sum(detailIdToWeightMap.values().stream().toList());
@@ -264,7 +275,8 @@ public class DFSVerifyTest {
             rise3MaxDateWeightAvgSum += rise3MaxDateWeightAvg;
             rise5DateWeightAvgSum += rise5DateWeightAvg;
             rise5MaxDateWeightAvgSum += rise5MaxDateWeightAvg;
-            weightLogStr.append(String.format("\n 日期：%s\n   " + "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" + "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n", date, rise3DateWeightAvg * 100, rise3MaxDateWeightAvg * 100, rise5DateWeightAvg * 100, rise5MaxDateWeightAvg * 100));
+            weightLogStr.append(String.format("\n 日期：%s\n   " + "3日平均涨幅：%.3f%%    3日最高平均涨幅：%.3f%% \n" + "5日平均涨幅：%.3f%%    5日最高平均涨幅：%.3f%% \n", date,
+                    rise3DateWeightAvg * 100, rise3MaxDateWeightAvg * 100, rise5DateWeightAvg * 100, rise5MaxDateWeightAvg * 100));
         }
         if (isEquals(0d, rise3DateAvgSum)) {
             return;
@@ -283,6 +295,8 @@ public class DFSVerifyTest {
         query.setRise5WeightAvg(rise5DateWeightAvgSum / dateCnt);
         query.setRise5MaxWeightAvg(rise5MaxDateWeightAvgSum / dateCnt);
         query.setOtherWeightData(weightLogStr.toString());
+        query.setFieldEnumCode(fieldEnum.getCode());
+        query.setL1Days(l1Days);
         queryService.save(query);
         dataToDetailsMap.clear();
     }
@@ -310,7 +324,7 @@ public class DFSVerifyTest {
      * 预测明日股票
      */
     public void predict(String curDate, List<Strategy> strategys, String sql,
-                        boolean isOnTime, double quantityMult) throws InterruptedException, ExecutionException {
+                        boolean isOnTime, double quantityMult, FileOutputStream fos) throws InterruptedException, ExecutionException, IOException {
         Map<Strategy, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Map<String, Detail> codeToDetailMap = detailService.getCodeToCurDetailMap(curDate);
@@ -348,21 +362,18 @@ public class DFSVerifyTest {
             file.getParentFile().mkdirs();
         }
         Map<String, Long> stockToCntMap = strategyToStockMap.values().stream().flatMap(List::stream).collect(Collectors.groupingBy(item -> item, Collectors.counting()));
-        if(stockToCntMap.isEmpty()) {
+        if (stockToCntMap.isEmpty()) {
             return;
         }
-        try (FileOutputStream fos = new FileOutputStream(file, true)) {
-            fos.write(("\n\n").getBytes());
-            fos.write(("sql:" + sql + "\n").getBytes());
-            stockToCntMap.forEach((k, v) -> {
-                try {
-                    fos.write(("       " + k + "     :   " + v + "\n").getBytes());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        } catch (IOException ignored) {
-        }
+        fos.write(("\n\n").getBytes());
+        fos.write(("sql:" + sql + "\n").getBytes());
+        stockToCntMap.forEach((k, v) -> {
+            try {
+                fos.write(("       " + k + "     :   " + v + "\n").getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
     }
 }

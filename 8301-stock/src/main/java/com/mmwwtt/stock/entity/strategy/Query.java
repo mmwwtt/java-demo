@@ -71,4 +71,14 @@ public class Query {
      * 统计的每日信息(加权后)
      */
     private String otherWeightData;
+
+    /**
+     * l1中采用策略的天数
+     */
+    private String l1Days;
+
+    /**
+     * 过滤策略枚举编码
+     */
+    private String fieldEnumCode;
 }
