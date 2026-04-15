@@ -190,7 +190,8 @@ public enum FilterFieldEnum implements BaseEnum {
                     new Cond(10, 36, 0.045, 1.50),
                     new Cond(11, 33, 0.050, 1.50),
                     new Cond(12, 30, 0.055, 1.50),
-                    new Cond(13, 30, 0.060, 1.50))
+                    new Cond(13, 30, 0.060, 1.50),
+                    new Cond(14, 30, 0.065, 1.50))
     ),
 
 
