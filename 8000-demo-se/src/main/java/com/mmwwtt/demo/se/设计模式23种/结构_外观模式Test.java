@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * 外观/门面模式：为子系统中的一组接口提供一个统一的入口
- *
+ *  将复杂的操作变简单
  */
 public class 结构_外观模式Test {
     @Test

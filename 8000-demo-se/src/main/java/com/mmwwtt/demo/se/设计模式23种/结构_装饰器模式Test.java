@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+/**
+ * 增加额外的功能
+ */
 @Slf4j
 public class 结构_装饰器模式Test {
 
