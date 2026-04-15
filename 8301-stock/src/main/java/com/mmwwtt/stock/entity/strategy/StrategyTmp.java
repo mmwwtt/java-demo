@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.mmwwtt.stock.common.CommonUtils;
 import com.mmwwtt.stock.entity.Detail;
 import com.mmwwtt.stock.enums.FilterFieldEnum;
+import com.mmwwtt.stock.test.DFSTest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -101,7 +102,7 @@ public class StrategyTmp {
     /**
      * l1中采用策略的天数
      */
-    private String l1Days;
+    private String l1Days = DFSTest.l1Days;
 
     /**
      * 过滤策略枚举编码

@@ -223,7 +223,7 @@ public class DFSTest {
     private void dfsAfterDetail() throws ExecutionException, InterruptedException {
         QueryWrapper<Strategy> wrapper = new QueryWrapper<>();
         wrapper.eq("field_enum_code", fieldEnum.getCode());
-        wrapper.eq("field_enum_code", fieldEnum.getCode());
+        wrapper.eq("l1_days", l1Days);
         strategyService.remove(wrapper);
         List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp(fieldEnum.getCode(), 2000);
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));
