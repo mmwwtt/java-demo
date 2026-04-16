@@ -53,30 +53,3 @@ sql设置
   NumberUtils.isParsable   判断一个字符串是否为数值，包括小数
   StringUtils.isNumic   判断一个字符串是否为整数
 .toList() 返回的是不可变列表，list.sort() 会修改原列表
-
-
-
-
-
-
-
-
-
-
-CCACC
-BCBAC
-DAADB
-BDCAD
-
-DCBDA
-CACBA
-DBACC
-DCABB
-
-CADAC
-CCCCB
-CCDAA
-DADAB
-
-CCDDA
-DCBCC
