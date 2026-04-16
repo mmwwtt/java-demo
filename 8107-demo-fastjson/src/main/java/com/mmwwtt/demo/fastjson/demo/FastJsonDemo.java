@@ -31,7 +31,8 @@ public class FastJsonDemo {
         String jsonStr = JSON.toJSONString(baseInfoFastJson);
         String jsonListStr = JSON.toJSONString(Arrays.asList(baseInfoFastJson));
 
-
+        //有无参构造就用无参构造+setter反序列化
+        //无无参构造，就只调用有参构造，且不会对其他参数进行setter
         JSONObject obj = JSONObject.parseObject(jsonListStr);
         List<BaseInfoFastJson> listtt = obj.toJavaObject(List.class);
 
