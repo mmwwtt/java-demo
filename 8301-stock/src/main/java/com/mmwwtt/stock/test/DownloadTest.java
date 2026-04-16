@@ -108,10 +108,10 @@ public class DownloadTest {
     @Test
     @DisplayName("从0开始构建数据")
     public void buildDetail() throws ExecutionException, InterruptedException {
-            downLoadInit();
-            downStock();
-            downDetail();
-            buildStrategyL1();
+        downLoadInit();
+        downStock();
+        downDetail();
+        buildStrategyL1();
     }
 
     @DisplayName("重新生成L1曾策略")
@@ -245,15 +245,16 @@ public class DownloadTest {
         for (List<Detail> part : parts) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 for (Detail detail : part) {
+                    detail.setDealQuantity(detail.getDealQuantity() * 10000);
                     QueryWrapper<Detail> wrapper = new QueryWrapper<>();
                     wrapper.likeRight("stock_code", detail.getStockCode());
                     List<Detail> source = detailService.list(wrapper);
-                    if(CollectionUtils.isEmpty(source)) {
+                    if (CollectionUtils.isEmpty(source)) {
                         continue;
                     }
                     List<Integer> removeIds = new ArrayList<>();
                     source.removeIf(item -> {
-                        if (Objects.equals(detail.getDealDate().substring(0,8), item.getDealDate().substring(0,8))) {
+                        if (Objects.equals(detail.getDealDate().substring(0, 8), item.getDealDate().substring(0, 8))) {
                             removeIds.add(item.getDetailId());
                             return true;
                         }

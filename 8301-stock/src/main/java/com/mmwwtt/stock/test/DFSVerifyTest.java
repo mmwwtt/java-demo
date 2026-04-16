@@ -103,7 +103,7 @@ public class DFSVerifyTest {
                 " and  0.09  < rise3_middle  and  rise3_middle <= 0.10",
                 " and  0.10  < rise3_middle"
         );
-        List<String> l1DaysList = Arrays.asList("1", "3");
+        List<String> l1DaysList = Arrays.asList("1","3");
 
         commonDataService.init();
         queryService.remove(new QueryWrapper<>());
@@ -145,7 +145,7 @@ public class DFSVerifyTest {
             for (String l1Days : l1DaysList) {
                 fos.write(("\n\nl1_days = " + l1Days + "\n").getBytes());
                 for (String sql : sqlList) {
-                    sql = sql + String.format("and field_enum_code = '%s' and l1_days = '%s' ", fieldEnum.getCode(), l1Days);
+                    sql = sql + String.format(" and field_enum_code = '%s' and l1_days = '%s' ", fieldEnum.getCode(), l1Days);
                     List<Query> queryList = queryService.getBySql(sql);
                     List<Strategy> strategies = new ArrayList<>();
                     Set<Integer> strategyIdSet = new HashSet<>();
@@ -160,7 +160,7 @@ public class DFSVerifyTest {
                             strategies.add(strategy);
                         }
                     }
-                    predict("20260414", strategies, sql, false, 1.2, fos);
+                    predict("20260416", strategies, sql, false, 1.2, fos);
                 }
             }
         } catch (IOException ignored) {

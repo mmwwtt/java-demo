@@ -35,3 +35,5 @@ where field_enum_code='rise3Middle50Day'
   and middle + min_middle*1.>0
 
 and middle + min_middle*1.6>0
+
+delete from strategy_tmp_t where l1_days = 1
