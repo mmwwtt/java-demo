@@ -160,7 +160,7 @@ public class DFSVerifyTest {
                             strategies.add(strategy);
                         }
                     }
-                    predict("20260416", strategies, sql, false, 1.2, fos);
+                    predict("20260417", strategies, sql, false, 1.2, fos);
                 }
             }
         } catch (IOException ignored) {
