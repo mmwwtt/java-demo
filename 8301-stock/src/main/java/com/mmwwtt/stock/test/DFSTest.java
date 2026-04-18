@@ -56,11 +56,11 @@ public class DFSTest {
      * 收集待保存的 StrategyWin,批量写入减少 DB 往返
      */
     private final List<StrategyTmp> tmpBatch = Collections.synchronizedList(new ArrayList<>());
-    
+
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     public static List<StrategyL1> l1s;
     public static String l1Days;
-    
+
     /**
      * DFS 过滤策略
      */
@@ -183,9 +183,9 @@ public class DFSTest {
         }
         //使用PriorityQueue优化,topK问题  取前K个进行遍历
         PriorityQueue<StrategyTmp> topQueue = new PriorityQueue<>(
-            Comparator.comparingDouble(StrategyTmp::getMiddle)
+                Comparator.comparingDouble(StrategyTmp::getMiddle)
         );
-        
+
         for (StrategyTmp tmp : resTmpList) {
             if (topQueue.size() < fieldEnum.getTopLimit()) {
                 topQueue.offer(tmp);
@@ -194,7 +194,7 @@ public class DFSTest {
                 topQueue.offer(tmp);
             }
         }
-        
+
         List<StrategyTmp> topList = new ArrayList<>(topQueue);
 
         topList.forEach(tmp -> {
@@ -246,18 +246,18 @@ public class DFSTest {
                 Set<String> codeSet = strategyTmp.getStrategyCodeSet();
                 if (codeSet == null || codeSet.isEmpty()) {
                     codeSet = Arrays.stream(strategyTmp.getStrategyCode().split(" "))
-                        .filter(s -> !s.isEmpty())
-                        .collect(Collectors.toSet());
+                            .filter(s -> !s.isEmpty())
+                            .collect(Collectors.toSet());
                     strategyTmp.setStrategyCodeSet(codeSet);
                 }
-                
+
                 List<int[]> detailArrList = codeSet.stream()
-                    .map(code -> codeToL1Map.get(code).getDetailIdArr())
-                    .toList();
+                        .map(code -> codeToL1Map.get(code).getDetailIdArr())
+                        .toList();
                 int[] resDetailIds = retainAll(detailArrList);
                 List<Detail> details = Arrays.stream(resDetailIds)
-                    .mapToObj(detailId -> detailArr[detailId])
-                    .toList();
+                        .mapToObj(detailId -> detailArr[detailId])
+                        .toList();
                 Strategy strategy = VoConvert.INSTANCE.convertTo(strategyTmp);
                 strategy.setStrategyId(null);
                 strategy.setDetails(details);
@@ -347,26 +347,26 @@ public class DFSTest {
 
     public void verifyPredictRes(Strategy strategy) {
         strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
-        
+
         // 优化:预先构建过滤函数列表,避免重复stream操作
         List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
-            .map(item -> codeToL1Map.get(item).getFilterFunc())
-            .filter(Objects::nonNull)
-            .toList();
-        
+                .map(item -> codeToL1Map.get(item).getFilterFunc())
+                .filter(Objects::nonNull)
+                .toList();
+
         if (filterFuncs.isEmpty()) {
             return;
         }
-        
+
         Map<String, List<Detail>> dataToDetailsMap = new ConcurrentHashMap<>();
-        
+
         // 优化:并行处理不同股票的details
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (Map.Entry<String, List<Detail>> entry : codeToDetailMap.entrySet()) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 String stockCode = entry.getKey();
                 List<Detail> details = entry.getValue();
-                
+
                 for (Detail detail : details) {
                     if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
                         break;
@@ -377,18 +377,18 @@ public class DFSTest {
                             || moreThan(detail.getRise0(), 0.097)) {
                         continue;
                     }
-                    
+
                     boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                     if (res) {
-                        dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> 
-                            Collections.synchronizedList(new ArrayList<>())
+                        dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k ->
+                                Collections.synchronizedList(new ArrayList<>())
                         ).add(detail);
                     }
                 }
             }, cpuThreadPool);
             futures.add(future);
         }
-        
+
         try {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
         } catch (InterruptedException | ExecutionException e) {
