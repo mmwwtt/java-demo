@@ -75,15 +75,13 @@ public class DFSVerifyTest {
                         " and rise3_middle * 1.2 < rise4_middle * 1.2 and rise4_middle * 1.2 < rise5_middle",
 
                 "rise3_middle > rise5_middle",
-                "rise3_middle > rise5_middle*1.25",
-                "rise3_middle > rise5_middle*1.5",
+                "rise3_middle > rise5_middle * 1.25",
+                "rise3_middle > rise5_middle * 1.5",
                 "rise5_middle > rise10_middle",
-                "rise5_middle > rise10_middle*1.25",
-                "rise5_middle > rise10_middle*1.5"
+                "rise5_middle > rise10_middle * 1.25",
+                "rise5_middle > rise10_middle * 1.5"
         );
         List<String> rangeList = Arrays.asList(
-                " and  0.01  < rise5_middle  and  rise5_middle <= 0.02",
-                " and  0.02  < rise5_middle  and  rise5_middle <= 0.03",
                 " and  0.03  < rise5_middle  and  rise5_middle <= 0.04",
                 " and  0.04  < rise5_middle  and  rise5_middle <= 0.05",
                 " and  0.05  < rise5_middle  and  rise5_middle <= 0.06",
@@ -92,8 +90,6 @@ public class DFSVerifyTest {
                 " and  0.08  < rise5_middle  and  rise5_middle <= 0.09",
                 " and  0.09  < rise5_middle  and  rise5_middle <= 0.10",
                 " and  0.10  < rise5_middle",
-                " and  0.01  < rise3_middle  and  rise3_middle <= 0.02",
-                " and  0.02  < rise3_middle  and  rise3_middle <= 0.03",
                 " and  0.03  < rise3_middle  and  rise3_middle <= 0.04",
                 " and  0.04  < rise3_middle  and  rise3_middle <= 0.05",
                 " and  0.05  < rise3_middle  and  rise3_middle <= 0.06",

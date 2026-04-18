@@ -64,7 +64,7 @@ public class DFSTest {
     /**
      * DFS 过滤策略
      */
-    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MIDDLE_50_DAY_TMP;
+    public static FilterFieldEnum fieldEnum = FilterFieldEnum.RISE3_MIDDLE_30_DAY;
 
     @Test
     @DisplayName("3天 DFS深度遍历")
@@ -125,7 +125,7 @@ public class DFSTest {
                 } finally {
                     taskCnt.decrementAndGet();
                 }
-            }, size2ThreadPool);
+            }, cpuThreadPool);
         }
         while (taskCnt.get() != 0) {
             log.info("任务数 taskCnt:{}", taskCnt.get());
@@ -185,13 +185,15 @@ public class DFSTest {
         resTmpList = resTmpList.stream()
                 .sorted(Comparator.comparing(StrategyTmp::getMiddle).reversed())
                 .limit(fieldEnum.getTopLimit()).toList();
-        boolean isContinue = level + 1 <= fieldEnum.getLevelLimit();
         resTmpList.forEach(tmp -> {
             tmp.fillCode();
             addToTmpBatch(tmp);
-            if (!isContinue) {
-                return;
-            }
+        });
+        boolean isOverLevel = level + 1 <= fieldEnum.getLevelLimit();
+        if (!isOverLevel) {
+            return;
+        }
+        resTmpList.forEach(tmp -> {
             //递归 线程池有空余线程时用多线程处理
             if (level <= 5 && taskCnt.get() < cpuThreadPool.getCorePoolSize() - 1) {
                 taskCnt.incrementAndGet();
@@ -203,19 +205,16 @@ public class DFSTest {
                     } finally {
                         taskCnt.decrementAndGet();
                     }
-                }, size2ThreadPool);
+                }, cpuThreadPool);
             } else {
                 buildByLevel(tmp, tmp.getDfsIdx());
             }
         });
-
     }
 
     private void dfsInit() {
         log.info("dfs 初始化");
         QueryWrapper<StrategyTmp> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("field_enum_code", fieldEnum.getCode());
-        queryWrapper.eq("l1_days", l1Days);
         strategyTmpService.remove(queryWrapper);
         log.info("dfs 初始化结束");
     }
