@@ -189,8 +189,8 @@ public class DFSTest {
             tmp.fillCode();
             addToTmpBatch(tmp);
         });
-        boolean isOverLevel = level + 1 <= fieldEnum.getLevelLimit();
-        if (!isOverLevel) {
+        boolean isOverLevel = level + 1 > fieldEnum.getLevelLimit();
+        if (isOverLevel) {
             return;
         }
         resTmpList.forEach(tmp -> {
