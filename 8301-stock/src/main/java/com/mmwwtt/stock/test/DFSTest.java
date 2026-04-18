@@ -53,14 +53,14 @@ public class DFSTest {
     private final ExecutorService singleThreadPool = GlobalThreadPool.singleThreadPool;
     private final ThreadPoolExecutor size2ThreadPool = GlobalThreadPool.getSize2ThreadPool();
     /**
-     * 收集待保存的 StrategyWin，批量写入减少 DB 往返
+     * 收集待保存的 StrategyWin,批量写入减少 DB 往返
      */
     private final List<StrategyTmp> tmpBatch = Collections.synchronizedList(new ArrayList<>());
-
+    
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     public static List<StrategyL1> l1s;
     public static String l1Days;
-
+    
     /**
      * DFS 过滤策略
      */
@@ -181,11 +181,23 @@ public class DFSTest {
             }
             resTmpList.add(resStrategyTmp);
         }
-        //取阈值最高的30条策略继续进行递归
-        resTmpList = resTmpList.stream()
-                .sorted(Comparator.comparing(StrategyTmp::getMiddle).reversed())
-                .limit(fieldEnum.getTopLimit()).toList();
-        resTmpList.forEach(tmp -> {
+        //使用PriorityQueue优化,topK问题  取前K个进行遍历
+        PriorityQueue<StrategyTmp> topQueue = new PriorityQueue<>(
+            Comparator.comparingDouble(StrategyTmp::getMiddle)
+        );
+        
+        for (StrategyTmp tmp : resTmpList) {
+            if (topQueue.size() < fieldEnum.getTopLimit()) {
+                topQueue.offer(tmp);
+            } else if (tmp.getMiddle() > topQueue.peek().getMiddle()) {
+                topQueue.poll();
+                topQueue.offer(tmp);
+            }
+        }
+        
+        List<StrategyTmp> topList = new ArrayList<>(topQueue);
+
+        topList.forEach(tmp -> {
             tmp.fillCode();
             addToTmpBatch(tmp);
         });
@@ -230,10 +242,22 @@ public class DFSTest {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (StrategyTmp strategyTmp : strategyTmps) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                strategyTmp.setStrategyCodeSet(Arrays.stream(strategyTmp.getStrategyCode().split(" ")).filter(s -> !s.isEmpty()).collect(Collectors.toSet()));
-                List<int[]> detailArrList = strategyTmp.getStrategyCodeSet().stream().map(code -> codeToL1Map.get(code).getDetailIdArr()).toList();
+                // 优化:直接使用已缓存的strategyCodeSet,避免重复split
+                Set<String> codeSet = strategyTmp.getStrategyCodeSet();
+                if (codeSet == null || codeSet.isEmpty()) {
+                    codeSet = Arrays.stream(strategyTmp.getStrategyCode().split(" "))
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toSet());
+                    strategyTmp.setStrategyCodeSet(codeSet);
+                }
+                
+                List<int[]> detailArrList = codeSet.stream()
+                    .map(code -> codeToL1Map.get(code).getDetailIdArr())
+                    .toList();
                 int[] resDetailIds = retainAll(detailArrList);
-                List<Detail> details = Arrays.stream(resDetailIds).mapToObj(detailId -> detailArr[detailId]).toList();
+                List<Detail> details = Arrays.stream(resDetailIds)
+                    .mapToObj(detailId -> detailArr[detailId])
+                    .toList();
                 Strategy strategy = VoConvert.INSTANCE.convertTo(strategyTmp);
                 strategy.setStrategyId(null);
                 strategy.setDetails(details);
@@ -312,38 +336,66 @@ public class DFSTest {
             toSave = new ArrayList<>(tmpBatch);
             strategyTmpService.saveBatch(toSave);
             tmpBatch.clear();
+            // 优化:立即释放details引用,帮助GC回收
             for (StrategyTmp t : toSave) {
-                t.getDetails().clear();
+                t.setDetails(null);
             }
+            toSave.clear(); // 进一步释放引用
         }
     }
 
 
     public void verifyPredictRes(Strategy strategy) {
         strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
+        
+        // 优化:预先构建过滤函数列表,避免重复stream操作
+        List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
+            .map(item -> codeToL1Map.get(item).getFilterFunc())
+            .filter(Objects::nonNull)
+            .toList();
+        
+        if (filterFuncs.isEmpty()) {
+            return;
+        }
+        
         Map<String, List<Detail>> dataToDetailsMap = new ConcurrentHashMap<>();
-        codeToDetailMap.forEach((key, value) -> {
-            for (Detail detail : value) {
-                if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
-                    break;
+        
+        // 优化:并行处理不同股票的details
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (Map.Entry<String, List<Detail>> entry : codeToDetailMap.entrySet()) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                String stockCode = entry.getKey();
+                List<Detail> details = entry.getValue();
+                
+                for (Detail detail : details) {
+                    if (detail.getDealDate().compareTo(calcEndDate) <= 0) {
+                        break;
+                    }
+                    if (Objects.isNull(detail.getRise5Max())
+                            || Objects.isNull(detail.getT10())
+                            || Objects.isNull(detail.getT10().getSixtyDayLine())
+                            || moreThan(detail.getRise0(), 0.097)) {
+                        continue;
+                    }
+                    
+                    boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
+                    if (res) {
+                        dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> 
+                            Collections.synchronizedList(new ArrayList<>())
+                        ).add(detail);
+                    }
                 }
-                if (Objects.isNull(detail.getRise5Max())
-                        || Objects.isNull(detail.getT10())
-                        || Objects.isNull(detail.getT10().getSixtyDayLine())
-                        || moreThan(detail.getRise0(), 0.097)) {
-                    continue;
-                }
-                List<Function<Detail, Boolean>> filterFuncs = strategy.getStrategyCodeSet().stream()
-                        .map(item -> codeToL1Map.get(item).getFilterFunc()).toList();
-                if (CollectionUtils.isEmpty(filterFuncs)) {
-                    continue;
-                }
-                boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
-                if (res) {
-                    dataToDetailsMap.computeIfAbsent(detail.getDealDate(), k -> new ArrayList<>()).add(detail);
-                }
-            }
-        });
+            }, cpuThreadPool);
+            futures.add(future);
+        }
+        
+        try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("verifyPredictRes并行处理异常", e);
+            Thread.currentThread().interrupt();
+            return;
+        }
 
         double rise3DateAvgSum = 0;
         double rise3MaxDateAvgSum = 0;
