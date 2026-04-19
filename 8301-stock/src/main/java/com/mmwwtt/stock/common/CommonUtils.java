@@ -350,8 +350,7 @@ public class CommonUtils {
      * 前提：两个list 都要升序,且无重复
      */
     public static int[] retainAll(int[] list1, int[] list2) {
-        if (Objects.isNull(list1) || list1.length == 0 ||
-                Objects.isNull(list2) || list2.length == 0) {
+        if (ArrayUtils.isEmpty(list1) || ArrayUtils.isEmpty(list2)) {
             return ArrayUtils.EMPTY_INT_ARRAY;
         }
         boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 10;
@@ -368,20 +367,19 @@ public class CommonUtils {
         int[] tmpArr = new int[Math.min(list1.length, list2.length)];
         int j = 0;
         int arrIdx = 0;
-        for (int i = 0; i < list1.length; i++) {
-            int num1 = list1[i];
+        for (int num1 : list1) {
             while (num1 > list2[j]) {
                 j++;
                 if (j >= list2.length) {
-                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
+                    break;
                 }
             }
             if (num1 == list2[j]) {
                 tmpArr[arrIdx] = num1;
                 j++;
                 arrIdx++;
-                if (j >= list2.length || i == list1.length - 1) {
-                    return Arrays.copyOfRange(tmpArr, 0, arrIdx);
+                if (j >= list2.length) {
+                    break;
                 }
             }
         }
