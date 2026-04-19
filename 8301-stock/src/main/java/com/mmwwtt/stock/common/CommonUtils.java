@@ -409,7 +409,7 @@ public class CommonUtils {
             if (numForLongIdx >= 0) {
                 tmpArr[arrIdx] = num1;
                 arrIdx++;
-                longIdx = numForLongIdx + 1;
+                longIdx = numForLongIdx;
             }
         }
         return Arrays.copyOfRange(tmpArr, 0, arrIdx);
