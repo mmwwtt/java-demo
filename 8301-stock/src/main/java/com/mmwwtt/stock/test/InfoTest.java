@@ -24,6 +24,7 @@ import java.util.Set;
 /**
  * 自动化测试
  * 获取财联社的电报内容
+ * 消息面仅供参考忽悠，实测根本无用，全是掩护主力撤退用的
  */
 @Slf4j
 public class InfoTest {
