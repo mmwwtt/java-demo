@@ -35,6 +35,7 @@ import static com.mmwwtt.stock.service.CommonDataService.*;
 
 /**
  * 不准加仓 只有第二天策略继续命中后允许加仓
+ * 必须是不同题材
  */
 @Slf4j
 @SpringBootTest
