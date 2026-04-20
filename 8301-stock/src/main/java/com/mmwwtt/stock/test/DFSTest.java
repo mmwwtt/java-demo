@@ -30,8 +30,13 @@ import static com.mmwwtt.stock.common.CommonUtils.*;
 import static com.mmwwtt.stock.service.CommonDataService.*;
 
 
-//todo  根据策略预测的时候也要加权处理
+//todo  计算胜率平均涨幅时要 去掉最高和最低(2个/5%)的
 //todo  不同市值的公司的主升浪逻辑也不会一样， 应该区别计算
+
+/**
+ * 不准加仓 只有第二天策略继续命中后允许加仓
+ * 必须是不同题材
+ */
 @Slf4j
 @SpringBootTest
 public class DFSTest {
