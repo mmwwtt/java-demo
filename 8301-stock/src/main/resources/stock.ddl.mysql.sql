@@ -232,12 +232,12 @@ CREATE TABLE query_t
     rise3_max_avg        DECIMAL(8, 4) COMMENT '预测的3日最高平均涨幅',
     rise5_avg            DECIMAL(8, 4) COMMENT '预测的5日平均涨幅',
     rise5_max_avg        DECIMAL(8, 4) COMMENT '预测的5日最高平均涨幅',
-    other_data           VARCHAR(2000) COMMENT '每日的预测结果',
+    other_data           VARCHAR(5000) COMMENT '每日的预测结果',
     rise3_weight_avg     DECIMAL(8, 4) COMMENT '预测的3日平均涨幅(加权后)',
     rise3_max_weight_avg DECIMAL(8, 4) COMMENT '预测的3日最高平均涨幅(加权后)',
     rise5_weight_avg     DECIMAL(8, 4) COMMENT '预测的5日平均涨幅(加权后)',
     rise5_max_weight_avg DECIMAL(8, 4) COMMENT '预测的5日最高平均涨幅(加权后)',
-    other_weight_data    VARCHAR(2000) COMMENT '每日的预测结果(加权后)',
+    other_weight_data    VARCHAR(5000) COMMENT '每日的预测结果(加权后)',
     field_enum_code      VARCHAR(200) COMMENT '过滤枚举编码',
     l1_days              VARCHAR(20) COMMENT 'l1策略中的天数'
 ) COMMENT '策略结果表';
