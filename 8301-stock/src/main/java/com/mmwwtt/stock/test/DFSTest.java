@@ -64,7 +64,6 @@ public class DFSTest {
 
     private final AtomicInteger taskCnt = new AtomicInteger(0);
     public static List<StrategyL1> l1s;
-    public static String l1Days;
 
     /**
      * DFS 过滤策略
@@ -75,7 +74,6 @@ public class DFSTest {
     @DisplayName("3天 DFS深度遍历")
     public void day3Dfs() throws InterruptedException, ExecutionException {
         commonDataService.init();
-        l1Days = "3";
         l1s = CommonDataService.strategyL1s.stream()
                 .filter(item -> item.getName().startsWith("T0")
                         || item.getName().startsWith("T1")
@@ -90,7 +88,6 @@ public class DFSTest {
     @DisplayName("1天 DFS深度遍历")
     public void day1Dfs() throws InterruptedException, ExecutionException {
         commonDataService.init();
-        l1Days = "1";
         l1s = CommonDataService.strategyL1s.stream()
                 .filter(item -> item.getName().startsWith("T0"))
                 .sorted(Comparator.comparingInt((StrategyL1 s) -> s.getDetailIdArray().size()))
@@ -227,7 +224,6 @@ public class DFSTest {
     private void dfsAfterDetail() throws ExecutionException, InterruptedException {
         QueryWrapper<Strategy> wrapper = new QueryWrapper<>();
         wrapper.eq("field_enum_code", fieldEnum.getCode());
-        wrapper.eq("l1_days", l1Days);
         strategyService.remove(wrapper);
         List<StrategyTmp> strategyTmps = strategyTmpDAO.getAfterTmp(fieldEnum.getCode(), 2000);
         List<Strategy> resList = Collections.synchronizedList(new ArrayList<>(5000));

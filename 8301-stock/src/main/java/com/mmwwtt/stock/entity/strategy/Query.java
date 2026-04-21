@@ -73,11 +73,6 @@ public class Query {
     private String otherWeightData;
 
     /**
-     * l1中采用策略的天数
-     */
-    private String l1Days;
-
-    /**
      * 过滤策略枚举编码
      */
     private String fieldEnumCode;

@@ -29,11 +29,6 @@ public class Strategy extends BaseStrategy {
     private Boolean isActive = true;
 
     /**
-     * l1中采用策略的天数
-     */
-    private String l1Days;
-
-    /**
      * 过滤策略枚举编码
      */
     private String fieldEnumCode;

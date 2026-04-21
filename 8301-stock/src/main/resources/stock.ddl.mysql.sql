@@ -180,8 +180,7 @@ CREATE TABLE strategy_tmp_t
     middle          DECIMAL(8, 4) COMMENT '最大涨幅中位数',
     min_middle      DECIMAL(8, 4) COMMENT '最大回撤中位数',
     level           INT(4) comment '策略层数',
-    field_enum_code VARCHAR(200) COMMENT '过滤枚举编码',
-    l1_days         VARCHAR(20) COMMENT 'l1策略中的天数'
+    field_enum_code VARCHAR(200) COMMENT '过滤枚举编码'
 ) COMMENT '策略中间表';
 
 
@@ -213,7 +212,6 @@ CREATE TABLE strategy_t
     rise20_min_middle     DECIMAL(8, 4) COMMENT '20日最大中位数跌幅',
     level                 INT(4) comment '策略层数',
     field_enum_code       VARCHAR(200) COMMENT '过滤枚举编码',
-    l1_days               VARCHAR(20) COMMENT 'l1策略中的天数',
     predict_date_cnt      INT(4) comment '能预测的天数统计',
     predict_rise3_avg     DECIMAL(8, 4) COMMENT '预测的3日平均涨幅',
     predict_rise3_max_avg DECIMAL(8, 4) COMMENT '预测的3日最高平均涨幅',
@@ -238,6 +236,5 @@ CREATE TABLE query_t
     rise5_weight_avg     DECIMAL(8, 4) COMMENT '预测的5日平均涨幅(加权后)',
     rise5_max_weight_avg DECIMAL(8, 4) COMMENT '预测的5日最高平均涨幅(加权后)',
     other_weight_data    VARCHAR(5000) COMMENT '每日的预测结果(加权后)',
-    field_enum_code      VARCHAR(200) COMMENT '过滤枚举编码',
-    l1_days              VARCHAR(20) COMMENT 'l1策略中的天数'
+    field_enum_code      VARCHAR(200) COMMENT '过滤枚举编码'
 ) COMMENT '策略结果表';
