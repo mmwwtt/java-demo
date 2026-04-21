@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+/**
+ * 将请求封装成独立的对象
+ */
 @Slf4j
 public class 行为_命令模式Test {
 
