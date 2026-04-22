@@ -114,9 +114,10 @@ public class DownloadTest {
         buildStrategyL1();
     }
 
-    @DisplayName("重新生成L1曾策略")
+    @DisplayName("重新生成L1层策略")
     @Test
     public void buildStrategyL1() throws ExecutionException, InterruptedException {
+        log.info("开始生成L1层策略");
         commonDataService.init();
         strategyL1Service.remove(new QueryWrapper<>());
         List<StrategyL1> allBaseL1 = CommonDataService.getAllBaseL1s();
