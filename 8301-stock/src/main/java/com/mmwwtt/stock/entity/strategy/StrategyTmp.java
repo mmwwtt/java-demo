@@ -100,11 +100,6 @@ public class StrategyTmp {
     private Integer level;
 
     /**
-     * l1中采用策略的天数
-     */
-    private String l1Days = DFSTest.l1Days;
-
-    /**
      * 过滤策略枚举编码
      */
     private String fieldEnumCode;
@@ -131,12 +126,10 @@ public class StrategyTmp {
     public void fillDateSumMap() {
         for (Detail detail : details) {
             String dealDate = detail.getDealDate();
-            Sum sum = dateSumMap.get(dealDate);
-            if (sum == null) {
-                sum = new Sum();
-                dateSumMap.put(dealDate, sum);
+            dateSumMap.computeIfAbsent(dealDate, k -> {
                 dateCnt++;
-            }
+                return new Sum();
+            });
         }
         detailCnt = detailIdArr.length;
     }
@@ -160,8 +153,11 @@ public class StrategyTmp {
             String dealDate = detail.getDealDate();
             dateSumMap.get(dealDate).add(riseMax, riseMin);
         }
-        double[] rise5MaxArr = new double[dateSumMap.size()];
-        double[] rise5MinArr = new double[dateSumMap.size()];
+        
+        // 提取每日平均值数组,用于计算总体中位数
+        int size = dateSumMap.size();
+        double[] rise5MaxArr = new double[size];
+        double[] rise5MinArr = new double[size];
         int i = 0;
         for (Sum value : dateSumMap.values()) {
             rise5MaxArr[i] = value.getRise5MaxAvg();
@@ -171,7 +167,7 @@ public class StrategyTmp {
 
         middle = CommonUtils.getMiddleNum(rise5MaxArr);
         minMiddle = CommonUtils.getMiddleNum(rise5MinArr);
-        dateCnt = dateSumMap.size();
+        dateCnt = size;
         detailCnt = detailIdArr.length;
     }
 

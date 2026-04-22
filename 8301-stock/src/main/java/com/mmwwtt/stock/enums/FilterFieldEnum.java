@@ -61,6 +61,27 @@ public enum FilterFieldEnum implements BaseEnum {
                     new Cond(13, 30, 0.052, 1.50))
     ),
 
+    RISE3_MIDDLE_30_DAY_1("rise3Middle30Day", "3日涨幅中位数(30天)",
+            13, 200,
+            Detail::getRise3,
+            Detail::getRise3Min,
+            StrategyL1::getRise3Middle,
+            StrategyL1::getRise3MinMiddle,
+            Arrays.asList(new Cond(), new Cond(),
+                    new Cond(2, 60, 0.008, 1.50),
+                    new Cond(3, 57, 0.013, 1.50),
+                    new Cond(4, 54, 0.018, 1.50),
+                    new Cond(5, 51, 0.023, 1.50),
+                    new Cond(6, 48, 0.028, 1.50),
+                    new Cond(7, 45, 0.033, 1.50),
+                    new Cond(8, 42, 0.038, 1.50),
+                    new Cond(9, 39, 0.040, 1.50),
+                    new Cond(10, 36, 0.043, 1.50),
+                    new Cond(11, 33, 0.046, 1.50),
+                    new Cond(12, 30, 0.049, 1.50),
+                    new Cond(13, 30, 0.052, 1.50))
+    ),
+
     RISE5_MIDDLE_30_DAY("rise5Middle30Day", "5日涨幅中位数(30天)",
             13, 200,
             Detail::getRise5,

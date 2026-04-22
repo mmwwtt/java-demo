@@ -354,7 +354,7 @@ public class CommonUtils {
                 Objects.isNull(list2) || list2.length == 0) {
             return ArrayUtils.EMPTY_INT_ARRAY;
         }
-        boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 5;
+        boolean isBig = Math.max(list1.length, list2.length) * 1.0 / Math.min(list1.length, list2.length) > 10;
         return isBig ? retainAllBinarySearch(list1, list2) : retainAllInOrder(list1, list2);
     }
 
@@ -405,7 +405,7 @@ public class CommonUtils {
         int arrIdx = 0;
         int longIdx = 0;
         for (int num1 : shortArr) {
-            int numForLongIdx = binSerarch(longArr, longIdx,num1);
+            int numForLongIdx = binSerarch(longArr, longIdx, num1);
             if (numForLongIdx >= 0) {
                 tmpArr[arrIdx] = num1;
                 arrIdx++;
