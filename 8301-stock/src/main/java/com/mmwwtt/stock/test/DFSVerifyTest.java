@@ -35,6 +35,7 @@ import static com.mmwwtt.stock.test.DFSTest.fieldEnum;
 
 /**
  * DFS结果验证
+ * arthas 耗时检测工具  需要用起来
  */
 @SpringBootTest
 @Slf4j
@@ -116,7 +117,7 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        String date = "20260422";
+        String date = "20260423";
         commonDataService.init();
         List<String> querySqlList = Arrays.asList(
                 " rise3_avg > 0.12",
@@ -127,8 +128,8 @@ public class DFSVerifyTest {
                 " rise3_avg > 0.07 and rise3_avg <= 0.08",
                 " rise3_avg > 0.06 and rise3_avg <= 0.07",
                 " rise3_avg > 0.05 and rise3_avg <= 0.06",
-                " rise3_avg > 0.04 and rise3_avg <= 0.05",
-                " rise3_avg > 0.03 and rise3_avg <= 0.04");
+                " rise3_avg > 0.04 and rise3_avg <= 0.05"
+        );
 
         List<String> strategySqlList = Arrays.asList(
                 " rise3_middle > 0.07",
@@ -157,7 +158,7 @@ public class DFSVerifyTest {
                             strategies.add(strategy);
                         }
                     }
-                    predict(date, strategies, sql, false, 1.2, fos);
+                    predict(date, strategies, sql,  1.5, fos);
                 }
 
 
@@ -167,7 +168,7 @@ public class DFSVerifyTest {
                 for (Strategy strategy : strategies) {
                     strategy.getStrategyCodeSet().addAll(List.of(strategy.getStrategyCode().split(" ")));
                 }
-                predict(date, strategies, sql, false, 1.2, fos);
+                predict(date, strategies, sql, 1.5, fos);
             }
         } catch (IOException ignored) {
         }
@@ -328,7 +329,7 @@ public class DFSVerifyTest {
      * 预测明日股票
      */
     public void predict(String curDate, List<Strategy> strategys, String sql,
-                        boolean isOnTime, double quantityMult, FileOutputStream fos) throws InterruptedException, ExecutionException, IOException {
+                        double quantityMult, FileOutputStream fos) throws InterruptedException, ExecutionException, IOException {
         Map<Strategy, List<String>> strategyToStockMap = new ConcurrentHashMap<>();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         Map<String, Detail> codeToDetailMap = detailService.getCodeToCurDetailMap(curDate);
@@ -343,9 +344,7 @@ public class DFSVerifyTest {
                                 || Objects.isNull(detail.getT5().getSixtyDayLine()) || moreThan(detail.getRise0(), 0.097)) {
                             continue;
                         }
-                        if (isOnTime) {
-                            detail.setDealQuantity(multiply(detail.getDealQuantity(), quantityMult));
-                        }
+                        detail.setDealQuantity(multiply(detail.getDealQuantity(), quantityMult));
                         boolean res = filterFuncs.stream().allMatch(item -> item.apply(detail));
                         if (res) {
                             double pert = detail.getRise0() != null ? detail.getRise0() : 0;

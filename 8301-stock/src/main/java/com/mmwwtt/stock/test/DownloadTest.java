@@ -90,6 +90,12 @@ public class DownloadTest {
     }
 
     @Test
+    @DisplayName("集成当日的数据  全量")
+    public void buildCurDateDetailAll() throws ExecutionException, InterruptedException {
+        downDetailOnTimeAll();
+    }
+
+    @Test
     @DisplayName("集成当日的数据")
     public void buildCurDateDetail() throws ExecutionException, InterruptedException {
         downDetailOnTime();
@@ -99,7 +105,7 @@ public class DownloadTest {
     @DisplayName("增量集成指定日期的数据 左闭右闭")
     public void buildDateDetail() throws ExecutionException, InterruptedException {
         //downDetail("20260409", "20260409");
-        downDetail("20260406", NOW_DATA);
+        downDetail("20260415", NOW_DATA);
         commonDataService.init();
         buildStrategyL1();
     }
@@ -234,10 +240,10 @@ public class DownloadTest {
     /**
      * 获取今天最新的详情数据
      */
-    public void downDetailOnTime() throws InterruptedException, ExecutionException {
+    public void downDetailOnTimeAll() throws InterruptedException, ExecutionException {
         Map<String, String> map1 = new HashMap<>();
         map1.put(LICENCE, BI_YING_LICENCE);
-        List<DetailOnTimeVO> detailVOS = getResponse(ON_TIME_DATA_URL, map1, new ParameterizedTypeReference<List<DetailOnTimeVO>>() {
+        List<DetailOnTimeVO> detailVOS = getResponse(ON_TIME_DATA_All_URL, map1, new ParameterizedTypeReference<List<DetailOnTimeVO>>() {
         });
         List<Detail> details = voConvert.convertToDetailList(detailVOS);
         List<List<Detail>> parts = Lists.partition(details, 50);
@@ -321,5 +327,49 @@ public class DownloadTest {
                 && !stock.getName().contains("ST")).toList();
         stockService.saveBatch(stockList);
         log.info("下载股票列表数据 end");
+    }
+
+
+    public void downDetailOnTime() throws InterruptedException, ExecutionException {
+        List<Stock> stockList = stockService.list();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        List<List<Stock>> parts = Lists.partition(stockList, 50);
+        for (List<Stock> part : parts) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                for (Stock stock : part) {
+                    Map<String, String> map1 = new HashMap<>();
+                    map1.put(LICENCE, BI_YING_LICENCE);
+                    map1.put(STOCK_CODE, stock.getCode());
+                    log.info("获取详情数据-{}", stock.getCode());
+                    DetailOnTimeVO detailOnTimeVO = getResponse(ON_TIME_DATA_URL, map1, new ParameterizedTypeReference<DetailOnTimeVO>() {
+                    });
+
+                    String stockCode = stock.getCode();
+
+                    Detail detail = voConvert.convertToDetail(detailOnTimeVO);
+                    detail.setStockCode(stockCode);
+
+                    QueryWrapper<Detail> delWrapper = new QueryWrapper<>();
+                    delWrapper.eq("stock_code", stock.getCode());
+                    delWrapper.eq("deal_date", detail.getDealDate());
+                    detailService.remove(delWrapper);
+
+                    QueryWrapper<Detail> wrapper = new QueryWrapper<>();
+                    wrapper.eq("stock_code", stock.getCode());
+                    List<Detail> source = detailService.list(wrapper);
+                    source.add(detail);
+
+                    source.sort(Comparator.comparing(Detail::getDealDate).reversed());
+                    source.forEach(item -> item.calc());
+                    Detail.calc(source);
+
+                    detailService.saveBatch(source.stream().filter(item -> Objects.isNull(item.getDetailId())).toList());
+                    detailService.updateBatchById(source.stream().filter(item -> Objects.nonNull(item.getDetailId())).toList());
+                }
+            }, ioThreadPool);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        log.info("下载股票详细数据  end \n\n\n");
     }
 }
