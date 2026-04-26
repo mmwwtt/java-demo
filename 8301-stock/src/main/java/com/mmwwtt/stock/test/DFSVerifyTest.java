@@ -117,7 +117,7 @@ public class DFSVerifyTest {
     @Test
     @DisplayName("根据策略预测")
     public void predict() throws InterruptedException, ExecutionException {
-        String date = "20260423";
+        String date = "20260424";
         commonDataService.init();
         List<String> querySqlList = Arrays.asList(
                 " rise3_avg > 0.12",

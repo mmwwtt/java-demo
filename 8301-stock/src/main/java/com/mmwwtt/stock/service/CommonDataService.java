@@ -430,9 +430,9 @@ public class CommonDataService {
                 int batch = values.size() / 16;
                 int[] idxArr = new int[]{0, batch, batch * 2, batch * 3, batch * 4, batch * 4, batch * 6, batch * 7,
                         batch * 8, batch * 9, batch * 10, batch * 11, batch * 12, batch * 13, batch * 14, batch * 15, values.size() - 1};
-                for (int i = 0; i < idxArr.length - 2; i++) {
+                for (int i = 0; i < idxArr.length - 1; i++) {
                     double left = values.get(idxArr[i]);
-                    double right = values.get(idxArr[i + 2]);
+                    double right = values.get(idxArr[i + 1]);
                     String desc = String.format("%s_%.3f_%.3f", fieldName, left, right);
                     String finalTypeKey = (typeKey == null || typeKey.isBlank()) ? fieldName : typeKey;
                     Function<Detail, Boolean> filterFunc = d -> isInRange(getter.apply(d), left, right);
