@@ -47,7 +47,7 @@ import static com.mmwwtt.stock.service.CommonDataService.*;
  */
 @SpringBootTest
 @Slf4j
-public class DownloadTest {
+public class DfsDownloadTest {
 
     @Resource
     private StockServiceImpl stockService;

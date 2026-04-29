@@ -238,3 +238,13 @@ CREATE TABLE query_t
     other_weight_data    VARCHAR(5000) COMMENT '每日的预测结果(加权后)',
     field_enum_code      VARCHAR(200) COMMENT '过滤枚举编码'
 ) COMMENT '策略结果表';
+
+DROP TABLE IF EXISTS finance_t;
+CREATE TABLE finance_t
+(
+    finance_id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    stock_code VARCHAR(10) COMMENT '股票编码',
+    date       INT(4) comment '日期',
+    finance    INT(16) COMMENT '当天融资融券净买入',
+    remain     INT(16) COMMENT '融资融券余额'
+) COMMENT '融资融券数据表';
