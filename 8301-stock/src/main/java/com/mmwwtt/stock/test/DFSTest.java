@@ -55,8 +55,6 @@ public class DFSTest {
     private CommonDataService commonDataService;
 
     private final ThreadPoolExecutor cpuThreadPool = GlobalThreadPool.getCpuThreadPool();
-    private final ExecutorService singleThreadPool = GlobalThreadPool.singleThreadPool;
-    private final ThreadPoolExecutor size2ThreadPool = GlobalThreadPool.getSize2ThreadPool();
     /**
      * 收集待保存的 StrategyWin，批量写入减少 DB 往返
      */

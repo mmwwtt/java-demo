@@ -41,12 +41,12 @@ public class Constants {
     /**
      * 开始日期
      */
-    public static final String START_DATA = "startData";
+    public static final String START_DATE = "startDate";
 
     /**
      * 结束日期
      */
-    public static final String END_DATA = "endData";
+    public static final String END_DATE = "endDate";
 
     /**
      * 必盈的通行证licence

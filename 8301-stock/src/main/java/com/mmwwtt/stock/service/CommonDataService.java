@@ -203,7 +203,7 @@ public class CommonDataService {
                     return moreThan(t0.getHighPrice(), t0.getSixtyDayLine()) && lessThan(t0.getLowPrice(), t0.getSixtyDayLine())
                             && lessThan(t1.getHighPrice(), t1.getSixtyDayLine()) && lessThan(t2.getHighPrice(), t2.getSixtyDayLine())
                             && lessThan(t3.getHighPrice(), t3.getSixtyDayLine()) && lessThan(t4.getHighPrice(), t4.getSixtyDayLine())
-                            && lessThan(t4.getHighPrice(), t5.getSixtyDayLine());
+                            && lessThan(t5.getHighPrice(), t5.getSixtyDayLine());
                 }),
 
                 // 下穿过: 前3天持续在均线上方，避免今天上穿明天下穿的反复跳动
@@ -428,7 +428,7 @@ public class CommonDataService {
                         .sorted()
                         .toList();
                 int batch = values.size() / 16;
-                int[] idxArr = new int[]{0, batch, batch * 2, batch * 3, batch * 4, batch * 4, batch * 6, batch * 7,
+                int[] idxArr = new int[]{0, batch, batch * 2, batch * 3, batch * 4, batch * 5, batch * 6, batch * 7,
                         batch * 8, batch * 9, batch * 10, batch * 11, batch * 12, batch * 13, batch * 14, batch * 15, values.size() - 1};
                 for (int i = 0; i < idxArr.length - 1; i++) {
                     double left = values.get(idxArr[i]);

@@ -405,7 +405,7 @@ public class CommonUtils {
         int arrIdx = 0;
         int longIdx = 0;
         for (int num1 : shortArr) {
-            int numForLongIdx = binSerarch(longArr, longIdx, num1);
+            int numForLongIdx = binSearch(longArr, longIdx, num1);
             if (numForLongIdx >= 0) {
                 tmpArr[arrIdx] = num1;
                 arrIdx++;
@@ -455,7 +455,7 @@ public class CommonUtils {
         return retainArr.length * 1.0 / unionSet.size();
     }
 
-    public static int binSerarch(int[] arr, int start_idx, int num) {
+    public static int binSearch(int[] arr, int start_idx, int num) {
         // 边界检查：如果数组为空，或者起始位置不合法
         if (arr == null || start_idx < 0 || start_idx >= arr.length) {
             return -1;

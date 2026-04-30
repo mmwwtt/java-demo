@@ -3,7 +3,6 @@ package com.mmwwtt.stock.test;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mmwwtt.stock.entity.Finance;
 import com.mmwwtt.stock.service.impl.FinanceServiceImpl;
-import com.mmwwtt.stock.service.interfaces.FinanceService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
@@ -27,7 +26,7 @@ public class FinanceDownTest {
     private FinanceServiceImpl financeService;
 
     @Test
-    public void downFinanc() {
+    public void downFinance() {
 
         financeService.remove(new QueryWrapper<>());
         System.setProperty("webdriver.chrome.driver", "D:\\1.moweitao\\1.java\\chromedriver.exe");

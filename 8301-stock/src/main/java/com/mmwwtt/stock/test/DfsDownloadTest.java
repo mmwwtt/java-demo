@@ -80,13 +80,13 @@ public class DfsDownloadTest {
     /**
      * 今天的日期
      */
-    private static final String NOW_DATA;
+    private static final String NOW_DATE;
 
     private final VoConvert voConvert = VoConvert.INSTANCE;
 
     static {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        NOW_DATA = LocalDate.now().format(formatter);
+        NOW_DATE = LocalDate.now().format(formatter);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class DfsDownloadTest {
     @DisplayName("增量集成指定日期的数据 左闭右闭")
     public void buildDateDetail() throws ExecutionException, InterruptedException {
         //downDetail("20260409", "20260409");
-        downDetail("20260415", NOW_DATA);
+        downDetail("20260415", NOW_DATE);
         commonDataService.init();
         buildStrategyL1();
     }
@@ -126,7 +126,7 @@ public class DfsDownloadTest {
         log.info("开始生成L1层策略");
         commonDataService.init();
         strategyL1Service.remove(new QueryWrapper<>());
-        List<StrategyL1> allBaseL1 = CommonDataService.getAllBaseL1s();
+        List<StrategyL1> allBaseL1 = Collections.synchronizedList(CommonDataService.getAllBaseL1s());
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (StrategyL1 strategyL1 : allBaseL1) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
@@ -173,13 +173,13 @@ public class DfsDownloadTest {
      * 获取2025以来的数据
      */
     public void downDetail() throws ExecutionException, InterruptedException {
-        downDetail("20250101", NOW_DATA);
+        downDetail("20250101", NOW_DATE);
     }
 
     /**
      * 获取日期区间的详情数据
      */
-    public void downDetail(String startData, String endData) throws InterruptedException, ExecutionException {
+    public void downDetail(String startDate, String endDate) throws InterruptedException, ExecutionException {
         List<Stock> stockList = stockService.list();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<List<Stock>> parts = Lists.partition(stockList, 50);
@@ -191,8 +191,8 @@ public class DfsDownloadTest {
                     map1.put(STOCK_CODE, stock.getCode());
                     map1.put(TIME_LEVEL, TimeLevelEnum.DAY.getCode());
                     map1.put(EXCLUDE_RIGHT, ExcludeRightEnum.NONE.getCode());
-                    map1.put(START_DATA, startData);
-                    map1.put(END_DATA, endData);
+                    map1.put(START_DATE, startDate);
+                    map1.put(END_DATE, endDate);
                     map1.put(MAX_SIZE, "500");
                     log.info("获取详情数据-{}", stock.getCode());
                     List<DetailVO> detailVOS = getResponse(HISTORY_DATA_URL, map1, new ParameterizedTypeReference<List<DetailVO>>() {

@@ -9,12 +9,6 @@ import java.util.concurrent.*;
  */
 @Data
 public class GlobalThreadPool {
-    //定义指定的线程池
-    public static final ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
-    public static final ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
-    public static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(8);
-    public static final ExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(100);
-
     //服务器的CPU核数
     private static final int CPU_CORE_SIZE = Runtime.getRuntime().availableProcessors();
 
@@ -59,26 +53,6 @@ public class GlobalThreadPool {
             }
         }
         return cpuThreadPool;
-    }
-
-    // 获取线程池实例的静态方法，用双重校验的单例模式
-    public static ThreadPoolExecutor getSize2ThreadPool() {
-        if (size2ThreadPool == null) {
-            synchronized (GlobalThreadPool.class) {
-                if (size2ThreadPool == null) {
-                    size2ThreadPool = new ThreadPoolExecutor(
-                            2,
-                            2,
-                            KEEP_ALIVE_TIME,
-                            UNIT,
-                            WORK_QUEUE,
-                            new ThreadPoolExecutor.AbortPolicy()
-                    );
-                    size2ThreadPool.allowCoreThreadTimeOut(true);
-                }
-            }
-        }
-        return size2ThreadPool;
     }
 
     // 获取线程池实例的静态方法，用双重校验的单例模式
